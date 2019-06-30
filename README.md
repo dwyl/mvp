@@ -17,29 +17,33 @@ and share it with the world!
 
 # _What_?
 
-A hybrid list management and activity (time) tracking App.
-If this sounds like a
+A _hybrid_ list management and activity (time) tracking tool.
+If this sounds like a _terrible_ idea to you, please just ignore this repo.
 
 
 # _How_?
+
+
+## Schema
 
 If naming things is [hard](https://martinfowler.com/bliki/TwoHardThings.html),
 choosing names for schemas/fields is _extra difficult_,
 because once APIs are defined they can be a _mission_ to modify
 because they "_break_" _everything_!
 We have been thinking about,
-researching and
+researching and iterating on this idea for a _long_ time.
 
 
 + `list`<sup>1</sup> - a collection of items
-  + `id`: `String` - a Globally Unique [ContentID](https://github.com/dwyl/cid)
+  + `id`: `Int` - we will make this a
+  a Globally Unique [ContentID](https://github.com/dwyl/cid) when needed.
   + `kind`<sup>1</sup>: `Enum` - , "checklist", "reading", "shopping",
     (_we will add to this list of types as required_)
   + `order`: `Enum` - "alpha", "date", "priority", "unordered"
-  + `text`: `String` - "Alex's Todo List"
+  + `title`: `String` - "Alex's Todo List"
 
 
-+ `list_kinds` - the _types_<sup>2</sup> of list that can be created
++ `list_kind` - the _types_<sup>2</sup> of list that can be created
   + `id`: `Int`
   + `name`: `String` - examples:
     + "task"
@@ -48,34 +52,49 @@ researching and
     + "shopping"
     + "exercise"
 
+The "kinds" of list will be crowd-sourced but will need to be curated
+to avoid duplication and noise. For now we only need "task".
 
 
 + `list_items`
-  + `item_id`
-  + `list_id`
+  + `item_id` (FK item.id)
+  + `list_id` (FK list.id)
   + `inserted_at`
+
 
 + `item` - a basic unit of content
   + `id`: `Int`
-  + `kind`: `Enum` - "note", "task"
+  + `inserted_at`
+  + `updated_at`
+  + `kind`: `Enum` - "note", "task", ""
   + `text`: `String`
 
-+ `item_timers`
 
-+ `timer`
++ `link` -
   + `id`: `Int`
+  + `url`: `String`
+  + `item_id` (FK item.id)
 
 
-+ `event` -
++ `timer` - a timer attached to an item. an item can have multiple timers.
   + `id`: `Int`
+  + `item_id` (FK item.id)
   + `start`: `NaiveDateTime`
   + `end`: `NaiveDateTime`
 
-+ `item_event` -
-  + `item_id`
-  + `event_id`
 
-<sup>1</sup> The word "list" is meaningful in many programming languages.
++ `event` - when an item has dates & times associated,
+  + `id`: `Int`
+  + `item_id` (FK item.id)
+  + `start`: `NaiveDateTime`
+  + `end`: `NaiveDateTime`
+
+
+<sup>1</sup> The word "list" is meaningful in many programming languages. <br />
++ Elm: https://package.elm-lang.org/packages/elm/core/latest/List
++ Elixir: https://hexdocs.pm/elixir/List.html
++ Python: https://docs.python.org/3/tutorial/datastructures.html
++ etc.
 We have chosen to use it as it's also the most obvious word in _english_.
 
 <sup>2</sup> We expect people to define their own kinds of lists
