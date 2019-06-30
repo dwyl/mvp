@@ -23,6 +23,11 @@ If this sounds like a _terrible_ idea to you, please just ignore this repo.
 
 # _How_?
 
+As always,
+our goal is to document as much of the implementation as possible,
+so that _anyone_ can follow along as reasonably easily.
+
+
 
 ## Schema
 
@@ -52,9 +57,6 @@ researching and iterating on this idea for a _long_ time.
     + "shopping"
     + "exercise"
 
-The "kinds" of list will be crowd-sourced but will need to be curated
-to avoid duplication and noise. For now we only need "task".
-
 
 + `list_items`
   + `item_id` (FK item.id)
@@ -68,12 +70,6 @@ to avoid duplication and noise. For now we only need "task".
   + `updated_at`
   + `kind`: `Enum` - "note", "task", ""
   + `text`: `String`
-
-
-+ `link` -
-  + `id`: `Int`
-  + `url`: `String`
-  + `item_id` (FK item.id)
 
 
 + `timer` - a timer attached to an item. an item can have multiple timers.
@@ -98,6 +94,9 @@ to avoid duplication and noise. For now we only need "task".
 We have chosen to use it as it's also the most obvious word in _english_.
 
 <sup>2</sup> We expect people to define their own kinds of lists
+The UI will encourage people to create their own "kind"
+and these will be curated to avoid duplication and noise.
+For now we only need "task" list to get our "timer" working. <br />
 Research kinds of list:
 + Types<sup>2</sup> of lists:
 https://gist.github.com/shazow/2467329/f79c169b49831057c4ec705910c4e11df043e768
