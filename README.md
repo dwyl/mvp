@@ -5,7 +5,7 @@ A `Elixir`/`Phoenix` implementation of the Time MVP feature set.
 # Why?
 
 Our objective with this MVP
-is to build the minimal useable App,
+is to build the minimal useable App
 that is well-documented, tested
 and easy for a _beginner_ to understand.
 
@@ -17,9 +17,18 @@ and share it with the world!
 
 # _What_?
 
-A _hybrid_ list management and activity (time) tracking tool.
-If this sounds like a _terrible_ idea to you, please just ignore this repo.
+A _hybrid_ list management
+and activity (time) tracking tool. <br />
+If this sounds like a _terrible_ idea to you,
+please just ignore this repo.
 
+“_If At First the Idea Is Not Absurd,
+Then There Is No Hope for It_”
+~ [Albert Einstein](https://www.goodreads.com/quotes/110518-if-at-first-the-idea-is-not-absurd-then-there)
+
+We have found it _tedious_ to use two _separate_ apps
+for task and time tracking
+and think it's _logical_ to _combine_ the functionality.
 
 # _How_?
 
@@ -27,35 +36,52 @@ As always,
 our goal is to document as much of the implementation as possible,
 so that _anyone_ can follow along as reasonably easily.
 
+If naming things is [hard](https://martinfowler.com/bliki/TwoHardThings.html),
+choosing names for schemas/fields is _extra difficult_,
+because once APIs are defined they can be a _mission_ to modify
+because changing APIs "_breaks_" _everything_!
+We have been thinking about,
+researching and iterating on this idea for a _long_ time.
+Hopefully it will be obvious to everyone _why_
+a certain field is named the way it is,
+but if not, please open an issue/question to seek clarification.
+
 
 
 ## Schema
 
-If naming things is [hard](https://martinfowler.com/bliki/TwoHardThings.html),
-choosing names for schemas/fields is _extra difficult_,
-because once APIs are defined they can be a _mission_ to modify
-because they "_break_" _everything_!
-We have been thinking about,
-researching and iterating on this idea for a _long_ time.
+
+
++ `item` - a basic unit of content.
+  + `id`: `Int`
+  + `inserted_at`
+  + `updated_at`
+  + `kind`: `Enum` - "note", "task",
+    ["reminder"](https://github.com/nelsonic/time-mvp-phoenix/issues/5),
+    ["link"](https://github.com/nelsonic/time-mvp-phoenix/issues/4),
+    "quote"
+  + `text`: `String`
 
 
 + `list`<sup>1</sup> - a collection of items
   + `id`: `Int` - we will make this a
   a Globally Unique [ContentID](https://github.com/dwyl/cid) when needed.
-  + `kind`<sup>1</sup>: `Enum` - , "checklist", "reading", "shopping",
+  + `kind`<sup>1</sup>: (FK list_kind.id)
     (_we will add to this list of types as required_)
   + `order`: `Enum` - "alpha", "date", "priority", "unordered"
   + `title`: `String` - "Alex's Todo List"
 
 
-+ `list_kind` - the _types_<sup>2</sup> of list that can be created
++ `list_kind` - the _kinds_<sup>2</sup> of list that can be created
   + `id`: `Int`
+  + `inserted_at`
   + `name`: `String` - examples:
     + "task"
     + "checklist"
     + "reading"
     + "shopping"
     + "exercise"
+    + "memo" - https://en.wikipedia.org/wiki/Memorandum
 
 
 + `list_items`
@@ -64,26 +90,13 @@ researching and iterating on this idea for a _long_ time.
   + `inserted_at`
 
 
-+ `item` - a basic unit of content
-  + `id`: `Int`
-  + `inserted_at`
-  + `updated_at`
-  + `kind`: `Enum` - "note", "task", ""
-  + `text`: `String`
-
-
 + `timer` - a timer attached to an item. an item can have multiple timers.
   + `id`: `Int`
+  + `inserted_at`
   + `item_id` (FK item.id)
-  + `start`: `NaiveDateTime`
-  + `end`: `NaiveDateTime`
+  + `start`: `NaiveDateTime` - time started on device
+  + `end`: `NaiveDateTime` - time ended on device
 
-
-+ `event` - when an item has dates & times associated,
-  + `id`: `Int`
-  + `item_id` (FK item.id)
-  + `start`: `NaiveDateTime`
-  + `end`: `NaiveDateTime`
 
 
 <sup>1</sup> The word "list" is meaningful in many programming languages. <br />
@@ -92,6 +105,7 @@ researching and iterating on this idea for a _long_ time.
 + Python: https://docs.python.org/3/tutorial/datastructures.html
 + etc.
 We have chosen to use it as it's also the most obvious word in _english_.
+There is no
 
 <sup>2</sup> We expect people to define their own kinds of lists
 The UI will encourage people to create their own "kind"
