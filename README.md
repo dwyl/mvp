@@ -38,7 +38,8 @@ so that _anyone_ can follow along as reasonably easily.
 
 If naming things is [hard](https://martinfowler.com/bliki/TwoHardThings.html),
 choosing names for schemas/fields is _extra difficult_,
-because once APIs are defined they can be a _mission_ to modify
+because once APIs are defined
+it can be a _mission_ to modify them
 because changing APIs "_breaks_" _everything_!
 We have been thinking about,
 researching and iterating on this idea for a _long_ time.
@@ -56,32 +57,43 @@ but if not, please open an issue/question to seek clarification.
   + `id`: `Int`
   + `inserted_at`
   + `updated_at`
-  + `kind`: `Enum` - "note", "task",
-    ["reminder"](https://github.com/nelsonic/time-mvp-phoenix/issues/5),
-    ["link"](https://github.com/nelsonic/time-mvp-phoenix/issues/4),
-    "quote"
   + `text`: `String`
+  + `kind`<sup>1</sup>: `Int` (**FK** `kind.id`)
+  + `status`: `Int` (**FK** `status.id`)
 
 
-+ `list`<sup>1</sup> - a collection of items
-  + `id`: `Int` - we will make this a
-  a Globally Unique [ContentID](https://github.com/dwyl/cid) when needed.
-  + `kind`<sup>1</sup>: (FK list_kind.id)
-    (_we will add to this list of types as required_)
-  + `order`: `Enum` - "alpha", "date", "priority", "unordered"
-  + `title`: `String` - "Alex's Todo List"
-
-
-+ `list_kind` - the _kinds_<sup>2</sup> of list that can be created
++ `kind` - the _kinds_<sup>2</sup> of `item` or `list` that can be created
   + `id`: `Int`
   + `inserted_at`
-  + `name`: `String` - examples:
+  + `text`: `String` - examples:
+    + "note"
     + "task"
     + "checklist"
     + "reading"
     + "shopping"
     + "exercise"
+    + ["reminder"](https://github.com/nelsonic/time-mvp-phoenix/issues/5)
+    + ["link"](https://github.com/nelsonic/time-mvp-phoenix/issues/4)
+    + "quote"
     + "memo" - https://en.wikipedia.org/wiki/Memorandum
+    + "image" - a link to an image stored on a file system
+
+
++ `status` - the status of an item or list of items
+  + `id`: `Int`
+  + `text`: `String` - examples:
+    + "open"
+    + "complete"
+    + [etc.](https://github.com/dwyl/checklist/pull/3/files#diff-597edb4596faa11c05c29c0d3a8cf94a)
+
+
++ `list`<sup>1</sup> - a collection of items
+  + `id`: `Int` - we will make this a
+  a Globally Unique [ContentID](https://github.com/dwyl/cid) when needed.
+  + `kind`<sup>1</sup>: `Int` (**FK** `kind.id`)
+
+  + `order`: `Enum` - "alpha", "date", "priority", "unordered"
+  + `title`: `String` - "Alex's Todo List"
 
 
 + `list_items`
@@ -97,25 +109,32 @@ but if not, please open an issue/question to seek clarification.
   + `start`: `NaiveDateTime` - time started on device
   + `end`: `NaiveDateTime` - time ended on device
 
+## Notes
 
+<sup>1</sup>
+A "list" is a way of grouping items of content.
+An "essay" or "blog post" is a list of notes.
+A "task list" (_or "todo list" if you prefer_) is a list of tasks.
 
-<sup>1</sup> The word "list" is meaningful in many programming languages. <br />
+We are well aware that the word "list"
+is meaningful in many programming languages. <br />
 + Elm: https://package.elm-lang.org/packages/elm/core/latest/List
 + Elixir: https://hexdocs.pm/elixir/List.html
 + Python: https://docs.python.org/3/tutorial/datastructures.html
 + etc.
-We have chosen to use it as it's also the most obvious word in _english_.
-There is no
+
+We have chosen to use "list" as it's the most obvious word in _english_.
+There is no suitable synonym:
+https://www.thesaurus.com/browse/list
 
 <sup>2</sup> We expect people to define their own kinds of lists
 The UI will encourage people to create their own "kind"
 and these will be curated to avoid duplication and noise.
 For now we only need "task" list to get our "timer" working. <br />
 Research kinds of list:
-+ Types<sup>2</sup> of lists:
++ Types<sup>3</sup> of lists:
 https://gist.github.com/shazow/2467329/f79c169b49831057c4ec705910c4e11df043e768
 + https://www.lifehack.org/articles/featured/12-lists-that-help-you-get-things-done.html
-
 
 <sup>3</sup> We cannot use the word "type" as a field name,
 because it will be confusing in programming languages
@@ -131,7 +150,7 @@ e.g: <br />
 **Q**: "What kind of list is it?" <br />
 **A**: "It is a shopping list." <br />
 
-**Note**: while "kind" is a term in Type Theory,
+While "kind" is a term in Type Theory,
 see: https://en.wikipedia.org/wiki/Kind_(type_theory) <br />
 it is _not_ a reserved word in any of the programming languages we know/use:
 + HTML: https://developer.mozilla.org/en-US/docs/Web/HTML/Element
