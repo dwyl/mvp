@@ -53,9 +53,14 @@ all records in the database therefore we want
 [`phx.gen.html`](https://hexdocs.pm/phoenix/Mix.Tasks.Phx.Gen.Html.html)
 with views,
 
-```
+We will need to add `human_id` to `kinds` and `status` _after_
+the human schema has been created humans references kinds and status
+(_i.e. there is a circular reference_).
 
-mix phx.gen.html Person people email:binary email_hash:binary name:binary password_hash:binary key_id:integer --no-context
+```
+mix phx.gen.html Kind kinds text:string --no-context
+mix phx.gen.html Status status text:string --no-context
+mix phx.gen.html Human humans email:binary email_hash:binary name:binary password_hash:binary key_id:integer --no-context
 ```
 
 
@@ -124,6 +129,8 @@ mix phx.gen.html Person people email:binary email_hash:binary name:binary passwo
     + "complete"
     + [etc.](https://github.com/dwyl/checklist/pull/3/files#diff-597edb4596faa11c05c29c0d3a8cf94a)
 
+> Plural form of "status" is "status":
+https://english.stackexchange.com/questions/877/what-is-plural-form-of-status
 
 + `list`<sup>3</sup> - a collection of items
   + `id`: `Int`<sup>1</sup>
