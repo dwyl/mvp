@@ -82,10 +82,9 @@ to ensure that a human has ownership over those records.
 
 
 ```sh
-mix ecto.gen.migration add_human_id_to_kind ...
+mix ecto.gen.migration add_human_id_to_kind
 ```
 
-temp detour to re-read the book: https://github.com/nelsonic/practice/issues/55
 
 
 ## Schema
