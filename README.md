@@ -265,14 +265,13 @@ ER Diagram With the `human_id` field added to the `kinds` and `status`:
 
 
 
-
 Now we need to associate `items` to `lists`.
 
 ```
 mix ecto.gen.migration create_list_items_association
 ```
 
-
+![dwyl-time-app-er-diagram-list_items](https://user-images.githubusercontent.com/194400/61175870-b8830e80-a5ae-11e9-9e9b-1477ba3b5aa5.png)
 
 
 
