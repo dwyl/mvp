@@ -20,6 +20,9 @@ defmodule AppWeb.Router do
     resources "/kinds", KindController
     resources "/status", StatusController
     resources "/humans", HumanController
+    resources "/items", ItemController
+    resources "/lists", ListController
+    
   end
 
   # Other scopes may use custom stacks.
