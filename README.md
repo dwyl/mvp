@@ -53,38 +53,6 @@ all records in the database therefore we want
 [`phx.gen.html`](https://hexdocs.pm/phoenix/Mix.Tasks.Phx.Gen.Html.html)
 with views, so that we get "free" UI for creating/updating the data.
 
-We will need to add `human_id` to `kinds` and `status` _after_
-the human schema has been created humans references kinds and status
-(_i.e. there is a circular reference_).
-
-
-This is the order in which the schemas need to be created
-so that related tables can reference it.
-For example: Humans references Kinds and Status
-so those need to be created first.
-
-```
-mix phx.gen.html Ctx Kind kinds text:string
-mix phx.gen.html Ctx Status status text:string
-mix phx.gen.html Ctx Human humans username:binary username_hash:binary email:binary email_hash:binary firstname:binary lastname:binary password_hash:binary key_id:integer status:references:status kind:references:kinds
-mix phx.gen.html Ctx Item items text:string human_id:references:humans status:references:status kind:references:kinds
-mix phx.gen.html Ctx List lists title:string human_id:references:humans status:references:status kind:references:kinds
-mix phx.gen.html Ctx Timer timers item_id:references:items start:naive_datetime end:naive_datetime human_id:references:humans
-```
-
-After running these `phx.gen` commands,
-we have the following Entity Relationship (ER) diagram:
-
-![dwyl-time-app-er-diagram](https://user-images.githubusercontent.com/194400/61172126-44c60f00-a578-11e9-892f-bf62d97bbffa.png)
-
-We now need to add `human_id` to `kinds` and `status`
-to ensure that a human has ownership over those records.
-
-
-```sh
-mix ecto.gen.migration add_human_id_to_kind
-```
-
 
 
 ## Schema
@@ -247,6 +215,66 @@ https://en.wikipedia.org/wiki/Esoteric_programming_language
 or non-english programming languages
 https://en.wikipedia.org/wiki/Non-English-based_programming_languages
 because an exhaustive search is impractical.
+
+
+## _Create_ Schemas
+
+
+We will need to add `human_id` to `kinds` and `status` _after_
+the human schema has been created humans references kinds and status
+(_i.e. there is a circular reference_).
+
+
+This is the order in which the schemas need to be created
+so that related tables can reference it.
+For example: Humans references Kinds and Status
+so those need to be created first.
+
+```
+mix phx.gen.html Ctx Kind kinds text:string
+mix phx.gen.html Ctx Status status text:string
+mix phx.gen.html Ctx Human humans username:binary username_hash:binary email:binary email_hash:binary firstname:binary lastname:binary password_hash:binary key_id:integer status:references:status kind:references:kinds
+mix phx.gen.html Ctx Item items text:string human_id:references:humans status:references:status kind:references:kinds
+mix phx.gen.html Ctx List lists title:string human_id:references:humans status:references:status kind:references:kinds
+mix phx.gen.html Ctx Timer timers item_id:references:items start:naive_datetime end:naive_datetime human_id:references:humans
+```
+
+After running these `phx.gen` commands,
+we have the following Entity Relationship (ER) diagram:
+
+![dwyl-time-app-er-diagram](https://user-images.githubusercontent.com/194400/61172126-44c60f00-a578-11e9-892f-bf62d97bbffa.png)
+
+We now need to add `human_id` to `kinds` and `status`
+to ensure that a human has ownership over those records.
+
+
+```sh
+mix ecto.gen.migration add_human_id_to_kind
+mix ecto.gen.migration add_human_id_to_status
+```
+
+Code additions:
++ Add `human_id` to `kinds`:
+https://github.com/nelsonic/time-mvp-phoenix/commit/11edd9f6532cfc3df33075bc0356955d041443d9
++ Add `human_id` to `status`:
+https://github.com/nelsonic/time-mvp-phoenix/commit/efe6c14bc3a1a3c3c3684fa8e187e1e441934efb
+
+ER Diagram With the `human_id` field added to the `kinds` and `status`:
+
+![dwyl-time-app-er-diagram-human_id-status-kind](https://user-images.githubusercontent.com/194400/61175388-69d17680-a5a6-11e9-97e4-06e82a55bd6c.png)
+
+
+
+
+
+Now we need to associate `items` to `lists`.
+
+```
+mix ecto.gen.migration create_list_items_association
+```
+
+
+
 
 
 
