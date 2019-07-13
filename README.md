@@ -67,7 +67,7 @@ mix phx.gen.html Ctx Status status text:string
 mix phx.gen.html Ctx Human humans username:binary username_hash:binary email:binary email_hash:binary firstname:binary lastname:binary password_hash:binary key_id:integer status:references:status kind:references:kinds
 mix phx.gen.html Ctx Item items text:string human_id:references:humans status:references:status kind:references:kinds
 mix phx.gen.html Ctx List lists title:string human_id:references:humans status:references:status kind:references:kinds
-mix phx.gen.html Ctx Timer timers item_id:references:items start:naive_datetime end:naive_datetime human_id:references:humans status:references:status kind:references:kinds
+mix phx.gen.html Ctx Timer timers item_id:references:items start:naive_datetime end:naive_datetime human_id:references:humans
 ```
 
 
