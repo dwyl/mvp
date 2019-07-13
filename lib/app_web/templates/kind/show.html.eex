@@ -1,0 +1,13 @@
+<h1>Show Kind</h1>
+
+<ul>
+
+  <li>
+    <strong>Text:</strong>
+    <%= @kind.text %>
+  </li>
+
+</ul>
+
+<span><%= link "Edit", to: Routes.kind_path(@conn, :edit, @kind) %></span>
+<span><%= link "Back", to: Routes.kind_path(@conn, :index) %></span>

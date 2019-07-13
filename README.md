@@ -57,14 +57,23 @@ We will need to add `human_id` to `kinds` and `status` _after_
 the human schema has been created humans references kinds and status
 (_i.e. there is a circular reference_).
 
+
+This is the order in which the schemas need to be created
+so that
+
 ```
-mix phx.gen.html Kind kinds text:string --no-context
-mix phx.gen.html Status status text:string --no-context
-mix phx.gen.html Human humans email:binary email_hash:binary name:binary password_hash:binary key_id:integer --no-context
+mix phx.gen.html Ctx Kind kinds text:string
+mix phx.gen.html Ctx Status status text:string
+mix phx.gen.html Ctx Human humans username:binary username_hash:binary email:binary email_hash:binary firstname:binary lastname:binary password_hash:binary key_id:integer status:references:status kind:references:kinds
+mix phx.gen.html Ctx Item items text:string human_id:references:humans status:references:status kind:references:kinds
+mix phx.gen.html Ctx List lists title:string human_id:references:humans status:references:status kind:references:kinds
+mix phx.gen.html Ctx Timer timers item_id:references:items start:naive_datetime end:naive_datetime human_id:references:humans status:references:status kind:references:kinds
 ```
 
 
 ## Schema
+
+A Human is anyone using or referenced in the app.  
 
 + `human` - the human being using the App
 (AKA the ["user"](https://github.com/dwyl/time/issues/33))
@@ -76,7 +85,6 @@ mix phx.gen.html Human humans email:binary email_hash:binary name:binary passwor
   + `username_hash`: `Binary` (_salted & hashed for fast lookup during registration/login_)
   + `firstname`: `Binary` (_encrypted_)
   + `lastname`: `Binary` (_encrypted_)
-  + `email`: `Binary` (_encrypted_)
   + `email`: `Binary` (_encrypted_)
   + `email_hash`: `Binary` (_salted & hashed for quick lookup_)
   + `password_hash`: `Binary` (_encrypted_)
@@ -136,7 +144,7 @@ https://english.stackexchange.com/questions/877/what-is-plural-form-of-status
   + `id`: `Int`<sup>1</sup>
   + `title`: `String` - e.g: "_Alex's Todo List_"
   + `kind`<sup>4</sup>: `Int` (**FK** `kind.id`)
-  + `order`: `Enum` - "alpha", "date", "priority", "unordered"
+  + `order`: `Int` - Enum ["alphabetical", "date", "priority", "unordered"]
   + `status`: `Int` (**FK** `status.id`)
 
 

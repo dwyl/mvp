@@ -17,6 +17,8 @@ defmodule AppWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+    resources "/kinds", KindController
+    
   end
 
   # Other scopes may use custom stacks.
