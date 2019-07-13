@@ -51,7 +51,7 @@ but if not, please open an issue/question to seek clarification.
 We want to be able to create, edit/update and view
 all records in the database therefore we want
 [`phx.gen.html`](https://hexdocs.pm/phoenix/Mix.Tasks.Phx.Gen.Html.html)
-with views,
+with views, so that we get "free" UI for creating/updating the data.
 
 We will need to add `human_id` to `kinds` and `status` _after_
 the human schema has been created humans references kinds and status
@@ -59,7 +59,9 @@ the human schema has been created humans references kinds and status
 
 
 This is the order in which the schemas need to be created
-so that
+so that related tables can reference it.
+For example: Humans references Kinds and Status
+so those need to be created first.
 
 ```
 mix phx.gen.html Ctx Kind kinds text:string
@@ -70,10 +72,14 @@ mix phx.gen.html Ctx List lists title:string human_id:references:humans status:r
 mix phx.gen.html Ctx Timer timers item_id:references:items start:naive_datetime end:naive_datetime human_id:references:humans
 ```
 
+After running these `phx.gen` commands,
+we have the following Entity Relationship (ER) diagram:
+
+![dwyl-time-app-er-diagram](https://user-images.githubusercontent.com/194400/61172126-44c60f00-a578-11e9-892f-bf62d97bbffa.png)
+
 
 ## Schema
 
-A Human is anyone using or referenced in the app.  
 
 + `human` - the human being using the App
 (AKA the ["user"](https://github.com/dwyl/time/issues/33))
@@ -162,7 +168,7 @@ https://english.stackexchange.com/questions/877/what-is-plural-form-of-status
   + `end`: `NaiveDateTime` - time ended on device
 
 
-## Notes
+### Schema Notes
 
 <sup>1</sup> We are using the `default` Phoenix auto-incrementing `id`
 for all `id` fields in this MVP. When we _need_ to make the App "offline first"
@@ -232,6 +238,8 @@ https://en.wikipedia.org/wiki/Esoteric_programming_language
 or non-english programming languages
 https://en.wikipedia.org/wiki/Non-English-based_programming_languages
 because an exhaustive search is impractical.
+
+
 
 
 ## Run the App on `localhost`
