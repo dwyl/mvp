@@ -1,0 +1,48 @@
+<h1>Show Human</h1>
+
+<ul>
+
+  <li>
+    <strong>Username:</strong>
+    <%= @human.username %>
+  </li>
+
+  <li>
+    <strong>Username hash:</strong>
+    <%= @human.username_hash %>
+  </li>
+
+  <li>
+    <strong>Email:</strong>
+    <%= @human.email %>
+  </li>
+
+  <li>
+    <strong>Email hash:</strong>
+    <%= @human.email_hash %>
+  </li>
+
+  <li>
+    <strong>Firstname:</strong>
+    <%= @human.firstname %>
+  </li>
+
+  <li>
+    <strong>Lastname:</strong>
+    <%= @human.lastname %>
+  </li>
+
+  <li>
+    <strong>Password hash:</strong>
+    <%= @human.password_hash %>
+  </li>
+
+  <li>
+    <strong>Key:</strong>
+    <%= @human.key_id %>
+  </li>
+
+</ul>
+
+<span><%= link "Edit", to: Routes.human_path(@conn, :edit, @human) %></span>
+<span><%= link "Back", to: Routes.human_path(@conn, :index) %></span>

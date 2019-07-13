@@ -19,6 +19,7 @@ defmodule AppWeb.Router do
     get "/", PageController, :index
     resources "/kinds", KindController
     resources "/status", StatusController
+    resources "/humans", HumanController
   end
 
   # Other scopes may use custom stacks.

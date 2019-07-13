@@ -120,4 +120,77 @@ defmodule App.CtxTest do
       assert %Ecto.Changeset{} = Ctx.change_status(status)
     end
   end
+
+  describe "humans" do
+    alias App.Ctx.Human
+
+    @valid_attrs %{email: "some email", email_hash: "some email_hash", firstname: "some firstname", key_id: 42, lastname: "some lastname", password_hash: "some password_hash", username: "some username", username_hash: "some username_hash"}
+    @update_attrs %{email: "some updated email", email_hash: "some updated email_hash", firstname: "some updated firstname", key_id: 43, lastname: "some updated lastname", password_hash: "some updated password_hash", username: "some updated username", username_hash: "some updated username_hash"}
+    @invalid_attrs %{email: nil, email_hash: nil, firstname: nil, key_id: nil, lastname: nil, password_hash: nil, username: nil, username_hash: nil}
+
+    def human_fixture(attrs \\ %{}) do
+      {:ok, human} =
+        attrs
+        |> Enum.into(@valid_attrs)
+        |> Ctx.create_human()
+
+      human
+    end
+
+    test "list_humans/0 returns all humans" do
+      human = human_fixture()
+      assert Ctx.list_humans() == [human]
+    end
+
+    test "get_human!/1 returns the human with given id" do
+      human = human_fixture()
+      assert Ctx.get_human!(human.id) == human
+    end
+
+    test "create_human/1 with valid data creates a human" do
+      assert {:ok, %Human{} = human} = Ctx.create_human(@valid_attrs)
+      assert human.email == "some email"
+      assert human.email_hash == "some email_hash"
+      assert human.firstname == "some firstname"
+      assert human.key_id == 42
+      assert human.lastname == "some lastname"
+      assert human.password_hash == "some password_hash"
+      assert human.username == "some username"
+      assert human.username_hash == "some username_hash"
+    end
+
+    test "create_human/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Ctx.create_human(@invalid_attrs)
+    end
+
+    test "update_human/2 with valid data updates the human" do
+      human = human_fixture()
+      assert {:ok, %Human{} = human} = Ctx.update_human(human, @update_attrs)
+      assert human.email == "some updated email"
+      assert human.email_hash == "some updated email_hash"
+      assert human.firstname == "some updated firstname"
+      assert human.key_id == 43
+      assert human.lastname == "some updated lastname"
+      assert human.password_hash == "some updated password_hash"
+      assert human.username == "some updated username"
+      assert human.username_hash == "some updated username_hash"
+    end
+
+    test "update_human/2 with invalid data returns error changeset" do
+      human = human_fixture()
+      assert {:error, %Ecto.Changeset{}} = Ctx.update_human(human, @invalid_attrs)
+      assert human == Ctx.get_human!(human.id)
+    end
+
+    test "delete_human/1 deletes the human" do
+      human = human_fixture()
+      assert {:ok, %Human{}} = Ctx.delete_human(human)
+      assert_raise Ecto.NoResultsError, fn -> Ctx.get_human!(human.id) end
+    end
+
+    test "change_human/1 returns a human changeset" do
+      human = human_fixture()
+      assert %Ecto.Changeset{} = Ctx.change_human(human)
+    end
+  end
 end
