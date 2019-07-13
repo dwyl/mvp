@@ -266,7 +266,6 @@ ER Diagram With the `human_id` field added to the `kinds` and `status`:
 
 
 
-
 Now we need to associate `items` to `lists`.
 
 ```

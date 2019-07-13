@@ -7,6 +7,7 @@ defmodule App.Ctx.Item do
     field :human_id, :id
     field :status, :id
     field :kind, :id
+    has_one :list, App.Ctx.List
 
     timestamps()
   end
