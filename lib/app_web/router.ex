@@ -23,6 +23,7 @@ defmodule AppWeb.Router do
     resources "/items", ItemController
     resources "/lists", ListController
     resources "/timers", TimerController
+    
   end
 
   # Other scopes may use custom stacks.

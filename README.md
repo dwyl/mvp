@@ -77,6 +77,10 @@ we have the following Entity Relationship (ER) diagram:
 
 ![dwyl-time-app-er-diagram](https://user-images.githubusercontent.com/194400/61172126-44c60f00-a578-11e9-892f-bf62d97bbffa.png)
 
+We now need to add `human_id` to `kinds` and `status`
+to ensure that a human has ownership over those records.
+
+
 
 ## Schema
 
