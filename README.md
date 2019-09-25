@@ -249,7 +249,7 @@ mix phx.gen.html Ctx Timer timers item_id:references:items start:naive_datetime 
 After running these `phx.gen` commands,
 we have the following Entity Relationship (ER) diagram:
 
-![dwyl-time-app-er-diagram](https://user-images.githubusercontent.com/194400/61172126-44c60f00-a578-11e9-892f-bf62d97bbffa.png)
+![time-er-diagram](https://user-images.githubusercontent.com/194400/65640723-ee973280-dfe2-11e9-8a74-537b1cf467f8.png)
 
 We now need to add `human_id` to `kinds` and `status`
 to ensure that a human has ownership over those records.
