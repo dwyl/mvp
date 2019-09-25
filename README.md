@@ -34,7 +34,7 @@ and think it's _logical_ to _combine_ the functionality.
 
 As always,
 our goal is to document as much of the implementation as possible,
-so that _anyone_ can follow along as reasonably easily.
+so that _anyone_ can follow along.
 
 If naming things is [hard](https://martinfowler.com/bliki/TwoHardThings.html),
 choosing names for schemas/fields is _extra difficult_,
@@ -58,25 +58,30 @@ with views, so that we get "free" UI for creating/updating the data.
 ## Schema
 
 
-+ `human` - the human being using the App
++ `person` - the person using the App
 (AKA the ["user"](https://github.com/dwyl/time/issues/33))
-  or referred to in the App (e.g: "author")
+  or referred to in the reading tracker App (e.g: "author")
   + `id`: `Int`<sup>1</sup>
   + `inserted_at`: `Timestamp`
   + `updated_at`: `Timestamp`
-  + `username`: `Binary` (_encrypted; personal data is never stored in plaintext_)
-  + `username_hash`: `Binary` (_salted & hashed for fast lookup during registration/login_)
-  + `firstname`: `Binary` (_encrypted_)
-  + `lastname`: `Binary` (_encrypted_)
-  + `email`: `Binary` (_encrypted_)
+  + `username`: `Binary`
+    (_encrypted; personal data is never stored in plaintext_)
+  + `username_hash`: `Binary`
+    (_salted & hashed for fast lookup during registration/login_)
+  + `givenName`: `Binary` (_encrypted_) - first name of a person
+    https://schema.org/Person
+  + `familyName`: `Binary` (_encrypted_) - last or surname of the person
+  + `email`: `Binary` (_encrypted_) - so we can contact the person by email duh.
   + `email_hash`: `Binary` (_salted & hashed for quick lookup_)
   + `password_hash`: `Binary` (_encrypted_)
-  + `key_id`: `String` - the ID of the encryption key used to encrypt personal data (NOT the key itself!)
+  + `key_id`: `String` - the ID of the encryption key
+  used to encrypt personal data (NOT the key itself!)
   see:
-  [github.com/dwyl/phoenix-ecto-encryption-example](https://github.com/dwyl/phoenix-ecto-encryption-example)
+  [dwyl/phoenix-ecto-**encryption**-**example**](https://github.com/dwyl/phoenix-ecto-encryption-example)
   + `status`: `Int` (**FK** `status.id`) - e.g: "0: unverified, 1: verified", etc.
   + `kind`<sup>4</sup>: `Int` (**FK** `kind.id`) - e.g: "reader" or "author"
-  for our ["Reading Tracker"](https://github.com/nelsonic/time-mvp-phoenix/issues/3)
+  for our
+  ["Reading Tracker"](https://github.com/nelsonic/time-mvp-phoenix/issues/3)
 
 
 + `item` - a basic unit of content.
@@ -84,7 +89,7 @@ with views, so that we get "free" UI for creating/updating the data.
   + `inserted_at`: `Timestamp`
   + `updated_at`: `Timestamp`
   + `text`: `String`
-  + `human_id`: `Int` (**FK** `human.id` the "owner" of the item)
+  + `person_id`: `Int` (**FK** `person.id` the "owner" of the item)
   + `kind`<sup>4</sup>: `Int` (**FK** `kind.id`)
   + `status`: `Int` (**FK** `status.id`)
 
@@ -93,7 +98,8 @@ with views, so that we get "free" UI for creating/updating the data.
   + `id`: `Int`
   + `inserted_at`: `Timestamp`
   + `updated_at`: `Timestamp`
-  + `human_id`: `Int` (**FK** `human.id` - the person who defined/updated the kind text)
+  + `person_id`: `Int` (**FK** `person.id` -
+      the person who defined or last updated the kind text)
   + `text`: `String` - examples:
     + "note"
     + "task"
@@ -106,14 +112,15 @@ with views, so that we get "free" UI for creating/updating the data.
     + "quote"
     + "memo" - https://en.wikipedia.org/wiki/Memorandum
     + "image" - a link to an image stored on a file system (e.g: IPFS or S3)
-    + "author" -
+    + "author" - in the case of a book author
 
 
-+ `status` - the status of an item, list of items or human
++ `status` - the status of an item, list of items or person
   + `id`: `Int`
   + `inserted_at`: `Timestamp`
   + `updated_at`: `Timestamp`
-  + `human_id`: `Int` (**FK** `human.id` - the person who defined/updated the status)
+  + `person_id`: `Int` (**FK** `person.id` - the person
+      who defined/updated the status)
   + `text`: `String` - examples:
     + "unverified" - for a person that has not verified their email address
     + "open"
@@ -233,10 +240,10 @@ so those need to be created first.
 ```
 mix phx.gen.html Ctx Kind kinds text:string
 mix phx.gen.html Ctx Status status text:string
-mix phx.gen.html Ctx Human humans username:binary username_hash:binary email:binary email_hash:binary firstname:binary lastname:binary password_hash:binary key_id:integer status:references:status kind:references:kinds
-mix phx.gen.html Ctx Item items text:string human_id:references:humans status:references:status kind:references:kinds
-mix phx.gen.html Ctx List lists title:string human_id:references:humans status:references:status kind:references:kinds
-mix phx.gen.html Ctx Timer timers item_id:references:items start:naive_datetime end:naive_datetime human_id:references:humans
+mix phx.gen.html Ctx Person people username:binary username_hash:binary email:binary email_hash:binary givenName:binary familyName:binary password_hash:binary key_id:integer status:references:status kind:references:kinds
+mix phx.gen.html Ctx Item items text:string person_id:references:people status:references:status kind:references:kinds
+mix phx.gen.html Ctx List lists title:string person_id:references:people status:references:status kind:references:kinds
+mix phx.gen.html Ctx Timer timers item_id:references:items start:naive_datetime end:naive_datetime person_id:references:people
 ```
 
 After running these `phx.gen` commands,
@@ -249,8 +256,8 @@ to ensure that a human has ownership over those records.
 
 
 ```sh
-mix ecto.gen.migration add_human_id_to_kind
-mix ecto.gen.migration add_human_id_to_status
+mix ecto.gen.migration add_person_id_to_kind
+mix ecto.gen.migration add_person_id_to_status
 ```
 
 Code additions:
@@ -272,6 +279,16 @@ mix ecto.gen.migration create_list_items_association
 ```
 
 ![dwyl-time-app-er-diagram-list_items](https://user-images.githubusercontent.com/194400/61175870-b8830e80-a5ae-11e9-9e9b-1477ba3b5aa5.png)
+
+
+
+## Reading Tracker
+
+
++ `author` = `human` with `kind="author"`
++  
+
+
 
 
 
