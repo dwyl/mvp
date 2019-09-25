@@ -8,7 +8,9 @@
 use Mix.Config
 
 config :app,
-  ecto_repos: [App.Repo]
+  ecto_repos: [App.Repo],
+  module: AppWeb
+
 
 # Configures the endpoint
 config :app, AppWeb.Endpoint,

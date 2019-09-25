@@ -17,6 +17,14 @@ defmodule AppWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+
+    # generic resources for schemas:
+    resources "/items", ItemController
+    resources "/kinds", KindController
+    resources "/lists", ListController
+    resources "/person", PersonController
+    resources "/status", StatusController
+    resources "/timers", TimerController
   end
 
   # Other scopes may use custom stacks.
