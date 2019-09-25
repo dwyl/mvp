@@ -1,0 +1,5 @@
+<h1>Edit Kind</h1>
+
+<%= render "form.html", Map.put(assigns, :action, Routes.kind_path(@conn, :update, @kind)) %>
+
+<span><%= link "Back", to: Routes.kind_path(@conn, :index) %></span>

@@ -1,0 +1,26 @@
+<h1>Listing Kinds</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Text</th>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for kind <- @kinds do %>
+    <tr>
+      <td><%= kind.text %></td>
+
+      <td>
+        <span><%= link "Show", to: Routes.kind_path(@conn, :show, kind) %></span>
+        <span><%= link "Edit", to: Routes.kind_path(@conn, :edit, kind) %></span>
+        <span><%= link "Delete", to: Routes.kind_path(@conn, :delete, kind), method: :delete, data: [confirm: "Are you sure?"] %></span>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+
+<span><%= link "New Kind", to: Routes.kind_path(@conn, :new) %></span>
