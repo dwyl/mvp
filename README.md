@@ -293,10 +293,10 @@ https://github.com/nelsonic/time-mvp-phoenix/commit/11edd9f6532cfc3df33075bc0356
 + Add `person_id` to `status`:
 https://github.com/nelsonic/time-mvp-phoenix/commit/efe6c14bc3a1a3c3c3684fa8e187e1e441934efb
 
-ER Diagram With the `human_id` field added to the `kinds` and `status`:
+ER Diagram With the `person_id` field
+added to the `kinds` and `status` tables:
 
-![dwyl-time-app-er-diagram-human_id-status-kind](https://user-images.githubusercontent.com/194400/61175388-69d17680-a5a6-11e9-97e4-06e82a55bd6c.png)
-
+![time-app-er-diagram-person_id-status-kind](https://user-images.githubusercontent.com/194400/65705007-821e4100-e07f-11e9-8812-e0023e2d10e0.png)
 
 
 Now we need to associate `items` to `lists`.
@@ -312,7 +312,7 @@ mix ecto.gen.migration create_list_items_association
 ## Reading Tracker
 
 
-+ `author` = `human` with `kind="author"`
++ `author` = `person` with `kind="author"`
 +  
 
 
