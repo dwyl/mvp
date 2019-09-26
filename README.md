@@ -1,40 +1,67 @@
-# Time MVP `Phoenix`
+# Todo-Time MVP `Phoenix`
 
-A `Elixir`/`Phoenix` implementation of the Time MVP feature set.
+A `Elixir`/`Phoenix` implementation of the Todo-Time MVP feature set.
 
-# Why?
+[![MVP-Loop](https://user-images.githubusercontent.com/194400/65666966-b28dbd00-e036-11e9-9d11-1f5d3e22258e.png)](https://agilevelocity.com/product-owner/mvp-mmf-psi-wtf-part-one-understanding-the-mvp)
+
+> An often over-looked fact
+of the Lean Startup "build-measure-learn" loop
+is where the loop _starts_.
+We contend that starting to build
+_before_ doing some basic learning
+is a recipe for wasted time/effort.
+Instead people learn the (_basic_) _technical skills_
+required to build the MVP
+_before_ attempting to build.
+Learn _technical skills **first**_
+as you will be exposed to lots of new ideas
+in both tech and UX which will fuel your build.
+That's what we are doing in this project.
+
+
+
+# Why? 🤷
 
 Our objective with this MVP
-is to build the minimal useable App
+is to build the minimal _useable_ App
 that is well-documented, tested
 and easy for a _beginner_ to understand.
 
-Our goal is to _ship_ this App to Heroku
+The goal is to _ship_ this App to Heroku
 and _use_ it (_internally_).
 Once we have collected initial feedback,
 we will implement Authentication
 and share it with the world!
 
-# _What_?
 
-A _hybrid_ list management
+
+# _What_? 💭
+
+A _hybrid_ list/task management
 and activity (time) tracking tool. <br />
-If this sounds like a _terrible_ idea to you,
-please just ignore this repo.
-
-“_If At First the Idea Is Not Absurd,
-Then There Is No Hope for It_”
-~ [Albert Einstein](https://www.goodreads.com/quotes/110518-if-at-first-the-idea-is-not-absurd-then-there)
-
 We have found it _tedious_ to use two _separate_ apps
 for task and time tracking
 and think it's _logical_ to _combine_ the functionality.
 
-# _How_?
+If the idea of combining tools
+appeals to you keep reading.
+If it sounds like a _terrible_ idea to you,
+please just ignore this repo and have a great day!
+
+“_If at first the idea is not absurd,
+then there is no hope for it._”
+~ [Albert Einstein](https://www.goodreads.com/quotes/110518-if-at-first-the-idea-is-not-absurd-then-there)
+
+# _How_? 💡
 
 As always,
 our goal is to document as much of the implementation as possible,
 so that _anyone_ can follow along.
+
+If _anything_ is unclear please open an issue:
+
+
+### Quick Note on Naming
 
 If naming things is [hard](https://martinfowler.com/bliki/TwoHardThings.html),
 choosing names for schemas/fields is _extra difficult_,
@@ -47,11 +74,6 @@ Hopefully it will be obvious to everyone _why_
 a certain field is named the way it is,
 but if not, please open an issue/question to seek clarification.
 
-
-We want to be able to create, edit/update and view
-all records in the database therefore we want
-[`phx.gen.html`](https://hexdocs.pm/phoenix/Mix.Tasks.Phx.Gen.Html.html)
-with views, so that we get "free" UI for creating/updating the data.
 
 
 
@@ -226,15 +248,20 @@ because an exhaustive search is impractical.
 
 ## _Create_ Schemas
 
+We want to be able to create, edit/update and view
+all records in the database therefore we want
+[`phx.gen.html`](https://hexdocs.pm/phoenix/Mix.Tasks.Phx.Gen.Html.html)
+with views, so that we get "free" UI for creating/updating the data.
 
-We will need to add `human_id` to `kinds` and `status` _after_
-the human schema has been created humans references kinds and status
+
+We will need to add `person_id` to `kinds` and `status` _after_
+the person schema has been created. Person references kinds and status
 (_i.e. there is a circular reference_).
 
 
 This is the order in which the schemas need to be created
-so that related tables can reference it.
-For example: Humans references Kinds and Status
+so that related tables can reference each other.
+For example: People references Kinds and Status
 so those need to be created first.
 
 ```
@@ -249,9 +276,9 @@ mix phx.gen.html Ctx Timer timers item_id:references:items start:naive_datetime 
 After running these `phx.gen` commands,
 we have the following Entity Relationship (ER) diagram:
 
-![dwyl-time-app-er-diagram](https://user-images.githubusercontent.com/194400/61172126-44c60f00-a578-11e9-892f-bf62d97bbffa.png)
+![time-er-diagram](https://user-images.githubusercontent.com/194400/65640723-ee973280-dfe2-11e9-8a74-537b1cf467f8.png)
 
-We now need to add `human_id` to `kinds` and `status`
+We now need to add `person_id` to `kinds` and `status`
 to ensure that a human has ownership over those records.
 
 
@@ -261,9 +288,9 @@ mix ecto.gen.migration add_person_id_to_status
 ```
 
 Code additions:
-+ Add `human_id` to `kinds`:
++ Add `person_id` to `kinds`:
 https://github.com/nelsonic/time-mvp-phoenix/commit/11edd9f6532cfc3df33075bc0356955d041443d9
-+ Add `human_id` to `status`:
++ Add `person_id` to `status`:
 https://github.com/nelsonic/time-mvp-phoenix/commit/efe6c14bc3a1a3c3c3684fa8e187e1e441934efb
 
 ER Diagram With the `human_id` field added to the `kinds` and `status`:

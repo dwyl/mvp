@@ -4,6 +4,7 @@ defmodule App.Ctx.Kind do
 
   schema "kinds" do
     field :text, :string
+    belongs_to :human, App.Ctx.Person
 
     timestamps()
   end
