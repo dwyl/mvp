@@ -4,9 +4,10 @@ defmodule App.Ctx.Item do
 
   schema "items" do
     field :text, :string
-    field :person_id, :id
+    field :person_id, :id # item always belongs to a person
     field :status, :id
     field :kind, :id
+    belongs_to :list, App.Ctx.List # an item can be linked to a list
 
     timestamps()
   end
