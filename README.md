@@ -299,8 +299,12 @@ added to the `kinds` and `status` tables:
 
 ![time-app-er-diagram-person_id-status-kind](https://user-images.githubusercontent.com/194400/65705007-821e4100-e07f-11e9-8812-e0023e2d10e0.png)
 
+### Associate Items with a List
 
-Now we need to associate `items` to `lists`.
+An item will always be on a list even if the list only has one item.
+By `default` the list an item will be associated with is "uncategorised".
+
+Let's create the migration to link `items` to `lists`:
 
 ```
 mix ecto.gen.migration create_list_items_association
@@ -411,10 +415,24 @@ it should look like this:
 
 ## Reading Tracker
 
+This feature will be built as soon as the todo list feature is working ...
+see: https://github.com/nelsonic/time-mvp-phoenix/issues/3
 
-+ `author` = `person` with `kind="author"`
-+  
+### Book Schema
 
+see: https://github.com/nelsonic/time-mvp-phoenix/issues/11
+
++ `author` (a `person` with `kind="author"`)
++ `datePublished`
++ `description`
++ `headline` (_subtitle_)
++ `image` (_url_)
++  `isbn`
++ `keywords` (_csv_)
++ `name` (_name of the book e.g: "Deep Work"_)
++ `numberOfPages`
++ `publisher`
++ `thumbnailUrl` (_tiny image used in mobile app_)
 
 
 
