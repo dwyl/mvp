@@ -289,9 +289,10 @@ mix ecto.gen.migration add_person_id_to_status
 
 Code additions:
 + Add `person_id` to `kinds`:
-https://github.com/nelsonic/time-mvp-phoenix/commit/11edd9f6532cfc3df33075bc0356955d041443d9
+https://github.com/nelsonic/time-mvp-phoenix/commit/218224c4f94de01a6f52e4cc7ee9303d65463324 (_includes README update ..._)
 + Add `person_id` to `status`:
-https://github.com/nelsonic/time-mvp-phoenix/commit/efe6c14bc3a1a3c3c3684fa8e187e1e441934efb
+https://github.com/nelsonic/time-mvp-phoenix/commit/fe47da163de50fa1642e5daade07ba22251f1581
+(_cleaner commit_)
 
 ER Diagram With the `person_id` field
 added to the `kinds` and `status` tables:
@@ -305,7 +306,106 @@ Now we need to associate `items` to `lists`.
 mix ecto.gen.migration create_list_items_association
 ```
 
-![dwyl-time-app-er-diagram-list_items](https://user-images.githubusercontent.com/194400/61175870-b8830e80-a5ae-11e9-9e9b-1477ba3b5aa5.png)
+With the migration file we need to edit the following files:
+
+Open the `lib/app/ctx/item.ex` file, locate the `schema` block:
+```elixir
+schema "items" do
+  field :text, :string
+  field :human_id, :id
+  field :status, :id
+  field :kind, :id
+
+  timestamps()
+end
+```
+
+Add the line `belongs_to :list, App.Ctx.List`
+such that your `schema` now looks like this:
+
+```elixir
+schema "items" do
+  field :text, :string
+  field :human_id, :id
+  field :status, :id
+  field :kind, :id
+  belongs_to :list, App.Ctx.List # an item can be linked to a list
+
+  timestamps()
+end
+```
+
+
+Next open the `lib/app/ctx/list.ex` file
+and locate the `schema` block:
+```elixir
+schema "lists" do
+  field :title, :string
+  field :person_id, :id
+  field :status, :id
+  field :kind, :id
+
+  timestamps()
+end
+```
+Add the line `has_many :items, App.Ctx.Item`
+such that your `schema` now looks like this:
+
+```elixir
+schema "lists" do
+  field :title, :string
+  field :person_id, :id
+  field :status, :id
+  field :kind, :id
+  has_many :items, App.Ctx.Item # lists have one or more items
+
+  timestamps()
+end
+```
+
+Finally, open the newly created migration file:
+`priv/repo/migrations/{timestamp}_create_list_items_association.exs`
+and add the following code:
+```elixir
+def change do
+  create table(:list_items) do
+    add :item_id, references(:items)
+    add :list_id, references(:lists)
+
+    timestamps()
+  end
+
+  create unique_index(:list_items, [:item_id, :list_id])
+end
+```
+
+That will create a lookup table to associate items to a list. <br />
+Code snapshot:
+https://github.com/nelsonic/time-mvp-phoenix/commit/935eac1251580c13b45d9341f0597e4118f1a66f
+
+
+> **Note**: we are not imposing a restriction
+(_at the database level_)
+on how many lists an item can belong to in the `list_items` table.
+The only restriction is in the `items` schema
+`has_one :list, App.Ctx.List`.
+But this can easily be updated to `has_many`
+if/when the use case is validated.
+See:
+[time-mvp-phoenix/issues/12](https://github.com/nelsonic/time-mvp-phoenix/issues/12)
+
+
+
+After saving the above files, run `mix ecto.migrate`.
+Now when you view the Entity Relationship Diagram
+it should look like this:
+
+![time-app-er-diagram-list_items](https://user-images.githubusercontent.com/194400/65713195-974f9b80-e090-11e9-9363-b0b5842d6c6a.png)
+
+
+
+
+
 
 
 
