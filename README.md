@@ -350,15 +350,15 @@ Add the line `has_many :items, App.Ctx.Item`
 such that your `schema` now looks like this:
 
 ```diff
-schema "lists" do
-  field :title, :string
-  field :person_id, :id
-  field :status, :id
-  field :kind, :id
-  + has_many :items, App.Ctx.Item # lists have one or more items
+  schema "lists" do
+    field :title, :string
+    field :person_id, :id
+    field :status, :id
+    field :kind, :id
++   has_many :items, App.Ctx.Item # lists have one or more items
 
-  timestamps()
-end
+    timestamps()
+  end
 ```
 
 Open the newly created migration file:
