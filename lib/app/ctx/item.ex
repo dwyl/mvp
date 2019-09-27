@@ -7,7 +7,7 @@ defmodule App.Ctx.Item do
     field :person_id, :id # item always belongs to a person
     field :status, :id
     field :kind, :id
-    belongs_to :list, App.Ctx.List # an item can be linked to a list
+    # has_many :lists, App.Ctx.List # an item can be linked to a list
 
     timestamps()
   end

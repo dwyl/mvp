@@ -312,6 +312,7 @@ mix ecto.gen.migration create_list_items_association
 
 With the migration file we need to edit the following files:
 
+<!--
 Open the `lib/app/ctx/item.ex` file, locate the `schema` block:
 ```elixir
 schema "items" do
@@ -338,9 +339,9 @@ schema "items" do
   timestamps()
 end
 ```
+-->
 
-
-Next open the `lib/app/ctx/list.ex` file
+Open the `lib/app/ctx/list.ex` file
 and locate the `schema` block:
 ```elixir
 schema "lists" do
