@@ -1,4 +1,4 @@
-# Todo-Time MVP `Phoenix`
+# Todo-Time MVP `Phoenix`  💡⏳ ✅  
 
 A `Elixir`/`Phoenix` implementation of the Todo-Time MVP feature set.
 
@@ -52,33 +52,20 @@ please just ignore this repo and have a great day!
 then there is no hope for it._”
 ~ [Albert Einstein](https://www.goodreads.com/quotes/110518-if-at-first-the-idea-is-not-absurd-then-there)
 
-# _How_? 💡
+# _How_? 💻
 
 As always,
 our goal is to document as much of the implementation as possible,
 so that _anyone_ can follow along.
 
 If _anything_ is unclear please open an issue:
-
-
-### Quick Note on Naming
-
-If naming things is [hard](https://martinfowler.com/bliki/TwoHardThings.html),
-choosing names for schemas/fields is _extra difficult_,
-because once APIs are defined
-it can be a _mission_ to modify them
-because changing APIs "_breaks_" _everything_!
-We have been thinking about,
-researching and iterating on this idea for a _long_ time.
-Hopefully it will be obvious to everyone _why_
-a certain field is named the way it is,
-but if not, please open an issue/question to seek clarification.
-
-
+[time-mvp-phoenix/issues](https://github.com/nelsonic/time-mvp-phoenix/issues)
+We always welcome feedback/questions. 💭
 
 
 ## Schema
 
+Let's dive straight into defining the tables and fields for our project!
 
 + `person` - the person using the App
 (AKA the ["user"](https://github.com/dwyl/time/issues/33))
@@ -107,6 +94,7 @@ but if not, please open an issue/question to seek clarification.
 
 
 + `item` - a basic unit of content.
+  e.g: a "todo list item" or "shopping list item"
   + `id`: `Int`
   + `inserted_at`: `Timestamp`
   + `updated_at`: `Timestamp`
@@ -176,6 +164,20 @@ https://english.stackexchange.com/questions/877/what-is-plural-form-of-status
 
 ### Schema Notes
 
+If naming things is [hard](https://martinfowler.com/bliki/TwoHardThings.html),
+choosing names for schemas/fields is _extra difficult_,
+because once APIs are defined
+it can be a _mission_ to modify them
+because changing APIs "_breaks_" _everything_!
+We have been thinking about,
+researching and iterating on this idea for a _long_ time.
+Hopefully it will be obvious to everyone _why_
+a certain field is named the way it is,
+but if not, please open an
+[issue/question](https://github.com/nelsonic/time-mvp-phoenix/issues)
+to seek clarification.
+
+
 <sup>1</sup> We are using the `default` Phoenix auto-incrementing `id`
 for all `id` fields in this MVP. When we _need_ to make the App "offline first"
 we will transition to a Globally Unique [ContentID](https://github.com/dwyl/cid)
@@ -201,9 +203,9 @@ is meaningful in many programming languages. <br />
 + Python: https://docs.python.org/3/tutorial/datastructures.html
 + etc.
 
-We have chosen to use "list" as it's the most obvious word in _english_.
-There is no suitable synonym:
-https://www.thesaurus.com/browse/list
+We have chosen to use "list" as it's the most obvious word in _english_. <br />
+We did not find a suitable synonym:
+https://www.thesaurus.com/browse/list 🔍 🤷‍
 
 <sup>4</sup> We cannot use the word "type" as a field name,
 because it will be confusing in programming languages
@@ -274,6 +276,7 @@ mix phx.gen.html Ctx Timer timers item_id:references:items start:naive_datetime 
 ```
 
 After running these `phx.gen` commands,
+and running `mix ecto.migrate`,
 we have the following Entity Relationship (ER) diagram:
 
 ![time-er-diagram](https://user-images.githubusercontent.com/194400/65640723-ee973280-dfe2-11e9-8a74-537b1cf467f8.png)
@@ -342,35 +345,25 @@ end
 -->
 
 Open the `lib/app/ctx/list.ex` file
-and locate the `schema` block:
-```elixir
-schema "lists" do
-  field :title, :string
-  field :person_id, :id
-  field :status, :id
-  field :kind, :id
-
-  timestamps()
-end
-```
+and locate the `schema` block.
 Add the line `has_many :items, App.Ctx.Item`
 such that your `schema` now looks like this:
 
-```elixir
+```diff
 schema "lists" do
   field :title, :string
   field :person_id, :id
   field :status, :id
   field :kind, :id
-  has_many :items, App.Ctx.Item # lists have one or more items
+  + has_many :items, App.Ctx.Item # lists have one or more items
 
   timestamps()
 end
 ```
 
-Finally, open the newly created migration file:
-`priv/repo/migrations/{timestamp}_create_list_items_association.exs`
-and add the following code:
+Open the newly created migration file:
+`priv/repo/migrations/{timestamp}_create_list_items_association.exs` <br />
+and add the following code to the `change` block:
 ```elixir
 def change do
   create table(:list_items) do
@@ -412,16 +405,19 @@ it should look like this:
 
 
 
-
+<br /><br />
 
 ## Reading Tracker
 
 This feature will be built as soon as the todo list feature is working ...
-see: https://github.com/nelsonic/time-mvp-phoenix/issues/3
+see:
+[time-mvp-phoenix/issues/3](https://github.com/nelsonic/time-mvp-phoenix/issues/3)
 
-### Book Schema
+### Book Schema
 
-see: https://github.com/nelsonic/time-mvp-phoenix/issues/11
+A basic schema for storing book data based on
+see:
+[time-mvp-phoenix/issues/11](https://github.com/nelsonic/time-mvp-phoenix/issues/11)
 
 + `author` (a `person` with `kind="author"`)
 + `datePublished`
