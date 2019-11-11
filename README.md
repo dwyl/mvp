@@ -51,8 +51,9 @@ wanting the most _basic_ version of the app to _learn_.
 
 # _What_? 💭
 
-A _hybrid_ note taking, list/task management
-and activity (time) tracking tool. <br />
+A _hybrid_ note taking,
+information categorisation,
+task and activity (time) tracking tool. <br />
 We have found it _tedious_ to use two _separate_ apps
 for task and time tracking
 and think it's _logical_ to _combine_ the functionality.
@@ -65,6 +66,31 @@ please just ignore this repo and have a great day!
 “_If at first the idea is not absurd,
 then there is no hope for it._”
 ~ [Albert Einstein](https://www.goodreads.com/quotes/110518-if-at-first-the-idea-is-not-absurd-then-there)
+
+# _Who?_ 👥
+
+This MVP has _two_ target audiences:
+1. @dwyl team to start "dog-fooding"
+the basic workflow in our App.
+It's meant to work for "_us_"
+and have just enough functionality to solve our basic needs.
+2. Wider community of people who want
+to see a functioning Phoenix app
+with good documentation and testing.
+It will also help future @dwyl team members
+to get up-to-speed on our App/Stack _much_ faster,
+because they won't have to "grok" 100k+ lines of code;
+understanding the basic in _this_ app
+will be an _excellent_ starting point.
+
+If you have any questions regarding this MVP,
+please open an issue in:
+https://github.com/dwyl/app-mvp-phoenix/issues <br />
+If you are using the "full" @dwyl App,
+and have a question/idea,
+please open an issue in:
+https://github.com/dwyl/app/issues
+
 
 # _How_? 💻
 
