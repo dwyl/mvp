@@ -1,6 +1,7 @@
 # @dwyl App MVP `Phoenix`  💡⏳ ✅  
 
-A `Elixir`/`Phoenix` implementation of the Todo-Time MVP feature set.
+A `Elixir`/`Phoenix` implementation
+of the @dwyl App MVP feature set.
 
 <div align="center">
   <a href="https://agilevelocity.com/product-owner/mvp-mmf-psi-wtf-part-one-understanding-the-mvp">
@@ -99,7 +100,7 @@ our goal is to document as much of the implementation as possible,
 so that _anyone_ can follow along.
 
 If _anything_ is unclear please open an issue:
-[time-mvp-phoenix/issues](https://github.com/nelsonic/time-mvp-phoenix/issues)
+[app-mvp-phoenix/issues](https://github.com/dwyl/app-mvp-phoenix/issues)
 We always welcome feedback/questions. 💭
 
 
