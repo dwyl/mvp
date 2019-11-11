@@ -2,7 +2,11 @@
 
 A `Elixir`/`Phoenix` implementation of the Todo-Time MVP feature set.
 
-[![MVP-Loop](https://user-images.githubusercontent.com/194400/65666966-b28dbd00-e036-11e9-9d11-1f5d3e22258e.png)](https://agilevelocity.com/product-owner/mvp-mmf-psi-wtf-part-one-understanding-the-mvp)
+<div align="center">
+    <a href="https://agilevelocity.com/product-owner/mvp-mmf-psi-wtf-part-one-understanding-the-mvp">
+        <img src="https://user-images.githubusercontent.com/194400/65666966-b28dbd00-e036-11e9-9d11-1f5d3e22258e.png" width="500" alt="MVP Loop">
+    </a>
+</div>
 
 > An often over-looked fact
 of the Lean Startup "build-measure-learn" loop
