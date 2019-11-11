@@ -1,11 +1,11 @@
-# Todo-Time MVP `Phoenix`  💡⏳ ✅  
+# @dwyl App MVP `Phoenix`  💡⏳ ✅  
 
 A `Elixir`/`Phoenix` implementation of the Todo-Time MVP feature set.
 
 <div align="center">
-    <a href="https://agilevelocity.com/product-owner/mvp-mmf-psi-wtf-part-one-understanding-the-mvp">
-        <img src="https://user-images.githubusercontent.com/194400/65666966-b28dbd00-e036-11e9-9d11-1f5d3e22258e.png" width="500" alt="MVP Loop">
-    </a>
+  <a href="https://agilevelocity.com/product-owner/mvp-mmf-psi-wtf-part-one-understanding-the-mvp">
+    <img src="https://user-images.githubusercontent.com/194400/65666966-b28dbd00-e036-11e9-9d11-1f5d3e22258e.png" width="500" alt="MVP Loop">
+  </a>
 </div>
 
 > An often over-looked fact
@@ -28,20 +28,30 @@ That's what we are doing in this project.
 
 Our objective with this MVP
 is to build the minimal _useable_ App
-that is well-documented, tested
-and easy for a _beginner_ to understand.
+that covers our basic "Capture, Categorise, Complete"
+[workflow](https://github.com/dwyl/product-roadmap#what)
+is well-documented, tested
+and easy for a _beginner_ to run/understand.
 
-The goal is to _ship_ this App to Heroku
-and _use_ it (_internally_).
+The goal is to _ship_ this App to
+[Heroku](https://github.com/dwyl/app/issues/231)
+and then _use/test_ it (_internally_).
 Once we have collected initial feedback,
-we will implement Authentication
+we will implement
+[Authentication](https://github.com/dwyl/app/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+auth)
 and share it with the world!
 
-
+Once the MVP features are complete,
+the code will be merged
+into the main **`app`** repository:
+https://github.com/dwyl/app
+However we will also keep this repos alive
+as a reference for _complete_ beginners
+wanting the most _basic_ version of the app to _learn_.
 
 # _What_? 💭
 
-A _hybrid_ list/task management
+A _hybrid_ note taking, list/task management
 and activity (time) tracking tool. <br />
 We have found it _tedious_ to use two _separate_ apps
 for task and time tracking
