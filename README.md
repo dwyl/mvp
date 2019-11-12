@@ -246,41 +246,10 @@ https://www.thesaurus.com/browse/list 🔍 🤷‍
 because it will be confusing in programming languages
 where `type` is either a reserved word or a language construct.
 see: https://en.wikipedia.org/wiki/Type_system
-Our "second choice" is the word "**kind**",
-which is defined as: "_a group of things having similar characteristics_".
-see: https://www.google.com/search?q=define+kind
-Many thesaurus have "kind" and "type" as synonyms.
-We feel this is the best choice because it's easy
-for a beginner or non-native english speaker to understand.
-e.g: <br />
-**Q**: "What kind of list is it?" <br />
-**A**: "It is a shopping list." <br />
-
-While "kind" is a term in Type Theory,
-see: https://en.wikipedia.org/wiki/Kind_(type_theory) <br />
-it is _not_ a reserved word in any of the programming languages we know/use:
-+ HTML: https://developer.mozilla.org/en-US/docs/Web/HTML/Element
-+ CSS: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference
-+ Elixir: https://hexdocs.pm/elixir/master/syntax-reference.html
-+ Erlang: http://erlang.org/doc/reference_manual/data_types.html
-+ Go: https://golang.org/ref/spec
-+ Haskell: https://wiki.haskell.org/Keywords
-+ JavaScript:
-https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Keywords
-+ Java: https://en.wikipedia.org/wiki/List_of_Java_keywords
-+ Kotlin: https://kotlinlang.org/docs/reference/keyword-reference.html
-+ Rust: https://doc.rust-lang.org/reference/keywords.html
-+ Python: https://stackoverflow.com/questions/9642087/list-of-keywords-in-python
-+ C++: https://en.cppreference.com/w/cpp/keyword
-+ Swift: https://docs.swift.org/swift-book/ReferenceManual/LexicalStructure.html
-+ Ruby: https://docs.ruby-lang.org/en/2.2.0/keywords_rdoc.html
-+ PHP: https://www.php.net/manual/en/reserved.keywords.php
-
-We have not considered any "Esoteric"
-https://en.wikipedia.org/wiki/Esoteric_programming_language
-or non-english programming languages
-https://en.wikipedia.org/wiki/Non-English-based_programming_languages
-because an exhaustive search is impractical.
+Instead we are using the term **`tag`**
+which is relatively familiar to people
+and has the benefit of being both a noun and a verb.
+So the expression "tagging" the data works.
 
 
 ## _Create_ Schemas
