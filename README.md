@@ -129,28 +129,23 @@ Let's dive straight into defining the tables and fields for our project!
   see:
   [dwyl/phoenix-ecto-**encryption**-**example**](https://github.com/dwyl/phoenix-ecto-encryption-example)
   + `status`: `Int` (**FK** `status.id`) - e.g: "0: unverified, 1: verified", etc.
-  + `kind`<sup>4</sup>: `Int` (**FK** `kind.id`) - e.g: "reader" or "author"
-  for our
-  ["Reading Tracker"](https://github.com/nelsonic/time-mvp-phoenix/issues/3)
 
 
-+ `item` - a basic unit of content.
-  e.g: a "todo list item" or "shopping list item"
++ `item` - a basic unit of content. e.g: a "note", "task" or "reminder"
   + `id`: `Int`
   + `inserted_at`: `Timestamp`
   + `updated_at`: `Timestamp`
   + `text`: `String`
   + `person_id`: `Int` (**FK** `person.id` the "owner" of the item)
-  + `kind`<sup>4</sup>: `Int` (**FK** `kind.id`)
   + `status`: `Int` (**FK** `status.id`)
 
 
-+ `kind` - the _kinds_<sup>2</sup> of `item` or `list` that can be created
++ `tag` - _tags_<sup>2</sup> can be applied to an `item` to ***Categorise*** it.
   + `id`: `Int`
   + `inserted_at`: `Timestamp`
   + `updated_at`: `Timestamp`
   + `person_id`: `Int` (**FK** `person.id` -
-      the person who defined or last updated the kind text)
+      the person who defined or last updated the `tag.text`)
   + `text`: `String` - examples:
     + "note"
     + "task"
@@ -159,14 +154,14 @@ Let's dive straight into defining the tables and fields for our project!
     + "shopping"
     + "exercise"
     + ["reminder"](https://github.com/nelsonic/time-mvp-phoenix/issues/5)
-    + ["link"](https://github.com/nelsonic/time-mvp-phoenix/issues/4)
     + "quote"
     + "memo" - https://en.wikipedia.org/wiki/Memorandum
     + "image" - a link to an image stored on a file system (e.g: IPFS or S3)
     + "author" - in the case of a book author
+<!--    + ["link"](https://github.com/nelsonic/time-mvp-phoenix/issues/4) -->
 
 
-+ `status` - the status of an item, list of items or person
++ `status` - the status of an item or person
   + `id`: `Int`
   + `inserted_at`: `Timestamp`
   + `updated_at`: `Timestamp`
@@ -181,21 +176,21 @@ Let's dive straight into defining the tables and fields for our project!
 > Plural form of "status" is "status":
 https://english.stackexchange.com/questions/877/what-is-plural-form-of-status
 
+<!-- Temporarily commenting out list and list_items
+see: https://github.com/dwyl/app/issues/233
 + `list`<sup>3</sup> - a collection of items
   + `id`: `Int`<sup>1</sup>
   + `title`: `String` - e.g: "_Alex's Todo List_"
-  + `kind`<sup>4</sup>: `Int` (**FK** `kind.id`)
   + `order`: `Int` - Enum ["alphabetical", "date", "priority", "unordered"]
   + `status`: `Int` (**FK** `status.id`)
-
 
 + `list_items`
   + `item_id` (FK item.id)
   + `list_id` (FK list.id)
   + `inserted_at`
+-->
 
-
-+ `timer` - a timer attached to an item. an item can have multiple timers.
++ `timer` - A timer attached to an `item`. An `item` can have _multiple_ timers.
   + `id`: `Int`
   + `inserted_at`
   + `item_id` (FK item.id)
@@ -223,14 +218,13 @@ to seek clarification.
 for all `id` fields in this MVP. When we _need_ to make the App "offline first"
 we will transition to a Globally Unique [ContentID](https://github.com/dwyl/cid)
 
-<sup>2</sup> We expect people to define their own kinds of lists
-The UI will encourage people to create their own "kind"
-and these will be curated to avoid duplication and noise.
-For now we only need "task" list to get our "timer" working. <br />
-Research kinds of list:
-+ Kinds<sup>4</sup> of lists:
-https://gist.github.com/shazow/2467329/f79c169b49831057c4ec705910c4e11df043e768
-+ https://www.lifehack.org/articles/featured/12-lists-that-help-you-get-things-done.html
+<sup>2</sup> We expect (_and will encourage_) people to define their own tags.
+When creating tags, the UI will
+[_auto-suggest_](https://github.com/dwyl/app/issues/224)
+existing (public/curated) tags
+to avoid duplication and noise.
+For now we only need "task". <br />
+
 
 <sup>3</sup>
 A "list" is a way of grouping items of content. <br />
