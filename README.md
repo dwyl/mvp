@@ -109,8 +109,7 @@ We always welcome feedback/questions. 💭
 Let's dive straight into defining the tables and fields for our project!
 
 + `person` - the person using the App
-(AKA the ["user"](https://github.com/dwyl/time/issues/33))
-  or referred to in the reading tracker App (e.g: "author")
+(AKA the ["user"](https://github.com/dwyl/app/issues/33))
   + `id`: `Int`<sup>1</sup>
   + `inserted_at`: `Timestamp`
   + `updated_at`: `Timestamp`
@@ -260,14 +259,17 @@ all records in the database therefore we want
 with views, so that we get "free" UI for creating/updating the data.
 
 
-We will need to add `person_id` to `kinds` and `status` _after_
-the person schema has been created. Person references kinds and status
-(_i.e. there is a circular reference_).
+We will need to add `person_id` to a `tag` and `status` _after_
+the person schema has been created.
+Person references `tags` and `status`
+(_i.e. there is a circular reference.
+  but it's fine, don't worry!_
+  see: https://dba.stackexchange.com/questions/102903/circular-foreign-key-references ).
 
 
 This is the order in which the schemas need to be created
 so that related tables can reference each other.
-For example: People references Kinds and Status
+For example: People references Tags and Status
 so those need to be created first.
 
 ```
@@ -410,33 +412,6 @@ it should look like this:
 
 
 <br /><br />
-
-## Reading Tracker
-
-This feature will be built as soon as the todo list feature is working ...
-see:
-[time-mvp-phoenix/issues/3](https://github.com/nelsonic/time-mvp-phoenix/issues/3)
-
-### Book Schema
-
-A basic schema for storing book data based on
-see:
-[time-mvp-phoenix/issues/11](https://github.com/nelsonic/time-mvp-phoenix/issues/11)
-
-+ `author` (a `person` with `kind="author"`)
-+ `datePublished`
-+ `description`
-+ `headline` (_subtitle_)
-+ `image` (_url_)
-+  `isbn`
-+ `keywords` (_csv_)
-+ `name` (_name of the book e.g: "Deep Work"_)
-+ `numberOfPages`
-+ `publisher`
-+ `thumbnailUrl` (_tiny image used in mobile app_)
-
-
-
 
 
 
