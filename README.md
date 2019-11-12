@@ -1,4 +1,5 @@
 # Todo-Time MVP `Phoenix`  💡⏳ ✅  
+[![Build Status](https://travis-ci.com/dwyl/app-mvp-phoenix.svg?branch=master)](https://travis-ci.com/dwyl/app-mvp-phoenix)
 
 A `Elixir`/`Phoenix` implementation of the Todo-Time MVP feature set.
 
@@ -439,7 +440,19 @@ see:
 ## Run the App on `localhost`
 
 To start your Phoenix server:
+  * create a .env file for the environmet variables:
+    - URL: used in `config/prod.exs` to define the url of the application
+    - SECRET_KEY_BASE: from https://hexdocs.pm/phoenix/Phoenix.Endpoint.html :
+        > :secret_key_base - a secret key used as a base to generate secrets for encrypting and signing data. For example, cookies and tokens are signed by default, but they may also be encrypted if desired. Defaults to nil as it must be set per application 
+    
+        You can create a new key with `mix phx.gen.secret`
 
+        Example of a .env file:
+        ```elixir
+        export URL=dwylapp.herokuapp.com
+        export SECRET_KEY_BASE=l1Uyq50pB+q7NYDtSSNOJOxZJugfsnXoGmjTV1ShtdG/dPo2BxD9A9JzLHbjpR2j
+        ```
+  * run `source .env` to load the enviroment variables
   * Make sure you have Postgres installed, see: https://github.com/dwyl/learn-postgresql
   * Install dependencies with `mix deps.get`
   * Create and migrate your database with `mix ecto.setup`
@@ -450,6 +463,7 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
 Ready to run in production? Please
 [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+
 
 ## Learn more
 
