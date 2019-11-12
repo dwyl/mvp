@@ -440,6 +440,7 @@ see:
 
 To start your Phoenix server:
 
+  * Make sure you have Postgres installed, see: https://github.com/dwyl/learn-postgresql
   * Install dependencies with `mix deps.get`
   * Create and migrate your database with `mix ecto.setup`
   * Install Node.js dependencies with `cd assets && npm install`
