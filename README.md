@@ -175,8 +175,7 @@ Let's dive straight into defining the tables and fields for our project!
 > Plural form of "status" is "status":
 https://english.stackexchange.com/questions/877/what-is-plural-form-of-status
 
-<!-- Temporarily commenting out list and list_items
-see: https://github.com/dwyl/app/issues/233
+
 + `list`<sup>3</sup> - a collection of items
   + `id`: `Int`<sup>1</sup>
   + `title`: `String` - e.g: "_Alex's Todo List_"
@@ -326,15 +325,14 @@ And below the `get "/", PageController, :index` line, add the following lines:
 ```
 Your `lib/app_web/router.ex`
 should look like this:
-#TODO
+[lib/app_web/router.ex#L16-L28](https://github.com/dwyl/app-mvp-phoenix/blob/851a1a4c87ef1474b55ee42cc09ed7695334d4a7/lib/app_web/router.ex#L16-L28)
 
 
 After running these `phx.gen` commands,
 and running both `mix ecto.create` and `mix ecto.migrate`,
 we have the following Entity Relationship (ER) diagram:
 
-#TODO:
-![time-er-diagram](https://user-images.githubusercontent.com/194400/65640723-ee973280-dfe2-11e9-8a74-537b1cf467f8.png)
+![app-mvp-er-diagram](https://user-images.githubusercontent.com/194400/68760839-ac659700-060a-11ea-9eef-5767022e0d12.png)
 
 We now need to add `person_id` to `tags` and `status`
 to ensure that a human has ownership over those records.
@@ -348,16 +346,15 @@ mix ecto.gen.migration add_person_id_to_status
 
 Code additions:
 + Add `person_id` to `tags`:
-https://github.com/nelsonic/time-mvp-phoenix/commit/218224c4f94de01a6f52e4cc7ee9303d65463324 (_includes README update ..._)
+[1dc6630](https://github.com/dwyl/app-mvp-phoenix/pull/18/commits/1dc66303e3ee23bec3dfc1bac87a9c7b80db964a)
 + Add `person_id` to `status`:
-https://github.com/nelsonic/time-mvp-phoenix/commit/fe47da163de50fa1642e5daade07ba22251f1581
-(_cleaner commit_)
+[4685a91](https://github.com/dwyl/app-mvp-phoenix/pull/18/commits/4685a911b4af5bf4e2bd4e934af2237ba966bcb4)
 
 ER Diagram With the `person_id` field
 added to the `tags` and `status` tables:
 
-# TODO:
-![time-app-er-diagram-person_id-status-kind](https://user-images.githubusercontent.com/194400/65705007-821e4100-e07f-11e9-8812-e0023e2d10e0.png)
+![app-er-diagram-person_id-status-kind](https://user-images.githubusercontent.com/194400/68773176-04a89300-0623-11ea-94fa-eff32acc4724.png)
+
 
 ### Associate Items with a List
 
