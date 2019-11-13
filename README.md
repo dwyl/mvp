@@ -145,6 +145,11 @@ Let's dive straight into defining the tables and fields for our project!
     + "author" - in the case of a book author
 <!--    + ["link"](https://github.com/nelsonic/time-mvp-phoenix/issues/4) -->
 
++ `items_tags`
+  + `item_id` (**FK** item.id)
+  + `tag_id` (**FK** tag.id)
+  + `inserted_at`
+
 
 + `status` - the status of an item or person
   + `id`: `Int`
@@ -172,7 +177,6 @@ https://english.stackexchange.com/questions/877/what-is-plural-form-of-status
   + `item_id` (FK item.id)
   + `list_id` (FK list.id)
   + `inserted_at`
--->
 
 + `timer` - A timer attached to an `item`. An `item` can have _multiple_ timers.
   + `id`: `Int`
