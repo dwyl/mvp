@@ -9,20 +9,6 @@ of the @dwyl App MVP feature set.
   </a>
 </div>
 
-> An often over-looked fact
-of the Lean Startup "build-measure-learn" loop
-is where the loop _starts_.
-We contend that starting to build
-_before_ doing some basic learning
-is a recipe for wasted time/effort.
-Instead people learn the (_basic_) _technical skills_
-required to build the MVP
-_before_ attempting to build.
-Learn _technical skills **first**_
-as you will be exposed to lots of new ideas
-in both tech and UX which will fuel your build.
-That's what we are doing in this project.
-
 
 
 # Why? 🤷
@@ -449,10 +435,29 @@ it should look like this:
 
 ![app-er-diagram-with-list_items](https://user-images.githubusercontent.com/194400/68774230-ae3c5400-0624-11ea-8316-179c5b6eb1a4.png)
 
-### `item_tags`
+### Categorising Items using Tags
 
 An `item` can have _multiple_ `tags`,
-let's make that happen:
+let's make that happen with an `item_tags` table:
+
+
+```
+mix ecto.gen.migration create_item_tags_association
+```
+
+
+```elixir
+def change do
+  create table(:item_tags) do
+    add :item_id, references(:items)
+    add :Tag_id, references(:tags)
+
+    timestamps()
+  end
+
+  create unique_index(:item_tags, [:item_id, :tag_id])
+end
+```
 
 
 
