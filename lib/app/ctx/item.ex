@@ -6,7 +6,7 @@ defmodule App.Ctx.Item do
     field :text, :string
     field :person_id, :id
     field :status, :id
-
+    many_to_many :tags, App.Ctx.Tag, join_through: "item_tags"
     timestamps()
   end
 
