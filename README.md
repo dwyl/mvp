@@ -462,11 +462,16 @@ end
 ```
 
 Now run the `mix ecto.migrate` script.
+The Entity Relationship Diagram (ERD)
+should now look like this:
+
+![app-er-diagram-with-item_tags](https://user-images.githubusercontent.com/194400/68804955-c62eca80-065a-11ea-888b-9391154aceda.png)
 
 
+# _Next_
 
-
-
+Build the basic _capture_ stage:
+https://github.com/dwyl/app/issues/234
 
 
 <br /><br />
