@@ -6,100 +6,100 @@ defmodule App.Ctx do
   import Ecto.Query, warn: false
   alias App.Repo
 
-  alias App.Ctx.Kind
+  alias App.Ctx.Tag
 
   @doc """
-  Returns the list of kinds.
+  Returns the list of tags.
 
   ## Examples
 
-      iex> list_kinds()
-      [%Kind{}, ...]
+      iex> list_tags()
+      [%Tag{}, ...]
 
   """
-  def list_kinds do
-    Repo.all(Kind)
+  def list_tags do
+    Repo.all(Tag)
   end
 
   @doc """
-  Gets a single kind.
+  Gets a single tag.
 
-  Raises `Ecto.NoResultsError` if the Kind does not exist.
+  Raises `Ecto.NoResultsError` if the Tag does not exist.
 
   ## Examples
 
-      iex> get_kind!(123)
-      %Kind{}
+      iex> get_tag!(123)
+      %Tag{}
 
-      iex> get_kind!(456)
+      iex> get_tag!(456)
       ** (Ecto.NoResultsError)
 
   """
-  def get_kind!(id), do: Repo.get!(Kind, id)
+  def get_tag!(id), do: Repo.get!(Tag, id)
 
   @doc """
-  Creates a kind.
+  Creates a tag.
 
   ## Examples
 
-      iex> create_kind(%{field: value})
-      {:ok, %Kind{}}
+      iex> create_tag(%{field: value})
+      {:ok, %Tag{}}
 
-      iex> create_kind(%{field: bad_value})
+      iex> create_tag(%{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_kind(attrs \\ %{}) do
-    %Kind{}
-    |> Kind.changeset(attrs)
+  def create_tag(attrs \\ %{}) do
+    %Tag{}
+    |> Tag.changeset(attrs)
     |> Repo.insert()
   end
 
   @doc """
-  Updates a kind.
+  Updates a tag.
 
   ## Examples
 
-      iex> update_kind(kind, %{field: new_value})
-      {:ok, %Kind{}}
+      iex> update_tag(tag, %{field: new_value})
+      {:ok, %Tag{}}
 
-      iex> update_kind(kind, %{field: bad_value})
+      iex> update_tag(tag, %{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_kind(%Kind{} = kind, attrs) do
-    kind
-    |> Kind.changeset(attrs)
+  def update_tag(%Tag{} = tag, attrs) do
+    tag
+    |> Tag.changeset(attrs)
     |> Repo.update()
   end
 
   @doc """
-  Deletes a Kind.
+  Deletes a Tag.
 
   ## Examples
 
-      iex> delete_kind(kind)
-      {:ok, %Kind{}}
+      iex> delete_tag(tag)
+      {:ok, %Tag{}}
 
-      iex> delete_kind(kind)
+      iex> delete_tag(tag)
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_kind(%Kind{} = kind) do
-    Repo.delete(kind)
+  def delete_tag(%Tag{} = tag) do
+    Repo.delete(tag)
   end
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for tracking kind changes.
+  Returns an `%Ecto.Changeset{}` for tracking tag changes.
 
   ## Examples
 
-      iex> change_kind(kind)
-      %Ecto.Changeset{source: %Kind{}}
+      iex> change_tag(tag)
+      %Ecto.Changeset{source: %Tag{}}
 
   """
-  def change_kind(%Kind{} = kind) do
-    Kind.changeset(kind, %{})
+  def change_tag(%Tag{} = tag) do
+    Tag.changeset(tag, %{})
   end
 
   alias App.Ctx.Status

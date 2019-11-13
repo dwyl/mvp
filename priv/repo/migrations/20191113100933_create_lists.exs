@@ -6,13 +6,13 @@ defmodule App.Repo.Migrations.CreateLists do
       add :title, :string
       add :person_id, references(:people, on_delete: :nothing)
       add :status, references(:status, on_delete: :nothing)
-      add :kind, references(:kinds, on_delete: :nothing)
+      add :tag, references(:tags, on_delete: :nothing)
 
       timestamps()
     end
 
     create index(:lists, [:person_id])
     create index(:lists, [:status])
-    create index(:lists, [:kind])
+    create index(:lists, [:tag])
   end
 end

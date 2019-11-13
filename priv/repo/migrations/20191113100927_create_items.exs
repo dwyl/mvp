@@ -6,13 +6,11 @@ defmodule App.Repo.Migrations.CreateItems do
       add :text, :string
       add :person_id, references(:people, on_delete: :nothing)
       add :status, references(:status, on_delete: :nothing)
-      add :kind, references(:kinds, on_delete: :nothing)
 
       timestamps()
     end
 
     create index(:items, [:person_id])
     create index(:items, [:status])
-    create index(:items, [:kind])
   end
 end

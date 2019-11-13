@@ -4,7 +4,6 @@ defmodule App.Ctx.Status do
 
   schema "status" do
     field :text, :string
-    belongs_to :person, App.Ctx.Person
 
     timestamps()
   end

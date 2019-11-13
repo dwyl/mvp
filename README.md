@@ -272,40 +272,91 @@ so that related tables can reference each other.
 For example: People references Tags and Status
 so those need to be created first.
 
+<!--
+If you make a mistake during the running of these phx.gen.html commands
+or need to change something e.g: github.com/dwyl/app/issues/232
+your best course of action is:
+rm -rf lib priv test assets config
+psql -U postgres -c 'DROP DATABASE IF EXISTS app_dev;'
+psql -U postgres -c 'DROP DATABASE IF EXISTS app_test;'
+mix new app
+
+mix ecto.create
+-->
+
+Create a new Phoenix App:
 ```
-mix phx.gen.html Ctx Kind kinds text:string
+mix phx.new app
+```
+When asked to install the dependencies,
+type `Y` and `[Enter]` (_to install everything_)
+
+Next we will run the generator commands
+to create all the schemas:
+```
+mix phx.gen.html Ctx Tag tags text:string
 mix phx.gen.html Ctx Status status text:string
-mix phx.gen.html Ctx Person people username:binary username_hash:binary email:binary email_hash:binary givenName:binary familyName:binary password_hash:binary key_id:integer status:references:status kind:references:kinds
-mix phx.gen.html Ctx Item items text:string person_id:references:people status:references:status kind:references:kinds
-mix phx.gen.html Ctx List lists title:string person_id:references:people status:references:status kind:references:kinds
+mix phx.gen.html Ctx Person people username:binary username_hash:binary email:binary email_hash:binary givenName:binary familyName:binary password_hash:binary key_id:integer status:references:status tag:references:tags
+mix phx.gen.html Ctx Item items text:string person_id:references:people status:references:status
+mix phx.gen.html Ctx List lists title:string person_id:references:people status:references:status tag:references:tags
 mix phx.gen.html Ctx Timer timers item_id:references:items start:naive_datetime end:naive_datetime person_id:references:people
 ```
 
+Once all those `mix phx.gen.html` commands have been run,
+open the `lib/app_web/router.ex` file in your editor:
+
+locate the section:
+```elixir
+scope "/", AppWeb do
+  pipe_through :browser
+
+  get "/", PageController, :index
+end
+```
+And below the `get "/", PageController, :index` line, add the following lines:
+
+```
+ # generic resources for schemas:
+  resources "/items", ItemController
+  resources "/lists", ListController
+  resources "/people", PersonController
+  resources "/status", StatusController
+  resources "/tags", TagController
+  resources "/timers", TimerController
+```
+Your `lib/app_web/router.ex`
+should look like this:
+#TODO
+
+
 After running these `phx.gen` commands,
-and running `mix ecto.migrate`,
+and running both `mix ecto.create` and `mix ecto.migrate`,
 we have the following Entity Relationship (ER) diagram:
 
+#TODO:
 ![time-er-diagram](https://user-images.githubusercontent.com/194400/65640723-ee973280-dfe2-11e9-8a74-537b1cf467f8.png)
 
-We now need to add `person_id` to `kinds` and `status`
+We now need to add `person_id` to `tags` and `status`
 to ensure that a human has ownership over those records.
 
 
 ```sh
-mix ecto.gen.migration add_person_id_to_kind
+mix ecto.gen.migration add_person_id_to_tag
 mix ecto.gen.migration add_person_id_to_status
 ```
 
+
 Code additions:
-+ Add `person_id` to `kinds`:
++ Add `person_id` to `tags`:
 https://github.com/nelsonic/time-mvp-phoenix/commit/218224c4f94de01a6f52e4cc7ee9303d65463324 (_includes README update ..._)
 + Add `person_id` to `status`:
 https://github.com/nelsonic/time-mvp-phoenix/commit/fe47da163de50fa1642e5daade07ba22251f1581
 (_cleaner commit_)
 
 ER Diagram With the `person_id` field
-added to the `kinds` and `status` tables:
+added to the `tags` and `status` tables:
 
+# TODO:
 ![time-app-er-diagram-person_id-status-kind](https://user-images.githubusercontent.com/194400/65705007-821e4100-e07f-11e9-8812-e0023e2d10e0.png)
 
 ### Associate Items with a List
