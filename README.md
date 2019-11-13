@@ -369,14 +369,12 @@ mix ecto.gen.migration create_list_items_association
 
 With the migration file we need to edit the following files:
 
-<!--
 Open the `lib/app/ctx/item.ex` file, locate the `schema` block:
 ```elixir
 schema "items" do
   field :text, :string
   field :human_id, :id
   field :status, :id
-  field :kind, :id
 
   timestamps()
 end
@@ -390,13 +388,12 @@ schema "items" do
   field :text, :string
   field :human_id, :id
   field :status, :id
-  field :kind, :id
   belongs_to :list, App.Ctx.List # an item can be linked to a list
 
   timestamps()
 end
 ```
--->
+
 
 Open the `lib/app/ctx/list.ex` file
 and locate the `schema` block.
@@ -408,7 +405,6 @@ such that your `schema` now looks like this:
     field :title, :string
     field :person_id, :id
     field :status, :id
-    field :kind, :id
 +   has_many :items, App.Ctx.Item # lists have one or more items
 
     timestamps()
@@ -447,12 +443,17 @@ See:
 [time-mvp-phoenix/issues/12](https://github.com/nelsonic/time-mvp-phoenix/issues/12)
 
 
-
 After saving the above files, run `mix ecto.migrate`.
 Now when you view the Entity Relationship Diagram
 it should look like this:
 
-![time-app-er-diagram-list_items](https://user-images.githubusercontent.com/194400/65713195-974f9b80-e090-11e9-9363-b0b5842d6c6a.png)
+![app-er-diagram-with-list_items](https://user-images.githubusercontent.com/194400/68774230-ae3c5400-0624-11ea-8316-179c5b6eb1a4.png)
+
+### `item_tags`
+
+An `item` can have _multiple_ `tags`,
+let's make that happen:
+
 
 
 

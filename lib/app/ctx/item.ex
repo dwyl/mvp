@@ -6,7 +6,6 @@ defmodule App.Ctx.Item do
     field :text, :string
     field :person_id, :id
     field :status, :id
-    belongs_to :list, App.Ctx.List # an item can be linked to a list
 
     timestamps()
   end
