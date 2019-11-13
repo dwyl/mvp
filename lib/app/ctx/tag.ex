@@ -4,7 +4,7 @@ defmodule App.Ctx.Tag do
 
   schema "tags" do
     field :text, :string
-
+    belongs_to :person, App.Ctx.Person
     timestamps()
   end
 
