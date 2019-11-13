@@ -145,7 +145,7 @@ Let's dive straight into defining the tables and fields for our project!
     + "author" - in the case of a book author
 <!--    + ["link"](https://github.com/nelsonic/time-mvp-phoenix/issues/4) -->
 
-+ `items_tags`
++ `item_tags`
   + `item_id` (**FK** item.id)
   + `tag_id` (**FK** tag.id)
   + `inserted_at`

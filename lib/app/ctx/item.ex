@@ -4,7 +4,7 @@ defmodule App.Ctx.Item do
 
   schema "items" do
     field :text, :string
-    field :person_id, :id
+    field :person_id, :id # an item always belongs to a person
     field :status, :id
     many_to_many :tags, App.Ctx.Tag, join_through: "item_tags"
     timestamps()
