@@ -445,12 +445,14 @@ let's make that happen with an `item_tags` table:
 mix ecto.gen.migration create_item_tags_association
 ```
 
-
+Open the newly created migration file
+`priv/repo/migrations/{timestamp}_create_item_tags_association.exs` <br />
+and add the following code to the `change` block:
 ```elixir
 def change do
   create table(:item_tags) do
     add :item_id, references(:items)
-    add :Tag_id, references(:tags)
+    add :tag_id, references(:tags)
 
     timestamps()
   end
@@ -458,6 +460,8 @@ def change do
   create unique_index(:item_tags, [:item_id, :tag_id])
 end
 ```
+
+Now run the `mix ecto.migrate` script.
 
 
 
