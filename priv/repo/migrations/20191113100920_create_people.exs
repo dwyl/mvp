@@ -12,12 +12,12 @@ defmodule App.Repo.Migrations.CreatePeople do
       add :password_hash, :binary
       add :key_id, :integer
       add :status, references(:status, on_delete: :nothing)
-      add :kind, references(:kinds, on_delete: :nothing)
+      add :tag, references(:tags, on_delete: :nothing)
 
       timestamps()
     end
 
     create index(:people, [:status])
-    create index(:people, [:kind])
+    create index(:people, [:tag])
   end
 end

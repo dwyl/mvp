@@ -11,5 +11,4 @@ defmodule App.Repo.Migrations.CreateListItemsAssociation do
 
     create unique_index(:list_items, [:item_id, :list_id])
   end
-
 end

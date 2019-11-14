@@ -1,17 +1,16 @@
-defmodule App.Ctx.Kind do
+defmodule App.Ctx.Tag do
   use Ecto.Schema
   import Ecto.Changeset
 
-  schema "kinds" do
+  schema "tags" do
     field :text, :string
     belongs_to :person, App.Ctx.Person
-
     timestamps()
   end
 
   @doc false
-  def changeset(kind, attrs) do
-    kind
+  def changeset(tag, attrs) do
+    tag
     |> cast(attrs, [:text])
     |> validate_required([:text])
   end
