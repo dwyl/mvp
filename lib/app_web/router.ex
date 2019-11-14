@@ -20,10 +20,10 @@ defmodule AppWeb.Router do
 
     # generic resources for schemas:
     resources "/items", ItemController
-    resources "/kinds", KindController
     resources "/lists", ListController
-    resources "/person", PersonController
+    resources "/people", PersonController
     resources "/status", StatusController
+    resources "/tags", TagController
     resources "/timers", TimerController
   end
 

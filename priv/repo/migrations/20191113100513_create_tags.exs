@@ -1,8 +1,8 @@
-defmodule App.Repo.Migrations.CreateKinds do
+defmodule App.Repo.Migrations.CreateTags do
   use Ecto.Migration
 
   def change do
-    create table(:kinds) do
+    create table(:tags) do
       add :text, :string
 
       timestamps()
