@@ -1,0 +1,26 @@
+defmodule AppWeb.CaptureControllerTest do
+  use AppWeb.ConnCase
+
+  @create_attrs %{text: "some text"}
+  @invalid_attrs %{text: nil}
+
+  describe "new capture" do
+    test "renders form", %{conn: conn} do
+      conn = get(conn, Routes.capture_path(conn, :new))
+      assert html_response(conn, 200) =~ "Capture"
+    end
+  end
+
+  describe "create capture" do
+    test "redirects to categorise page when data is valid", %{conn: conn} do
+      conn = post(conn, Routes.capture_path(conn, :create), item: @create_attrs)
+      assert redirected_to(conn) == Routes.categorise_path(conn, :index)
+    end
+
+    test "renders errors when data is invalid", %{conn: conn} do
+      conn = post(conn, Routes.capture_path(conn, :create), item: @invalid_attrs)
+      assert html_response(conn, 200) =~ "Capture"
+    end
+  end
+
+end

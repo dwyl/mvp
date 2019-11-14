@@ -3,6 +3,6 @@ defmodule AppWeb.PageControllerTest do
 
   test "GET /", %{conn: conn} do
     conn = get(conn, "/")
-    assert html_response(conn, 200) =~ "Welcome to Phoenix!"
+    assert html_response(conn, 200) =~ "Empower people to maximise effectiveness, creativity and happiness"
   end
 end
