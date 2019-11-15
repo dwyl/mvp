@@ -25,6 +25,12 @@ defmodule AppWeb.Router do
     resources "/status", StatusController
     resources "/tags", TagController
     resources "/timers", TimerController
+
+    # capture
+    resources "/capture", CaptureController, only: [:new, :create]
+
+    # categorise
+    resources "/categorise", CategoriseController, only: [:index]
   end
 
   # Other scopes may use custom stacks.
