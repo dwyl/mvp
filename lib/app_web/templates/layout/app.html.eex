@@ -1,19 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-100">
   <head>
     <meta charset="utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>App · Phoenix Framework</title>
+    <title>dwyl app</title>
     <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>"/>
   </head>
-  <body>
-    <header>
+  <body class="bg-near-white mb2">
+    <header class="pa3 bg-blue">
       <nav>
-          <a href="<%= Routes.page_path(@conn, :index) %>">dwyl</a>
+          <a class="white b link" href="<%= Routes.page_path(@conn, :index) %>">dwyl</a>
       </nav>
     </header>
-    <main role="main" class="container">
+    <main role="main" class="pa2">
       <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
       <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
       <%= render @view_module, @view_template, assigns %>

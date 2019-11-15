@@ -1,10 +1,9 @@
 <section class="tc">
-  <h1>dwyl app</h1>
   <h2>Empower people to maximise effectiveness, creativity and happiness</h2>
 </section>
 
 <section class="tc">
-  <%=link("Capture", to: Routes.capture_path(@conn, :new), class: "db") %>
-  <%=link("Categorise", to: Routes.categorise_path(@conn, :index), class: "db") %>
-  <%=link("Complete", to: "/", class: "db") %>
+  <%=link("Capture", to: Routes.capture_path(@conn, :new), class: "f6 b link dim br2 ph3 pv2 db white bg-dark-blue center w4 ma4") %>
+  <%=link("Categorise", to: Routes.categorise_path(@conn, :index), class: "f6 b link dim br2 ph3 pv2 db white bg-dark-blue center w4 ma4") %>
+  <%=link("Complete", to: "/", class: "f6 b link dim br2 ph3 pv2 db white bg-dark-blue center w4 ma4") %>
 </section>

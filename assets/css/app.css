@@ -1,3 +1,19 @@
 /* This file is for your main application css. */
 
 @import "./tachyons.css";
+
+html, body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+}
+
+main {
+    height: 90%;
+}
+
+
+
+.resize-none { resize: none; }

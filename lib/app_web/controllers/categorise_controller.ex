@@ -1,7 +1,10 @@
 defmodule AppWeb.CategoriseController do
   use AppWeb, :controller
 
+  alias App.Ctx
+
   def index(conn, _) do
-    redirect(conn, to: Routes.item_path(conn, :index))
+    captures = Ctx.list_items()
+    render(conn, "index.html", captures: captures)
   end
 end
