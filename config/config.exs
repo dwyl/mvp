@@ -25,6 +25,9 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+# Google application configuration
+config :elixir_auth_google, google_client_id: System.get_env("GOOGLE_CLIENT_ID")
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"
