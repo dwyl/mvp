@@ -35,4 +35,18 @@ config :elixir_auth_google,
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
+
+config :fields, Fields.AES,
+  keys:
+    System.get_env("ENCRYPTION_KEYS")
+    # remove single-quotes around key list in .env
+    |> String.replace("'", "")
+    # split the CSV list of keys
+    |> String.split(",")
+    # decode the key.
+    |> Enum.map(fn key -> :base64.decode(key) end)
+
+config :fields, Fields,
+  secret_key_base: System.get_env("SECRET_KEY_BASE")
+
 import_config "#{Mix.env()}.exs"

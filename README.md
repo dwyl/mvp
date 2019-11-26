@@ -498,6 +498,11 @@ To start your Phoenix server:
         export URL=dwylapp.herokuapp.com
         export SECRET_KEY_BASE=l1Uyq50pB+q7NYDtSSNOJOxZJugfsnXoGmjTV1ShtdG/dPo2BxD9A9JzLHbjpR2j
         ```
+    - ENCRYPTION_KEYS: The keys used to encrypt google tokens. You can create a new key with the following iex code:
+      ```elixir
+      :crypto.strong_rand_bytes(32) |> :base64.encode
+      ```
+
   * run `source .env` to load the enviroment variables
   * Make sure you have Postgres installed, see: https://github.com/dwyl/learn-postgresql
   * Install dependencies with `mix deps.get`
