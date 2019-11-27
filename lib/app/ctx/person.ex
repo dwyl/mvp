@@ -12,6 +12,7 @@ defmodule App.Ctx.Person do
     field :username_hash, :binary
     field :status, :id
     field :tag, :id
+    field :key_id, :integer
 
     has_many :sessions, App.Ctx.Session
     timestamps()
