@@ -13,6 +13,7 @@ defmodule App.Ctx.Person do
     field :status, :id
     field :tag, :id
 
+    has_many :sessions, App.Ctx.Session
     timestamps()
   end
 
@@ -21,5 +22,11 @@ defmodule App.Ctx.Person do
     person
     |> cast(attrs, [:username, :username_hash, :email, :email_hash, :givenName, :familyName, :password_hash, :key_id])
     |> validate_required([:username, :username_hash, :email, :email_hash, :givenName, :familyName, :password_hash, :key_id])
+  end
+
+  def google_changeset(person, attrs) do
+    person
+    |> cast(attrs, [:email])
+    |> validate_required([:email])
   end
 end

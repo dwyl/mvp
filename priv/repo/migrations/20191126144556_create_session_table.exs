@@ -7,7 +7,8 @@ defmodule App.Repo.Migrations.CreateSessionTable do
       add :refresh_token, :string
       add :key_id, :integer
 
-      add :person_id, references(:people, on_delete: :nothing)
+      # delete all sessions for a user when the people is deleted
+      add :person_id, references(:people, on_delete: :delete_all)
       timestamps()
     end
   end

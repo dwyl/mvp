@@ -29,7 +29,7 @@ config :phoenix, :json_library, Jason
 config :elixir_auth_google,
   google_client_id: System.get_env("GOOGLE_CLIENT_ID"),
   google_client_secret: System.get_env("GOOGLE_CLIENT_SECRET"),
-  google_scope: "profile",
+  google_scope: "profile email",
   google_redirect_uri: "http://localhost:4000/google-auth-callback"
 
 

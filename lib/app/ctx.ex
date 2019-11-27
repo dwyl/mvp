@@ -230,6 +230,11 @@ defmodule App.Ctx do
   def get_person!(id), do: Repo.get!(Person, id)
 
   @doc """
+  Get a person by email
+  """
+  def get_person_by_email(email), do: Repo.get_by(Person, email: email)
+
+  @doc """
   Creates a person.
 
   ## Examples
@@ -244,6 +249,16 @@ defmodule App.Ctx do
   def create_person(attrs \\ %{}) do
     %Person{}
     |> Person.changeset(attrs)
+    |> Repo.insert()
+  end
+
+
+  @doc """
+  Create a person from Google profile
+  """
+  def create_google_person(attrs \\ %{}) do
+    %Person{}
+    |> Person.google_changeset(attrs)
     |> Repo.insert()
   end
 
@@ -580,5 +595,13 @@ defmodule App.Ctx do
   """
   def change_timer(%Timer{} = timer) do
     Timer.changeset(timer, %{})
+  end
+
+  alias App.Ctx.Session
+  @doc """
+  Create a session
+  """
+  def create_session(%Session{} = session) do
+    nil
   end
 end
