@@ -7,7 +7,6 @@ defmodule App.Ctx.Person do
     field :email_hash, :binary
     field :familyName, :binary
     field :givenName, :binary
-    field :key_id, :integer
     field :password_hash, :binary
     field :username, :binary
     field :username_hash, :binary
