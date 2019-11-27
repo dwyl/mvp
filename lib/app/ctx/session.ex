@@ -12,4 +12,10 @@ defmodule App.Ctx.Session do
   end
 
 
+  def changeset(session, attrs) do
+    session
+    |> cast(attrs, [:auth_token, :refresh_token])
+    |> validate_required([:auth_token, :refresh_token])
+  end
+
 end
