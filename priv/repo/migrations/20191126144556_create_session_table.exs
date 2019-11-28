@@ -3,8 +3,8 @@ defmodule App.Repo.Migrations.CreateSessionTable do
 
   def change do
     create table(:sessions) do
-      add :auth_token, :string
-      add :refresh_token, :string
+      add :auth_token, :binary
+      add :refresh_token, :binary
       add :key_id, :integer
 
       # keep sessions when user is deleted

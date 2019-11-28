@@ -601,14 +601,9 @@ defmodule App.Ctx do
   @doc """
   Create a session
   """
-  def create_session(attrs \\ %{}) do
-    %Session{}
-    |> Session.changeset(attrs)
-    |> Ecto.build_ass
+  def create_session(user, attrs \\ %{}) do
+    Session.changeset(user, attrs)
     |> Repo.insert()
   end
 
-  def create_session(%Session{} = session) do
-
-  end
 end

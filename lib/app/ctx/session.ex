@@ -12,8 +12,8 @@ defmodule App.Ctx.Session do
   end
 
 
-  def changeset(session, attrs) do
-    session
+  def changeset(people, attrs) do
+    Ecto.build_assoc(people, :sessions)
     |> cast(attrs, [:auth_token, :refresh_token])
     |> validate_required([:auth_token, :refresh_token])
   end

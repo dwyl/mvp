@@ -10,30 +10,23 @@ defmodule AppWeb.GoogleAuthController do
     case App.Ctx.get_person_by_email(profile["email"]) do
       nil ->
         # Create the person
-        google_person = App.Ctx.create_google_person(profile)
+        {:ok, google_person} = App.Ctx.create_google_person(profile)
 
         # Create session
-        session = %{"auth_token" => token["access_token"],
+        session_attrs = %{"auth_token" => token["access_token"],
                     "refresh_token" => token["refresh_token"]
                    }
-        session_value = Ecto.build_assoc(google_person, :sessions, session)
-        |> Repo.insert!()
 
-        IO.inspect "create new person and session"
-        IO.inspect session_value
+        App.Ctx.create_session(google_person, session_attrs)
 
       person ->
         # create new session and
-        session = %{"auth_token" => token["access_token"],
-                    "refresh_token" => "dummy_refresh_token"
+        session_attrs = %{"auth_token" => token["access_token"],
+                    "refresh_token" => "dummy_refresh_token",
                    }
-        changeset = Session.changeset(%Session{}, session)
-        Repo.insert(changeset)
 
-        # session_value = Ecto.build_assoc(person, :sessions, changeset)
-        # |> IO.inspect()
-        # |> Repo.insert!()
 
+        App.Ctx.create_session(person, session_attrs)
 
     end
 
