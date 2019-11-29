@@ -43,7 +43,7 @@ defmodule App.MixProject do
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
-      {:elixir_auth_google, git: "https://github.com/dwyl/elixir-auth-google.git", branch: "master" },
+      {:elixir_auth_google, "~> 0.0.1" },
       {:fields, path: "/home/simon/Documents/dwyl/fields"}
       # {:fields, git: "https://github.com/dwyl/fields.git", branch: "update-ecto"}
     ]
