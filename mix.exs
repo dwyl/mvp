@@ -44,7 +44,7 @@ defmodule App.MixProject do
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
       {:elixir_auth_google, "~> 0.0.1" },
-      {:fields, "~> 0.1.8"}
+      {:fields, "~> 2.0.0"}
       # {:fields, git: "https://github.com/dwyl/fields.git", branch: "update-ecto"}
     ]
   end
