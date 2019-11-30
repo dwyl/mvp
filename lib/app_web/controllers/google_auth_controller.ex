@@ -25,7 +25,7 @@ defmodule AppWeb.GoogleAuthController do
         # create new session and
         session_attrs = %{
           "auth_token" => token["access_token"],
-          "refresh_token" => "dummy_refresh_token", # we don't need to refresh now.
+          "refresh_token" => "dummy_refresh_token", # we don't need refresh for now.
         }
 
         App.Ctx.create_session(person, session_attrs)
@@ -39,9 +39,33 @@ defmodule AppWeb.GoogleAuthController do
   `transform_profile_data_to_person/1` transforms the profile data 
   received from invoking `ElixirAuthGoogle.get_user_profile/1`
   into a `person` record that can be inserted into the database.
+
+  ## Example
+
+    iex> transform_profile_data_to_person(%{
+      "email" => "nelson@gmail.com",
+      "email_verified" => true,
+      "family_name" => "Correia",
+      "given_name" => "Nelson",
+      "locale" => "en",
+      "name" => "Nelson Correia",
+      "picture" => "https://lh3.googleusercontent.com/a-/AAuE7mApnYb260YC1JY7",
+      "sub" => "940732358705212133793"
+    })
+    %{
+      "email" => "nelson@gmail.com",
+      "status" => 1,
+      "familyName" => "Correia",
+      "givenName" => "Nelson",
+    }
   """
   def transform_profile_data_to_person(proflie) do
-    
+    %{
+      "email" => "nelson@gmail.com",
+      "status" => 1,
+      "familyName" => "Correia",
+      "givenName" => "Nelson",
+    }
   end
 
 end
