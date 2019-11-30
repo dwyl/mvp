@@ -59,7 +59,7 @@ defmodule AppWeb.GoogleAuthController do
       "givenName" => "Nelson",
     }
   """
-  def transform_profile_data_to_person(proflie) do
+  def transform_profile_data_to_person(profile) do
     %{
       "email" => Map.get(profile, :email),
       "status" => 1,
