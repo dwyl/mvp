@@ -7,10 +7,10 @@
     <title>dwyl app</title>
     <link rel="stylesheet" href="<%= Routes.static_path(@conn, "/css/app.css") %>"/>
   </head>
-  <body class="bg-near-white mb2">
-    <header class="pa3 bg-blue">
+  <body class="bg-near-white mb2 helvetica">
+    <header class="pa3">
       <nav>
-          <a class="white b link" href="<%= Routes.page_path(@conn, :index) %>">dwyl</a>
+          <a class="white b link" href="<%= Routes.page_path(@conn, :index) %>"></a>
       </nav>
     </header>
     <main role="main" class="pa2">
