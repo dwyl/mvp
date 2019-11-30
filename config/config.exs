@@ -30,7 +30,7 @@ config :elixir_auth_google,
   google_client_id: System.get_env("GOOGLE_CLIENT_ID"),
   google_client_secret: System.get_env("GOOGLE_CLIENT_SECRET"),
   google_scope: "profile email",
-  google_redirect_uri: "http://localhost:4000/google-auth-callback"
+  google_redirect_uri: "http://localhost:4000/google/auth/callback"
 
 
 # Import environment specific config. This must remain at the bottom
