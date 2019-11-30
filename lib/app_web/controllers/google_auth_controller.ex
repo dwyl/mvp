@@ -11,7 +11,8 @@ defmodule AppWeb.GoogleAuthController do
     case App.Ctx.get_person_by_email(profile["email"]) do
       nil ->
         # Create the person
-        {:ok, google_person} = App.Ctx.create_google_person(profile)
+        person = AppWeb.GoogleAuthController.transform_profile_data_to_person(profile)
+        {:ok, google_person} = App.Ctx.create_google_person(person)
 
         # Create session
         session_attrs = %{
@@ -54,20 +55,25 @@ defmodule AppWeb.GoogleAuthController do
     })
     %{
       "email" => "nelson@gmail.com",
+      "email_verified" => true,
+      "family_name" => "Correia",
+      "given_name" => "Nelson",
+      "locale" => "en",
+      "name" => "Nelson Correia",
+      "picture" => "https://lh3.googleusercontent.com/a-/AAuE7mApnYb260YC1JY7a",
+      "sub" => "940732358705212133793"
       "status" => 1,
       "familyName" => "Correia",
-      "givenName" => "Nelson",
-      "picture" => "https://lh3.googleusercontent.com/a-/AAuE7mApnYb260YC1JY7a"
+      "givenName" => "Nelson"
     }
   """
   def transform_profile_data_to_person(profile) do
-    %{
-      "email" => profile["email"],
-      "status" => 1,
-      "familyName" => profile["family_name"],
-      "givenName" => profile["given_name"],
-      "picture" => profile["picture"]
-    }
+    profile
+    |> Map.put("familyName", profile["family_name"])
+    |> Map.put("givenName", profile["given_name"])
+    |> Map.put("locale", profile["locale"])
+    |> Map.put("picture", profile["picture"])
+    |> Map.put("status", 1)
   end
 
 end

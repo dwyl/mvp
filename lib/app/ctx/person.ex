@@ -28,8 +28,7 @@ defmodule App.Ctx.Person do
   end
 
   def google_changeset(profile, attrs) do
-    person = AppWeb.GoogleAuthController.transform_profile_data_to_person(profile)
-    person
+    profile
     |> cast(attrs, [:email, :givenName, :familyName, :picture, :locale])
     |> validate_required([:email])
   end

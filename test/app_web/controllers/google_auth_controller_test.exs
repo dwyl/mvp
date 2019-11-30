@@ -15,10 +15,16 @@ defmodule AppWeb.GoogleAuthControllerTest do
 		}
 		expected = %{
 			"email" => "nelson@gmail.com",
-			"status" => 1,
+			"email_verified" => true,
 			"familyName" => "Correia",
-      "givenName" => "Nelson",
-      "picture" => "https://lh3.googleusercontent.com/a-/AAuE7mApnYb260YC1JY7a"
+			"family_name" => "Correia",
+			"givenName" => "Nelson",
+			"given_name" => "Nelson",
+			"locale" => "en",
+			"name" => "Nelson Correia",
+			"picture" => "https://lh3.googleusercontent.com/a-/AAuE7mApnYb260YC1JY7a",
+			"status" => 1,
+			"sub" => "940732358705212133793"
 		}
 		# invoke our transformer function using the sample data:
 		person = AppWeb.GoogleAuthController.transform_profile_data_to_person(profile)
