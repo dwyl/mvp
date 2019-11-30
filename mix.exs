@@ -45,7 +45,9 @@ defmodule App.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:elixir_auth_google, "~> 0.0.1" },
       {:fields, "~> 2.0.0"}
-      # {:fields, git: "https://github.com/dwyl/fields.git", branch: "update-ecto"}
+
+      # create docs on localhost by running "mix docs"
+      {:ex_doc, "~> 0.21", only: :dev, runtime: false},
     ]
   end
 

@@ -25,8 +25,9 @@ defmodule App.Ctx.Person do
     |> validate_required([:username, :username_hash, :email, :email_hash, :givenName, :familyName, :password_hash, :key_id])
   end
 
-  def google_changeset(person, attrs) do
-    person
+  def google_changeset(profile, attrs) do
+    # person = 
+    profile
     |> cast(attrs, [:email])
     |> validate_required([:email])
   end
