@@ -1,6 +1,6 @@
 defmodule AppWeb.GoogleAuthController do
   use AppWeb, :controller
-  # alias App.Ctx.Session
+  alias App.Ctx.Session
   # alias App.Repo
 
   def index(conn, %{"code" => code}) do
