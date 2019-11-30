@@ -61,10 +61,10 @@ defmodule AppWeb.GoogleAuthController do
   """
   def transform_profile_data_to_person(profile) do
     %{
-      "email" => Map.get(profile, :email),
+      "email" => profile["email"),
       "status" => 1,
-      "familyName" => Map.get(profile, :family_name),
-      "givenName" => Map.get(profile, :given_name),
+      "familyName" => profile["family_name"],
+      "givenName" => profile["given_name"],
     }
   end
 
