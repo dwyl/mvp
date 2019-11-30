@@ -61,7 +61,7 @@ defmodule AppWeb.GoogleAuthController do
   """
   def transform_profile_data_to_person(profile) do
     %{
-      "email" => profile["email"),
+      "email" => profile["email"],
       "status" => 1,
       "familyName" => profile["family_name"],
       "givenName" => profile["given_name"],
