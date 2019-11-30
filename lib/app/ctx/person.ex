@@ -3,7 +3,7 @@ defmodule App.Ctx.Person do
   import Ecto.Changeset
 
   schema "people" do
-    field :email, :binary
+    field :email, Fields.EmailEncrypted
     field :email_hash, :binary
     field :familyName, :binary
     field :givenName, :binary
