@@ -6,5 +6,9 @@
   <%=link("Capture", to: Routes.capture_path(@conn, :new), class: "f6 b link dim br2 ph3 pv2 db white bg-dark-blue center w4 ma4") %>
   <%=link("Categorise", to: Routes.categorise_path(@conn, :index), class: "f6 b link dim br2 ph3 pv2 db white bg-dark-blue center w4 ma4") %>
   <%=link("Complete", to: "/", class: "f6 b link dim br2 ph3 pv2 db white bg-dark-blue center w4 ma4") %>
-  <%=link("SignIn With Google", to: @url_oauth_google, class: "f6 b link dim br2 ph3 pv2 db white bg-dark-blue center w4 ma4") %>
+
+	<a href="<%= @url_oauth_google %>">
+		<img src="https://user-images.githubusercontent.com/194400/69724732-62090d80-1114-11ea-8d81-7ef4fb179f3c.png">
+	</a>
+
 </section>
