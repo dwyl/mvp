@@ -1,7 +1,7 @@
 defmodule AppWeb.GoogleAuthController do
   use AppWeb, :controller
-  alias App.Ctx.Session
-  alias App.Repo
+  # alias App.Ctx.Session
+  # alias App.Repo
 
   def index(conn, %{"code" => code}) do
     {:ok, token} = ElixirAuthGoogle.get_token(code)
@@ -38,7 +38,7 @@ defmodule AppWeb.GoogleAuthController do
   @doc """
   `transform_profile_data_to_person/1` transforms the profile data 
   received from invoking `ElixirAuthGoogle.get_user_profile/1`
-  into a `person` record that can be inserted into the database.
+  into a `person` record that can be inserted into the people table.
 
   ## Example
 
@@ -49,7 +49,7 @@ defmodule AppWeb.GoogleAuthController do
       "given_name" => "Nelson",
       "locale" => "en",
       "name" => "Nelson Correia",
-      "picture" => "https://lh3.googleusercontent.com/a-/AAuE7mApnYb260YC1JY7",
+      "picture" => "https://lh3.googleusercontent.com/a-/AAuE7mApnYb260YC1JY7a",
       "sub" => "940732358705212133793"
     })
     %{
@@ -57,6 +57,7 @@ defmodule AppWeb.GoogleAuthController do
       "status" => 1,
       "familyName" => "Correia",
       "givenName" => "Nelson",
+      "picture" => "https://lh3.googleusercontent.com/a-/AAuE7mApnYb260YC1JY7a"
     }
   """
   def transform_profile_data_to_person(profile) do
@@ -65,6 +66,7 @@ defmodule AppWeb.GoogleAuthController do
       "status" => 1,
       "familyName" => profile["family_name"],
       "givenName" => profile["given_name"],
+      "picture" => profile["picture"]
     }
   end
 
