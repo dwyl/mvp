@@ -124,8 +124,8 @@ defmodule App.CtxTest do
   describe "people" do
     alias App.Ctx.Person
 
-    @valid_attrs %{email: "some email", email_hash: "some email_hash", familyName: "some familyName", givenName: "some givenName", key_id: 42, password_hash: "some password_hash", username: "some username", username_hash: "some username_hash"}
-    @update_attrs %{email: "some updated email", email_hash: "some updated email_hash", familyName: "some updated familyName", givenName: "some updated givenName", key_id: 43, password_hash: "some updated password_hash", username: "some updated username", username_hash: "some updated username_hash"}
+    @valid_attrs %{email: "some email", email_hash: "some email_hash", familyName: "some familyName", givenName: "some givenName", key_id: 42, password_hash: "some password_hash", username: "some username", username_hash: "some username_hash", locale: "en", picture: "https://imgur.com/a/DFXNawx"}
+    @update_attrs %{email: "some updated email", email_hash: "some updated email_hash", familyName: "some updated familyName", givenName: "some updated givenName", key_id: 43, password_hash: "some updated password_hash", username: "updated username", username_hash: "updated username_hash"}
     @invalid_attrs %{email: nil, email_hash: nil, familyName: nil, givenName: nil, key_id: nil, password_hash: nil, username: nil, username_hash: nil}
 
     def person_fixture(attrs \\ %{}) do
@@ -172,8 +172,8 @@ defmodule App.CtxTest do
       assert person.givenName == "some updated givenName"
       assert person.key_id == 43
       assert person.password_hash == "some updated password_hash"
-      assert person.username == "some updated username"
-      assert person.username_hash == "some updated username_hash"
+      assert person.username == "updated username"
+      assert person.username_hash == "updated username_hash"
     end
 
     test "update_person/2 with invalid data returns error changeset" do

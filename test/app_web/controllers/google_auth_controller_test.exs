@@ -10,7 +10,7 @@ defmodule AppWeb.GoogleAuthControllerTest do
 		  "given_name" => "Nelson",
 		  "locale" => "en",
 		  "name" => "Nelson Correia",
-		  "picture" => "https://lh3.googleusercontent.com/a-/AAuE7mApnYb260YC1JY7aPUBxwk8iNzVKB5Q3x_8d3-ThA",
+		  "picture" => "https://lh3.googleusercontent.com/a-/AAuE7mApnYb260YC1JY7a",
 		  "sub" => "940732358705212133793"
 		}
 		expected = %{
@@ -18,7 +18,7 @@ defmodule AppWeb.GoogleAuthControllerTest do
 			"status" => 1,
 			"familyName" => "Correia",
       "givenName" => "Nelson",
-      "picture" => "https://lh3.googleusercontent.com/a-/AAuE7mApnYb260YC1JY7aPUBxwk8iNzVKB5Q3x_8d3-ThA"
+      "picture" => "https://lh3.googleusercontent.com/a-/AAuE7mApnYb260YC1JY7a"
 		}
 		# invoke our transformer function using the sample data:
 		person = AppWeb.GoogleAuthController.transform_profile_data_to_person(profile)
