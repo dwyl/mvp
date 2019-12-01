@@ -1,1 +1,9 @@
-<h1> Hello <%= @person["givenName"] %> </h1>
+
+
+<a class="" href="<%= Routes.page_path(@conn, :index) %>">
+  <img width="100px" src="<%= @person["picture"] %>" />
+</a>
+<p>person["image"]<%= @person["picture"] %> </p>
+<section>
+  <h1 class="tc"> Hello <%= @person["givenName"] %> </h1>
+</section>
