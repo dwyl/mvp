@@ -130,13 +130,11 @@ defmodule App.CtxTest do
     @invalid_attrs %{email: nil, email_hash: nil, familyName: nil, givenName: nil, key_id: nil, password_hash: nil, username: nil, username_hash: nil}
 
     def person_fixture(attrs \\ %{}) do
-      # IO.inspect(@valid_attrs, label: "@valid_attrs")
       {:ok, person} =
         attrs
         |> Enum.into(@valid_attrs)
         # |> Map.put(:email_hash, Fields.EmailHash.dump(@valid_attrs["email"]))
         |> Ctx.create_person()
-
       person
     end
 
@@ -147,6 +145,9 @@ defmodule App.CtxTest do
 
     test "get_person!/1 returns the person with given id" do
       person = person_fixture()
+      # IO.inspect person, label: "person"
+      # res = Ctx.get_person!(person.id)
+      # IO.inspect res, label: "Ctx.get_person!(person.id)"
       assert Ctx.get_person!(person.id) == person
     end
 

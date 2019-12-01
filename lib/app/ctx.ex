@@ -229,7 +229,7 @@ defmodule App.Ctx do
   """
   def get_person!(id) do 
     Repo.get!(Person, id)
-    # |> Repo.preload(session: id)
+    # |> Repo.preload(sessions: :person)
   end
 
   @doc """

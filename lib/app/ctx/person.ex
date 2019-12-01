@@ -16,7 +16,7 @@ defmodule App.Ctx.Person do
     field :tag, :id
     field :key_id, :integer
 
-    has_many :sessions, App.Ctx.Session
+    has_many :sessions, App.Ctx.Session, on_delete: :delete_all
     timestamps()
   end
 
