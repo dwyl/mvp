@@ -1,0 +1,4 @@
+<%= if authenticated?(@person) do %>
+  <h1> HAI Friend! </h1>
+<% end %>
+<h1> Hello <%= @person["givenName"] %> </h1>
