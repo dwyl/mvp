@@ -57,6 +57,9 @@ defmodule App.MixProject do
       {:ex_doc, "~> 0.21", only: :dev, runtime: false},
       # track test coverage
       {:excoveralls, "~> 0.12.1", only: [:test, :dev]}
+      # git pre-commit hook runs tests before allowing commits
+      {:pre_commit, "~> 0.3.4"},
+      {:credo, "~> 1.1.0", only: [:dev, :test], runtime: false}
 
     ]
   end
