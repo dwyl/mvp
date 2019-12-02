@@ -8,7 +8,7 @@ defmodule AppWeb.GoogleAuthController do
   def index(conn, %{"code" => code}) do
     {:ok, token} = ElixirAuthGoogle.get_token(code)
     {:ok, profile} = ElixirAuthGoogle.get_user_profile(token["access_token"])
-    IO.inspect profile, label: "profile"
+    # IO.inspect profile, label: "profile"
     person = AppWeb.GoogleAuthController.transform_profile_data_to_person(profile)
 
     # get the person by email
@@ -36,8 +36,7 @@ defmodule AppWeb.GoogleAuthController do
     end
 
     # redirect(conn, to: "/")
-
-    IO.inspect person, label: "person"
+    # IO.inspect person, label: "person"
     render(conn, "index.html", person: person)
   end
 

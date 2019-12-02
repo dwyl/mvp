@@ -23,7 +23,7 @@
     <link rel="icon" type="image/png" sizes="96x96" href="https://dwyl.com/img/favicon-96x96.png">
     <link rel="icon" type="image/png" sizes="16x16" href="https://dwyl.com/img/favicon-16x16.png">
   </head>
-  <body class="bg-near-white mb2 helvetica">
+  <body class="bg-near-white helvetica">
     <header class="pa3">
       <nav>
           <a class="white b link" href="<%= Routes.page_path(@conn, :index) %>"></a>
