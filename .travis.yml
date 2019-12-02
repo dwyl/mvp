@@ -1,6 +1,6 @@
 language: elixir
 elixir:
-  - 1.7
+  - 1.9
 otp_release:
   - 22.0
 env:
@@ -19,4 +19,5 @@ before_script:
 script:
   - mix test
 after_success:
+  - mix coveralls.json
   - bash <(curl -s https://codecov.io/bash)
