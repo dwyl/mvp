@@ -17,7 +17,7 @@ defmodule AppWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
-    get "/google/auth/callback", GoogleAuthController, :index
+    get "/auth/google/callback", GoogleAuthController, :index
 
     # generic resources for schemas:
     resources "/items", ItemController
