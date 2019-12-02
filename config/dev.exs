@@ -76,4 +76,4 @@ config :phoenix, :stacktrace_depth, 20
 config :phoenix, :plug_init_mode, :runtime
 
 # add pre-commit command see #20
-config :pre_commit, commands: ["test"]
+config :pre_commit, commands: ["test", "coveralls"]

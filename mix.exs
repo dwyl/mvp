@@ -51,7 +51,8 @@ defmodule App.MixProject do
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
       {:excoveralls, "~> 0.12.1", only: [:test, :dev]},
-      {:pre_commit, "~> 0.3.4"}
+      {:pre_commit, "~> 0.3.4"},
+      {:credo, "~> 1.1.0", only: [:dev, :test], runtime: false}
     ]
   end
 
