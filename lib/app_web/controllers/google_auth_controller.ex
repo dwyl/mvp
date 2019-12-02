@@ -6,7 +6,7 @@ defmodule AppWeb.GoogleAuthController do
   # alias App.Repo
 
   def index(conn, %{"code" => code}) do
-    {:ok, token} = ElixirAuthGoogle.get_token(code)
+    {:ok, token} = ElixirAuthGoogle.get_token(code, conn)
     {:ok, profile} = ElixirAuthGoogle.get_user_profile(token["access_token"])
     # IO.inspect profile, label: "profile"
     person = AppWeb.GoogleAuthController.transform_profile_data_to_person(profile)
