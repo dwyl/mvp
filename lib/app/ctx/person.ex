@@ -8,6 +8,7 @@ defmodule App.Ctx.Person do
     field :familyName, :binary
     field :givenName, :binary
     field :locale, :string
+    field :password, :string, virtual: true
     field :password_hash, :binary
     field :picture, :binary
     field :username, :binary
