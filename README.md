@@ -1,5 +1,6 @@
 # @dwyl App MVP `Phoenix`  💡⏳ ✅
 [![Build Status](https://travis-ci.com/dwyl/app-mvp-phoenix.svg?branch=master)](https://travis-ci.com/dwyl/app-mvp-phoenix)
+[![codecov](https://codecov.io/gh/dwyl/app-mvp-phoenix/branch/master/graph/badge.svg)](https://codecov.io/gh/dwyl/app-mvp-phoenix)
 
 A `Elixir`/`Phoenix` implementation
 of the @dwyl App MVP feature set.

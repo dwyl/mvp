@@ -10,7 +10,14 @@ defmodule App.MixProject do
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.json": :test,
+        "coveralls.html": :test
+      ]
     ]
   end
 
@@ -48,6 +55,9 @@ defmodule App.MixProject do
 
       # create docs on localhost by running "mix docs"
       {:ex_doc, "~> 0.21", only: :dev, runtime: false},
+      # track test coverage
+      {:excoveralls, "~> 0.12.1", only: [:test, :dev]}
+
     ]
   end
 

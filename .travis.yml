@@ -18,3 +18,5 @@ before_script:
   - mix do ecto.create, ecto.migrate
 script:
   - mix test
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
