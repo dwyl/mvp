@@ -17,10 +17,6 @@
   <%= text_input f, :email %>
   <%= error_tag f, :email %>
 
-  <%= label f, :email_hash %>
-  <%= text_input f, :email_hash %>
-  <%= error_tag f, :email_hash %>
-
   <%= label f, :givenName %>
   <%= text_input f, :givenName %>
   <%= error_tag f, :givenName %>
