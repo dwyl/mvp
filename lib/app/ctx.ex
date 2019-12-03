@@ -227,7 +227,7 @@ defmodule App.Ctx do
       ** (Ecto.NoResultsError)
 
   """
-  def get_person!(id) do 
+  def get_person!(id) do
     Repo.get!(Person, id)
     # |> Repo.preload(sessions: :person)
   end
@@ -235,7 +235,9 @@ defmodule App.Ctx do
   @doc """
   Get a person by email
   """
-  def get_person_by_email(email), do: Repo.get_by(Person, email: email)
+  def get_person_by_email(email) do
+    Repo.get_by(Person, email_hash: email)
+  end
 
   @doc """
   Creates a person.
