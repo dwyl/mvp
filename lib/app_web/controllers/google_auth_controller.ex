@@ -8,7 +8,7 @@ defmodule AppWeb.GoogleAuthController do
   def index(conn, %{"code" => code}) do
     {:ok, token} = ElixirAuthGoogle.get_token(code, conn)
     {:ok, profile} = ElixirAuthGoogle.get_user_profile(token["access_token"])
-    # IO.inspect profile, label: "profile"
+
     person = AppWeb.GoogleAuthController.transform_profile_data_to_person(profile)
 
     # get the person by email
@@ -25,6 +25,9 @@ defmodule AppWeb.GoogleAuthController do
 
         App.Ctx.create_session(google_person, session_attrs)
 
+        # Create Phoenix session
+        AppWeb.Auth.login(conn, google_person)
+        |> render("index.html", person: person)
       person ->
         # create new session and
         session_attrs = %{
@@ -33,11 +36,11 @@ defmodule AppWeb.GoogleAuthController do
         }
 
         App.Ctx.create_session(person, session_attrs)
-    end
 
-    # redirect(conn, to: "/")
-    # IO.inspect person, label: "person"
-    render(conn, "index.html", person: person)
+        # Create Phoenix session
+        AppWeb.Auth.login(conn, person)
+        |> render("index.html", person: person)
+    end
   end
 
   @doc """

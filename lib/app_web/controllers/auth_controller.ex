@@ -10,7 +10,10 @@ defmodule AppWeb.Auth do
 
   def call(conn, _opts) do
     person_id = get_session(conn, :person_id)
-
+    IO.inspect "#######################"
+    IO.inspect person_id
+    IO.inspect conn.assigns[:current_person]
+    IO.inspect "#######################"
     cond do
       person = conn.assigns[:current_person] ->
         assign(conn, :current_person, person)
