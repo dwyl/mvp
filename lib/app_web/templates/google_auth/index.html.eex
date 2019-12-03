@@ -14,3 +14,5 @@
     </span>
   <p/>
 </section>
+
+<span class="ph1"><%= link "Capture", to: Routes.capture_path(@conn, :new) %></span>

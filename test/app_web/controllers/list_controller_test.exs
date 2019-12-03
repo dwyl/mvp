@@ -1,6 +1,6 @@
 defmodule AppWeb.ListControllerTest do
   use AppWeb.ConnCase
-
+  import App.SetupHelpers
   alias App.Ctx
 
   @create_attrs %{title: "some title"}
@@ -13,6 +13,7 @@ defmodule AppWeb.ListControllerTest do
   end
 
   describe "index" do
+    setup [:person_login]
     test "lists all lists", %{conn: conn} do
       conn = get(conn, Routes.list_path(conn, :index))
       assert html_response(conn, 200) =~ "Listing Lists"
@@ -20,6 +21,7 @@ defmodule AppWeb.ListControllerTest do
   end
 
   describe "new list" do
+    setup [:person_login]
     test "renders form", %{conn: conn} do
       conn = get(conn, Routes.list_path(conn, :new))
       assert html_response(conn, 200) =~ "New List"
@@ -27,6 +29,7 @@ defmodule AppWeb.ListControllerTest do
   end
 
   describe "create list" do
+    setup [:person_login]
     test "redirects to show when data is valid", %{conn: conn} do
       conn = post(conn, Routes.list_path(conn, :create), list: @create_attrs)
 
@@ -44,7 +47,7 @@ defmodule AppWeb.ListControllerTest do
   end
 
   describe "edit list" do
-    setup [:create_list]
+    setup [:create_list, :person_login]
 
     test "renders form for editing chosen list", %{conn: conn, list: list} do
       conn = get(conn, Routes.list_path(conn, :edit, list))
@@ -53,7 +56,7 @@ defmodule AppWeb.ListControllerTest do
   end
 
   describe "update list" do
-    setup [:create_list]
+    setup [:create_list, :person_login]
 
     test "redirects when data is valid", %{conn: conn, list: list} do
       conn = put(conn, Routes.list_path(conn, :update, list), list: @update_attrs)
@@ -70,7 +73,7 @@ defmodule AppWeb.ListControllerTest do
   end
 
   describe "delete list" do
-    setup [:create_list]
+    setup [:create_list, :person_login]
 
     test "deletes chosen list", %{conn: conn, list: list} do
       conn = delete(conn, Routes.list_path(conn, :delete, list))

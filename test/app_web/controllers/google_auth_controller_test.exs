@@ -1,5 +1,5 @@
 defmodule AppWeb.GoogleAuthControllerTest do
-  use App.DataCase
+  use AppWeb.ConnCase
 
 	test "transform_profile_data_to_person/1 transforms profile to person" do
 
@@ -27,9 +27,16 @@ defmodule AppWeb.GoogleAuthControllerTest do
 			"sub" => "940732358705212133793"
 		}
 		# invoke our transformer function using the sample data:
-		person = AppWeb.GoogleAuthController.transform_profile_data_to_person(profile)
-		
+		person = App.Ctx.Person.transform_profile_data_to_person(profile)
+
 		assert Map.equal?(expected, person)
 	end
+
+
+  test "GET /", %{conn: conn} do
+    conn = get(conn, Routes.google_auth_path(conn, :index, code: "code"))
+    assert html_response(conn, 200)
+  end
+
 
 end

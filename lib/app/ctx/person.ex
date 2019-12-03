@@ -35,4 +35,44 @@ defmodule App.Ctx.Person do
     |> cast(attrs, [:email, :givenName, :familyName, :picture, :locale])
     |> validate_required([:email])
   end
+
+  @doc """
+  `transform_profile_data_to_person/1` transforms the profile data
+  received from invoking `ElixirAuthGoogle.get_user_profile/1`
+  into a `person` record that can be inserted into the people table.
+
+  ## Example
+
+    iex> transform_profile_data_to_person(%{
+      "email" => "nelson@gmail.com",
+      "email_verified" => true,
+      "family_name" => "Correia",
+      "given_name" => "Nelson",
+      "locale" => "en",
+      "name" => "Nelson Correia",
+      "picture" => "https://lh3.googleusercontent.com/a-/AAuE7mApnYb260YC1JY7a",
+      "sub" => "940732358705212133793"
+    })
+    %{
+      "email" => "nelson@gmail.com",
+      "email_verified" => true,
+      "family_name" => "Correia",
+      "given_name" => "Nelson",
+      "locale" => "en",
+      "name" => "Nelson Correia",
+      "picture" => "https://lh3.googleusercontent.com/a-/AAuE7mApnYb260YC1JY7a",
+      "sub" => "940732358705212133793"
+      "status" => 1,
+      "familyName" => "Correia",
+      "givenName" => "Nelson"
+    }
+  """
+  def transform_profile_data_to_person(profile) do
+    profile
+    |> Map.put("familyName", profile["family_name"])
+    |> Map.put("givenName", profile["given_name"])
+    |> Map.put("locale", profile["locale"])
+    |> Map.put("picture", profile["picture"])
+    |> Map.put("status", 1)
+  end
 end

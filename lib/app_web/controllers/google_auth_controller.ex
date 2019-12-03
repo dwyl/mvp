@@ -5,11 +5,13 @@ defmodule AppWeb.GoogleAuthController do
   alias App.Ctx.Session
   # alias App.Repo
 
+  @elixir_auth_google Application.get_env(:app, :elixir_auth_google) || ElixirAuthGoogle
+
   def index(conn, %{"code" => code}) do
-    {:ok, token} = ElixirAuthGoogle.get_token(code, conn)
-    {:ok, profile} = ElixirAuthGoogle.get_user_profile(token["access_token"])
-    # IO.inspect profile, label: "profile"
-    person = AppWeb.GoogleAuthController.transform_profile_data_to_person(profile)
+    {:ok, token} = @elixir_auth_google.get_token(code, conn)
+    {:ok, profile} = @elixir_auth_google.get_user_profile(token["access_token"])
+
+    person = App.Ctx.Person.transform_profile_data_to_person(profile)
 
     # get the person by email
     case App.Ctx.get_person_by_email(profile["email"]) do
@@ -25,6 +27,9 @@ defmodule AppWeb.GoogleAuthController do
 
         App.Ctx.create_session(google_person, session_attrs)
 
+        # Create Phoenix session
+        AppWeb.Auth.login(conn, google_person)
+        |> render("index.html", person: person)
       person ->
         # create new session and
         session_attrs = %{
@@ -33,51 +38,10 @@ defmodule AppWeb.GoogleAuthController do
         }
 
         App.Ctx.create_session(person, session_attrs)
+
+        # Create Phoenix session
+        AppWeb.Auth.login(conn, person)
+        |> render("index.html", person: person)
     end
-
-    # redirect(conn, to: "/")
-    # IO.inspect person, label: "person"
-    render(conn, "index.html", person: person)
   end
-
-  @doc """
-  `transform_profile_data_to_person/1` transforms the profile data
-  received from invoking `ElixirAuthGoogle.get_user_profile/1`
-  into a `person` record that can be inserted into the people table.
-
-  ## Example
-
-    iex> transform_profile_data_to_person(%{
-      "email" => "nelson@gmail.com",
-      "email_verified" => true,
-      "family_name" => "Correia",
-      "given_name" => "Nelson",
-      "locale" => "en",
-      "name" => "Nelson Correia",
-      "picture" => "https://lh3.googleusercontent.com/a-/AAuE7mApnYb260YC1JY7a",
-      "sub" => "940732358705212133793"
-    })
-    %{
-      "email" => "nelson@gmail.com",
-      "email_verified" => true,
-      "family_name" => "Correia",
-      "given_name" => "Nelson",
-      "locale" => "en",
-      "name" => "Nelson Correia",
-      "picture" => "https://lh3.googleusercontent.com/a-/AAuE7mApnYb260YC1JY7a",
-      "sub" => "940732358705212133793"
-      "status" => 1,
-      "familyName" => "Correia",
-      "givenName" => "Nelson"
-    }
-  """
-  def transform_profile_data_to_person(profile) do
-    profile
-    |> Map.put("familyName", profile["family_name"])
-    |> Map.put("givenName", profile["given_name"])
-    |> Map.put("locale", profile["locale"])
-    |> Map.put("picture", profile["picture"])
-    |> Map.put("status", 1)
-  end
-
 end

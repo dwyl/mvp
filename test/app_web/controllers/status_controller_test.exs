@@ -1,6 +1,6 @@
 defmodule AppWeb.StatusControllerTest do
   use AppWeb.ConnCase
-
+  import App.SetupHelpers
   alias App.Ctx
 
   @create_attrs %{text: "some text"}
@@ -13,6 +13,7 @@ defmodule AppWeb.StatusControllerTest do
   end
 
   describe "index" do
+    setup [:person_login]
     test "lists all status", %{conn: conn} do
       conn = get(conn, Routes.status_path(conn, :index))
       assert html_response(conn, 200) =~ "Listing Status"
@@ -20,6 +21,7 @@ defmodule AppWeb.StatusControllerTest do
   end
 
   describe "new status" do
+    setup [:person_login]
     test "renders form", %{conn: conn} do
       conn = get(conn, Routes.status_path(conn, :new))
       assert html_response(conn, 200) =~ "New Status"
@@ -27,6 +29,7 @@ defmodule AppWeb.StatusControllerTest do
   end
 
   describe "create status" do
+    setup [:person_login]
     test "redirects to show when data is valid", %{conn: conn} do
       conn = post(conn, Routes.status_path(conn, :create), status: @create_attrs)
 
@@ -44,7 +47,7 @@ defmodule AppWeb.StatusControllerTest do
   end
 
   describe "edit status" do
-    setup [:create_status]
+    setup [:person_login, :create_status]
 
     test "renders form for editing chosen status", %{conn: conn, status: status} do
       conn = get(conn, Routes.status_path(conn, :edit, status))
@@ -53,7 +56,7 @@ defmodule AppWeb.StatusControllerTest do
   end
 
   describe "update status" do
-    setup [:create_status]
+    setup [:person_login, :create_status]
 
     test "redirects when data is valid", %{conn: conn, status: status} do
       conn = put(conn, Routes.status_path(conn, :update, status), status: @update_attrs)
@@ -70,7 +73,7 @@ defmodule AppWeb.StatusControllerTest do
   end
 
   describe "delete status" do
-    setup [:create_status]
+    setup [:person_login, :create_status]
 
     test "deletes chosen status", %{conn: conn, status: status} do
       conn = delete(conn, Routes.status_path(conn, :delete, status))

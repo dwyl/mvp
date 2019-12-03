@@ -1,5 +1,6 @@
 defmodule AppWeb.Router do
   use AppWeb, :router
+  import AppWeb.Auth
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -7,10 +8,15 @@ defmodule AppWeb.Router do
     plug :fetch_flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug  AppWeb.Auth
   end
 
   pipeline :api do
     plug :accepts, ["json"]
+  end
+
+  pipeline :person do
+    plug :authenticate_person
   end
 
   scope "/", AppWeb do
@@ -18,6 +24,10 @@ defmodule AppWeb.Router do
 
     get "/", PageController, :index
     get "/auth/google/callback", GoogleAuthController, :index
+  end
+
+  scope "/", AppWeb do
+    pipe_through [:browser, :person]
 
     # generic resources for schemas:
     resources "/items", ItemController

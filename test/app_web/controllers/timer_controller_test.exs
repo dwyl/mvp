@@ -1,6 +1,6 @@
 defmodule AppWeb.TimerControllerTest do
   use AppWeb.ConnCase
-
+  import App.SetupHelpers
   alias App.Ctx
 
   @create_attrs %{end: ~N[2010-04-17 14:00:00], start: ~N[2010-04-17 14:00:00]}
@@ -13,6 +13,7 @@ defmodule AppWeb.TimerControllerTest do
   end
 
   describe "index" do
+    setup [:person_login]
     test "lists all timers", %{conn: conn} do
       conn = get(conn, Routes.timer_path(conn, :index))
       assert html_response(conn, 200) =~ "Listing Timers"
@@ -20,6 +21,7 @@ defmodule AppWeb.TimerControllerTest do
   end
 
   describe "new timer" do
+    setup [:person_login]
     test "renders form", %{conn: conn} do
       conn = get(conn, Routes.timer_path(conn, :new))
       assert html_response(conn, 200) =~ "New Timer"
@@ -27,6 +29,7 @@ defmodule AppWeb.TimerControllerTest do
   end
 
   describe "create timer" do
+    setup [:person_login]
     test "redirects to show when data is valid", %{conn: conn} do
       conn = post(conn, Routes.timer_path(conn, :create), timer: @create_attrs)
 
@@ -44,7 +47,7 @@ defmodule AppWeb.TimerControllerTest do
   end
 
   describe "edit timer" do
-    setup [:create_timer]
+    setup [:person_login, :create_timer]
 
     test "renders form for editing chosen timer", %{conn: conn, timer: timer} do
       conn = get(conn, Routes.timer_path(conn, :edit, timer))
@@ -53,7 +56,7 @@ defmodule AppWeb.TimerControllerTest do
   end
 
   describe "update timer" do
-    setup [:create_timer]
+    setup [:person_login, :create_timer]
 
     test "redirects when data is valid", %{conn: conn, timer: timer} do
       conn = put(conn, Routes.timer_path(conn, :update, timer), timer: @update_attrs)
@@ -70,7 +73,7 @@ defmodule AppWeb.TimerControllerTest do
   end
 
   describe "delete timer" do
-    setup [:create_timer]
+    setup [:person_login, :create_timer]
 
     test "deletes chosen timer", %{conn: conn, timer: timer} do
       conn = delete(conn, Routes.timer_path(conn, :delete, timer))
