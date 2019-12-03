@@ -1,4 +1,4 @@
-defmodule RumblWeb.Auth do
+defmodule AppWeb.Auth do
   use AppWeb, :controller
   # use AppWeb, :router
   alias AppWeb.Router.Helpers
