@@ -1,6 +1,6 @@
 defmodule AppWeb.PersonControllerTest do
   use AppWeb.ConnCase
-
+  import App.SetupHelpers
   alias App.Ctx
 
   @create_attrs %{email: "a@b.com", email_hash: "some email_hash", familyName: "some familyName", givenName: "some givenName", key_id: 42, password_hash: "some password_hash", username: "some username", username_hash: "some username_hash"}
@@ -13,6 +13,7 @@ defmodule AppWeb.PersonControllerTest do
   end
 
   describe "index" do
+    setup [:person_login]
     test "lists all people", %{conn: conn} do
       conn = get(conn, Routes.person_path(conn, :index))
       assert html_response(conn, 200) =~ "Listing People"
@@ -20,6 +21,7 @@ defmodule AppWeb.PersonControllerTest do
   end
 
   describe "new person" do
+    setup [:person_login]
     test "renders form", %{conn: conn} do
       conn = get(conn, Routes.person_path(conn, :new))
       assert html_response(conn, 200) =~ "New Person"
@@ -27,6 +29,7 @@ defmodule AppWeb.PersonControllerTest do
   end
 
   describe "create person" do
+    setup [:person_login]
     test "redirects to show when data is valid", %{conn: conn} do
       conn = post(conn, Routes.person_path(conn, :create), person: @create_attrs)
 
@@ -44,7 +47,7 @@ defmodule AppWeb.PersonControllerTest do
   end
 
   describe "edit person" do
-    setup [:create_person]
+    setup [:person_login, :create_person]
 
     test "renders form for editing chosen person", %{conn: conn, person: person} do
       conn = get(conn, Routes.person_path(conn, :edit, person))
@@ -53,7 +56,7 @@ defmodule AppWeb.PersonControllerTest do
   end
 
   describe "update person" do
-    setup [:create_person]
+    setup [:person_login, :create_person]
 
     test "redirects when data is valid", %{conn: conn, person: person} do
       conn = put(conn, Routes.person_path(conn, :update, person), person: @update_attrs)
@@ -70,7 +73,7 @@ defmodule AppWeb.PersonControllerTest do
   end
 
   describe "delete person" do
-    setup [:create_person]
+    setup [:person_login, :create_person]
 
     test "deletes chosen person", %{conn: conn, person: person} do
       conn = delete(conn, Routes.person_path(conn, :delete, person))
