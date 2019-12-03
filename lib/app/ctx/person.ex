@@ -4,7 +4,7 @@ defmodule App.Ctx.Person do
 
   schema "people" do
     field :email, Fields.EmailEncrypted
-    field :email_hash, :binary
+    field :email_hash, Fields.EmailHash
     field :familyName, :binary
     field :givenName, :binary
     field :locale, :string
@@ -22,12 +22,12 @@ defmodule App.Ctx.Person do
   end
 
   @doc false
-  def changeset(person, attrs) do
+  def changeset(%{email: email} = person, attrs) do
+    {:ok, emailHash } = Fields.EmailHash.dump(email)
     person
-    |> cast(attrs, [:username, :username_hash, :email, :email_hash, :givenName, :familyName, :password_hash, :key_id, :locale, :picture])
-    |> validate_required([:username, :username_hash, :email, :givenName, :familyName, :password_hash, :key_id])
-    # |> Map.put(:email_hash, Fields.EmailHash.dump(person["email"]))
-    # |> IO.inspect(label: "person")
+    |> cast(attrs, [:username, :email, :givenName, :familyName, :password_hash, :key_id, :locale, :picture])
+    |> validate_required([:username, :email, :givenName, :familyName, :password_hash, :key_id])
+    |> put_change(:email_hash, emailHash )
   end
 
   def google_changeset(profile, attrs) do
