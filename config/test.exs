@@ -16,3 +16,6 @@ config :app, AppWeb.Endpoint,
 
 # Print only warnings and errors during test
 config :logger, level: :warn
+
+# mock elixir_auth_google
+config :app, :elixir_auth_google, App.ElixirAuthGoogle.Mock

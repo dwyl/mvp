@@ -1,8 +1,6 @@
 defmodule AppWeb.Auth do
   use AppWeb, :controller
   # use AppWeb, :router
-  alias AppWeb.Router.Helpers
-  alias App.Ctx.Session
   import Plug.Conn
   # alias App.Repo
 
@@ -10,10 +8,6 @@ defmodule AppWeb.Auth do
 
   def call(conn, _opts) do
     person_id = get_session(conn, :person_id)
-    IO.inspect "#######################"
-    IO.inspect person_id
-    IO.inspect conn.assigns[:current_person]
-    IO.inspect "#######################"
     cond do
       person = conn.assigns[:current_person] ->
         assign(conn, :current_person, person)
