@@ -36,7 +36,6 @@ defmodule AppWeb.GoogleAuthController do
           "auth_token" => token["access_token"],
           "refresh_token" => "dummy_refresh_token", # we don't need refresh for now.
         }
-
         App.Ctx.create_session(person, session_attrs)
 
         # Create Phoenix session
