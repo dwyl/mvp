@@ -3,6 +3,7 @@ defmodule AppWeb.Auth do
   # use AppWeb, :router
   alias AppWeb.Router.Helpers
   alias App.Ctx.Session
+  import Plug.Conn
   # alias App.Repo
 
   def init(opts), do: opts
@@ -12,10 +13,10 @@ defmodule AppWeb.Auth do
 
     cond do
       person = conn.assigns[:current_person] ->
-        assign(conn, person)
+        assign(conn, :current_person, person)
 
-      person = user_id && App.Ctx.get_person!(person_id) ->
-        assign(conn, person)
+      person = person_id && App.Ctx.get_person!(person_id) ->
+        assign(conn, :current_person, person)
 
       true ->
         assign(conn, :current_person, nil)
@@ -24,7 +25,7 @@ defmodule AppWeb.Auth do
 
   def login(conn, person) do
     conn
-    |> assign(:current_person, user)
+    |> assign(:current_person, person)
     |> put_session(:person_id, person.id)
     |> configure_session(renew: true)
   end
