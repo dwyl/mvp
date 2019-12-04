@@ -1,9 +1,5 @@
 defmodule AppWeb.GoogleAuthController do
   use AppWeb, :controller
-  # use AppWeb, :router
-  alias AppWeb.Router.Helpers
-  alias App.Ctx.Session
-  # alias App.Repo
 
   @elixir_auth_google Application.get_env(:app, :elixir_auth_google) || ElixirAuthGoogle
 
