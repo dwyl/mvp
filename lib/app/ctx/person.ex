@@ -5,14 +5,14 @@ defmodule App.Ctx.Person do
   schema "people" do
     field :email, Fields.EmailEncrypted
     field :email_hash, Fields.EmailHash
-    field :familyName, :binary
-    field :givenName, :binary
+    field :familyName, Fields.Encrypted
+    field :givenName, Fields.Encrypted
     field :locale, :string
     field :password, :string, virtual: true
-    field :password_hash, :binary
+    field :password_hash, Fields.Password
     field :picture, :binary
     field :username, :binary
-    field :username_hash, :binary
+    field :username_hash, Fields.Hash
     field :status, :id
     field :tag, :id
     field :key_id, :integer
