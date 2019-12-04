@@ -13,30 +13,24 @@ defmodule AppWeb.GoogleAuthController do
     case App.Ctx.get_person_by_email(person["email"]) do
       nil ->
         # Create the person
-        {:ok, google_person} = App.Ctx.create_google_person(person)
-
-        # Create session
-        session_attrs = %{
-          "auth_token" => token["access_token"],
-          "refresh_token" => token["refresh_token"]
-        }
-
-        App.Ctx.create_session(google_person, session_attrs)
-
-        # Create Phoenix session
-        AppWeb.Auth.login(conn, google_person)
-        |> redirect(to: Routes.person_path(conn, :info))
-
+        {:ok, person} = App.Ctx.create_google_person(person)
+        create_session(conn, person, token)
       person ->
-        # create new session and
-        session_attrs = %{
-          "auth_token" => token["access_token"],
-          "refresh_token" => "dummy_refresh_token", # we don't need refresh for now.
-        }
-        App.Ctx.create_session(person, session_attrs)
-        # Create Phoenix session
-        AppWeb.Auth.login(conn, person)
-        |> redirect(to: Routes.person_path(conn, :info))
-    end
+        create_session(conn, person, token)
+    end    
+  end
+
+  def create_session(conn, person, token) do
+    # Create session
+    session_attrs = %{
+      "auth_token" => token["access_token"],
+      "refresh_token" => token["refresh_token"]
+    }
+    App.Ctx.create_session(person, session_attrs)
+
+    # login and redirect to welcome page:
+    AppWeb.Auth.login(conn, person)
+    |> redirect(to: Routes.person_path(conn, :info))
   end
 end
+
