@@ -84,6 +84,15 @@ defmodule AppWeb.PersonControllerTest do
     end
   end
 
+  describe "info person" do
+    setup [:person_login, :create_person]
+
+    test "display info person", %{conn: conn} do
+      conn = get(conn, Routes.person_path(conn, :info))
+      assert html_response(conn, 200)
+    end
+  end
+
   defp create_person(_) do
     person = fixture(:person)
     {:ok, person: person}
