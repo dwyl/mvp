@@ -29,6 +29,9 @@ defmodule AppWeb.Router do
   scope "/", AppWeb do
     pipe_through [:browser, :person]
 
+    # person information
+    get "/people/info", PersonController, :info
+
     # generic resources for schemas:
     resources "/items", ItemController
     resources "/lists", ListController
@@ -36,6 +39,7 @@ defmodule AppWeb.Router do
     resources "/status", StatusController
     resources "/tags", TagController
     resources "/timers", TimerController
+
 
     # capture
     resources "/capture", CaptureController, only: [:new, :create]
