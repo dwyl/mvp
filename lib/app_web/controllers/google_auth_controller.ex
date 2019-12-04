@@ -25,7 +25,7 @@ defmodule AppWeb.GoogleAuthController do
 
         # Create Phoenix session
         AppWeb.Auth.login(conn, google_person)
-        |> render("index.html", person: google_person)
+        |> redirect(to: Routes.person_path(conn, :info))
 
       person ->
         # create new session and
@@ -36,7 +36,7 @@ defmodule AppWeb.GoogleAuthController do
         App.Ctx.create_session(person, session_attrs)
         # Create Phoenix session
         AppWeb.Auth.login(conn, person)
-        |> render("index.html", person: person)
+        |> redirect(to: Routes.person_path(conn, :info))
     end
   end
 end
