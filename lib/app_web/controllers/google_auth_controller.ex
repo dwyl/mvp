@@ -10,7 +10,7 @@ defmodule AppWeb.GoogleAuthController do
     person = App.Ctx.Person.transform_profile_data_to_person(profile)
 
     # get the person by email
-    case App.Ctx.get_person_by_email(profile["email"]) do
+    case App.Ctx.get_person_by_email(person["email"]) do
       nil ->
         # Create the person
         {:ok, google_person} = App.Ctx.create_google_person(person)
@@ -25,7 +25,8 @@ defmodule AppWeb.GoogleAuthController do
 
         # Create Phoenix session
         AppWeb.Auth.login(conn, google_person)
-        |> render("index.html", person: person)
+        |> render("index.html", person: google_person)
+
       person ->
         # create new session and
         session_attrs = %{
@@ -33,7 +34,6 @@ defmodule AppWeb.GoogleAuthController do
           "refresh_token" => "dummy_refresh_token", # we don't need refresh for now.
         }
         App.Ctx.create_session(person, session_attrs)
-
         # Create Phoenix session
         AppWeb.Auth.login(conn, person)
         |> render("index.html", person: person)
