@@ -22,18 +22,28 @@ defmodule App.Ctx.Person do
   end
 
   @doc false
-  def changeset(%{email: email} = person, attrs) do
-    {:ok, emailHash } = Fields.EmailHash.dump(email)
+  def changeset(person, attrs) do
     person
     |> cast(attrs, [:username, :email, :givenName, :familyName, :password_hash, :key_id, :locale, :picture])
     |> validate_required([:username, :email, :givenName, :familyName, :password_hash, :key_id])
-    |> put_change(:email_hash, emailHash )
+    |> put_email_hash()
   end
 
   def google_changeset(profile, attrs) do
     profile
     |> cast(attrs, [:email, :givenName, :familyName, :picture, :locale])
     |> validate_required([:email])
+    |> put_email_hash()
+  end
+
+  defp put_email_hash(changeset) do
+    case changeset do
+      %{valid?: true, changes: %{email: email}} ->
+        put_change(changeset, :email_hash, email)
+
+      _ ->
+        changeset
+    end
   end
 
   @doc """

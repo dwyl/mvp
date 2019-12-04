@@ -1,16 +1,14 @@
-
-
 <a class="cf right-0 top-0" width="40px" href="<%= Routes.page_path(@conn, :index) %>">
-  <img class="br-100 fl " width="32px" src="<%= @person["picture"] %>" />
+  <img class="br-100 fl " width="32px" src="<%= @person.picture %>" />
 </a>
 
 <section>
-  <h1 class="tc mid-grey"> Hello <%= @person["givenName"] %>!</h1>
+  <h1 class="tc mid-grey"> Hello <%= @person.givenName %>!</h1>
   <p class="tc f4">
     You are <strong>signed in</strong>
     with your <strong>Google Account</strong>
     <span class="dwyl-teal">
-      <%= @person["email"] %>
+      <%= @person.email %>
     </span>
   <p/>
 </section>
