@@ -47,7 +47,7 @@ defmodule AppWeb.StatusControllerTest do
   end
 
   describe "edit status" do
-    setup [:person_login, :create_status]
+    setup [:person_login]
 
     test "renders form for editing chosen status", %{conn: conn, status: status} do
       conn = get(conn, Routes.status_path(conn, :edit, status))
@@ -56,7 +56,7 @@ defmodule AppWeb.StatusControllerTest do
   end
 
   describe "update status" do
-    setup [:person_login, :create_status]
+    setup [:person_login]
 
     test "redirects when data is valid", %{conn: conn, status: status} do
       conn = put(conn, Routes.status_path(conn, :update, status), status: @update_attrs)
@@ -73,7 +73,7 @@ defmodule AppWeb.StatusControllerTest do
   end
 
   describe "delete status" do
-    setup [:person_login, :create_status]
+    setup [:person_login]
 
     test "deletes chosen status", %{conn: conn, status: status} do
       conn = delete(conn, Routes.status_path(conn, :delete, status))
