@@ -35,7 +35,7 @@ defmodule AppWeb.GoogleAuthControllerTest do
 
   test "GET /", %{conn: conn} do
     conn = get(conn, Routes.google_auth_path(conn, :index, code: "code"))
-    assert html_response(conn, 200)
+    assert html_response(conn, 302)
   end
 
 
