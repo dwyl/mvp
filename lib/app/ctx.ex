@@ -185,6 +185,10 @@ defmodule App.Ctx do
     Repo.delete(status)
   end
 
+  def get_status_verified() do
+    Repo.get_by(Status, text: "verified")
+  end
+
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking status changes.
 

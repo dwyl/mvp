@@ -34,7 +34,7 @@ defmodule App.Ctx.Person do
     |> cast(attrs, [:email, :givenName, :familyName, :picture, :locale])
     |> validate_required([:email])
     |> put_email_hash()
-    |> put_email_status(1)
+    |> put_email_status_verified()
   end
 
   defp put_email_hash(changeset) do
@@ -47,10 +47,11 @@ defmodule App.Ctx.Person do
     end
   end
 
-  defp put_email_status(changeset, status_value \\ 0) do
+  defp put_email_status_verified(changeset) do
+    status_verified = App.Ctx.get_status_verified()
     case changeset do
       %{valid?: true} ->
-        put_change(changeset, :status, status_value)
+        put_change(changeset, :status, status_verified.id)
 
       _ ->
         changeset
