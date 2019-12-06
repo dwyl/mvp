@@ -50,8 +50,7 @@ defmodule App.MixProject do
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
-      # {:elixir_auth_google, "~> 1.0.1" },
-      {:elixir_auth_google, path: "/home/simon/Documents/dwyl/elixir-auth-google"},
+      {:elixir_auth_google, "~> 1.0.1" },
       {:fields, "~> 2.1.0"},
 
       # create docs on localhost by running "mix docs"
