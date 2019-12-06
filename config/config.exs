@@ -41,7 +41,7 @@ config :fields, Fields.AES,
 config :fields, Fields,
   secret_key_base: System.get_env("SECRET_KEY_BASE")
 
--# Google application configuration
+# Google application configuration
 config :elixir_auth_google,
   google_client_id: System.get_env("GOOGLE_CLIENT_ID"),
   google_client_secret: System.get_env("GOOGLE_CLIENT_SECRET"),

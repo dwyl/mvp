@@ -79,7 +79,7 @@ defmodule App.CtxTest do
     end
 
     test "list_status/0 returns all status" do
-      status = status_fixture()
+      status_fixture()
       assert Enum.count(Ctx.list_status()) > 1
     end
 
