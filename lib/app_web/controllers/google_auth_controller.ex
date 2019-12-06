@@ -5,26 +5,29 @@ defmodule AppWeb.GoogleAuthController do
 
   def index(conn, %{"code" => code}) do
     {:ok, token} = @elixir_auth_google.get_token(code, conn)
-    {:ok, profile} = @elixir_auth_google.get_user_profile(token["access_token"])
-
+    {:ok, profile} = @elixir_auth_google.get_user_profile(token.access_token)
     person = App.Ctx.Person.transform_profile_data_to_person(profile)
 
     # get the person by email
-    case App.Ctx.get_person_by_email(person["email"]) do
+    case App.Ctx.get_person_by_email(person.email) do
       nil ->
         # Create the person
         {:ok, person} = App.Ctx.create_google_person(person)
         create_session(conn, person, token)
       person ->
         create_session(conn, person, token)
-    end    
+    end
   end
 
   def create_session(conn, person, token) do
     # Create session
     session_attrs = %{
-      "auth_token" => token["access_token"],
-      "refresh_token" => token["refresh_token"]
+      "auth_token" => token.access_token,
+      "refresh_token" => if Map.has_key?(token, :refresh_token) do
+        token.refresh_token
+      else
+        nil
+      end
     }
     App.Ctx.create_session(person, session_attrs)
 
