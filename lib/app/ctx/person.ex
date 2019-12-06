@@ -91,10 +91,9 @@ defmodule App.Ctx.Person do
   """
   def transform_profile_data_to_person(profile) do
     profile
-    |> Map.put("familyName", profile["family_name"])
-    |> Map.put("givenName", profile["given_name"])
-    |> Map.put("locale", profile["locale"])
-    |> Map.put("picture", profile["picture"])
-    |> Map.put("status", 1)
+    |> Map.put(:familyName, profile.family_name)
+    |> Map.put(:givenName, profile.given_name)
+    |> Map.put(:locale, profile.locale)
+    |> Map.put(:picture, profile.picture)
   end
 end
