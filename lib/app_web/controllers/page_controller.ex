@@ -31,10 +31,13 @@ defmodule AppWeb.PageController do
             [url_oauth_google: url_oauth_google, changeset: changeset])
       end
     else #login existing person
-      IO.inspect "logged in!!"
-      # login and redirect to welcome page:
-      AppWeb.Auth.login(conn, person)
-      |> redirect(to: Routes.person_path(conn, :info))
+      # verify password
+      if Argon2.verify_pass(person_params["password"], person.password_hash) do
+        AppWeb.Auth.login(conn, person)
+        |> redirect(to: Routes.person_path(conn, :info))
+      else
+        redirect(conn, to: Routes.page_path(conn, :index))
+      end
     end
   end
 
