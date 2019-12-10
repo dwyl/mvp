@@ -624,4 +624,13 @@ defmodule App.Ctx do
     |> Repo.insert()
   end
 
+  @doc """
+  Create a basic session
+  """
+  def create_basic_session(user, attrs \\ %{}) do
+    Session.basic_changeset(user, attrs)
+    |> Repo.insert()
+  end
+
+
 end

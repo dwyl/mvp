@@ -23,14 +23,18 @@
 	<%= form_for @changeset, Routes.page_path(@conn, :register), fn f -> %>
 	<div class="pa2">
 		<%= text_input f, :email, placeholder: "email" %>
-		<%= error_tag f, :email %>
+		<div class="red">
+			<%= error_tag f, :email %>
+		</div>
 	</div>
 	<div class="pa2">
 		<%= password_input f, :password, placeholder: "password" %>
-		<%= error_tag f, :password%>
+		<div class="red">
+			<%= error_tag f, :password%>
+		</div>
 	</div>
 	<div class="pa2">
-		<%= submit "Login / Register" %>
+		<%= submit "Login / Register", class: "pointer f6 link br1 ph3 pv2 mb2 dib white dwyl-bg-teal" %>
 	</div>
 	<% end %>
 </section>
