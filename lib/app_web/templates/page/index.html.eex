@@ -15,4 +15,20 @@
 		<img src="https://user-images.githubusercontent.com/194400/69724732-62090d80-1114-11ea-8d81-7ef4fb179f3c.png"
 		alt="Sign in with Google" />
 	</a>
+
 </section>
+
+
+<%= form_for @changeset, Routes.person_path(@conn, :register), fn f -> %>
+  <%= label f, :email %>
+  <%= text_input f, :email %>
+  <%= error_tag f, :email %>
+
+  <%= label f, :password %>
+  <%= text_input f, :password %>
+  <%= error_tag f, :password %>
+
+  <div>
+    <%= submit "Register" %>
+  </div>
+<% end %>

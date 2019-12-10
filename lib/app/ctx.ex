@@ -272,6 +272,15 @@ defmodule App.Ctx do
   end
 
   @doc """
+  Register a person with email/password
+  """
+  def register_person(attrs \\ %{}) do
+    %Person{}
+    |> Person.changeset_registration(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
   Updates a person.
 
   ## Examples

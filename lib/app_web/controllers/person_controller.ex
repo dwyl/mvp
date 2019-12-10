@@ -26,6 +26,17 @@ defmodule AppWeb.PersonController do
     end
   end
 
+  def register(conn, %{"person" => person_params}) do
+    case Ctx.register_person(person_params) do
+      {:ok, person} ->
+        conn
+        |> redirect(to: Routes.person_path(conn, :show, person))
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, "new.html", changeset: changeset)
+    end
+  end
+
   def show(conn, %{"id" => id}) do
     person = Ctx.get_person!(id)
     render(conn, "show.html", person: person)
