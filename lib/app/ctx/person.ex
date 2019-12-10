@@ -104,6 +104,7 @@ defmodule App.Ctx.Person do
     |> validate_required([:email, :password])
     |> validate_length(:password, min: 6, max: 100)
     |> unique_constraint(:email)
+    |> put_email_hash()
     |> put_pass_hash()
   end
 
