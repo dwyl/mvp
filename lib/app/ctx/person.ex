@@ -96,4 +96,25 @@ defmodule App.Ctx.Person do
     |> Map.put(:locale, profile.locale)
     |> Map.put(:picture, profile.picture)
   end
+
+  @doc false
+  def changeset_registration(profile, attrs) do
+    profile
+    |> cast(attrs, [:email, :password])
+    |> validate_required([:email, :password])
+    |> validate_length(:password, min: 6, max: 100)
+    |> unique_constraint(:email)
+    |> put_email_hash()
+    |> put_pass_hash()
+  end
+
+  defp put_pass_hash(changeset) do
+    case changeset do
+    %Ecto.Changeset{valid?: true, changes: %{password: pass}} ->
+      put_change(changeset, :password_hash, pass)
+    _ ->
+      changeset
+    end
+  end
+
 end

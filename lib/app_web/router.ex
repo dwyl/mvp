@@ -23,6 +23,7 @@ defmodule AppWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+    post "/register", PageController, :register
     get "/auth/google/callback", GoogleAuthController, :index
   end
 

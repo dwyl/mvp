@@ -6,7 +6,7 @@
   <h1 class="tc mid-grey"> Hello <%= @person.givenName %>!</h1>
   <p class="tc f4">
     You are <strong>signed in</strong>
-    with your <strong>Google Account</strong>
+    with
     <span class="dwyl-teal">
       <%= @person.email %>
     </span>

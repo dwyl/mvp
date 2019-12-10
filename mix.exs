@@ -60,7 +60,6 @@ defmodule App.MixProject do
       # git pre-commit hook runs tests before allowing commits
       {:pre_commit, "~> 0.3.4"},
       {:credo, "~> 1.1.0", only: [:dev, :test], runtime: false}
-
     ]
   end
 
