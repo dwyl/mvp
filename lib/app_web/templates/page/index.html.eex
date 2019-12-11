@@ -22,7 +22,7 @@
 <section class="tc">
 	<%= form_for @changeset, Routes.page_path(@conn, :register), fn f -> %>
 	<div class="pa2">
-		<%= text_input f, :email, placeholder: "email" %>
+<%= email_input f, :email, placeholder: "email address" %>
 		<div class="red">
 			<%= error_tag f, :email %>
 		</div>
