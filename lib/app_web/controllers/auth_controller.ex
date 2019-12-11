@@ -12,7 +12,7 @@ defmodule AppWeb.Auth do
       person = conn.assigns[:current_person] ->
         assign(conn, :current_person, person)
 
-      person = person_id && App.Ctx.get_person!(person_id) ->
+      person = person_id && App.Ctx.get_person(person_id) ->
         assign(conn, :current_person, person)
 
       true ->

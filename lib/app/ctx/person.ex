@@ -21,7 +21,9 @@ defmodule App.Ctx.Person do
     timestamps()
   end
 
-  @doc false
+  @doc """
+  Default attributes validation for Person
+  """
   def changeset(person, attrs) do
     person
     |> cast(attrs, [:username, :email, :givenName, :familyName, :password_hash, :key_id, :locale, :picture])
@@ -29,6 +31,10 @@ defmodule App.Ctx.Person do
     |> put_email_hash()
   end
 
+  @doc """
+  Changeset used for Google OAuth authentication
+  Add email hash and set status verified
+  """
   def google_changeset(profile, attrs) do
     profile
     |> cast(attrs, [:email, :givenName, :familyName, :picture, :locale])
@@ -97,7 +103,10 @@ defmodule App.Ctx.Person do
     |> Map.put(:picture, profile.picture)
   end
 
-  @doc false
+  @doc """
+  Changeset function used for email/password registration
+  Define email hash and password hash
+  """
   def changeset_registration(profile, attrs) do
     profile
     |> cast(attrs, [:email, :password])
