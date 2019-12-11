@@ -123,8 +123,6 @@ defmodule App.CtxTest do
 
   describe "people" do
     alias App.Ctx.Person
-    # {:ok, email_hash} = Fields.EmailHash.dump("a@b.com")
-    # {:ok, updated_email_hash} = Fields.EmailHash.dump("c@d.net")
     @valid_attrs %{email: "a@b.com", email_hash: "some email_hash", familyName: "some familyName", givenName: "some givenName", key_id: 42, password_hash: "some password_hash", username: "some username", username_hash: "some username_hash", locale: "en", picture: "https://imgur.com/a/DFXNawx"}
     @update_attrs %{email: "c@d.net", email_hash: "some updated email_hash", familyName: "some updated familyName", givenName: "some updated givenName", key_id: 43, password_hash: "some updated password_hash", username: "updated username", username_hash: "updated username_hash"}
     @invalid_attrs %{email: nil, email_hash: nil, familyName: nil, givenName: nil, key_id: nil, password_hash: nil, username: nil, username_hash: nil}
@@ -133,7 +131,6 @@ defmodule App.CtxTest do
       {:ok, person} =
         attrs
         |> Enum.into(@valid_attrs)
-        # |> Map.put(:email_hash, Fields.EmailHash.dump(@valid_attrs["email"]))
         |> Ctx.create_person()
       person
     end
