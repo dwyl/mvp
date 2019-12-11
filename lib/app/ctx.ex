@@ -185,6 +185,10 @@ defmodule App.Ctx do
     Repo.delete(status)
   end
 
+  def get_status_verified() do
+    Repo.get_by(Status, text: "verified")
+  end
+
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking status changes.
 
@@ -227,7 +231,17 @@ defmodule App.Ctx do
       ** (Ecto.NoResultsError)
 
   """
-  def get_person!(id), do: Repo.get!(Person, id)
+  def get_person!(id) do
+    Repo.get!(Person, id)
+    # |> Repo.preload(sessions: :person)
+  end
+
+  @doc """
+  Get a person by email
+  """
+  def get_person_by_email(email) do
+    Repo.get_by(Person, email_hash: email)
+  end
 
   @doc """
   Creates a person.
@@ -244,6 +258,25 @@ defmodule App.Ctx do
   def create_person(attrs \\ %{}) do
     %Person{}
     |> Person.changeset(attrs)
+    |> Repo.insert()
+  end
+
+
+  @doc """
+  Create a person from Google profile
+  """
+  def create_google_person(attrs \\ %{}) do
+    %Person{}
+    |> Person.google_changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Register a person with email/password
+  """
+  def register_person(attrs \\ %{}) do
+    %Person{}
+    |> Person.changeset_registration(attrs)
     |> Repo.insert()
   end
 
@@ -581,4 +614,23 @@ defmodule App.Ctx do
   def change_timer(%Timer{} = timer) do
     Timer.changeset(timer, %{})
   end
+
+  alias App.Ctx.Session
+  @doc """
+  Create a session
+  """
+  def create_session(user, attrs \\ %{}) do
+    Session.changeset(user, attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Create a basic session
+  """
+  def create_basic_session(user, attrs \\ %{}) do
+    Session.basic_changeset(user, attrs)
+    |> Repo.insert()
+  end
+
+
 end

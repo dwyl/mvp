@@ -59,4 +59,8 @@ defmodule AppWeb.PersonController do
     |> put_flash(:info, "Person deleted successfully.")
     |> redirect(to: Routes.person_path(conn, :index))
   end
+
+  def info(%{assigns: %{current_person: person}} = conn, _params) do
+    render(conn, "info.html", person: person)
+  end
 end

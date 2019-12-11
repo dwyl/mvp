@@ -5,7 +5,7 @@ defmodule App.MixProject do
     [
       app: :app,
       version: "0.1.0",
-      elixir: "~> 1.7",
+      elixir: "~> 1.9",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
@@ -50,7 +50,14 @@ defmodule App.MixProject do
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
+      {:elixir_auth_google, "~> 1.0.2" },
+      {:fields, "~> 2.1.0"},
+
+      # create docs on localhost by running "mix docs"
+      {:ex_doc, "~> 0.21", only: :dev, runtime: false},
+      # track test coverage
       {:excoveralls, "~> 0.12.1", only: [:test, :dev]},
+      # git pre-commit hook runs tests before allowing commits
       {:pre_commit, "~> 0.3.4"},
       {:credo, "~> 1.1.0", only: [:dev, :test], runtime: false}
     ]
@@ -66,7 +73,7 @@ defmodule App.MixProject do
     [
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["ecto.create --quiet", "ecto.migrate", "test"]
+      test: ["ecto.create --quiet", "ecto.migrate", "run priv/repo/seeds.exs", "test"]
     ]
   end
 end

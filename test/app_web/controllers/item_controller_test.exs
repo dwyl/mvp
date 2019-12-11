@@ -1,6 +1,6 @@
 defmodule AppWeb.ItemControllerTest do
   use AppWeb.ConnCase
-
+  import App.SetupHelpers
   alias App.Ctx
 
   @create_attrs %{text: "some text"}
@@ -13,6 +13,7 @@ defmodule AppWeb.ItemControllerTest do
   end
 
   describe "index" do
+    setup [:person_login]
     test "lists all items", %{conn: conn} do
       conn = get(conn, Routes.item_path(conn, :index))
       assert html_response(conn, 200) =~ "Listing Items"
@@ -20,6 +21,7 @@ defmodule AppWeb.ItemControllerTest do
   end
 
   describe "new item" do
+    setup [:person_login]
     test "renders form", %{conn: conn} do
       conn = get(conn, Routes.item_path(conn, :new))
       assert html_response(conn, 200) =~ "New Item"
@@ -27,6 +29,7 @@ defmodule AppWeb.ItemControllerTest do
   end
 
   describe "create item" do
+    setup [:person_login]
     test "redirects to show when data is valid", %{conn: conn} do
       conn = post(conn, Routes.item_path(conn, :create), item: @create_attrs)
 
@@ -44,7 +47,7 @@ defmodule AppWeb.ItemControllerTest do
   end
 
   describe "edit item" do
-    setup [:create_item]
+    setup [:person_login, :create_item]
 
     test "renders form for editing chosen item", %{conn: conn, item: item} do
       conn = get(conn, Routes.item_path(conn, :edit, item))
@@ -53,7 +56,7 @@ defmodule AppWeb.ItemControllerTest do
   end
 
   describe "update item" do
-    setup [:create_item]
+    setup [:person_login, :create_item]
 
     test "redirects when data is valid", %{conn: conn, item: item} do
       conn = put(conn, Routes.item_path(conn, :update, item), item: @update_attrs)
@@ -70,7 +73,7 @@ defmodule AppWeb.ItemControllerTest do
   end
 
   describe "delete item" do
-    setup [:create_item]
+    setup [:create_item, :person_login]
 
     test "deletes chosen item", %{conn: conn, item: item} do
       conn = delete(conn, Routes.item_path(conn, :delete, item))
