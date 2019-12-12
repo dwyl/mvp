@@ -25,6 +25,7 @@ defmodule AppWeb.Router do
     get "/", PageController, :index
     post "/register", PageController, :register
     get "/auth/google/callback", GoogleAuthController, :index
+    get "/people/logout", PersonController, :logout
   end
 
   scope "/", AppWeb do

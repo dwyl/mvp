@@ -2,6 +2,8 @@
   <img class="br-100 fl " width="32px" src="<%= @person.picture %>" />
 </a>
 
+<a class="db tr pointer dwyl-teal" href="<%= Routes.person_path(@conn, :logout) %>">Log out</a>
+
 <section>
   <h1 class="tc mid-grey"> Hello <%= @person.givenName %>!</h1>
   <p class="tc f4">
