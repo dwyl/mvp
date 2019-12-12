@@ -36,7 +36,14 @@ defmodule App.Ctx.Person do
       :locale,
       :picture
     ])
-    |> validate_required([:username, :email, :givenName, :familyName, :password_hash, :key_id])
+    |> validate_required([
+      :username,
+      :email,
+      :givenName,
+      :familyName,
+      :password_hash,
+      :key_id
+    ])
     |> put_email_hash()
   end
 

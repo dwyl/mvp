@@ -62,7 +62,9 @@ defmodule AppWeb.ListControllerTest do
     setup [:create_list, :person_login]
 
     test "redirects when data is valid", %{conn: conn, list: list} do
-      conn = put(conn, Routes.list_path(conn, :update, list), list: @update_attrs)
+      conn =
+        put(conn, Routes.list_path(conn, :update, list), list: @update_attrs)
+
       assert redirected_to(conn) == Routes.list_path(conn, :show, list)
 
       conn = get(conn, Routes.list_path(conn, :show, list))
@@ -70,7 +72,9 @@ defmodule AppWeb.ListControllerTest do
     end
 
     test "renders errors when data is invalid", %{conn: conn, list: list} do
-      conn = put(conn, Routes.list_path(conn, :update, list), list: @invalid_attrs)
+      conn =
+        put(conn, Routes.list_path(conn, :update, list), list: @invalid_attrs)
+
       assert html_response(conn, 200) =~ "Edit List"
     end
   end

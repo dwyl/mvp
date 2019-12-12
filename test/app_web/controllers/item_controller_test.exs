@@ -62,7 +62,9 @@ defmodule AppWeb.ItemControllerTest do
     setup [:person_login, :create_item]
 
     test "redirects when data is valid", %{conn: conn, item: item} do
-      conn = put(conn, Routes.item_path(conn, :update, item), item: @update_attrs)
+      conn =
+        put(conn, Routes.item_path(conn, :update, item), item: @update_attrs)
+
       assert redirected_to(conn) == Routes.item_path(conn, :show, item)
 
       conn = get(conn, Routes.item_path(conn, :show, item))
@@ -70,7 +72,9 @@ defmodule AppWeb.ItemControllerTest do
     end
 
     test "renders errors when data is invalid", %{conn: conn, item: item} do
-      conn = put(conn, Routes.item_path(conn, :update, item), item: @invalid_attrs)
+      conn =
+        put(conn, Routes.item_path(conn, :update, item), item: @invalid_attrs)
+
       assert html_response(conn, 200) =~ "Edit Item"
     end
   end

@@ -1,7 +1,8 @@
 defmodule AppWeb.GoogleAuthController do
   use AppWeb, :controller
 
-  @elixir_auth_google Application.get_env(:app, :elixir_auth_google) || ElixirAuthGoogle
+  @elixir_auth_google Application.get_env(:app, :elixir_auth_google) ||
+                        ElixirAuthGoogle
 
   def index(conn, %{"code" => code}) do
     {:ok, token} = @elixir_auth_google.get_token(code, conn)

@@ -61,7 +61,8 @@ defmodule AppWeb.PersonControllerTest do
     setup [:person_login]
 
     test "redirects to show when data is valid", %{conn: conn} do
-      conn = post(conn, Routes.person_path(conn, :create), person: @create_attrs)
+      conn =
+        post(conn, Routes.person_path(conn, :create), person: @create_attrs)
 
       assert %{id: id} = redirected_params(conn)
       assert redirected_to(conn) == Routes.person_path(conn, :show, id)
@@ -71,7 +72,9 @@ defmodule AppWeb.PersonControllerTest do
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
-      conn = post(conn, Routes.person_path(conn, :create), person: @invalid_attrs)
+      conn =
+        post(conn, Routes.person_path(conn, :create), person: @invalid_attrs)
+
       assert html_response(conn, 200) =~ "New Person"
     end
   end
@@ -89,7 +92,11 @@ defmodule AppWeb.PersonControllerTest do
     setup [:person_login, :create_person]
 
     test "redirects when data is valid", %{conn: conn, person: person} do
-      conn = put(conn, Routes.person_path(conn, :update, person), person: @update_attrs)
+      conn =
+        put(conn, Routes.person_path(conn, :update, person),
+          person: @update_attrs
+        )
+
       assert redirected_to(conn) == Routes.person_path(conn, :show, person)
 
       conn = get(conn, Routes.person_path(conn, :show, person))
@@ -97,7 +104,11 @@ defmodule AppWeb.PersonControllerTest do
     end
 
     test "renders errors when data is invalid", %{conn: conn, person: person} do
-      conn = put(conn, Routes.person_path(conn, :update, person), person: @invalid_attrs)
+      conn =
+        put(conn, Routes.person_path(conn, :update, person),
+          person: @invalid_attrs
+        )
+
       assert html_response(conn, 200) =~ "Edit Person"
     end
   end

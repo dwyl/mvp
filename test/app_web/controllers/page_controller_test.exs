@@ -15,14 +15,20 @@ defmodule AppWeb.PageControllerTest do
     end
 
     test "redirects to user info page when already logged in", %{conn: conn} do
-      params = %{"person" => %{"email" => "test@email.com", "password" => "password"}}
+      params = %{
+        "person" => %{"email" => "test@email.com", "password" => "password"}
+      }
+
       conn = post(conn, Routes.page_path(conn, :register), params)
 
       assert redirected_to(conn, 302) =~ "/people/info"
     end
 
     test "on logout redirect to index (ie / ) page", %{conn: conn} do
-      params = %{"person" => %{"email" => "test@email.com", "password" => "password"}}
+      params = %{
+        "person" => %{"email" => "test@email.com", "password" => "password"}
+      }
+
       conn = post(conn, Routes.page_path(conn, :register), params)
       conn = get(conn, Routes.person_path(conn, :logout))
       assert redirected_to(conn, 302) =~ "/"
