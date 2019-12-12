@@ -14,6 +14,7 @@ config :app, AppWeb.Endpoint,
   url: [host: System.get_env("URL"), port: 443],
   cache_static_manifest: "priv/static/cache_manifest.json",
   force_ssl: [rewrite_on: [:x_forwarded_proto]]
+
 # Do not print debug messages in production
 config :logger, level: :info
 

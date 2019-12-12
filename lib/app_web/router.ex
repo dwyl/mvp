@@ -8,7 +8,7 @@ defmodule AppWeb.Router do
     plug :fetch_flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
-    plug  AppWeb.Auth
+    plug AppWeb.Auth
   end
 
   pipeline :api do
@@ -41,7 +41,6 @@ defmodule AppWeb.Router do
     resources "/status", StatusController
     resources "/tags", TagController
     resources "/timers", TimerController
-
 
     # capture
     resources "/capture", CaptureController, only: [:new, :create]

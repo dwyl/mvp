@@ -11,7 +11,6 @@ defmodule App.MixProject do
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
-
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
         coveralls: :test,
@@ -50,7 +49,7 @@ defmodule App.MixProject do
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
-      {:elixir_auth_google, "~> 1.0.2" },
+      {:elixir_auth_google, "~> 1.0.2"},
       {:fields, "~> 2.1.0"},
 
       # create docs on localhost by running "mix docs"

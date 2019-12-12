@@ -28,6 +28,4 @@ defmodule AppWeb.PageControllerTest do
       assert redirected_to(conn, 302) =~ "/"
     end
   end
-
-
 end

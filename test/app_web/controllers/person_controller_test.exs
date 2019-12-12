@@ -3,9 +3,36 @@ defmodule AppWeb.PersonControllerTest do
   import App.SetupHelpers
   alias App.Ctx
 
-  @create_attrs %{email: "a@b.com", email_hash: "some email_hash", familyName: "some familyName", givenName: "some givenName", key_id: 42, password_hash: "some password_hash", username: "some username", username_hash: "some username_hash"}
-  @update_attrs %{email: "c@d.net", email_hash: "some updated email_hash", familyName: "some updated familyName", givenName: "some updated givenName", key_id: 43, password_hash: "some updated password_hash", username: "some updated username", username_hash: "some updated username_hash"}
-  @invalid_attrs %{email: nil, email_hash: nil, familyName: nil, givenName: nil, key_id: nil, password_hash: nil, username: nil, username_hash: nil}
+  @create_attrs %{
+    email: "a@b.com",
+    email_hash: "some email_hash",
+    familyName: "some familyName",
+    givenName: "some givenName",
+    key_id: 42,
+    password_hash: "some password_hash",
+    username: "some username",
+    username_hash: "some username_hash"
+  }
+  @update_attrs %{
+    email: "c@d.net",
+    email_hash: "some updated email_hash",
+    familyName: "some updated familyName",
+    givenName: "some updated givenName",
+    key_id: 43,
+    password_hash: "some updated password_hash",
+    username: "some updated username",
+    username_hash: "some updated username_hash"
+  }
+  @invalid_attrs %{
+    email: nil,
+    email_hash: nil,
+    familyName: nil,
+    givenName: nil,
+    key_id: nil,
+    password_hash: nil,
+    username: nil,
+    username_hash: nil
+  }
 
   def fixture(:person) do
     {:ok, person} = Ctx.create_person(@create_attrs)
@@ -14,6 +41,7 @@ defmodule AppWeb.PersonControllerTest do
 
   describe "index" do
     setup [:person_login]
+
     test "lists all people", %{conn: conn} do
       conn = get(conn, Routes.person_path(conn, :index))
       assert html_response(conn, 200) =~ "Listing People"
@@ -22,6 +50,7 @@ defmodule AppWeb.PersonControllerTest do
 
   describe "new person" do
     setup [:person_login]
+
     test "renders form", %{conn: conn} do
       conn = get(conn, Routes.person_path(conn, :new))
       assert html_response(conn, 200) =~ "New Person"
@@ -30,6 +59,7 @@ defmodule AppWeb.PersonControllerTest do
 
   describe "create person" do
     setup [:person_login]
+
     test "redirects to show when data is valid", %{conn: conn} do
       conn = post(conn, Routes.person_path(conn, :create), person: @create_attrs)
 
@@ -78,6 +108,7 @@ defmodule AppWeb.PersonControllerTest do
     test "deletes chosen person", %{conn: conn, person: person} do
       conn = delete(conn, Routes.person_path(conn, :delete, person))
       assert redirected_to(conn) == Routes.person_path(conn, :index)
+
       assert_error_sent 404, fn ->
         get(conn, Routes.person_path(conn, :show, person))
       end
