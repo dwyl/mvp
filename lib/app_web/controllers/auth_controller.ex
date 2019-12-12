@@ -8,6 +8,7 @@ defmodule AppWeb.Auth do
 
   def call(conn, _opts) do
     person_id = get_session(conn, :person_id)
+
     cond do
       person = conn.assigns[:current_person] ->
         assign(conn, :current_person, person)
@@ -30,7 +31,6 @@ defmodule AppWeb.Auth do
   def logout(conn) do
     configure_session(conn, drop: true)
   end
-
 
   def authenticate_person(conn, _opts) do
     if conn.assigns.current_person do

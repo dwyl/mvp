@@ -1,7 +1,8 @@
 defmodule AppWeb.GoogleAuthController do
   use AppWeb, :controller
 
-  @elixir_auth_google Application.get_env(:app, :elixir_auth_google) || ElixirAuthGoogle
+  @elixir_auth_google Application.get_env(:app, :elixir_auth_google) ||
+                        ElixirAuthGoogle
 
   def index(conn, %{"code" => code}) do
     {:ok, token} = @elixir_auth_google.get_token(code, conn)
@@ -14,6 +15,7 @@ defmodule AppWeb.GoogleAuthController do
         # Create the person
         {:ok, person} = App.Ctx.create_google_person(person)
         create_session(conn, person, token)
+
       person ->
         create_session(conn, person, token)
     end
@@ -23,12 +25,14 @@ defmodule AppWeb.GoogleAuthController do
     # Create session
     session_attrs = %{
       "auth_token" => token.access_token,
-      "refresh_token" => if Map.has_key?(token, :refresh_token) do
-        token.refresh_token
-      else
-        nil
-      end
+      "refresh_token" =>
+        if Map.has_key?(token, :refresh_token) do
+          token.refresh_token
+        else
+          nil
+        end
     }
+
     App.Ctx.create_session(person, session_attrs)
 
     # login and redirect to welcome page:
@@ -36,4 +40,3 @@ defmodule AppWeb.GoogleAuthController do
     |> redirect(to: Routes.person_path(conn, :info))
   end
 end
-

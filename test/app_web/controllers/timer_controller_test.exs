@@ -14,6 +14,7 @@ defmodule AppWeb.TimerControllerTest do
 
   describe "index" do
     setup [:person_login]
+
     test "lists all timers", %{conn: conn} do
       conn = get(conn, Routes.timer_path(conn, :index))
       assert html_response(conn, 200) =~ "Listing Timers"
@@ -22,6 +23,7 @@ defmodule AppWeb.TimerControllerTest do
 
   describe "new timer" do
     setup [:person_login]
+
     test "renders form", %{conn: conn} do
       conn = get(conn, Routes.timer_path(conn, :new))
       assert html_response(conn, 200) =~ "New Timer"
@@ -30,6 +32,7 @@ defmodule AppWeb.TimerControllerTest do
 
   describe "create timer" do
     setup [:person_login]
+
     test "redirects to show when data is valid", %{conn: conn} do
       conn = post(conn, Routes.timer_path(conn, :create), timer: @create_attrs)
 
@@ -59,7 +62,9 @@ defmodule AppWeb.TimerControllerTest do
     setup [:person_login, :create_timer]
 
     test "redirects when data is valid", %{conn: conn, timer: timer} do
-      conn = put(conn, Routes.timer_path(conn, :update, timer), timer: @update_attrs)
+      conn =
+        put(conn, Routes.timer_path(conn, :update, timer), timer: @update_attrs)
+
       assert redirected_to(conn) == Routes.timer_path(conn, :show, timer)
 
       conn = get(conn, Routes.timer_path(conn, :show, timer))
@@ -67,7 +72,9 @@ defmodule AppWeb.TimerControllerTest do
     end
 
     test "renders errors when data is invalid", %{conn: conn, timer: timer} do
-      conn = put(conn, Routes.timer_path(conn, :update, timer), timer: @invalid_attrs)
+      conn =
+        put(conn, Routes.timer_path(conn, :update, timer), timer: @invalid_attrs)
+
       assert html_response(conn, 200) =~ "Edit Timer"
     end
   end
@@ -78,6 +85,7 @@ defmodule AppWeb.TimerControllerTest do
     test "deletes chosen timer", %{conn: conn, timer: timer} do
       conn = delete(conn, Routes.timer_path(conn, :delete, timer))
       assert redirected_to(conn) == Routes.timer_path(conn, :index)
+
       assert_error_sent 404, fn ->
         get(conn, Routes.timer_path(conn, :show, timer))
       end

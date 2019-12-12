@@ -14,6 +14,7 @@ defmodule AppWeb.StatusControllerTest do
 
   describe "index" do
     setup [:person_login]
+
     test "lists all status", %{conn: conn} do
       conn = get(conn, Routes.status_path(conn, :index))
       assert html_response(conn, 200) =~ "Listing Status"
@@ -22,6 +23,7 @@ defmodule AppWeb.StatusControllerTest do
 
   describe "new status" do
     setup [:person_login]
+
     test "renders form", %{conn: conn} do
       conn = get(conn, Routes.status_path(conn, :new))
       assert html_response(conn, 200) =~ "New Status"
@@ -30,8 +32,10 @@ defmodule AppWeb.StatusControllerTest do
 
   describe "create status" do
     setup [:person_login]
+
     test "redirects to show when data is valid", %{conn: conn} do
-      conn = post(conn, Routes.status_path(conn, :create), status: @create_attrs)
+      conn =
+        post(conn, Routes.status_path(conn, :create), status: @create_attrs)
 
       assert %{id: id} = redirected_params(conn)
       assert redirected_to(conn) == Routes.status_path(conn, :show, id)
@@ -41,7 +45,9 @@ defmodule AppWeb.StatusControllerTest do
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
-      conn = post(conn, Routes.status_path(conn, :create), status: @invalid_attrs)
+      conn =
+        post(conn, Routes.status_path(conn, :create), status: @invalid_attrs)
+
       assert html_response(conn, 200) =~ "New Status"
     end
   end
@@ -59,7 +65,11 @@ defmodule AppWeb.StatusControllerTest do
     setup [:person_login, :create_status]
 
     test "redirects when data is valid", %{conn: conn, status: status} do
-      conn = put(conn, Routes.status_path(conn, :update, status), status: @update_attrs)
+      conn =
+        put(conn, Routes.status_path(conn, :update, status),
+          status: @update_attrs
+        )
+
       assert redirected_to(conn) == Routes.status_path(conn, :show, status)
 
       conn = get(conn, Routes.status_path(conn, :show, status))
@@ -67,7 +77,11 @@ defmodule AppWeb.StatusControllerTest do
     end
 
     test "renders errors when data is invalid", %{conn: conn, status: status} do
-      conn = put(conn, Routes.status_path(conn, :update, status), status: @invalid_attrs)
+      conn =
+        put(conn, Routes.status_path(conn, :update, status),
+          status: @invalid_attrs
+        )
+
       assert html_response(conn, 200) =~ "Edit Status"
     end
   end
@@ -78,6 +92,7 @@ defmodule AppWeb.StatusControllerTest do
     test "deletes chosen status", %{conn: conn, status: status} do
       conn = delete(conn, Routes.status_path(conn, :delete, status))
       assert redirected_to(conn) == Routes.status_path(conn, :index)
+
       assert_error_sent 404, fn ->
         get(conn, Routes.status_path(conn, :show, status))
       end

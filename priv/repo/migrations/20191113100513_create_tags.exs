@@ -7,6 +7,5 @@ defmodule App.Repo.Migrations.CreateTags do
 
       timestamps()
     end
-
   end
 end

@@ -99,13 +99,19 @@ defmodule App.CtxTest do
 
     test "update_status/2 with valid data updates the status" do
       status = status_fixture()
-      assert {:ok, %Status{} = status} = Ctx.update_status(status, @update_attrs)
+
+      assert {:ok, %Status{} = status} =
+               Ctx.update_status(status, @update_attrs)
+
       assert status.text == "some updated text"
     end
 
     test "update_status/2 with invalid data returns error changeset" do
       status = status_fixture()
-      assert {:error, %Ecto.Changeset{}} = Ctx.update_status(status, @invalid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Ctx.update_status(status, @invalid_attrs)
+
       assert status == Ctx.get_status!(status.id)
     end
 
@@ -123,15 +129,46 @@ defmodule App.CtxTest do
 
   describe "people" do
     alias App.Ctx.Person
-    @valid_attrs %{email: "a@b.com", email_hash: "some email_hash", familyName: "some familyName", givenName: "some givenName", key_id: 42, password_hash: "some password_hash", username: "some username", username_hash: "some username_hash", locale: "en", picture: "https://imgur.com/a/DFXNawx"}
-    @update_attrs %{email: "c@d.net", email_hash: "some updated email_hash", familyName: "some updated familyName", givenName: "some updated givenName", key_id: 43, password_hash: "some updated password_hash", username: "updated username", username_hash: "updated username_hash"}
-    @invalid_attrs %{email: nil, email_hash: nil, familyName: nil, givenName: nil, key_id: nil, password_hash: nil, username: nil, username_hash: nil}
+
+    @valid_attrs %{
+      email: "a@b.com",
+      email_hash: "some email_hash",
+      familyName: "some familyName",
+      givenName: "some givenName",
+      key_id: 42,
+      password_hash: "some password_hash",
+      username: "some username",
+      username_hash: "some username_hash",
+      locale: "en",
+      picture: "https://imgur.com/a/DFXNawx"
+    }
+    @update_attrs %{
+      email: "c@d.net",
+      email_hash: "some updated email_hash",
+      familyName: "some updated familyName",
+      givenName: "some updated givenName",
+      key_id: 43,
+      password_hash: "some updated password_hash",
+      username: "updated username",
+      username_hash: "updated username_hash"
+    }
+    @invalid_attrs %{
+      email: nil,
+      email_hash: nil,
+      familyName: nil,
+      givenName: nil,
+      key_id: nil,
+      password_hash: nil,
+      username: nil,
+      username_hash: nil
+    }
 
     def person_fixture(attrs \\ %{}) do
       {:ok, person} =
         attrs
         |> Enum.into(@valid_attrs)
         |> Ctx.create_person()
+
       person
     end
 
@@ -150,6 +187,7 @@ defmodule App.CtxTest do
     test "create_person/1 with valid data creates a person" do
       assert {:ok, %Person{} = person} = Ctx.create_person(@valid_attrs)
       assert person.email == "a@b.com"
+
       # <<116, 223, 252, 249, 57, 13, 89, 186, 199, 10, 177, 236, 117, 117, 76, 147,
       # 109, 87, 187, 126, 168, 1, 63, 236, 134, 67, 92, 136, 136, 224, 45, 65>>
       assert person.familyName == "some familyName"
@@ -165,7 +203,10 @@ defmodule App.CtxTest do
 
     test "update_person/2 with valid data updates the person" do
       person = person_fixture()
-      assert {:ok, %Person{} = person} = Ctx.update_person(person, @update_attrs)
+
+      assert {:ok, %Person{} = person} =
+               Ctx.update_person(person, @update_attrs)
+
       assert person.email == "c@d.net"
       assert person.familyName == "some updated familyName"
       assert person.givenName == "some updated givenName"
@@ -175,7 +216,10 @@ defmodule App.CtxTest do
 
     test "update_person/2 with invalid data returns error changeset" do
       person = person_fixture()
-      assert {:error, %Ecto.Changeset{}} = Ctx.update_person(person, @invalid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Ctx.update_person(person, @invalid_attrs)
+
       person_data = Ctx.get_person!(person.id)
 
       assert person.id == person_data.id
@@ -199,7 +243,6 @@ defmodule App.CtxTest do
     @valid_attrs %{text: "some text"}
     @update_attrs %{text: "some updated text"}
     @invalid_attrs %{text: nil}
-
 
     def item_fixture(attrs \\ %{}) do
       {:ok, item} =
@@ -299,7 +342,10 @@ defmodule App.CtxTest do
     alias App.Ctx.Timer
 
     @valid_attrs %{end: ~N[2010-04-17 14:00:00], start: ~N[2010-04-17 14:00:00]}
-    @update_attrs %{end: ~N[2011-05-18 15:01:01], start: ~N[2011-05-18 15:01:01]}
+    @update_attrs %{
+      end: ~N[2011-05-18 15:01:01],
+      start: ~N[2011-05-18 15:01:01]
+    }
     @invalid_attrs %{end: nil, start: nil}
 
     def timer_fixture(attrs \\ %{}) do
@@ -340,7 +386,10 @@ defmodule App.CtxTest do
 
     test "update_timer/2 with invalid data returns error changeset" do
       timer = timer_fixture()
-      assert {:error, %Ecto.Changeset{}} = Ctx.update_timer(timer, @invalid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Ctx.update_timer(timer, @invalid_attrs)
+
       assert timer == Ctx.get_timer!(timer.id)
     end
 
