@@ -123,15 +123,46 @@ defmodule App.CtxTest do
 
   describe "people" do
     alias App.Ctx.Person
-    @valid_attrs %{email: "a@b.com", email_hash: "some email_hash", familyName: "some familyName", givenName: "some givenName", key_id: 42, password_hash: "some password_hash", username: "some username", username_hash: "some username_hash", locale: "en", picture: "https://imgur.com/a/DFXNawx"}
-    @update_attrs %{email: "c@d.net", email_hash: "some updated email_hash", familyName: "some updated familyName", givenName: "some updated givenName", key_id: 43, password_hash: "some updated password_hash", username: "updated username", username_hash: "updated username_hash"}
-    @invalid_attrs %{email: nil, email_hash: nil, familyName: nil, givenName: nil, key_id: nil, password_hash: nil, username: nil, username_hash: nil}
+
+    @valid_attrs %{
+      email: "a@b.com",
+      email_hash: "some email_hash",
+      familyName: "some familyName",
+      givenName: "some givenName",
+      key_id: 42,
+      password_hash: "some password_hash",
+      username: "some username",
+      username_hash: "some username_hash",
+      locale: "en",
+      picture: "https://imgur.com/a/DFXNawx"
+    }
+    @update_attrs %{
+      email: "c@d.net",
+      email_hash: "some updated email_hash",
+      familyName: "some updated familyName",
+      givenName: "some updated givenName",
+      key_id: 43,
+      password_hash: "some updated password_hash",
+      username: "updated username",
+      username_hash: "updated username_hash"
+    }
+    @invalid_attrs %{
+      email: nil,
+      email_hash: nil,
+      familyName: nil,
+      givenName: nil,
+      key_id: nil,
+      password_hash: nil,
+      username: nil,
+      username_hash: nil
+    }
 
     def person_fixture(attrs \\ %{}) do
       {:ok, person} =
         attrs
         |> Enum.into(@valid_attrs)
         |> Ctx.create_person()
+
       person
     end
 
@@ -199,7 +230,6 @@ defmodule App.CtxTest do
     @valid_attrs %{text: "some text"}
     @update_attrs %{text: "some updated text"}
     @invalid_attrs %{text: nil}
-
 
     def item_fixture(attrs \\ %{}) do
       {:ok, item} =

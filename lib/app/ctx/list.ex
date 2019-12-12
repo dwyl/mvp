@@ -4,7 +4,8 @@ defmodule App.Ctx.List do
 
   schema "lists" do
     field :title, :string
-    field :person_id, :id  # the owner of the list
+    # the owner of the list
+    field :person_id, :id
     field :status, :id
     field :tag, :id
 

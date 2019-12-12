@@ -20,7 +20,5 @@ defmodule AppWeb.PageControllerTest do
 
       assert redirected_to(conn, 302) =~ "/people/info"
     end
-
   end
-
 end

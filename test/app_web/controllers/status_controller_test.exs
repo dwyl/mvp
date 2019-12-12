@@ -14,6 +14,7 @@ defmodule AppWeb.StatusControllerTest do
 
   describe "index" do
     setup [:person_login]
+
     test "lists all status", %{conn: conn} do
       conn = get(conn, Routes.status_path(conn, :index))
       assert html_response(conn, 200) =~ "Listing Status"
@@ -22,6 +23,7 @@ defmodule AppWeb.StatusControllerTest do
 
   describe "new status" do
     setup [:person_login]
+
     test "renders form", %{conn: conn} do
       conn = get(conn, Routes.status_path(conn, :new))
       assert html_response(conn, 200) =~ "New Status"
@@ -30,6 +32,7 @@ defmodule AppWeb.StatusControllerTest do
 
   describe "create status" do
     setup [:person_login]
+
     test "redirects to show when data is valid", %{conn: conn} do
       conn = post(conn, Routes.status_path(conn, :create), status: @create_attrs)
 
@@ -78,6 +81,7 @@ defmodule AppWeb.StatusControllerTest do
     test "deletes chosen status", %{conn: conn, status: status} do
       conn = delete(conn, Routes.status_path(conn, :delete, status))
       assert redirected_to(conn) == Routes.status_path(conn, :index)
+
       assert_error_sent 404, fn ->
         get(conn, Routes.status_path(conn, :show, status))
       end

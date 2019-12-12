@@ -14,6 +14,7 @@ defmodule AppWeb.ListControllerTest do
 
   describe "index" do
     setup [:person_login]
+
     test "lists all lists", %{conn: conn} do
       conn = get(conn, Routes.list_path(conn, :index))
       assert html_response(conn, 200) =~ "Listing Lists"
@@ -22,6 +23,7 @@ defmodule AppWeb.ListControllerTest do
 
   describe "new list" do
     setup [:person_login]
+
     test "renders form", %{conn: conn} do
       conn = get(conn, Routes.list_path(conn, :new))
       assert html_response(conn, 200) =~ "New List"
@@ -30,6 +32,7 @@ defmodule AppWeb.ListControllerTest do
 
   describe "create list" do
     setup [:person_login]
+
     test "redirects to show when data is valid", %{conn: conn} do
       conn = post(conn, Routes.list_path(conn, :create), list: @create_attrs)
 
@@ -78,6 +81,7 @@ defmodule AppWeb.ListControllerTest do
     test "deletes chosen list", %{conn: conn, list: list} do
       conn = delete(conn, Routes.list_path(conn, :delete, list))
       assert redirected_to(conn) == Routes.list_path(conn, :index)
+
       assert_error_sent 404, fn ->
         get(conn, Routes.list_path(conn, :show, list))
       end

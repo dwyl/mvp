@@ -11,7 +11,6 @@ defmodule App.Ctx.Session do
     timestamps()
   end
 
-
   def changeset(people, attrs) do
     Ecto.build_assoc(people, :sessions)
     |> cast(attrs, [:auth_token, :refresh_token])
@@ -21,5 +20,4 @@ defmodule App.Ctx.Session do
   def basic_changeset(people, _attrs) do
     Ecto.build_assoc(people, :sessions)
   end
-
 end

@@ -264,7 +264,6 @@ defmodule App.Ctx do
     |> Repo.insert()
   end
 
-
   @doc """
   Create a person from Google profile
   """
@@ -619,6 +618,7 @@ defmodule App.Ctx do
   end
 
   alias App.Ctx.Session
+
   @doc """
   Create a session
   """
@@ -634,6 +634,4 @@ defmodule App.Ctx do
     Session.basic_changeset(user, attrs)
     |> Repo.insert()
   end
-
-
 end

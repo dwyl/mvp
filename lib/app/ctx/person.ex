@@ -26,7 +26,16 @@ defmodule App.Ctx.Person do
   """
   def changeset(person, attrs) do
     person
-    |> cast(attrs, [:username, :email, :givenName, :familyName, :password_hash, :key_id, :locale, :picture])
+    |> cast(attrs, [
+      :username,
+      :email,
+      :givenName,
+      :familyName,
+      :password_hash,
+      :key_id,
+      :locale,
+      :picture
+    ])
     |> validate_required([:username, :email, :givenName, :familyName, :password_hash, :key_id])
     |> put_email_hash()
   end
@@ -55,6 +64,7 @@ defmodule App.Ctx.Person do
 
   defp put_email_status_verified(changeset) do
     status_verified = App.Ctx.get_status_verified()
+
     case changeset do
       %{valid?: true} ->
         put_change(changeset, :status, status_verified.id)
@@ -119,11 +129,11 @@ defmodule App.Ctx.Person do
 
   defp put_pass_hash(changeset) do
     case changeset do
-    %Ecto.Changeset{valid?: true, changes: %{password: pass}} ->
-      put_change(changeset, :password_hash, pass)
-    _ ->
-      changeset
+      %Ecto.Changeset{valid?: true, changes: %{password: pass}} ->
+        put_change(changeset, :password_hash, pass)
+
+      _ ->
+        changeset
     end
   end
-
 end
