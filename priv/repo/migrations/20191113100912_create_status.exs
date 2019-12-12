@@ -7,6 +7,5 @@ defmodule App.Repo.Migrations.CreateStatus do
 
       timestamps()
     end
-
   end
 end

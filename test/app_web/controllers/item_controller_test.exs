@@ -14,6 +14,7 @@ defmodule AppWeb.ItemControllerTest do
 
   describe "index" do
     setup [:person_login]
+
     test "lists all items", %{conn: conn} do
       conn = get(conn, Routes.item_path(conn, :index))
       assert html_response(conn, 200) =~ "Listing Items"
@@ -22,6 +23,7 @@ defmodule AppWeb.ItemControllerTest do
 
   describe "new item" do
     setup [:person_login]
+
     test "renders form", %{conn: conn} do
       conn = get(conn, Routes.item_path(conn, :new))
       assert html_response(conn, 200) =~ "New Item"
@@ -30,6 +32,7 @@ defmodule AppWeb.ItemControllerTest do
 
   describe "create item" do
     setup [:person_login]
+
     test "redirects to show when data is valid", %{conn: conn} do
       conn = post(conn, Routes.item_path(conn, :create), item: @create_attrs)
 
@@ -59,7 +62,9 @@ defmodule AppWeb.ItemControllerTest do
     setup [:person_login, :create_item]
 
     test "redirects when data is valid", %{conn: conn, item: item} do
-      conn = put(conn, Routes.item_path(conn, :update, item), item: @update_attrs)
+      conn =
+        put(conn, Routes.item_path(conn, :update, item), item: @update_attrs)
+
       assert redirected_to(conn) == Routes.item_path(conn, :show, item)
 
       conn = get(conn, Routes.item_path(conn, :show, item))
@@ -67,7 +72,9 @@ defmodule AppWeb.ItemControllerTest do
     end
 
     test "renders errors when data is invalid", %{conn: conn, item: item} do
-      conn = put(conn, Routes.item_path(conn, :update, item), item: @invalid_attrs)
+      conn =
+        put(conn, Routes.item_path(conn, :update, item), item: @invalid_attrs)
+
       assert html_response(conn, 200) =~ "Edit Item"
     end
   end
@@ -78,6 +85,7 @@ defmodule AppWeb.ItemControllerTest do
     test "deletes chosen item", %{conn: conn, item: item} do
       conn = delete(conn, Routes.item_path(conn, :delete, item))
       assert redirected_to(conn) == Routes.item_path(conn, :index)
+
       assert_error_sent 404, fn ->
         get(conn, Routes.item_path(conn, :show, item))
       end

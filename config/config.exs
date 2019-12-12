@@ -38,7 +38,6 @@ config :fields, Fields.AES,
     # decode the key.
     |> Enum.map(fn key -> :base64.decode(key) end)
 
-config :fields, Fields,
-  secret_key_base: System.get_env("SECRET_KEY_BASE")
+config :fields, Fields, secret_key_base: System.get_env("SECRET_KEY_BASE")
 
 import_config "#{Mix.env()}.exs"

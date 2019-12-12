@@ -8,7 +8,7 @@ defmodule AppWeb.Router do
     plug :fetch_flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
-    plug  AppWeb.Auth
+    plug AppWeb.Auth
   end
 
   pipeline :api do
@@ -32,6 +32,7 @@ defmodule AppWeb.Router do
 
     # person information
     get "/people/info", PersonController, :info
+    get "/people/logout", PersonController, :logout
 
     # generic resources for schemas:
     resources "/items", ItemController
@@ -40,7 +41,6 @@ defmodule AppWeb.Router do
     resources "/status", StatusController
     resources "/tags", TagController
     resources "/timers", TimerController
-
 
     # capture
     resources "/capture", CaptureController, only: [:new, :create]

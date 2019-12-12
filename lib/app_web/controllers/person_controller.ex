@@ -63,4 +63,10 @@ defmodule AppWeb.PersonController do
   def info(%{assigns: %{current_person: person}} = conn, _params) do
     render(conn, "info.html", person: person)
   end
+
+  def logout(conn, _params) do
+    conn
+    |> AppWeb.Auth.logout()
+    |> redirect(to: Routes.page_path(conn, :index))
+  end
 end

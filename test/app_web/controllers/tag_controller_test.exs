@@ -14,6 +14,7 @@ defmodule AppWeb.TagControllerTest do
 
   describe "index" do
     setup [:person_login]
+
     test "lists all tags", %{conn: conn} do
       conn = get(conn, Routes.tag_path(conn, :index))
       assert html_response(conn, 200) =~ "Listing Tags"
@@ -22,6 +23,7 @@ defmodule AppWeb.TagControllerTest do
 
   describe "new tag" do
     setup [:person_login]
+
     test "renders form", %{conn: conn} do
       conn = get(conn, Routes.tag_path(conn, :new))
       assert html_response(conn, 200) =~ "New Tag"
@@ -30,6 +32,7 @@ defmodule AppWeb.TagControllerTest do
 
   describe "create tag" do
     setup [:person_login]
+
     test "redirects to show when data is valid", %{conn: conn} do
       conn = post(conn, Routes.tag_path(conn, :create), tag: @create_attrs)
 
@@ -78,6 +81,7 @@ defmodule AppWeb.TagControllerTest do
     test "deletes chosen tag", %{conn: conn, tag: tag} do
       conn = delete(conn, Routes.tag_path(conn, :delete, tag))
       assert redirected_to(conn) == Routes.tag_path(conn, :index)
+
       assert_error_sent 404, fn ->
         get(conn, Routes.tag_path(conn, :show, tag))
       end
