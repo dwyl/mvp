@@ -51,8 +51,8 @@ defmodule AppWeb.Router do
 
   # Other scopes may use custom stacks.
   scope "/api", AppWeb do
-     pipe_through :api
+    pipe_through :api
 
-     post "/capture", CaptureController, :api_create
-   end
+    post "/capture", CaptureController, :api_create
+  end
 end
