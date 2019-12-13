@@ -1,9 +1,13 @@
 module Main exposing (main)
 
 import Browser
-import Html exposing (Html, button, div, text, textarea)
-import Html.Events exposing (onInput)
-import Html.Attributes exposing (class)
+import Html exposing (Html, button, div, p, text, textarea)
+import Html.Attributes exposing (class, value)
+import Html.Events exposing (onClick, onInput)
+import Http exposing (..)
+import Json.Decode as JD
+import Json.Encode as JE
+
 
 main =
     Browser.element
@@ -19,7 +23,7 @@ main =
 
 
 type alias Model =
-    { capture : String }
+    { capture : String, message : String }
 
 
 
@@ -28,6 +32,8 @@ type alias Model =
 
 type Msg
     = Capture String
+    | CreateCapture
+    | SaveCaptureResult (Result Http.Error String)
 
 
 
@@ -36,7 +42,7 @@ type Msg
 
 initModel : Model
 initModel =
-    { capture = "" }
+    { capture = "", message = "" }
 
 
 type alias Flags =
@@ -54,6 +60,34 @@ update msg model =
         Capture text ->
             ( { model | capture = text }, Cmd.none )
 
+        CreateCapture ->
+            ( model, saveCapture model.capture )
+
+        SaveCaptureResult (Ok response) ->
+            ( { model | capture = "", message = "Capture saved" }, Cmd.none )
+
+        SaveCaptureResult (Err e) ->
+            ( { model | message = "The capture couldn't be saved" }, Cmd.none )
+
+
+saveCapture : String -> Cmd Msg
+saveCapture capture =
+    Http.post
+        { url = "/api/captures/create"
+        , body = Http.jsonBody (captureEncode capture)
+        , expect = Http.expectJson SaveCaptureResult captureDecoder
+        }
+
+
+captureEncode : String -> JE.Value
+captureEncode capture =
+    JE.object [ ( "text", JE.string capture ) ]
+
+
+captureDecoder : JD.Decoder String
+captureDecoder =
+    JD.field "text" JD.string
+
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
@@ -63,6 +97,7 @@ subscriptions _ =
 view : Model -> Html Msg
 view model =
     div []
-        [ textarea [ onInput Capture ] []
-        , button [class "db"] [ text "Save capture" ]
+        [ p [] [ text model.message ]
+        , textarea [ onInput Capture, value model.capture ] []
+        , button [ class "db", onClick CreateCapture ] [ text "Save capture" ]
         ]

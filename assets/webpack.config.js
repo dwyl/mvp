@@ -37,9 +37,7 @@ module.exports = (env, options) => ({
         exclude: [/elm-stuff/, /node_modules/],
         use: {
           loader: 'elm-webpack-loader',
-          options: {
-            optimize: true
-          }
+          options: {}
         }
       }
     ]
