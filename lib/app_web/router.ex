@@ -53,6 +53,7 @@ defmodule AppWeb.Router do
   scope "/api", AppWeb do
     pipe_through :api
 
-    post "/capture", CaptureController, :api_create
+    post "/captures/create", CaptureController, :api_create
+    get "/items", ItemController, :api_index
   end
 end
