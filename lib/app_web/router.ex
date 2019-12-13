@@ -25,6 +25,9 @@ defmodule AppWeb.Router do
     get "/", PageController, :index
     post "/register", PageController, :register
     get "/auth/google/callback", GoogleAuthController, :index
+
+    # Endpoint to initialise Elm application
+    get "/elm/capture", CaptureController, :init_elm
   end
 
   scope "/", AppWeb do

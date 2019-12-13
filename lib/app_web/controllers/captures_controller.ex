@@ -36,4 +36,10 @@ defmodule AppWeb.CaptureController do
     error = %{error: "text field is not defined"}
     render(conn, "capture_error.json", err: error)
   end
+
+  # Returns html where the Elm application
+  # is initialised
+  def init_elm(conn, _params) do
+    render(conn, "init_elm.html")
+  end
 end

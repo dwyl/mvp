@@ -34,5 +34,10 @@ defmodule AppWeb.CaptureControllerTest do
 
       assert html_response(conn, 200) =~ "Capture"
     end
+
+    test "elm - render capture html page", %{conn: conn} do
+      conn = get(conn, Routes.capture_path(conn, :init_elm))
+      assert html_response(conn, 200)
+    end
   end
 end
