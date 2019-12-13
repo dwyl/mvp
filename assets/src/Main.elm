@@ -1,9 +1,9 @@
 module Main exposing (main)
 
 import Browser
-import Html exposing (Html, div, text, textarea)
+import Html exposing (Html, button, div, text, textarea)
 import Html.Events exposing (onInput)
-
+import Html.Attributes exposing (class)
 
 main =
     Browser.element
@@ -64,4 +64,5 @@ view : Model -> Html Msg
 view model =
     div []
         [ textarea [ onInput Capture ] []
+        , button [class "db"] [ text "Save capture" ]
         ]
