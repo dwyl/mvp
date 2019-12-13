@@ -19,6 +19,11 @@ defmodule AppWeb.ItemControllerTest do
       conn = get(conn, Routes.item_path(conn, :index))
       assert html_response(conn, 200) =~ "Listing Items"
     end
+
+    test "api - lists all items", %{conn: conn} do
+      conn = get(conn, Routes.item_path(conn, :api_index))
+      assert json_response(conn, 200)
+    end
   end
 
   describe "new item" do
