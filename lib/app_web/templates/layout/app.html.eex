@@ -22,6 +22,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="https://dwyl.com/img/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="96x96" href="https://dwyl.com/img/favicon-96x96.png">
     <link rel="icon" type="image/png" sizes="16x16" href="https://dwyl.com/img/favicon-16x16.png">
+    <link rel="manifest" href="/manifest.json">
   </head>
   <body class="bg-near-white helvetica">
     <header class="pa3">
@@ -35,5 +36,12 @@
       <%= render @view_module, @view_template, assigns %>
     </main>
     <script type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
+    <script>
+    if('serviceWorker' in navigator) {
+        navigator.serviceWorker
+                .register('/js/service_worker.js')
+                .then(function() { console.log("Service Worker Registered"); });
+    }
+    </script>
   </body>
 </html>
