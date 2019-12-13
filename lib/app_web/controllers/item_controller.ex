@@ -9,6 +9,11 @@ defmodule AppWeb.ItemController do
     render(conn, "index.html", items: items)
   end
 
+  def api_index(conn, _params) do
+    items = Ctx.list_items()
+    render(conn, "index.json", items: items)
+  end
+
   def new(conn, _params) do
     changeset = Ctx.change_item(%Item{})
     render(conn, "new.html", changeset: changeset)
