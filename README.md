@@ -503,6 +503,8 @@ To start your Phoenix server:
       ```elixir
       :crypto.strong_rand_bytes(32) |> :base64.encode
       ```
+    - ALLOW_API_ORIGINS: origins allowed to request the application API
+
 
   * run `source .env` to load the enviroment variables
   * Make sure you have Postgres installed, see: https://github.com/dwyl/learn-postgresql

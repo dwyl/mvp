@@ -44,3 +44,6 @@ npm-debug.log
 .elixir_ls
 
 .env
+
+#elm
+elm-stuff/

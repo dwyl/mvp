@@ -58,7 +58,9 @@ defmodule App.MixProject do
       {:excoveralls, "~> 0.12.1", only: [:test, :dev]},
       # git pre-commit hook runs tests before allowing commits
       {:pre_commit, "~> 0.3.4"},
-      {:credo, "~> 1.1.0", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.1.0", only: [:dev, :test], runtime: false},
+      # cors #56
+      {:cors_plug, "~> 2.0"}
     ]
   end
 
