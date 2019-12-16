@@ -12,6 +12,10 @@ defmodule AppWeb.Router do
   end
 
   pipeline :api do
+    plug CORSPlug,
+      origin: System.get_env("ALLOW_API_ORIGINS")
+              |> String.replace("'", "")
+              |> String.split(",")
     plug :accepts, ["json"]
   end
 
@@ -54,6 +58,8 @@ defmodule AppWeb.Router do
     pipe_through :api
 
     post "/captures/create", CaptureController, :api_create
+    options "/captures/create", CaptureController, :api_create
     get "/items", ItemController, :api_index
+    options "/items", ItemController, :api_index
   end
 end
