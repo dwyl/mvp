@@ -13,9 +13,11 @@ defmodule AppWeb.Router do
 
   pipeline :api do
     plug CORSPlug,
-      origin: System.get_env("ALLOW_API_ORIGINS")
-              |> String.replace("'", "")
-              |> String.split(",")
+      origin:
+        System.get_env("ALLOW_API_ORIGINS")
+        |> String.replace("'", "")
+        |> String.split(",")
+
     plug :accepts, ["json"]
   end
 

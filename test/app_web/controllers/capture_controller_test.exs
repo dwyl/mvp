@@ -22,9 +22,10 @@ defmodule AppWeb.CaptureControllerTest do
       assert redirected_to(conn) == Routes.categorise_path(conn, :index)
     end
 
-
     test "api - create a new capture", %{conn: conn} do
-      conn = post(conn, Routes.capture_path(conn, :api_create), item: @create_attrs)
+      conn =
+        post(conn, Routes.capture_path(conn, :api_create), item: @create_attrs)
+
       assert json_response(conn, 200)
     end
 
