@@ -523,7 +523,8 @@ Once you have updated the `.env` file with the
 `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` API keys
 you have everything you need to run the app.
 
-run `source .env` in your terminal to load the environment variables.
+Run `source .env` in your terminal
+to load the environment variables.
 
 ### 3. Install Dependencies
 
