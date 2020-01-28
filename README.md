@@ -486,43 +486,77 @@ https://github.com/dwyl/app/issues/234
 
 ## Run the App on `localhost`
 
-To start your Phoenix server:
-  * create a .env file for the environmet variables:
-    - URL: used in `config/prod.exs` to define the url of the application
-    - SECRET_KEY_BASE: from https://hexdocs.pm/phoenix/Phoenix.Endpoint.html :
-        > :secret_key_base - a secret key used as a base to generate secrets for encrypting and signing data. For example, cookies and tokens are signed by default, but they may also be encrypted if desired. Defaults to nil as it must be set per application 
-    
-        You can create a new key with `mix phx.gen.secret`
+If you want to _run_ this App on your `localhost`,
+please _first_ ensure that you have PostgreSQL installed.
+see:
+[Prerequisites](https://github.com/dwyl/phoenix-chat-example#0-pre-requisites-before-you-start)
 
-        Example of a .env file:
-        ```elixir
-        export URL=dwylapp.herokuapp.com
-        export SECRET_KEY_BASE=l1Uyq50pB+q7NYDtSSNOJOxZJugfsnXoGmjTV1ShtdG/dPo2BxD9A9JzLHbjpR2j
-        ```
-    - ENCRYPTION_KEYS: The keys used to encrypt google tokens. You can create a new key with the following iex code:
-      ```elixir
-      :crypto.strong_rand_bytes(32) |> :base64.encode
-      ```
-    - ALLOW_API_ORIGINS: origins allowed to request the application API
+### 1. `git clone`
+
+Clone the repository from GitHub:
+
+```
+git clone git@github.com:dwyl/app-mvp-phoenix.git && cd app-mvp-phoenix
+```
+
+### 2. Required Environment Variables
+
+Create an `.env` file to store the required environment variables:
+```sh
+cp .env_sample .env
+```
+
+The
+[`.env_sample`](https://github.com/dwyl/app-mvp-phoenix/blob/master/.env_sample)
+file shows which environment variables are required.
+
+For running on `localhost`, you will only need to change the values
+for `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` to _real_ values
+in order for Google Auth to work.
+For that you will need to follow the instructions:
+[create-google-app-guide.md](https://github.com/dwyl/elixir-auth-google/blob/master/create-google-app-guide.md)
+
+> If you are new to Environment Variables, please see:
+[dwyl/**learn-environment-variables**](https://github.com/dwyl/learn-environment-variables)
+
+Once you have updated the `.env` file with the
+`GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` API keys
+you have everything you need to run the app.
+
+run `source .env` in your terminal to load the environment variables.
+
+### 3. Install Dependencies
+
+Install the `Elixir` dependencies by running
+
+```
+mix deps.get
+```
+
+Install Node.js dependencies by running:
+
+```
+cd assets && npm install && cd ..
+```
 
 
-  * run `source .env` to load the enviroment variables
-  * Make sure you have Postgres installed, see: https://github.com/dwyl/learn-postgresql
-  * Install dependencies with `mix deps.get`
-  * Create and migrate your database with `mix ecto.setup`
-  * Install Node.js dependencies with `cd assets && npm install`
-  * Start Phoenix endpoint with `mix phx.server`
+### 4. Create the Database
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
-
-Ready to run in production? Please
-[check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+Create and migrate your database with the command:
+```
+mix ecto.setup
+```
+That should create a new database called `app_dev`.
 
 
-## Learn more
+### Start the App
 
-  * Official website: http://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Mailing list: http://groups.google.com/group/phoenix-talk
-  * Source: https://github.com/phoenixframework/phoenix
+Finally once everything is installed and the DB is created,
+run the app:
+
+```
+mix phx.server
+```
+
+Visit [`localhost:4000`](http://localhost:4000) in your web browser.
+You should see the following:
