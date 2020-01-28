@@ -560,7 +560,7 @@ mix phx.server
 ```
 
 Visit [`localhost:4000`](http://localhost:4000) in your web browser.
-You should see somethign similar to the following:
+You should see something similar to the following:
 
 ![app-running-on-localhost](https://user-images.githubusercontent.com/194400/73284024-df6ffd80-41eb-11ea-967f-c1eec086fe99.png)
 
