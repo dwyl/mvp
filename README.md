@@ -1,4 +1,5 @@
 # @dwyl App MVP `Phoenix`  💡⏳ ✅
+
 [![Build Status](https://travis-ci.com/dwyl/app-mvp-phoenix.svg?branch=master)](https://travis-ci.com/dwyl/app-mvp-phoenix)
 [![codecov](https://codecov.io/gh/dwyl/app-mvp-phoenix/branch/master/graph/badge.svg)](https://codecov.io/gh/dwyl/app-mvp-phoenix)
 
@@ -10,7 +11,6 @@ of the @dwyl App MVP feature set.
     <img src="https://user-images.githubusercontent.com/194400/65666966-b28dbd00-e036-11e9-9d11-1f5d3e22258e.png" width="500" alt="MVP Loop">
   </a>
 </div>
-
 
 
 # Why? 🤷
@@ -472,6 +472,49 @@ The Entity Relationship Diagram (ERD)
 should now look like this:
 
 ![app-er-diagram-with-item_tags](https://user-images.githubusercontent.com/194400/68804955-c62eca80-065a-11ea-888b-9391154aceda.png)
+
+
+### Authentication
+
+With the addition of Sign in with Google
+using [**`elixir-auth-google`**](https://github.com/dwyl/elixir-auth-google),
+a **`sessions`** table was added to store session data
+and the **`picture`** and **`locale`** fields were added to the **`person`**:
+
+#### Create Sessions Table
+
+```
+mix phx.gen.html Ctx Session sessions auth_token:binary refresh_token:binary key_id:int person_id:references:people
+```
+
+
+#### Add **`picture`** and **`locale`** to **`person`**
+
+```
+mix ecto.gen.migration add_picture_locale_to_people
+```
+
+Open the resulting migration file e.g:
+[`/priv/repo/migrations/20191130210036_add_picture_locale_to_people.exs`](https://github.com/dwyl/app-mvp-phoenix/blob/master/priv/repo/migrations/20191130210036_add_picture_locale_to_people.exs)
+and update the code to look like this:
+
+```elixir
+defmodule App.Repo.Migrations.AddPictureLocaleToPeople do
+  use Ecto.Migration
+
+  def change do
+    alter table(:people) do
+      add :picture, :binary
+      add :locale, :string, default: "en"
+    end
+  end
+end
+```
+
+Now run `mix ecto.migrate` and your ER diagram should look like this:
+
+
+![ER-diagram-with-sessions](https://user-images.githubusercontent.com/194400/73312103-db5dd300-421f-11ea-92b5-e81bce094333.png)
 
 
 # _Next_
