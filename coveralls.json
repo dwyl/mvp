@@ -1,0 +1,7 @@
+{
+  "skip_files": [
+    "test/",
+    "lib/app/application.ex",
+    "lib/app_web.ex"
+  ]
+}
