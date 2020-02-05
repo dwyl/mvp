@@ -1,12 +1,17 @@
+<div align="center">
+
 # @dwyl App MVP `Phoenix`  💡⏳ ✅
 
-[![Build Status](https://travis-ci.com/dwyl/app-mvp-phoenix.svg?branch=master)](https://travis-ci.com/dwyl/app-mvp-phoenix)
-[![codecov](https://codecov.io/gh/dwyl/app-mvp-phoenix/branch/master/graph/badge.svg)](https://codecov.io/gh/dwyl/app-mvp-phoenix)
+A Phoenix`implementation
+of the @dwyl App [MVP feature set](https://github.com/dwyl/app/issues/266).
 
-A `Elixir`/`Phoenix` implementation
-of the @dwyl App MVP feature set.
+[![Build Status](https://img.shields.io/travis/com/dwyl/app-mvp-phoenix/master?color=bright-green&style=flat-square)](https://travis-ci.org/dwyl/app-mvp-phoenix)
+[![codecov.io](https://img.shields.io/codecov/c/github/dwyl/app-mvp-phoenix/master.svg?style=flat-square)](http://codecov.io/github/dwyl/app-mvp-phoenix?branch=master)
+[![Hex.pm](https://img.shields.io/hexpm/v/elixir_auth_google?color=brightgreen&style=flat-square)](https://hex.pm/packages/elixir_auth_google)
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat-square)](https://github.com/dwyl/app-mvp-phoenix/issues)
+[![HitCount](http://hits.dwyl.io/dwyl/app-mvp-phoenix.svg)](http://hits.dwyl.io/dwyl/app-mvp-phoenix)
 
-<div align="center">
+
   <a href="https://agilevelocity.com/product-owner/mvp-mmf-psi-wtf-part-one-understanding-the-mvp">
     <img src="https://user-images.githubusercontent.com/194400/65666966-b28dbd00-e036-11e9-9d11-1f5d3e22258e.png" width="500" alt="MVP Loop">
   </a>
