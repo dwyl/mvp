@@ -24,6 +24,9 @@ defmodule AppWeb.ConnCase do
 
       # The default endpoint for testing
       @endpoint AppWeb.Endpoint
+
+      # test helper functions:
+      import AppTest
     end
   end
 
@@ -34,6 +37,7 @@ defmodule AppWeb.ConnCase do
       Ecto.Adapters.SQL.Sandbox.mode(App.Repo, {:shared, self()})
     end
 
-    {:ok, conn: Phoenix.ConnTest.build_conn()}
+    conn = Phoenix.ConnTest.init_test_session(Phoenix.ConnTest.build_conn(), %{})
+    {:ok, conn: conn}
   end
 end

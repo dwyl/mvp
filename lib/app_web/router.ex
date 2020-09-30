@@ -1,6 +1,6 @@
 defmodule AppWeb.Router do
   use AppWeb, :router
-  import AppWeb.Auth
+  # import AppWeb.Auth
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -8,7 +8,7 @@ defmodule AppWeb.Router do
     plug :fetch_flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
-    plug AppWeb.Auth
+    # plug AppWeb.Auth
   end
 
   pipeline :api do
@@ -31,7 +31,8 @@ defmodule AppWeb.Router do
     get "/auth/google/callback", GoogleAuthController, :index
   end
 
-  pipeline :auth, do: plug(AuthPlug, %{auth_url: "https://dwylauth.herokuapp.com"})
+  pipeline :auth,
+    do: plug(AuthPlug, %{auth_url: "https://dwylauth.herokuapp.com"})
 
   scope "/", AppWeb do
     pipe_through [:browser, :auth]
