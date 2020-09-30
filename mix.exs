@@ -78,7 +78,7 @@ defmodule App.MixProject do
       "ecto.setup": ["ecto.create --quiet", "ecto.migrate --quiet", "seeds"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       seeds: ["run priv/repo/seeds.exs"],
-      test: [ "ecto.reset", "test"]
+      test: ["ecto.reset", "test"]
     ]
   end
 end
