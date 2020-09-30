@@ -22,9 +22,9 @@ of the @dwyl App [MVP feature set](https://github.com/dwyl/app/issues/266).
 
 Our objective with this MVP
 is to build the minimal _useable_ App
-that covers our basic "Capture, Categorise, Complete"
+that covers our basic "Capture, Categorize, Complete"
 [workflow](https://github.com/dwyl/product-roadmap#what)
-is well-documented, tested
+and is well-documented, tested
 and easy for a _beginner_ to run/understand.
 
 The goal is to _ship_ this App to
@@ -46,7 +46,7 @@ wanting the most _basic_ version of the app to _learn_.
 # _What_? 💭
 
 A _hybrid_ note taking,
-information categorisation,
+information categorization,
 task and activity (time) tracking tool. <br />
 We have found it _tedious_ to use two _separate_ apps
 for task and time tracking

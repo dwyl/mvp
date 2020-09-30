@@ -1,5 +1,6 @@
 defmodule App.SetupHelpers do
-  use Phoenix.ConnTest
+  # import Plug.Conn
+  import Phoenix.ConnTest
   import AppWeb.Router.Helpers
 
   @endpoint AppWeb.Endpoint
