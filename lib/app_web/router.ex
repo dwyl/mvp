@@ -21,20 +21,20 @@ defmodule AppWeb.Router do
     plug :accepts, ["json"]
   end
 
-  pipeline :person do
-    plug :authenticate_person
-  end
+  pipeline :auth_optional, do: plug(AuthPlugOptional, %{})
 
   scope "/", AppWeb do
-    pipe_through :browser
+    pipe_through [:browser, :auth_optional]
 
     get "/", PageController, :index
     post "/register", PageController, :register
     get "/auth/google/callback", GoogleAuthController, :index
   end
 
+  pipeline :auth, do: plug(AuthPlug, %{auth_url: "https://dwylauth.herokuapp.com"})
+
   scope "/", AppWeb do
-    pipe_through [:browser, :person]
+    pipe_through [:browser, :auth]
 
     # person information
     get "/people/info", PersonController, :info
