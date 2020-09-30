@@ -3,24 +3,3 @@
 	<span class="dwyl-teal f2">dwyl</span>
   <p class="f5"><strong>Unlock</strong> a new level of <strong>personal effectiveness</strong>.</p>
 </section>
-
-<span class="b db tc pa2">OR</span>
-<section class="tc">
-	<%= form_for @changeset, Routes.page_path(@conn, :register), fn f -> %>
-	<div class="pa2">
-<%= email_input f, :email, placeholder: "email address" %>
-		<div class="red">
-			<%= error_tag f, :email %>
-		</div>
-	</div>
-	<div class="pa2">
-		<%= password_input f, :password, placeholder: "password" %>
-		<div class="red">
-			<%= error_tag f, :password%>
-		</div>
-	</div>
-	<div class="pa2">
-		<%= submit "Login / Register", class: "pointer f6 link br1 ph3 pv2 mb2 dib white dwyl-bg-teal" %>
-	</div>
-	<% end %>
-</section>

@@ -24,21 +24,21 @@ defmodule App.Person do
     |> Repo.insert!()
   end
 
-  def get_person!(id) do
-    __MODULE__
-    |> Repo.get_by!(id: id)
+  def get_person(id) do
+    Repo.get_by(__MODULE__, id: id)
   end
 
   def upsert_person(person) do
-    case get_person!(person.id) do
+    case get_person(person.id) do
+      # not found:
       nil ->
         create_person(person)
 
-      # existing person
+      # existing person:
       ep ->
         merged = Map.merge(AuthPlug.Helpers.strip_struct_metadata(ep), person)
         {:ok, person} = Repo.update(changeset(%Person{id: ep.id}, merged))
-        # ensure that the preloads are returned:
+
         person
     end
   end

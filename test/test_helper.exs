@@ -32,10 +32,11 @@ defmodule AppTest do
 
     merged = Map.merge(data, %{id: person.id})
     # see: https://github.com/dwyl/auth/issues/83
-    conn = build_conn(:get, "endpoint")
-    |> init_test_session(%{})
-    |> AuthPlug.create_jwt_session(merged)
-    
+    conn =
+      build_conn(:get, "endpoint")
+      |> init_test_session(%{})
+      |> AuthPlug.create_jwt_session(merged)
+
     {:ok, conn: conn}
   end
 end

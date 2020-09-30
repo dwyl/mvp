@@ -27,8 +27,7 @@ defmodule AppWeb.Router do
     pipe_through [:browser, :auth_optional]
 
     get "/", PageController, :index
-    post "/register", PageController, :register
-    get "/auth/google/callback", GoogleAuthController, :index
+    # post "/register", PageController, :index
   end
 
   pipeline :auth,
@@ -37,9 +36,8 @@ defmodule AppWeb.Router do
   scope "/", AppWeb do
     pipe_through [:browser, :auth]
 
-    # person information
-    get "/people/info", PersonController, :info
-    get "/people/logout", PersonController, :logout
+    # need to re-create logout
+    # get "/people/logout", PersonController, :logout
 
     # generic resources for schemas:
     resources "/items", ItemController
@@ -61,8 +59,8 @@ defmodule AppWeb.Router do
     pipe_through :api
 
     post "/captures/create", CaptureController, :api_create
-    options "/captures/create", CaptureController, :api_create
+    # options "/captures/create", CaptureController, :api_create
     get "/items", ItemController, :api_index
-    options "/items", ItemController, :api_index
+    # options "/items", ItemController, :api_index
   end
 end

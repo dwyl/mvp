@@ -37,7 +37,9 @@ defmodule AppWeb.ConnCase do
       Ecto.Adapters.SQL.Sandbox.mode(App.Repo, {:shared, self()})
     end
 
-    conn = Phoenix.ConnTest.init_test_session(Phoenix.ConnTest.build_conn(), %{})
+    conn =
+      Phoenix.ConnTest.init_test_session(Phoenix.ConnTest.build_conn(), %{})
+
     {:ok, conn: conn}
   end
 end

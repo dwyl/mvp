@@ -2,6 +2,7 @@
   "skip_files": [
     "test/",
     "lib/app/application.ex",
-    "lib/app_web.ex"
+    "lib/app_web.ex",
+    "lib/app_web/views/error_helpers.ex"
   ]
 }
