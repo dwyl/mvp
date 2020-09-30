@@ -4,7 +4,7 @@ defmodule App.MixProject do
   def project do
     [
       app: :app,
-      version: "1.0.2",
+      version: "1.0.3",
       elixir: "~> 1.9",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
@@ -39,28 +39,31 @@ defmodule App.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.4.10"},
-      {:phoenix_pubsub, "~> 1.1"},
-      {:phoenix_ecto, "~> 4.0"},
-      {:ecto_sql, "~> 3.1"},
-      {:postgrex, ">= 0.0.0"},
-      {:phoenix_html, "~> 2.11"},
-      {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:gettext, "~> 0.11"},
-      {:jason, "~> 1.0"},
-      {:plug_cowboy, "~> 2.0"},
-      {:elixir_auth_google, "~> 1.0.2"},
-      {:fields, "~> 2.1.0"},
+      {:phoenix, "~> 1.5.5"},
+      {:phoenix_pubsub, "~> 2.0.0"},
+      {:phoenix_ecto, "~> 4.2.1"},
+      {:ecto_sql, "~> 3.4.5"},
+      {:postgrex, ">= 0.15.6"},
+      {:phoenix_html, "~> 2.14.2"},
+      {:phoenix_live_reload, "~> 1.2.4", only: :dev},
+      {:gettext, "~> 0.18.2"},
+      {:jason, "~> 1.2.2"},
+      {:plug_cowboy, "~> 2.3.0"},
+
+      # github.com/dwyl/fields
+      {:fields, "~> 2.7.1"},
+      # github.com/dwyl/auth_plug
+      {:auth_plug, "~> 1.2.3"},
 
       # create docs on localhost by running "mix docs"
-      {:ex_doc, "~> 0.21", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.22.6", only: :dev, runtime: false},
       # track test coverage
-      {:excoveralls, "~> 0.12.1", only: [:test, :dev]},
+      {:excoveralls, "~> 0.13.2", only: [:test, :dev]},
       # git pre-commit hook runs tests before allowing commits
       {:pre_commit, "~> 0.3.4"},
       {:credo, "~> 1.1.0", only: [:dev, :test], runtime: false},
       # cors #56
-      {:cors_plug, "~> 2.0"}
+      {:cors_plug, "~> 2.0.2"}
     ]
   end
 
