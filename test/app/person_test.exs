@@ -1,10 +1,10 @@
-defmodule App.CtxTest do
+defmodule App.PersonTest do
   use App.DataCase
   alias App.Person
 
   describe "people" do
     @valid_attrs %{
-      status: 1,
+      status: 1
     }
     @update_attrs %{
       status: 2
