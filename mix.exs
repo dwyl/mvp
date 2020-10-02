@@ -51,9 +51,9 @@ defmodule App.MixProject do
       {:jason, "~> 1.2.2"},
       {:plug_cowboy, "~> 2.3.0"},
 
-      # github.com/dwyl/fields
+      # Easily Encrypt Senstive Data: github.com/dwyl/fields
       {:fields, "~> 2.7.1"},
-      # github.com/dwyl/auth_plug
+      # Auth with ONE Environment Variable: github.com/dwyl/auth_plug
       {:auth_plug, "~> 1.2.3"},
 
       # create docs on localhost by running "mix docs"
