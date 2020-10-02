@@ -1,14 +1,14 @@
 defmodule AppWeb.TimerControllerTest do
   use AppWeb.ConnCase
   import App.SetupHelpers
-  alias App.Ctx
+  alias App.Timer
 
   @create_attrs %{end: ~N[2010-04-17 14:00:00], start: ~N[2010-04-17 14:00:00]}
   @update_attrs %{end: ~N[2011-05-18 15:01:01], start: ~N[2011-05-18 15:01:01]}
   @invalid_attrs %{end: nil, start: nil}
 
   def fixture(:timer) do
-    {:ok, timer} = Ctx.create_timer(@create_attrs)
+    {:ok, timer} = Timer.create_timer(@create_attrs)
     timer
   end
 

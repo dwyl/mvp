@@ -1,21 +1,19 @@
 defmodule AppWeb.TimerController do
   use AppWeb, :controller
-
-  alias App.Ctx
-  alias App.Ctx.Timer
+  alias App.Timer
 
   def index(conn, _params) do
-    timers = Ctx.list_timers()
+    timers = Timer.list_timers()
     render(conn, "index.html", timers: timers)
   end
 
   def new(conn, _params) do
-    changeset = Ctx.change_timer(%Timer{})
+    changeset = Timer.change_timer(%Timer{})
     render(conn, "new.html", changeset: changeset)
   end
 
   def create(conn, %{"timer" => timer_params}) do
-    case Ctx.create_timer(timer_params) do
+    case Timer.create_timer(timer_params) do
       {:ok, timer} ->
         conn
         |> put_flash(:info, "Timer created successfully.")
@@ -27,20 +25,20 @@ defmodule AppWeb.TimerController do
   end
 
   def show(conn, %{"id" => id}) do
-    timer = Ctx.get_timer!(id)
+    timer = Timer.get_timer!(id)
     render(conn, "show.html", timer: timer)
   end
 
   def edit(conn, %{"id" => id}) do
-    timer = Ctx.get_timer!(id)
-    changeset = Ctx.change_timer(timer)
+    timer = Timer.get_timer!(id)
+    changeset = Timer.change_timer(timer)
     render(conn, "edit.html", timer: timer, changeset: changeset)
   end
 
   def update(conn, %{"id" => id, "timer" => timer_params}) do
-    timer = Ctx.get_timer!(id)
+    timer = Timer.get_timer!(id)
 
-    case Ctx.update_timer(timer, timer_params) do
+    case Timer.update_timer(timer, timer_params) do
       {:ok, timer} ->
         conn
         |> put_flash(:info, "Timer updated successfully.")
@@ -52,8 +50,8 @@ defmodule AppWeb.TimerController do
   end
 
   def delete(conn, %{"id" => id}) do
-    timer = Ctx.get_timer!(id)
-    {:ok, _timer} = Ctx.delete_timer(timer)
+    timer = Timer.get_timer!(id)
+    {:ok, _timer} = Timer.delete_timer(timer)
 
     conn
     |> put_flash(:info, "Timer deleted successfully.")
