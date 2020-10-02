@@ -38,11 +38,11 @@ defmodule AppWeb.Router do
 
     # need to re-create logout
     # get "/people/logout", PersonController, :logout
+    # resources "/people", PersonController
 
     # generic resources for schemas:
     resources "/items", ItemController
     resources "/lists", ListController
-    resources "/people", PersonController
     resources "/status", StatusController
     resources "/tags", TagController
     resources "/timers", TimerController
