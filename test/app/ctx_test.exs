@@ -127,48 +127,6 @@ defmodule App.CtxTest do
     end
   end
 
-  describe "items" do
-    alias App.Ctx.{Item, List}
-
-    @valid_attrs %{text: "some text"}
-    @update_attrs %{text: "some updated text"}
-    @invalid_attrs %{text: nil}
-
-    def item_fixture(attrs \\ %{}) do
-      {:ok, item} =
-        attrs
-        |> Enum.into(@valid_attrs)
-        |> Ctx.create_item()
-
-      item
-    end
-
-    test "get_item!/1 returns the item with given id" do
-      item = item_fixture(@valid_attrs)
-      assert Ctx.get_item!(item.id) == item
-    end
-
-    test "create_item/1 with valid data creates a item" do
-      assert {:ok, %Item{} = item} = Ctx.create_item(@valid_attrs)
-      assert item.text == "some text"
-    end
-
-    test "create_item/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Ctx.create_item(@invalid_attrs)
-    end
-
-    test "update_item/2 with valid data updates the item" do
-      item = item_fixture()
-      assert {:ok, %Item{} = item} = Ctx.update_item(item, @update_attrs)
-      assert item.text == "some updated text"
-    end
-
-    test "change_item/1 returns a item changeset" do
-      item = item_fixture()
-      assert %Ecto.Changeset{} = Ctx.change_item(item)
-    end
-  end
-
   describe "lists" do
     alias App.Ctx.List
 

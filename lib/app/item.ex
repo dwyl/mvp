@@ -87,6 +87,19 @@ defmodule App.Item do
   end
 
   @doc """
+  Returns an `%Ecto.Changeset{}` for tracking item changes.
+
+  ## Examples
+
+      iex> change_item(item)
+      %Ecto.Changeset{source: %Item{}}
+
+  """
+  def change_item(%Item{} = item) do
+    Item.changeset(item, %{})
+  end
+
+  @doc """
   Deletes a Item.
 
   ## Examples
@@ -100,18 +113,5 @@ defmodule App.Item do
   """
   def delete_item(%Item{} = item) do
     Repo.delete(item)
-  end
-
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking item changes.
-
-  ## Examples
-
-      iex> change_item(item)
-      %Ecto.Changeset{source: %Item{}}
-
-  """
-  def change_item(%Item{} = item) do
-    Item.changeset(item, %{})
   end
 end

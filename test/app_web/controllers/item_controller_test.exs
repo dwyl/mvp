@@ -1,14 +1,14 @@
 defmodule AppWeb.ItemControllerTest do
   use AppWeb.ConnCase
   import App.SetupHelpers
-  alias App.Ctx
+  alias App.Item
 
   @create_attrs %{text: "some text"}
   @update_attrs %{text: "some updated text"}
   @invalid_attrs %{text: nil}
 
   def fixture(:item) do
-    {:ok, item} = Ctx.create_item(@create_attrs)
+    {:ok, item} = Item.create_item(@create_attrs)
     item
   end
 

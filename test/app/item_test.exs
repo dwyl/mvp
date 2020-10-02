@@ -25,6 +25,9 @@ defmodule App.ItemTest do
     test "create_item/1 with valid data creates a item" do
       assert {:ok, %Item{} = item} = Item.create_item(@valid_attrs)
       assert item.text == "some text"
+
+      inserted_item = List.first(Item.list_items())
+      assert inserted_item.text == @valid_attrs.text
     end
 
     test "create_item/1 with invalid data returns error changeset" do
