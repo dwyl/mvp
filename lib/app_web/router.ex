@@ -8,7 +8,7 @@ defmodule AppWeb.Router do
     plug :fetch_flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
-    # plug AppWeb.Auth
+    plug AuthPlugOptional
   end
 
   pipeline :api do
@@ -21,10 +21,8 @@ defmodule AppWeb.Router do
     plug :accepts, ["json"]
   end
 
-  pipeline :auth_optional, do: plug(AuthPlugOptional, %{})
-
   scope "/", AppWeb do
-    pipe_through [:browser, :auth_optional]
+    pipe_through [:browser]
 
     get "/", PageController, :index
     # post "/register", PageController, :index
