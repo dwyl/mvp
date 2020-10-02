@@ -1,2 +1,2 @@
-App.Ctx.create_status(%{text: "unverified"})
-App.Ctx.create_status(%{text: "verified"})
+App.Status.create_status(%{text: "unverified"})
+App.Status.create_status(%{text: "verified"})

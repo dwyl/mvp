@@ -1,12 +1,23 @@
-defmodule App.Ctx do
-  @moduledoc """
-  The Ctx context.
-  """
-
+defmodule App.Status do
+  use Ecto.Schema
+  import Ecto.Changeset
   import Ecto.Query, warn: false
   alias App.Repo
+  alias __MODULE__
 
-  alias App.Ctx.Status
+  schema "status" do
+    field :text, :string
+    belongs_to :person, App.Person
+
+    timestamps()
+  end
+
+  @doc false
+  def changeset(status, attrs) do
+    status
+    |> cast(attrs, [:text])
+    |> validate_required([:text])
+  end
 
   @doc """
   Returns the list of status.

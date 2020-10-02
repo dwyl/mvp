@@ -1,14 +1,14 @@
 defmodule AppWeb.StatusControllerTest do
   use AppWeb.ConnCase
   import App.SetupHelpers
-  alias App.Ctx
+  alias App.Status
 
   @create_attrs %{text: "some text"}
   @update_attrs %{text: "some updated text"}
   @invalid_attrs %{text: nil}
 
   def fixture(:status) do
-    {:ok, status} = Ctx.create_status(@create_attrs)
+    {:ok, status} = Status.create_status(@create_attrs)
     status
   end
 
