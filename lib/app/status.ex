@@ -48,6 +48,8 @@ defmodule App.Status do
   """
   def get_status!(id), do: Repo.get!(Status, id)
 
+  def get_status(id), do: Repo.get(Status, id)
+
   @doc """
   Creates a status.
 
@@ -82,6 +84,27 @@ defmodule App.Status do
     status
     |> Status.changeset(attrs)
     |> Repo.update()
+  end
+
+  def upsert_status(status) do
+    if Map.has_key?(status, :id) do
+      case get_status(status.id) do
+        # not found:
+        nil ->
+          {:ok, status} = create_status(status)
+          status
+
+        # existing status:
+        es ->
+          merged = Map.merge(AuthPlug.Helpers.strip_struct_metadata(es), status)
+          {:ok, status} = Repo.update(changeset(%Status{id: es.id}, merged))
+
+          status
+      end
+    else
+      {:ok, status} = create_status(status)
+      status
+    end
   end
 
   @doc """

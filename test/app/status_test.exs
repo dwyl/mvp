@@ -64,5 +64,23 @@ defmodule App.StatusTest do
       status = status_fixture()
       assert %Ecto.Changeset{} = Status.change_status(status)
     end
+
+    test "upsert_status/1 inserts or updates a status" do
+      # upsert (insert) a new status:
+      status = Status.upsert_status(%{text: "Everything is Awesome!"})
+      # attempt to upsert (create) an existing status: (created in seeds.exs)
+      verified = Status.upsert_status(%{text: "verified", id: 1})
+      assert verified.id == 1
+
+      # update existing status:
+      updata = %{id: status.id, text: "Everything is cool when you're part of a team!"}
+      updated = Status.upsert_status(updata)
+      assert updated.id == status.id
+      assert updated.text == updata.text
+
+      # updsert a record with id
+      status2 = Status.upsert_status(%{text: "Amazing", id: 468})
+      assert status2.id != 468
+    end
   end
 end
