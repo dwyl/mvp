@@ -73,7 +73,11 @@ defmodule App.StatusTest do
       assert verified.id == 1
 
       # update existing status:
-      updata = %{id: status.id, text: "Everything is cool when you're part of a team!"}
+      updata = %{
+        id: status.id,
+        text: "Everything is cool when you're part of a team!"
+      }
+
       updated = Status.upsert_status(updata)
       assert updated.id == status.id
       assert updated.text == updata.text

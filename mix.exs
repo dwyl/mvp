@@ -55,6 +55,8 @@ defmodule App.MixProject do
       {:fields, "~> 2.7.1"},
       # Auth with ONE Environment Variable: github.com/dwyl/auth_plug
       {:auth_plug, "~> 1.2.3"},
+      # Useful functions: https://github.com/dwyl/useful
+      {:useful, "~> 0.1.0"},
 
       # create docs on localhost by running "mix docs"
       {:ex_doc, "~> 0.22.6", only: :dev, runtime: false},

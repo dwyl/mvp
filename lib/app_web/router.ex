@@ -25,7 +25,6 @@ defmodule AppWeb.Router do
     pipe_through [:browser]
 
     get "/", PageController, :index
-    # post "/register", PageController, :index
   end
 
   pipeline :auth,
