@@ -18,8 +18,9 @@ defmodule AppWeb.ItemController do
   end
 
   def create(conn, %{"item" => item_params}) do
-    params = Map.merge(item_params, %{person_id: conn.assigns.person.id})
-    |> Useful.atomize_map_keys
+    params =
+      Map.merge(item_params, %{person_id: conn.assigns.person.id})
+      |> Useful.atomize_map_keys()
 
     case Item.create_item(params) do
       {:ok, item} ->

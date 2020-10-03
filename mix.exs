@@ -82,7 +82,8 @@ defmodule App.MixProject do
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       seeds: ["run priv/repo/seeds.exs"],
       test: ["ecto.reset", "test"],
-      c: ["coveralls.html"]
+      c: ["coveralls.html"],
+      s: ["phx.server"]
     ]
   end
 end
