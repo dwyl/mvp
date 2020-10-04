@@ -18,11 +18,15 @@ defmodule AppWeb.ConnCase do
   using do
     quote do
       # Import conveniences for testing with connections
-      use Phoenix.ConnTest
+      import Plug.Conn
+      import Phoenix.ConnTest
       alias AppWeb.Router.Helpers, as: Routes
 
       # The default endpoint for testing
       @endpoint AppWeb.Endpoint
+
+      # test helper functions:
+      import AppTest
     end
   end
 
@@ -33,6 +37,9 @@ defmodule AppWeb.ConnCase do
       Ecto.Adapters.SQL.Sandbox.mode(App.Repo, {:shared, self()})
     end
 
-    {:ok, conn: Phoenix.ConnTest.build_conn()}
+    conn =
+      Phoenix.ConnTest.init_test_session(Phoenix.ConnTest.build_conn(), %{})
+
+    {:ok, conn: conn}
   end
 end

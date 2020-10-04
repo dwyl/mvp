@@ -185,9 +185,9 @@ defmodule App.Ctx do
     Repo.delete(status)
   end
 
-  def get_status_verified() do
-    Repo.get_by(Status, text: "verified")
-  end
+  # def get_status_verified() do
+  #   Repo.get_by(Status, text: "verified")
+  # end
 
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking status changes.
@@ -200,133 +200,6 @@ defmodule App.Ctx do
   """
   def change_status(%Status{} = status) do
     Status.changeset(status, %{})
-  end
-
-  alias App.Ctx.Person
-
-  @doc """
-  Returns the list of people.
-
-  ## Examples
-
-      iex> list_people()
-      [%Person{}, ...]
-
-  """
-  def list_people do
-    Repo.all(Person)
-  end
-
-  @doc """
-  Gets a single person.
-
-  Raises `Ecto.NoResultsError` if the Person does not exist.
-
-  ## Examples
-
-      iex> get_person!(123)
-      %Person{}
-
-      iex> get_person!(456)
-      ** (Ecto.NoResultsError)
-
-  """
-  def get_person!(id), do: Repo.get!(Person, id)
-
-  @doc """
-  Gets a single person.
-  Returs `%Person{...}` or `nil` if not found
-  """
-  def get_person(id), do: Repo.get(Person, id)
-
-  @doc """
-  Get a person by email
-  """
-  def get_person_by_email(email) do
-    Repo.get_by(Person, email_hash: email)
-  end
-
-  @doc """
-  Creates a person.
-
-  ## Examples
-
-      iex> create_person(%{field: value})
-      {:ok, %Person{}}
-
-      iex> create_person(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_person(attrs \\ %{}) do
-    %Person{}
-    |> Person.changeset(attrs)
-    |> Repo.insert()
-  end
-
-  @doc """
-  Create a person from Google profile
-  """
-  def create_google_person(attrs \\ %{}) do
-    %Person{}
-    |> Person.google_changeset(attrs)
-    |> Repo.insert()
-  end
-
-  @doc """
-  Register a person with email/password
-  """
-  def register_person(attrs \\ %{}) do
-    %Person{}
-    |> Person.changeset_registration(attrs)
-    |> Repo.insert()
-  end
-
-  @doc """
-  Updates a person.
-
-  ## Examples
-
-      iex> update_person(person, %{field: new_value})
-      {:ok, %Person{}}
-
-      iex> update_person(person, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_person(%Person{} = person, attrs) do
-    person
-    |> Person.changeset(attrs)
-    |> Repo.update()
-  end
-
-  @doc """
-  Deletes a Person.
-
-  ## Examples
-
-      iex> delete_person(person)
-      {:ok, %Person{}}
-
-      iex> delete_person(person)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_person(%Person{} = person) do
-    Repo.delete(person)
-  end
-
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking person changes.
-
-  ## Examples
-
-      iex> change_person(person)
-      %Ecto.Changeset{source: %Person{}}
-
-  """
-  def change_person(%Person{} = person) do
-    Person.changeset(person, %{})
   end
 
   alias App.Ctx.Item
@@ -617,21 +490,21 @@ defmodule App.Ctx do
     Timer.changeset(timer, %{})
   end
 
-  alias App.Ctx.Session
+  # alias App.Ctx.Session
 
-  @doc """
-  Create a session
-  """
-  def create_session(user, attrs \\ %{}) do
-    Session.changeset(user, attrs)
-    |> Repo.insert()
-  end
+  # @doc """
+  # Create a session
+  # """
+  # def create_session(user, attrs \\ %{}) do
+  #   Session.changeset(user, attrs)
+  #   |> Repo.insert()
+  # end
 
-  @doc """
-  Create a basic session
-  """
-  def create_basic_session(user, attrs \\ %{}) do
-    Session.basic_changeset(user, attrs)
-    |> Repo.insert()
-  end
+  # @doc """
+  # Create a basic session
+  # """
+  # def create_basic_session(user, attrs \\ %{}) do
+  #   Session.basic_changeset(user, attrs)
+  #   |> Repo.insert()
+  # end
 end

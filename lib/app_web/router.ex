@@ -1,6 +1,6 @@
 defmodule AppWeb.Router do
   use AppWeb, :router
-  import AppWeb.Auth
+  # import AppWeb.Auth
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -8,7 +8,7 @@ defmodule AppWeb.Router do
     plug :fetch_flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
-    plug AppWeb.Auth
+    # plug AppWeb.Auth
   end
 
   pipeline :api do
@@ -21,24 +21,23 @@ defmodule AppWeb.Router do
     plug :accepts, ["json"]
   end
 
-  pipeline :person do
-    plug :authenticate_person
-  end
+  pipeline :auth_optional, do: plug(AuthPlugOptional, %{})
 
   scope "/", AppWeb do
-    pipe_through :browser
+    pipe_through [:browser, :auth_optional]
 
     get "/", PageController, :index
-    post "/register", PageController, :register
-    get "/auth/google/callback", GoogleAuthController, :index
+    # post "/register", PageController, :index
   end
 
-  scope "/", AppWeb do
-    pipe_through [:browser, :person]
+  pipeline :auth,
+    do: plug(AuthPlug, %{auth_url: "https://dwylauth.herokuapp.com"})
 
-    # person information
-    get "/people/info", PersonController, :info
-    get "/people/logout", PersonController, :logout
+  scope "/", AppWeb do
+    pipe_through [:browser, :auth]
+
+    # need to re-create logout
+    # get "/people/logout", PersonController, :logout
 
     # generic resources for schemas:
     resources "/items", ItemController
@@ -60,8 +59,8 @@ defmodule AppWeb.Router do
     pipe_through :api
 
     post "/captures/create", CaptureController, :api_create
-    options "/captures/create", CaptureController, :api_create
+    # options "/captures/create", CaptureController, :api_create
     get "/items", ItemController, :api_index
-    options "/items", ItemController, :api_index
+    # options "/items", ItemController, :api_index
   end
 end
