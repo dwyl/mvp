@@ -36,7 +36,7 @@ defmodule AppWeb.ItemControllerTest do
 
     test "renders form", %{conn: conn} do
       conn = get(conn, Routes.item_path(conn, :new))
-      assert html_response(conn, 200) =~ "New Item"
+      assert html_response(conn, 200) =~ "Capture"
     end
   end
 
@@ -55,7 +55,7 @@ defmodule AppWeb.ItemControllerTest do
 
     test "renders errors when data is invalid", %{conn: conn} do
       conn = post(conn, Routes.item_path(conn, :create), item: @invalid_attrs)
-      assert html_response(conn, 200) =~ "New Item"
+      assert html_response(conn, 200) =~ "Capture"
     end
   end
 
