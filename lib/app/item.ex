@@ -17,7 +17,7 @@ defmodule App.Item do
   @doc false
   def changeset(item, attrs) do
     item
-    |> cast(attrs, [:text])
+    |> cast(attrs, [:text, :person_id, :status])
     |> validate_required([:text])
   end
 
@@ -63,6 +63,11 @@ defmodule App.Item do
 
   """
   def create_item(attrs \\ %{}) do
+    person = App.Person.upsert_person(attrs.person)
+
+    attrs =
+      attrs |> Map.merge(%{person_id: person.id}) |> Useful.atomize_map_keys()
+
     %Item{}
     |> Item.changeset(attrs)
     |> Repo.insert()

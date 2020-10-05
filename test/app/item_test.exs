@@ -4,9 +4,10 @@ defmodule App.ItemTest do
   alias App.Item
 
   describe "items" do
-    @valid_attrs %{text: "some text"}
+    @test_person person_data()
+    @valid_attrs %{text: "some text", person: @test_person}
     @update_attrs %{text: "some updated text"}
-    @invalid_attrs %{text: nil}
+    @invalid_attrs %{text: nil, person: @test_person}
 
     def item_fixture(attrs \\ %{}) do
       {:ok, item} =
@@ -40,7 +41,7 @@ defmodule App.ItemTest do
       assert item.text == "some updated text"
     end
 
-    test "change_item/1 returns a item changeset" do
+    test "change_item/1 returns an item changeset" do
       item = item_fixture()
       assert %Ecto.Changeset{} = Item.change_item(item)
     end

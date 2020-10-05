@@ -13,7 +13,8 @@ defmodule AppTest do
       auth_provider: "email",
       picture: "https://avatars3.githubusercontent.com/u/10835816",
       status: 1,
-      app_id: 42
+      app_id: 42,
+      id: rand
     }
   end
 

@@ -2,6 +2,7 @@ defmodule AppWeb.CaptureControllerTest do
   use AppWeb.ConnCase
   import App.SetupHelpers
 
+  # @test_person person_data()
   @create_attrs %{text: "some text"}
   @invalid_attrs %{text: nil}
 

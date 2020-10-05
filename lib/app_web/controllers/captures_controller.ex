@@ -8,7 +8,9 @@ defmodule AppWeb.CaptureController do
   end
 
   def create(conn, %{"item" => capture_params}) do
-    case Item.create_item(capture_params) do
+    params = Map.merge(capture_params, %{person: conn.assigns.person})
+
+    case Item.create_item(params) do
       {:ok, _item} ->
         conn
         |> put_flash(:info, "Item created successfully.")

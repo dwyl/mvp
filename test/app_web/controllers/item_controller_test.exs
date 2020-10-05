@@ -3,7 +3,12 @@ defmodule AppWeb.ItemControllerTest do
   import App.SetupHelpers
   alias App.Item
 
-  @create_attrs %{text: "some text"}
+  @test_person person_data()
+  @create_attrs %{
+    text: "some text",
+    person_id: @test_person.id,
+    person: @test_person
+  }
   @update_attrs %{text: "some updated text"}
   @invalid_attrs %{text: nil}
 
