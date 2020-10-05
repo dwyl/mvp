@@ -40,4 +40,9 @@ defmodule AppTest do
 
     {:ok, conn: conn}
   end
+
+  # create a random person and log them into the app
+  # def non_admin_login(conn) do
+
+  # end
 end
