@@ -47,7 +47,7 @@ defmodule AppWeb.ItemControllerTest do
       conn = post(conn, Routes.item_path(conn, :create), item: @create_attrs)
 
       assert %{id: id} = redirected_params(conn)
-      assert redirected_to(conn) == Routes.item_path(conn, :show, id)
+      assert redirected_to(conn) == Routes.item_path(conn, :edit, id)
 
       conn = get(conn, Routes.item_path(conn, :show, id))
       assert html_response(conn, 200) =~ "Show Item"
@@ -64,7 +64,7 @@ defmodule AppWeb.ItemControllerTest do
 
     test "renders form for editing chosen item", %{conn: conn, item: item} do
       conn = get(conn, Routes.item_path(conn, :edit, item))
-      assert html_response(conn, 200) =~ "Edit Item"
+      assert html_response(conn, 200) =~ item.text
     end
   end
 
@@ -75,7 +75,7 @@ defmodule AppWeb.ItemControllerTest do
       conn =
         put(conn, Routes.item_path(conn, :update, item), item: @update_attrs)
 
-      assert redirected_to(conn) == Routes.item_path(conn, :show, item)
+      assert redirected_to(conn) == Routes.item_path(conn, :edit, item)
 
       conn = get(conn, Routes.item_path(conn, :show, item))
       assert html_response(conn, 200) =~ "some updated text"
@@ -85,7 +85,7 @@ defmodule AppWeb.ItemControllerTest do
       conn =
         put(conn, Routes.item_path(conn, :update, item), item: @invalid_attrs)
 
-      assert html_response(conn, 200) =~ "Edit Item"
+      assert html_response(conn, 200) =~ "check the errors below"
     end
   end
 

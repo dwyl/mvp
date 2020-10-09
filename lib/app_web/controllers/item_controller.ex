@@ -27,8 +27,8 @@ defmodule AppWeb.ItemController do
     case Item.create_item(params) do
       {:ok, item} ->
         conn
-        |> put_flash(:info, "Item created successfully.")
-        |> redirect(to: Routes.item_path(conn, :show, item))
+        # |> put_flash(:info, "Item created successfully.")
+        |> redirect(to: Routes.item_path(conn, :edit, item))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)
@@ -52,8 +52,8 @@ defmodule AppWeb.ItemController do
     case Item.update_item(item, item_params) do
       {:ok, item} ->
         conn
-        |> put_flash(:info, "Item updated successfully.")
-        |> redirect(to: Routes.item_path(conn, :show, item))
+        # |> put_flash(:info, "Item updated successfully.")
+        |> redirect(to: Routes.item_path(conn, :edit, item))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "edit.html", item: item, changeset: changeset)
