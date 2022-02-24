@@ -9,7 +9,7 @@ of the @dwyl App [MVP feature set](https://github.com/dwyl/app/issues/266).
 [![codecov.io](https://img.shields.io/codecov/c/github/dwyl/app-mvp-phoenix/master.svg?style=flat-square)](http://codecov.io/github/dwyl/app-mvp-phoenix?branch=master)
 [![Hex.pm](https://img.shields.io/hexpm/v/elixir_auth_google?color=brightgreen&style=flat-square)](https://hex.pm/packages/elixir_auth_google)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat-square)](https://github.com/dwyl/app-mvp-phoenix/issues)
-[![HitCount](http://hits.dwyl.io/dwyl/app-mvp-phoenix.svg)](http://hits.dwyl.io/dwyl/app-mvp-phoenix)
+[![HitCount](http://hits.dwyl.com/dwyl/app-mvp-phoenix.svg)](http://hits.dwyl.com/dwyl/app-mvp-phoenix)
 
 
   <a href="https://agilevelocity.com/product-owner/mvp-mmf-psi-wtf-part-one-understanding-the-mvp">
