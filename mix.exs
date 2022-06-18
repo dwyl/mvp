@@ -13,6 +13,7 @@ defmodule App.MixProject do
       deps: deps(),
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
+        c: :test,
         coveralls: :test,
         "coveralls.json": :test,
         "coveralls.html": :test
@@ -50,10 +51,12 @@ defmodule App.MixProject do
       {:jason, "~> 1.2.2"},
       {:plug_cowboy, "~> 2.3.0"},
 
-      # github.com/dwyl/fields
+      # Easily Encrypt Senstive Data: github.com/dwyl/fields
       {:fields, "~> 2.7.1"},
-      # github.com/dwyl/auth_plug
+      # Auth with ONE Environment Variable: github.com/dwyl/auth_plug
       {:auth_plug, "~> 1.2.3"},
+      # Useful functions: https://github.com/dwyl/useful
+      {:useful, "~> 0.1.0"},
 
       # create docs on localhost by running "mix docs"
       {:ex_doc, "~> 0.22.6", only: :dev, runtime: false},
@@ -78,7 +81,9 @@ defmodule App.MixProject do
       "ecto.setup": ["ecto.create --quiet", "ecto.migrate --quiet", "seeds"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       seeds: ["run priv/repo/seeds.exs"],
-      test: ["ecto.reset", "test"]
+      test: ["ecto.reset", "test"],
+      c: ["coveralls.html"],
+      s: ["phx.server"]
     ]
   end
 end

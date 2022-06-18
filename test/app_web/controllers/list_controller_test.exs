@@ -1,14 +1,14 @@
 defmodule AppWeb.ListControllerTest do
   use AppWeb.ConnCase
   import App.SetupHelpers
-  alias App.Ctx
+  alias App.List
 
   @create_attrs %{title: "some title"}
   @update_attrs %{title: "some updated title"}
   @invalid_attrs %{title: nil}
 
   def fixture(:list) do
-    {:ok, list} = Ctx.create_list(@create_attrs)
+    {:ok, list} = List.create_list(@create_attrs)
     list
   end
 

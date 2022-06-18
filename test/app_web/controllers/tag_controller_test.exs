@@ -1,14 +1,14 @@
 defmodule AppWeb.TagControllerTest do
   use AppWeb.ConnCase
   import App.SetupHelpers
-  alias App.Ctx
+  alias App.Tag
 
   @create_attrs %{text: "some text"}
   @update_attrs %{text: "some updated text"}
   @invalid_attrs %{text: nil}
 
   def fixture(:tag) do
-    {:ok, tag} = Ctx.create_tag(@create_attrs)
+    {:ok, tag} = Tag.create_tag(@create_attrs)
     tag
   end
 

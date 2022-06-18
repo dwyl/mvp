@@ -1,16 +1,16 @@
 defmodule AppWeb.CaptureController do
   use AppWeb, :controller
-
-  alias App.Ctx
-  alias App.Ctx.Item
+  alias App.Item
 
   def new(conn, _params) do
-    changeset = Ctx.change_item(%Item{})
+    changeset = Item.change_item(%Item{})
     render(conn, "new.html", changeset: changeset)
   end
 
   def create(conn, %{"item" => capture_params}) do
-    case Ctx.create_item(capture_params) do
+    params = Map.merge(capture_params, %{person: conn.assigns.person})
+
+    case Item.create_item(params) do
       {:ok, _item} ->
         conn
         |> put_flash(:info, "Item created successfully.")

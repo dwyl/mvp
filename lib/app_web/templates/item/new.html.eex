@@ -1,5 +1,5 @@
-<h1>New Item</h1>
+<h2 class="tc"><em>Capture</em> what's on your mind</h2>
 
-<%= render "form.html", Map.put(assigns, :action, Routes.item_path(@conn, :create)) %>
-
-<span><%= link "Back", to: Routes.item_path(@conn, :index) %></span>
+<div class="center">
+  <%= render "form.html", Map.put(assigns, :action, Routes.item_path(@conn, :create)) %>
+</div>

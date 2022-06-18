@@ -2,4 +2,27 @@
 	<img src="https://dwyl.com/img/common/dwyl-heart-only-logo.png" width="100px" class="center h-auto db" />
 	<span class="dwyl-teal f2">dwyl</span>
   <p class="f5"><strong>Unlock</strong> a new level of <strong>personal effectiveness</strong>.</p>
+	<a href="/items/new" id="new-item"
+	class="pointer br2 ba dwyl-bg-teal border-dwyl-teal-darkest white pv2 ph3 ml1 mv1 mt3 f4
+    shadow-hover bg-animate hover-dwyl-teal-darkest border-box no-underline">Create a Task</a>
+	<div id="redirect-countdown" class="f1 mt3"></div>
 </section>
+
+<script>
+	// hide the manual (NoJS) "New Item" button:
+	var btn = document.getElementById("new-item");
+	btn.style.display = 'none';
+
+	// display the countdown
+	var div = document.getElementById("redirect-countdown");
+	var count = 4
+	function countdown() {
+		if (count-- > 0) {
+			div.innerHTML = count;
+		} else {
+			window.location.href = '/items/new';
+			clearInterval(interval);
+		}
+	}
+	var interval = setInterval(countdown, 1000);
+</script>

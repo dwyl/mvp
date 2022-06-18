@@ -4,12 +4,14 @@
       <p>Oops, something went wrong! Please check the errors below.</p>
     </div>
   <% end %>
-
-  <%= label f, :text %>
-  <%= text_input f, :text %>
-  <%= error_tag f, :text %>
-
   <div>
-    <%= submit "Save" %>
+    <%= textarea f, :text, class: "center pa2 f3 w-80 db" %>
+    <%= error_tag f, :text %>
+
+    <div class="center w-80 mt2">
+      <%= submit "Save",
+      class: "pointer br2 ba dwyl-bg-teal-dark bg-green white pv2 ph3 ml1 mv1 f4
+        shadow-hover bg-animate hover-dwyl-teal-darkest border-box no-underline fr"%>
+    </div>
   </div>
 <% end %>
