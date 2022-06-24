@@ -20,45 +20,47 @@ of the @dwyl App [MVP feature set](https://github.com/dwyl/app/issues/266).
 
 # Why? 🤷
 
-Our objective with this MVP
-is to build the minimal _useable_ App
+Our objective with this 
+[MVP](https://github.com/dwyl/technical-glossary/issues/44)
+is to build the **minimal _useable_ App**
 that covers our basic "Capture, Categorize, Complete"
 [workflow](https://github.com/dwyl/product-roadmap#what)
 and is well-documented, tested
-and easy for a _beginner_ to run/understand.
+and easy for a _complte beginner_ to run/understand.
 
 The goal is to _ship_ this App to
 [Heroku](https://github.com/dwyl/app/issues/231)
 and then _use/test_ it (_internally_).
 Once we have collected initial feedback,
-we will implement
-[Authentication](https://github.com/dwyl/app/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+auth)
-and share it with the world!
+we can share it with the world!
 
 Once the MVP features are complete,
 the code will be merged
 into the main **`app`** repository:
 https://github.com/dwyl/app
-However we will also keep this repos alive
-as a reference for _complete_ beginners
-wanting the most _basic_ version of the app to _learn_.
+However we will also keep this repo alive
+as a reference for new joiners
+wanting the most _basic_ version 
+of the app to _learn_.
 
 # _What_? 💭
 
 A _hybrid_ note taking,
 information categorization,
 task and activity (time) tracking tool. <br />
-We have found it _tedious_ to use two _separate_ apps
+We have found it _tedious_ 
+to use two _separate_ apps
 for task and time tracking
-and think it's _logical_ to _combine_ the functionality.
+and think it's _logical_ 
+to _combine_ the functionality.
 
 If the idea of combining tools
 appeals to you keep reading.
 If it sounds like a _terrible_ idea to you,
 please just ignore this repo and have a great day!
 
-“_If at first the idea is not absurd,
-then there is no hope for it._”
+“_If at first the **idea** is **not absurd**,
+then there is **no hope** for it._”
 ~ [Albert Einstein](https://www.goodreads.com/quotes/110518-if-at-first-the-idea-is-not-absurd-then-there)
 
 # _Who?_ 👥
@@ -69,7 +71,7 @@ the basic workflow in our App.
 It's meant to work for "_us_"
 and have just enough functionality to solve our basic needs.
 2. Wider community of people who want
-to see a functioning Phoenix app
+to see a functioning **`Phoenix`** app
 with good documentation and testing.
 It will also help future @dwyl team members
 to get up-to-speed on our App/Stack _much_ faster,
@@ -79,22 +81,64 @@ will be an _excellent_ starting point.
 
 If you have any questions regarding this MVP,
 please open an issue in:
-https://github.com/dwyl/app-mvp-phoenix/issues <br />
+[app-mvp-phoenix/issues](https://github.com/dwyl/app-mvp-phoenix/issues)
+<br />
 If you are using the "full" @dwyl App,
 and have a question/idea,
 please open an issue in:
-https://github.com/dwyl/app/issues
+[app/issues](https://github.com/dwyl/app/issues)
 
 
 # _How_? 💻
 
 As always,
-our goal is to document as much of the implementation as possible,
-so that _anyone_ can follow along.
+our goal is 
+to document as much 
+of the implementation as possible,
+so that _anyone_ 
+can follow along.
 
 If _anything_ is unclear please open an issue:
 [app-mvp-phoenix/issues](https://github.com/dwyl/app-mvp-phoenix/issues)
 We always welcome feedback/questions. 💭
+
+## Run the MVP App on your `localhost` ⬇️
+
+> **Note**: You will need to have 
+**`Elixir`** and **`Postgres` installed**, 
+see: 
+[learn-elixir#installation](https://github.com/dwyl/learn-elixir#installation)
+and 
+[learn-postgresql#installation](https://github.com/dwyl/learn-postgresql#installation)
+
+On your localhost run the following in your terminal:
+
+```sh
+git clone git@github.com:dwyl/app-mvp-phoenix.git && cd app-mvp-phoenix
+mix setup
+```
+
+<br />
+
+# Build Log 👷‍♀️
+
+This is a ***complete*** log 
+of the steps taken to build the MVP.
+
+
+## 0. Prerequisites
+
+
+[**/phoenix-chat-example**](https://github.com/dwyl/phoenix-chat-example#0-pre-requisites-before-you-start)
+
+
+## 1. Create a New App
+
+```sh
+mix phx.new app --no-mailer --no-dashboard --no-gettext
+```
+
+
 
 
 ## Schema
