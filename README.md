@@ -28,7 +28,7 @@ that covers our basic "***Capture, Categorize, Complete***"
 and is well-documented, tested
 and easy for a _complte beginner_ to run/understand.
 
-The goal is to _ship_ this App to
+The idea is to _ship_ this App to
 [Heroku](https://github.com/dwyl/app/issues/231)
 and then _use/test_ it (_internally_). <br />
 Once we have collected initial feedback,
@@ -40,7 +40,7 @@ into the main
 [dwyl/**app**](https://github.com/dwyl/app) 
 repo.<br />
 However we will also maintian this repo
-as a **reference** for **new joiners**
+as a **reference** for **new joiners** <br />
 wanting the **most _basic_ version**
 of the app to **_learn_**.
 
@@ -57,9 +57,9 @@ and think it's _logical_
 to _combine_ the functionality.
 
 If the idea of **_combining_ related tools**
-appeals to you keep reading. 👌<br />
+appeals to you keep reading. 😍<br />
 If it sounds like a _terrible_ idea to you,
-please just ignore it and get on with your day. 
+please just ignore it and get on with your day. 👌
 
 “_If at first the **idea** is **not absurd**,
 then there is **no hope** for it._”
