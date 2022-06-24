@@ -1,4 +1,0 @@
-<h1 class="tc">Captures</h1>
-<section>
-    <%= render_many @captures, AppWeb.CategoriseView, "_capture.html", conn: @conn %>
-</section>

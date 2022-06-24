@@ -1,9 +1,0 @@
-<article class="bg-white pa2 mh4 mt4 br3 ba b--black-10">
-    <p class="measure">
-        <%= text_to_html @categorise.text %></p>
-    </p>
-</article>
-<div class="tc">
-    <span class="ph1"><%= link "Edit", to: Routes.item_path(@conn, :edit, @categorise) %></span>
-    <span class="ph1"><%= link "Delete", to: Routes.item_path(@conn, :delete, @categorise), method: :delete, data: [confirm: "Are you sure?"] %></span>
-</div>
