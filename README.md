@@ -20,58 +20,66 @@ of the @dwyl App [MVP feature set](https://github.com/dwyl/app/issues/266).
 
 # Why? 🤷
 
-Our objective with this 
+Our goal with this 
 [MVP](https://github.com/dwyl/technical-glossary/issues/44)
-is to build the **minimal _useable_ App**
-that covers our basic "Capture, Categorize, Complete"
-[workflow](https://github.com/dwyl/product-roadmap#what)
+is to build the **minimal _useable_ App** <br />
+that covers our basic "***Capture, Categorize, Complete***"
+[**workflow**](https://github.com/dwyl/product-roadmap#what) <br />
 and is well-documented, tested
 and easy for a _complte beginner_ to run/understand.
 
 The goal is to _ship_ this App to
 [Heroku](https://github.com/dwyl/app/issues/231)
-and then _use/test_ it (_internally_).
+and then _use/test_ it (_internally_). <br />
 Once we have collected initial feedback,
 we can share it with the world!
 
 Once the MVP features are complete,
 the code will be merged
-into the main **`app`** repository:
-https://github.com/dwyl/app
-However we will also keep this repo alive
-as a reference for new joiners
-wanting the most _basic_ version 
-of the app to _learn_.
+into the main
+[dwyl/**app**](https://github.com/dwyl/app) 
+repo.<br />
+However we will also maintian this repo
+as a **reference** for **new joiners**
+wanting the **most _basic_ version**
+of the app to **_learn_**.
 
 # _What_? 💭
 
-A _hybrid_ note taking,
-information categorization,
-task and activity (time) tracking tool. <br />
-We have found it _tedious_ 
-to use two _separate_ apps
-for task and time tracking
+A **_hybrid_ note taking**,
+**categorization**,
+**task and activity** (time) **tracking tool**. <br />
+
+We've found it _tedious_ 
+to use **two _separate_ apps**
+for task and time tracking <br />
 and think it's _logical_ 
 to _combine_ the functionality.
 
-If the idea of combining tools
-appeals to you keep reading.
+If the idea of **_combining_ related tools**
+appeals to you keep reading. 👌<br />
 If it sounds like a _terrible_ idea to you,
-please just ignore this repo and have a great day!
+please just ignore it and get on with your day. 
 
 “_If at first the **idea** is **not absurd**,
 then there is **no hope** for it._”
 ~ [Albert Einstein](https://www.goodreads.com/quotes/110518-if-at-first-the-idea-is-not-absurd-then-there)
 
+## Tech Stack? 
+
+This MVP app uses the **`PETAL` Stack**
+described in: 
+[dwyl/**technology-stack**](https://github.com/dwyl/technology-stack)
+
 # _Who?_ 👥
 
-This MVP has _two_ target audiences:
-1. @dwyl team to start "dog-fooding"
+This MVP has **_two_ target audiences**:
+1. **@dwyl team** to start "dog-fooding"
 the basic workflow in our App.
 It's meant to work for "_us_"
 and have just enough functionality to solve our basic needs.
-2. Wider community of people who want
-to see a functioning **`Phoenix`** app
+2. **Wider community** of people who want
+to see a fully-functioning **`Phoenix`** app
 with good documentation and testing.
 It will also help future @dwyl team members
 to get up-to-speed on our App/Stack _much_ faster,
@@ -105,7 +113,7 @@ We always welcome feedback/questions. 💭
 ## Run the MVP App on your `localhost` ⬇️
 
 > **Note**: You will need to have 
-**`Elixir`** and **`Postgres` installed**, 
+**`Elixir`** and **`Postgres` installed**, <br />
 see: 
 [learn-elixir#installation](https://github.com/dwyl/learn-elixir#installation)
 and 
@@ -120,23 +128,45 @@ mix setup
 
 <br />
 
-# Build Log 👷‍♀️
+# Build Log 👩‍💻
 
 This is a ***complete*** log 
 of the steps taken to build the MVP.
-
+It took us days to put it together,
+but you can speed-run it in **20 minutes**.
 
 ## 0. Prerequisites
 
-
+Not required, but recommened,
+if you're totally new 
+to building **`Phoenix`** Apps,
+consider following the 
 [**/phoenix-chat-example**](https://github.com/dwyl/phoenix-chat-example#0-pre-requisites-before-you-start)
+_first_.
+At the very least,
+check-out the prerequisites there
+before you start here.
 
 
 ## 1. Create a New App
 
+Create a new `Phoenix` app
+with the following command:
+
 ```sh
 mix phx.new app --no-mailer --no-dashboard --no-gettext
 ```
+
+The MVP won't be 
+sending emails,
+viewing dashboards 
+or translating 
+this _version_ of the App (sorry).
+However _all_ of those things 
+will be in the _main_ 
+[dwyl/**app**](https://github.com/dwyl/app)
+we are only excluding them here
+to reduce complexity/dependencies.
 
 
 
@@ -144,36 +174,32 @@ mix phx.new app --no-mailer --no-dashboard --no-gettext
 ## Schema
 
 Let's dive straight into defining the tables and fields for our project!
+This is the "data first" approach. 
 
 + `person` - the person using the App
 (AKA the ["user"](https://github.com/dwyl/app/issues/33))
   + `id`: `Int`<sup>1</sup>
-  + `inserted_at`: `Timestamp`
+  + `inserted_at`: `Timestamp` - created/managed by `Phoenix`
   + `updated_at`: `Timestamp`
-  + `username`: `Binary`
-    (_encrypted; personal data is never stored in plaintext_)
-  + `username_hash`: `Binary`
-    (_salted & hashed for fast lookup during registration/login_)
   + `givenName`: `Binary` (_encrypted_) - first name of a person
     https://schema.org/Person
-  + `familyName`: `Binary` (_encrypted_) - last or surname of the person
-  + `email`: `Binary` (_encrypted_) - so we can contact the person by email duh.
+  + `auth_provider`: `String` - so we can contact the person by email duh.
   + `email_hash`: `Binary` (_salted & hashed for quick lookup_)
-  + `password_hash`: `Binary` (_encrypted_)
-  + `key_id`: `String` - the ID of the encryption key
+  + `key_id`: `String` - the `ID` of the encryption key
   used to encrypt personal data (NOT the key itself!)
   see:
   [dwyl/phoenix-ecto-**encryption**-**example**](https://github.com/dwyl/phoenix-ecto-encryption-example)
-  + `status`: `Int` (**FK** `status.id`) - e.g: "0: unverified, 1: verified", etc.
+  + `status_id`: `Int` (**FK** `status.id`) - e.g: "0: unverified, 1: verified", etc.
 
 
 + `item` - a basic unit of content. e.g: a "note", "task" or "reminder"
   + `id`: `Int`
-  + `inserted_at`: `Timestamp`
+  + `inserted_at`: `Timestamp` - created/managed by `Phoenix`
   + `updated_at`: `Timestamp`
-  + `text`: `String`
+  + `text`: `Binary` (_encrypted_) - the free text you want to capture.
   + `person_id`: `Int` (**FK** `person.id` the "owner" of the item)
-  + `status`: `Int` (**FK** `status.id`)
+  + `status_id`: `Int` (**FK** `status.id`) the `status` of the `item` 
+    e.g: "in progress"
 
 
 + `tag` - _tags_<sup>2</sup> can be applied to an `item` to ***Categorise*** it.
