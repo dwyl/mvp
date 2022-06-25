@@ -25,8 +25,8 @@ of the @dwyl App [MVP feature set](https://github.com/dwyl/app/issues/266).
 Our goal with this 
 [MVP](https://github.com/dwyl/technical-glossary/issues/44)
 is to build the **minimal _useable_ App** <br />
-It is mobile-first and covers our basic "***Capture, Categorize, Complete***"
-[**workflow**](https://github.com/dwyl/product-roadmap#what) <br />
+that covers our basic "***Capture, Categorize, Complete***"
+[**workflow**](https://github.com/dwyl/product-roadmap#what). <br />
 It is well-documented, tested
 and easy for a _complte beginner_ to run/understand.
 
@@ -80,10 +80,11 @@ This **MVP** has **_two_ target audiences**:
 1. **@dwyl team** to start 
   ["dogfooding"](https://en.wikipedia.org/wiki/Eating_your_own_dog_food)
   the basic workflow in our App. <br />
-  It's meant to work for "_us_"
-  and have just enough functionality to solve our basic needs.
+  It's meant to work for _us_
+  and have just enough functionality 
+  to solve our basic needs.
 2. **Wider community** of people 
-  who want to see a fully-functioning **`Phoenix`** app
+  who want to see a **_fully_-functioning `Phoenix` app**
   with good documentation and testing.
 
 _Longer_ term, the MVP 
@@ -95,11 +96,11 @@ will be an _excellent_ starting point.
 
 ## Feedback! 🙏
 
-Your feedback is very much encouraged/welcome!
-
-If you have any questions regarding this MVP,
-please open an issue in:
-[app-mvp-phoenix/issues](https://github.com/dwyl/app-mvp-phoenix/issues)
+Your feedback is very much encouraged/welcome! 💬<br />
+If you find the repo interesting/useful, please ⭐ on GitHub. <br />
+And if you have any questions,
+please open an issue:
+[app-mvp-phoenix/issues](https://github.com/dwyl/app-mvp-phoenix/issues) ❓
 <br />
 <!--
 If you are using the "full" @dwyl App,
@@ -193,7 +194,7 @@ to reduce complexity/dependencies.
 
 ### 1.1 Run the `Phoenix` App
 
-Run the `Phoenxi` app with the command:
+Run the `Phoenix` app with the command:
 
 ```sh
 mix phx.server
@@ -260,9 +261,19 @@ We are not duplicating the instructions here,
 please refer to:
 [Tailwind in Phoenix](https://github.com/dwyl/learn-tailwind#part-2-tailwind-in-phoenix).
 
-By the end of this step you should have **`Tailwind`** working,
-e.g:
 
+
+By the end of this step you should have **`Tailwind`** working,
+when you visit 
+[`localhost:4000`](http://localhost:4000) 
+in your browser.
+e.g: 
+
+![hello world tailwind phoenix](https://user-images.githubusercontent.com/194400/174838767-20bf201e-3179-4ff9-8d5d-751295d1d069.png)
+
+If you got stuck in this section,
+please open an issue:
+[learn-tailwind/issues](https://github.com/dwyl/learn-tailwind/issues)
 
 
 ## 2. Create Schema to Store Data
