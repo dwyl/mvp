@@ -59,7 +59,7 @@ defmodule App.MixProject do
       {:fields, "~> 2.8"},
       # Auth with ONE Environment Variable™: github.com/dwyl/auth_plug
       {:auth_plug, "~> 1.4"},
-      # Useful functions: https://github.com/dwyl/useful
+      # Useful functions: github.com/dwyl/useful
       {:useful, "~> 1.0.8"},
 
       # create docs on localhost by running "mix docs"
@@ -69,6 +69,9 @@ defmodule App.MixProject do
       # git pre-commit hook runs tests before allowing commits
       {:pre_commit, "~> 0.3.4"},
       {:credo, "~> 1.6.4", only: [:dev, :test], runtime: false},
+
+      # Ref: https://github.com/dwyl/learn-tailwind
+      {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
     ]
   end
 

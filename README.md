@@ -25,9 +25,9 @@ of the @dwyl App [MVP feature set](https://github.com/dwyl/app/issues/266).
 Our goal with this 
 [MVP](https://github.com/dwyl/technical-glossary/issues/44)
 is to build the **minimal _useable_ App** <br />
-that covers our basic "***Capture, Categorize, Complete***"
+It is mobile-first and covers our basic "***Capture, Categorize, Complete***"
 [**workflow**](https://github.com/dwyl/product-roadmap#what) <br />
-and is well-documented, tested
+It is well-documented, tested
 and easy for a _complte beginner_ to run/understand.
 
 The idea is to _ship_ this App to
@@ -69,48 +69,52 @@ then there is **no hope** for it._”
 
 ## Tech Stack? 
 
-This MVP app uses the **`PETAL` Stack**
+This **MVP** app uses the **`PETAL` Stack**
 described in: 
 [dwyl/**technology-stack**](https://github.com/dwyl/technology-stack)
 
 # _Who?_ 👥
 
-This MVP has **_two_ target audiences**:
-1. **@dwyl team** to start "dog-fooding"
-the basic workflow in our App.
-It's meant to work for "_us_"
-and have just enough functionality to solve our basic needs.
-2. **Wider community** of people who want
-to see a fully-functioning **`Phoenix`** app
-with good documentation and testing.
-It will also help future @dwyl team members
-to get up-to-speed on our App/Stack _much_ faster,
+This **MVP** has **_two_ target audiences**:
+
+1. **@dwyl team** to start 
+  ["dogfooding"](https://en.wikipedia.org/wiki/Eating_your_own_dog_food)
+  the basic workflow in our App. <br />
+  It's meant to work for "_us_"
+  and have just enough functionality to solve our basic needs.
+2. **Wider community** of people 
+  who want to see a fully-functioning **`Phoenix`** app
+  with good documentation and testing.
+
+_Longer_ term, the MVP 
+will also help future @dwyl team members
+get **up-to-speed** on our App/Stack **_much_ faster**,
 because they won't have to "grok" 100k+ lines of code;
 understanding the basic in _this_ app
 will be an _excellent_ starting point.
+
+## Feedback! 🙏
+
+Your feedback is very much encouraged/welcome!
 
 If you have any questions regarding this MVP,
 please open an issue in:
 [app-mvp-phoenix/issues](https://github.com/dwyl/app-mvp-phoenix/issues)
 <br />
+<!--
 If you are using the "full" @dwyl App,
 and have a question/idea,
 please open an issue in:
 [app/issues](https://github.com/dwyl/app/issues)
-
+-->
 
 # _How_? 💻
 
-As always,
-our goal is 
+Our goal is 
 to document as much 
 of the implementation as possible,
 so that _anyone_ 
 can follow along.
-
-If _anything_ is unclear please open an issue:
-[app-mvp-phoenix/issues](https://github.com/dwyl/app-mvp-phoenix/issues)
-We always welcome feedback/questions. 💭
 
 ## Run the MVP App on your `localhost` ⬇️
 
@@ -127,15 +131,32 @@ On your localhost run the following in your terminal:
 git clone git@github.com:dwyl/app-mvp-phoenix.git && cd app-mvp-phoenix
 mix setup
 ```
+That should download the code, 
+install dependencies 
+and create the necessary database + tables.
+
+
+
 
 <br />
 
 # Build Log 👩‍💻
 
-This is a ***complete*** log 
-of the steps taken to build the MVP.
-It took us days to put it together,
-but you can speed-run it in **20 minutes**.
+This is a log 
+of the steps taken 
+to build the MVP.
+It took us _hours_ 
+to write it,
+but you can ***speed-run*** it 
+in **20 minutes**. 🏁
+
+> **Note**: we have referenced sections 
+> in our more extensive tutorials/examples
+> to keep this doc brief
+> and avoid duplication.
+> You don't have to follow every step in
+> the other tutorials/examples,
+> but they are linked in case you get stuck.
 
 ## 0. Prerequisites
 
@@ -150,7 +171,7 @@ check-out the prerequisites there
 before you start here.
 
 
-## 1. Create a New App
+## 1. Create a New `Phoenix` App
 
 Create a new `Phoenix` app
 with the following command:
@@ -160,15 +181,97 @@ mix phx.new app --no-mailer --no-dashboard --no-gettext
 ```
 
 The MVP won't be 
-sending emails,
-viewing dashboards 
-or translating 
-this _version_ of the App (sorry).
+send emails,
+display dashboards 
+or translate to other languages
+(sorry).
 However _all_ of those things 
 will be in the _main_ 
 [dwyl/**app**](https://github.com/dwyl/app)
-we are only excluding them here
+we're just excluding them here
 to reduce complexity/dependencies.
+
+### 1.1 Run the `Phoenix` App
+
+Run the `Phoenxi` app with the command:
+
+```sh
+mix phx.server
+```
+
+You should see output similar to the following in your terminal:
+```sh
+Generated app app
+[info] Running AppWeb.Endpoint with cowboy 2.9.0 at 127.0.0.1:4000 (http)
+[info] Access AppWeb.Endpoint at http://localhost:4000
+[debug] Downloading esbuild from https://registry.npmjs.org/esbuild-darwin-64/-/esbuild-darwin-64-0.14.29.tgz
+[watch] build finished, watching for changes...
+```
+
+That's a good sign, `esbuild` was downloaded
+and the assets were compiled successfully.
+
+Visit 
+[`localhost:4000`](http://localhost:4000) 
+from your browser.
+
+You should see something similar to the following 
+(default `Phoenix` homepage):
+
+![phoenix-default-homepage](https://user-images.githubusercontent.com/194400/174807257-34120dc5-723e-4b2c-9e8e-4b6f3aefca14.png)
+
+
+### 1.2 Run the tests:
+
+To run the tests with 
+
+```sh
+mix c
+```
+
+You should see output similar to the following:
+
+<img width="653" alt="Phoenix tests passing coverage 100%" src="https://user-images.githubusercontent.com/194400/175767439-4f609357-24c0-4975-a3d4-6ed6057bb321.png">
+
+> **Note**: in our case 
+> we added a few **`dev`** dependencies in
+> [`mix.exs`](https://github.com/dwyl/app-mvp-phoenix/blob/main/mix.exs)
+> to track test coverage,
+> a 
+> [`coveralls.json`](https://github.com/dwyl/app-mvp-phoenix/blob/main/coveralls.json)
+> file to exclude `Phoenix` files from `excoveralls` checking
+> and add a few aliases (shortcuts)
+> see: [**`commits/d6ab5ef`**](https://github.com/dwyl/app-mvp-phoenix/pull/90/commits/d6ab5ef7c2be5dcad7d060e782393ae29c94a526)
+> This is just standard `Phoenix` project setup.
+> So we don't explain any of the steps here.
+> For more detail, please see:
+> [Automated Testing](https://github.com/dwyl/phoenix-chat-example#testing-our-app-automated-testing)
+> in the 
+> [dwyl/phoenix-chat-example](https://github.com/dwyl/phoenix-chat-example#testing-our-app-automated-testing)
+> and specifically
+> [What is _not_ tested?](https://github.com/dwyl/phoenix-chat-example#13-what-is-not-tested)
+
+### 1.3 Setup `Tailwind`
+
+As we're using **`Tailwind CSS`**
+for the **UI** in this project
+
+We are not duplicating the instructions here,
+please refer to:
+[Tailwind in Phoenix](https://github.com/dwyl/learn-tailwind#part-2-tailwind-in-phoenix).
+
+By the end of this step you should have **`Tailwind`** working,
+e.g:
+
+
+
+## 2. Create Schema to Store Data
+
+By the end of the schema creation step 
+we will have the following database
+Entity Relationship Diagram (ERD):
+
+
 
 
 
@@ -181,7 +284,7 @@ This is the "data first" approach.
 + `person` - the person using the App
 (AKA the ["user"](https://github.com/dwyl/app/issues/33))
   + `id`: `Int`<sup>1</sup>
-  + `inserted_at`: `Timestamp` - created/managed by `Phoenix`
+  + `inserted_at`: `Timestamp` - created/managed by `Phoenix/Ecto`
   + `updated_at`: `Timestamp`
   + `givenName`: `Binary` (_encrypted_) - first name of a person
     https://schema.org/Person

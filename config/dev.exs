@@ -23,10 +23,12 @@ config :app, AppWeb.Endpoint,
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
-  secret_key_base: "IyvSJdeCw6Z8RkFvfK3hsoU6rSRo6B2/5ltW0EGBjuIdQEDy/bYcYzajk32Kbems",
+  secret_key_base:
+    "IyvSJdeCw6Z8RkFvfK3hsoU6rSRo6B2/5ltW0EGBjuIdQEDy/bYcYzajk32Kbems",
   watchers: [
     # Start the esbuild watcher by calling Esbuild.install_and_run(:default, args)
-    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]}
+    esbuild:
+      {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]}
   ]
 
 # ## SSL Support
