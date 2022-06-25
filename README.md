@@ -18,7 +18,38 @@ of the @dwyl App [MVP feature set](https://github.com/dwyl/app/issues/266).
 </div>
 
 
-
+- [@dwyl App MVP `Phoenix`  💡⏳ ✅](#dwyl-app-mvp-phoenix---)
+- [Why? 🤷](#why-)
+- [_What_? 💭](#what-)
+  - [Tech Stack?](#tech-stack)
+- [_Who?_ 👥](#who-)
+  - [Feedback! 🙏](#feedback-)
+- [_How_? 💻](#how-)
+  - [Run the MVP App on your `localhost` ⬇️](#run-the-mvp-app-on-your-localhost-️)
+- [Build Log 👩‍💻](#build-log-)
+  - [0. Prerequisites](#0-prerequisites)
+  - [1. Create a New `Phoenix` App](#1-create-a-new-phoenix-app)
+    - [1.1 Run the `Phoenix` App](#11-run-the-phoenix-app)
+    - [1.2 Run the tests:](#12-run-the-tests)
+    - [1.3 Setup `Tailwind`](#13-setup-tailwind)
+  - [2. Create Schemas to Store Data](#2-create-schemas-to-store-data)
+    - [2.1](#21)
+    - [2.3 Create `People` Schema](#23-create-people-schema)
+  - [Schema](#schema)
+    - [Schema Notes](#schema-notes)
+  - [_Create_ Schemas](#create-schemas)
+    - [Associate Items with a List](#associate-items-with-a-list)
+    - [Categorising Items using Tags](#categorising-items-using-tags)
+    - [Authentication](#authentication)
+      - [Create Sessions Table](#create-sessions-table)
+      - [Add **`picture`** and **`locale`** to **`person`**](#add-picture-and-locale-to-person)
+- [_Next_](#next)
+  - [Run the App on `localhost`](#run-the-app-on-localhost)
+    - [1. `git clone`](#1-git-clone)
+    - [2. Required Environment Variables](#2-required-environment-variables)
+    - [3. Install Dependencies](#3-install-dependencies)
+    - [4. Create the Database](#4-create-the-database)
+    - [Start the App](#start-the-app)
 
 # Why? 🤷
 
@@ -181,6 +212,9 @@ with the following command:
 mix phx.new app --no-mailer --no-dashboard --no-gettext
 ```
 
+When asked to install the dependencies,
+type `Y` and `[Enter]` (_to install everything_).
+
 The MVP won't be 
 send emails,
 display dashboards 
@@ -277,13 +311,29 @@ and open an issue:
 [learn-tailwind/issues](https://github.com/dwyl/learn-tailwind/issues)
 
 
-## 2. Create Schema to Store Data
+## 2. Create Schemas to Store Data
 
 By the end of these steps
 we will have the following database
 Entity Relationship Diagram (ERD):
 
+
+
+```sh
+mix phx.gen.html Ctx Tag tags text:string
+mix phx.gen.html Ctx Status status text:string
+mix phx.gen.html Ctx Person people givenName:binary auth_provider:string key_id:integer status_id:references:status tag_id:references:tags picture:binary locale:string
+mix phx.gen.html Ctx Item items text:string person_id:references:people status:references:status
+mix phx.gen.html Ctx List lists title:string person_id:references:people status:references:status tag:references:tags
+mix phx.gen.html Ctx Timer timers item_id:references:items start:naive_datetime end:naive_datetime person_id:references:people
+```
+
+
 ### 2.1 
+
+### 2.3 Create `People` Schema
+
+
 
 
 

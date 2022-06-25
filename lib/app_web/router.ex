@@ -14,5 +14,11 @@ defmodule AppWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+    resources "/tags", TagController
+    resources "/status", StatusController
+    resources "/people", PersonController
+    resources "/items", ItemController
+    resources "/lists", ListController
+    resources "/timers", TimerController
   end
 end
