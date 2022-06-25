@@ -28,7 +28,7 @@ is to build the **minimal _useable_ App** <br />
 that covers our basic "***Capture, Categorize, Complete***"
 [**workflow**](https://github.com/dwyl/product-roadmap#what). <br />
 It is well-documented, tested
-and easy for a _complte beginner_ to run/understand.
+and easy for a _complete beginner_ to run & understand.
 
 The idea is to _ship_ this App to
 [Heroku](https://github.com/dwyl/app/issues/231)
@@ -241,7 +241,7 @@ You should see output similar to the following:
 > a 
 > [`coveralls.json`](https://github.com/dwyl/app-mvp-phoenix/blob/main/coveralls.json)
 > file to exclude `Phoenix` files from `excoveralls` checking
-> and add a few aliases (shortcuts)
+> and add a few aliases (shortcuts).
 > see: [**`commits/d6ab5ef`**](https://github.com/dwyl/app-mvp-phoenix/pull/90/commits/d6ab5ef7c2be5dcad7d060e782393ae29c94a526)
 > This is just standard `Phoenix` project setup.
 > So we don't explain any of the steps here.
@@ -256,36 +256,38 @@ You should see output similar to the following:
 
 As we're using **`Tailwind CSS`**
 for the **UI** in this project
+we need to enable it.
 
 We are not duplicating the instructions here,
 please refer to:
 [Tailwind in Phoenix](https://github.com/dwyl/learn-tailwind#part-2-tailwind-in-phoenix).
+Should only take **`~1 minute`**.
 
-
-
-By the end of this step you should have **`Tailwind`** working,
-when you visit 
+By the end of this step you should have **`Tailwind`** working.
+When you visit 
 [`localhost:4000`](http://localhost:4000) 
-in your browser.
-e.g: 
+in your browser, 
+you should see: 
 
 ![hello world tailwind phoenix](https://user-images.githubusercontent.com/194400/174838767-20bf201e-3179-4ff9-8d5d-751295d1d069.png)
 
 If you got stuck in this section,
-please open an issue:
+please retrace the steps
+and open an issue:
 [learn-tailwind/issues](https://github.com/dwyl/learn-tailwind/issues)
 
 
 ## 2. Create Schema to Store Data
 
-By the end of the schema creation step 
+By the end of these steps
 we will have the following database
 Entity Relationship Diagram (ERD):
 
+### 2.1 
 
 
 
-
+<br />
 
 ## Schema
 
