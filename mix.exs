@@ -85,12 +85,15 @@ defmodule App.MixProject do
     [
       c: ["coveralls.html"],
       s: ["phx.server"],
+      seeds: ["run priv/repo/seeds.exs"],
       setup: ["deps.get", "ecto.setup"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
-      t: ["test"],
       "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"],
+      test: ["ecto.reset", "test"],
+      t: ["test"],
+      c: ["coveralls.html"],
+      s: ["phx.server"],
     ]
   end
 end
