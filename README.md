@@ -342,17 +342,20 @@ Entity Relationship Diagram (ERD):
 
 
 ```sh
-mix phx.gen.html Ctx Tag tags text:string
-mix phx.gen.html Ctx Status status text:string
-mix phx.gen.html Ctx Person people givenName:binary auth_provider:string key_id:integer status_id:references:status tag_id:references:tags picture:binary locale:string
-mix phx.gen.html Ctx Item items text:string person_id:references:people status:references:status
-mix phx.gen.html Ctx List lists title:string person_id:references:people status:references:status tag:references:tags
-mix phx.gen.html Ctx Timer timers item_id:references:items start:naive_datetime end:naive_datetime person_id:references:people
+mix phx.gen.schema Tag tags text:string
+mix phx.gen.schema Status status text:string
+mix phx.gen.schema Person people givenName:binary auth_provider:string key_id:integer status_id:references:status tag_id:references:tags picture:binary locale:string
+mix phx.gen.schema Item items text:string person_id:references:people status:references:status
+mix phx.gen.schema List lists title:string person_id:references:people status:references:status tag:references:tags
+mix phx.gen.schema Timer timers item_id:references:items start:naive_datetime end:naive_datetime person_id:references:people
 ```
 
-Using the 
+> **Note**: We use 
+> [**`mix phx.gen.schema`**]()
+> because using the 
 [`phx.gen.html`](https://hexdocs.pm/phoenix/Mix.Tasks.Phx.Gen.Html.html)
 generator creates a _lot_ of 
+[boilerplate code](https://github.com/dwyl/app-mvp-phoenix/issues/89#issuecomment-1167548207)
 
 ### 2.1 Run Tests!
 
