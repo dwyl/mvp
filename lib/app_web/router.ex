@@ -17,12 +17,5 @@ defmodule AppWeb.Router do
 
     # create liveview endpoint:
     
-
-    resources "/tags", TagController
-    resources "/status", StatusController
-    resources "/people", PersonController
-    resources "/items", ItemController
-    resources "/lists", ListController
-    resources "/timers", TimerController
   end
 end
