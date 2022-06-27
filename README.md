@@ -26,6 +26,7 @@ of the @dwyl App [MVP feature set](https://github.com/dwyl/app/issues/266).
   - [Feedback! 🙏](#feedback-)
 - [_How_? 💻](#how-)
   - [Run the MVP App on your `localhost` ⬇️](#run-the-mvp-app-on-your-localhost-️)
+  - [_Single_ Environment Variable: `AUTH_API_KEY`](#single-environment-variable-auth_api_key)
 - [Build Log 👩‍💻](#build-log-)
   - [0. Prerequisites](#0-prerequisites)
   - [1. Create a New `Phoenix` App](#1-create-a-new-phoenix-app)
@@ -33,6 +34,7 @@ of the @dwyl App [MVP feature set](https://github.com/dwyl/app/issues/266).
     - [1.2 Run the tests:](#12-run-the-tests)
     - [1.3 Setup `Tailwind`](#13-setup-tailwind)
   - [2. Create Schemas to Store Data](#2-create-schemas-to-store-data)
+    - [2.1 Run Tests!](#21-run-tests)
     - [2.1](#21)
     - [2.3 Create `People` Schema](#23-create-people-schema)
   - [Schema](#schema)
@@ -157,15 +159,34 @@ see:
 and 
 [learn-postgresql#installation](https://github.com/dwyl/learn-postgresql#installation)
 
-On your localhost run the following in your terminal:
+On your `localhost`, 
+run the following commands 
+in your terminal:
 
 ```sh
 git clone git@github.com:dwyl/app-mvp-phoenix.git && cd app-mvp-phoenix
 mix setup
 ```
-That should download the code, 
-install dependencies 
+That will download the MVP code, 
+install dependencies
 and create the necessary database + tables.
+
+## _Single_ Environment Variable: `AUTH_API_KEY`
+
+Follow the instructions in **Step 2** of
+[**`auth_plug`**](https://github.com/dwyl/auth_plug#2-get-your-auth_api_key-)
+to create your 
+**`AUTH_API_KEY`**.
+
+Once you've got that setup,
+you can run the app with:
+
+```sh
+mix phx.server
+```
+
+> **`TODO`**: insert **`GIF`** of MVP speed-run once ready.
+
 
 
 
@@ -319,6 +340,7 @@ Entity Relationship Diagram (ERD):
 
 
 
+
 ```sh
 mix phx.gen.html Ctx Tag tags text:string
 mix phx.gen.html Ctx Status status text:string
@@ -327,6 +349,18 @@ mix phx.gen.html Ctx Item items text:string person_id:references:people status:r
 mix phx.gen.html Ctx List lists title:string person_id:references:people status:references:status tag:references:tags
 mix phx.gen.html Ctx Timer timers item_id:references:items start:naive_datetime end:naive_datetime person_id:references:people
 ```
+
+Using the 
+[`phx.gen.html`](https://hexdocs.pm/phoenix/Mix.Tasks.Phx.Gen.Html.html)
+generator creates a _lot_ of 
+
+### 2.1 Run Tests!
+
+```sh
+mix c
+```
+
+
 
 
 ### 2.1 

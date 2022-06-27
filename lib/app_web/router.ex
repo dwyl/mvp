@@ -14,6 +14,10 @@ defmodule AppWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+
+    # create liveview endpoint:
+    
+
     resources "/tags", TagController
     resources "/status", StatusController
     resources "/people", PersonController
