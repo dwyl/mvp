@@ -13,9 +13,6 @@ defmodule AppWeb.Router do
   scope "/", AppWeb do
     pipe_through :browser
 
-    get "/", PageController, :index
-
-    # create liveview endpoint:
-    
+    live "/", AppLive
   end
 end

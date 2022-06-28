@@ -33,10 +33,11 @@ of the @dwyl App [MVP feature set](https://github.com/dwyl/app/issues/266).
     - [1.1 Run the `Phoenix` App](#11-run-the-phoenix-app)
     - [1.2 Run the tests:](#12-run-the-tests)
     - [1.3 Setup `Tailwind`](#13-setup-tailwind)
+    - [1.4 Create `/live` Directory, LiveView Controller and Template](#14-create-live-directory-liveview-controller-and-template)
+    - [1.5 Update `router.ex`](#15-update-routerex)
+    - [1.6 Update Tests](#16-update-tests)
   - [2. Create Schemas to Store Data](#2-create-schemas-to-store-data)
     - [2.1 Run Tests!](#21-run-tests)
-    - [2.1](#21)
-    - [2.3 Create `People` Schema](#23-create-people-schema)
   - [Schema](#schema)
     - [Schema Notes](#schema-notes)
   - [_Create_ Schemas](#create-schemas)
@@ -332,6 +333,149 @@ and open an issue:
 [learn-tailwind/issues](https://github.com/dwyl/learn-tailwind/issues)
 
 
+
+### 1.4 Create `/live` Directory, LiveView Controller and Template
+
+Create the `lib/app_web/live` folder 
+and the controller at `lib/app_web/live/app_live.ex`:
+
+```elixir
+defmodule AppWeb.AppLive do
+  use AppWeb, :live_view
+
+  def mount(_params, _session, socket) do
+    {:ok, socket}
+  end
+
+  def render(assigns) do
+    AppWeb.AppView.render("capture.html", assigns)
+  end
+end
+```
+
+Create the `lib/app_web/views/app_view.ex` file:
+
+```elixir
+defmodule AppWeb.AppView do
+  use AppWeb, :view
+end
+```
+
+Next, create the 
+**`lib/app_web/templates/app`** 
+directory,
+then create  
+**`lib/app_web/templates/app/capture.html.heex`**
+file 
+and add the following line of `HTML`:
+
+```html
+<h1 class="">LiveView App Page!</h1>
+```
+
+Finally, to make the **root layout** simpler, 
+open the 
+`lib/app_web/templates/layout/root.html.heex`
+file and 
+update the contents of the `<body>` to:
+
+```html
+<body>
+  <header>
+    <section class="container">
+      <h1>App MVP Phoenix</h1>
+    </section>
+  </header>
+  <%= @inner_content %>
+</body>
+```
+
+### 1.5 Update `router.ex`
+
+Now that you've created the necessary files,
+open the router
+`lib/app_web/router.ex` 
+replace the default route `PageController` controller:
+
+```elixir
+get "/", PageController, :index
+```
+
+with `AppLive` controller:
+
+
+```elixir
+scope "/", AppWeb do
+  pipe_through :browser
+
+  live "/", AppLive
+end
+```
+
+Now if you refresh the page 
+you should see the following:
+
+![liveveiw-page-with-tailwind-style](https://user-images.githubusercontent.com/194400/176137805-34467c88-add2-487f-9593-931d0314df62.png)
+
+### 1.6 Update Tests
+
+At this point we have made a few changes 
+that mean our automated test suite will no longer pass ... 
+Run the tests in your command line with the following command:
+
+```sh
+mix test
+```
+
+Let's remove the notion of a "page" from the project.
+Create a new directory: `test/app_web/live`
+
+Then move the file: 
+`test/app_web/controllers/page_controller_test.exs`
+to: 
+`test/app_web/live/app_live_test.exs`
+
+e.g:
+```sh
+mv test/app_web/controllers/page_controller_test.exs test/app_web/live/app_live_test.exs
+```
+
+
+
+Open the 
+`test/app_web/live/app_live_test.exs`
+file and replace the contents with:
+
+```elixir
+defmodule AppWeb.AppLiveTest do
+  use AppWeb.ConnCase
+
+  test "GET /", %{conn: conn} do
+    conn = get(conn, "/")
+    assert html_response(conn, 200) =~ "LiveView App Page!"
+  end
+end
+```
+
+Save the file 
+and re-run the tests: `mix test`
+
+You should see output similar to the following:
+
+```sh
+Generated app app
+The database for App.Repo has been dropped
+...
+
+Finished in 0.1 seconds (0.08s async, 0.1s sync)
+3 tests, 0 failures
+
+Randomized with seed 796477
+```
+
+
+
+
 ## 2. Create Schemas to Store Data
 
 By the end of these steps
@@ -359,16 +503,12 @@ generator creates a _lot_ of
 
 ### 2.1 Run Tests!
 
+
+
 ```sh
 mix c
 ```
 
-
-
-
-### 2.1 
-
-### 2.3 Create `People` Schema
 
 
 
