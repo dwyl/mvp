@@ -36,6 +36,7 @@ of the @dwyl App [MVP feature set](https://github.com/dwyl/app/issues/266).
     - [1.4 Create `/live` Directory, LiveView Controller and Template](#14-create-live-directory-liveview-controller-and-template)
     - [1.5 Update `router.ex`](#15-update-routerex)
     - [1.6 Update Tests](#16-update-tests)
+    - [1.7 Delete Page-related Files](#17-delete-page-related-files)
   - [2. Create Schemas to Store Data](#2-create-schemas-to-store-data)
     - [2.1 Run Tests!](#21-run-tests)
   - [Schema](#schema)
@@ -427,24 +428,33 @@ Run the tests in your command line with the following command:
 mix test
 ```
 
-Let's remove the notion of a "page" from the project.
-Create a new directory: `test/app_web/live`
+You should see the tests fail:
 
-Then move the file: 
-`test/app_web/controllers/page_controller_test.exs`
-to: 
-`test/app_web/live/app_live_test.exs`
-
-e.g:
 ```sh
-mv test/app_web/controllers/page_controller_test.exs test/app_web/live/app_live_test.exs
+..
+
+  1) test GET / (AppWeb.PageControllerTest)
+     test/app_web/controllers/page_controller_test.exs:4
+     Assertion with =~ failed
+     code:  assert html_response(conn, 200) =~ "Hello TailWorld!"
+     left:  "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+     <main class=\"container\">
+     <h1 class=\"text-6xl text-center\">LiveView App Page!</h1>\n</main></div>
+     </body>\n</html>"
+     right: "Hello TailWorld!"
+     stacktrace:
+       test/app_web/controllers/page_controller_test.exs:6: (test)
+
+Finished in 0.1 seconds (0.06s async, 0.1s sync)
+3 tests, 1 failure
 ```
 
+Create a new directory: `test/app_web/live`
 
-
-Open the 
+Then create the file: 
 `test/app_web/live/app_live_test.exs`
-file and replace the contents with:
+
+With the following content:
 
 ```elixir
 defmodule AppWeb.AppLiveTest do
@@ -473,6 +483,22 @@ Finished in 0.1 seconds (0.08s async, 0.1s sync)
 Randomized with seed 796477
 ```
 
+### 1.7 Delete Page-related Files
+
+Since we won't be using the `page` meatphore in our App, 
+we can delete the default files created by `Phoenix`:
+
+```sh
+lib/app_web/views/page_view.ex
+lib/app_web/controllers/page_controller.ex
+lib/app_web/templates/page/index.html.heex
+test/app_web/controllers/page_controller_test.exs
+```
+
+With those files deleted,
+our **`Phoenix + LiveView`** project 
+is now fully setup
+and ready to start _building_!
 
 
 
