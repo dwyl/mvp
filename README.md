@@ -38,8 +38,14 @@ of the @dwyl App [MVP feature set](https://github.com/dwyl/app/issues/266).
     - [1.6 Update Tests](#16-update-tests)
     - [1.7 Delete Page-related Files](#17-delete-page-related-files)
   - [2. Create Schemas to Store Data](#2-create-schemas-to-store-data)
-    - [2.1 Run Tests!](#21-run-tests)
-  - [Schema](#schema)
+    - [2.1 Create Schema Associations](#21-create-schema-associations)
+    - [2.2 Run Tests!](#22-run-tests)
+    - [_Explanation_ of the Schemas](#explanation-of-the-schemas)
+      - [`person`](#person)
+      - [`item`](#item)
+      - [`tag`](#tag)
+      - [`item_tags`](#item_tags)
+      - [`status`](#status)
     - [Schema Notes](#schema-notes)
   - [_Create_ Schemas](#create-schemas)
     - [Associate Items with a List](#associate-items-with-a-list)
@@ -291,17 +297,18 @@ You should see output similar to the following:
 
 <img width="653" alt="Phoenix tests passing coverage 100%" src="https://user-images.githubusercontent.com/194400/175767439-4f609357-24c0-4975-a3d4-6ed6057bb321.png">
 
-> **Note**: in our case 
-> we added a few **`dev`** dependencies in
+> **Note**: for the **`mix c`** command (alias) to work,
+> you need to add a few **`dev`** dependencies in
 > [`mix.exs`](https://github.com/dwyl/app-mvp-phoenix/blob/main/mix.exs)
 > to track test coverage,
 > a 
 > [`coveralls.json`](https://github.com/dwyl/app-mvp-phoenix/blob/main/coveralls.json)
 > file to exclude `Phoenix` files from `excoveralls` checking
-> and add a few aliases (shortcuts).
+> and the alias (shortcuts) in `mix.exs` `defp aliases do` list.
+> e.g: `mix c` runs `mix coveralls.html` 
 > see: [**`commits/d6ab5ef`**](https://github.com/dwyl/app-mvp-phoenix/pull/90/commits/d6ab5ef7c2be5dcad7d060e782393ae29c94a526)
-> This is just standard `Phoenix` project setup.
-> So we don't explain any of the steps here.
+> This is just standard `Phoenix` project setup for us, 
+> so we don't duplicate any of the steps here.
 > For more detail, please see:
 > [Automated Testing](https://github.com/dwyl/phoenix-chat-example#testing-our-app-automated-testing)
 > in the 
@@ -504,12 +511,10 @@ and ready to start _building_!
 
 ## 2. Create Schemas to Store Data
 
-By the end of these steps
-we will have the following database
-Entity Relationship Diagram (ERD):
-
-
-
+Create database schemas 
+to store the data 
+we're creating 
+in the MVP: 
 
 ```sh
 mix phx.gen.schema Tag tags text:string
@@ -520,96 +525,164 @@ mix phx.gen.schema List lists title:string person_id:references:people status:re
 mix phx.gen.schema Timer timers item_id:references:items start:naive_datetime end:naive_datetime person_id:references:people
 ```
 
-> **Note**: We use 
-> [**`mix phx.gen.schema`**]()
-> because using the 
+At the end of this step
+we have the following database
+Entity Relationship Diagram (ERD):
+
+![mvp-erd-without-associations](https://user-images.githubusercontent.com/194400/176434826-d560f27e-ef23-411f-a549-6ec33215869d.png)
+
+> **Note**: We used 
+> [**`mix phx.gen.schema`**](https://hexdocs.pm/phoenix/Mix.Tasks.Phx.Gen.Schema.html)
+> instead of the
 [`phx.gen.html`](https://hexdocs.pm/phoenix/Mix.Tasks.Phx.Gen.Html.html)
 generator creates a _lot_ of 
-[boilerplate code](https://github.com/dwyl/app-mvp-phoenix/issues/89#issuecomment-1167548207)
+[boilerplate code](https://github.com/dwyl/app-mvp-phoenix/issues/89#issuecomment-1167548207).
 
-### 2.1 Run Tests!
+### 2.1 Create Schema Associations
+
+So far the schemas are quire basic.<sup>1</sup> <br />
 
 
+
+
+
+<sup>1</sup> We don't take any of this for granted.
+If you're a complete beginner, 
+please scroll through the _explanation_ section below.
+If you still have any questions, 
+please
+[ask!](https://github.com/dwyl/app-mvp-phoenix/issues) 🙏 
+
+### 2.2 Run Tests!
+
+Once we've created the required schemas,
+several new files are created.
+see:
+[**`commits/6d24085`](https://github.com/dwyl/app-mvp-phoenix/pull/90/commits/6d240852aeb1b2d8c21852575c44153e5a463213)
 
 ```sh
 mix c
 ```
 
+As a result of all the new files, 
+the test coverage lowers considerably:
 
+```sh
+Finished in 0.1 seconds (0.07s async, 0.1s sync)
+3 tests, 0 failures
 
+Randomized with seed 586135
+----------------
+COV    FILE                                        LINES RELEVANT   MISSED
+  0.0% lib/app/item.ex                                19        2        2
+  0.0% lib/app/list.ex                                20        2        2
+  0.0% lib/app/person.ex                              23        2        2
+  0.0% lib/app/status.ex                              17        2        2
+  0.0% lib/app/tag.ex                                 17        2        2
+  0.0% lib/app/timer.ex                               20        2        2
+100.0% lib/app_web/live/app_live.ex                   11        2        0
+100.0% lib/app_web/router.ex                          18        2        0
+  0.0% lib/app_web/views/app_view.ex                   3        0        0
+100.0% lib/app_web/views/error_view.ex                16        1        0
+  0.0% lib/app_web/views/layout_view.ex                7        0        0
+[TOTAL]  29.4%
+----------------
+```
 
-
+Just be _aware_ of this.
+We _could_ write tests to (_artificially_) cover
+these lines of code.
+However, we are going to add tests 
+as we define the _functionality_.
 
 <br />
 
-## Schema
+### _Explanation_ of the Schemas
 
-Let's dive straight into defining the tables and fields for our project!
-This is the "data first" approach. 
+This is a quick breakdown of the schemas defined above:
+#### `person`
 
-+ `person` - the person using the App
+`person` - the person using the App
 (AKA the ["user"](https://github.com/dwyl/app/issues/33))
-  + `id`: `Int`<sup>1</sup>
-  + `inserted_at`: `Timestamp` - created/managed by `Phoenix/Ecto`
-  + `updated_at`: `Timestamp`
-  + `givenName`: `Binary` (_encrypted_) - first name of a person
-    https://schema.org/Person
-  + `auth_provider`: `String` - so we can contact the person by email duh.
-  + `email_hash`: `Binary` (_salted & hashed for quick lookup_)
-  + `key_id`: `String` - the `ID` of the encryption key
-  used to encrypt personal data (NOT the key itself!)
-  see:
-  [dwyl/phoenix-ecto-**encryption**-**example**](https://github.com/dwyl/phoenix-ecto-encryption-example)
-  + `status_id`: `Int` (**FK** `status.id`) - e.g: "0: unverified, 1: verified", etc.
 
++ `id`: `Int`<sup>1</sup>
++ `inserted_at`: `Timestamp` - created/managed by `Phoenix/Ecto`
++ `updated_at`: `Timestamp`
++ `givenName`: `Binary` (_encrypted_) - first name of a person
+ https://schema.org/Person
++ `auth_provider`: `String` - so we can contact the person by email duh.
++ `email_hash`: `Binary` (_salted & hashed for quick lookup_)
++ `key_id`: `String` - the `ID` of the encryption key
+used to encrypt personal data (NOT the key itself!)
+see:
+[dwyl/phoenix-ecto-**encryption**-**example**](https://github.com/dwyl/phoenix-ecto-encryption-example)
++ `status_id`: `Int` (**FK** `status.id`) - e.g: "0: unverified, 1: verified", etc.
 
-+ `item` - a basic unit of content. e.g: a "note", "task" or "reminder"
-  + `id`: `Int`
-  + `inserted_at`: `Timestamp` - created/managed by `Phoenix`
-  + `updated_at`: `Timestamp`
-  + `text`: `Binary` (_encrypted_) - the free text you want to capture.
-  + `person_id`: `Int` (**FK** `person.id` the "owner" of the item)
-  + `status_id`: `Int` (**FK** `status.id`) the `status` of the `item` 
-    e.g: "in progress"
+#### `item`
 
+`item` - a basic/generic unit of content. 
+e.g: a "note", "task" or "reminder"
 
-+ `tag` - _tags_<sup>2</sup> can be applied to an `item` to ***Categorise*** it.
-  + `id`: `Int`
-  + `inserted_at`: `Timestamp`
-  + `updated_at`: `Timestamp`
-  + `person_id`: `Int` (**FK** `person.id` -
-      the person who defined or last updated the `tag.text`)
-  + `text`: `String` - examples:
-    + "note"
-    + "task"
-    + "checklist"
-    + "reading"
-    + "shopping"
-    + "exercise"
-    + ["reminder"](https://github.com/nelsonic/time-mvp-phoenix/issues/5)
-    + "quote"
-    + "memo" - https://en.wikipedia.org/wiki/Memorandum
-    + "image" - a link to an image stored on a file system (e.g: IPFS or S3)
-    + "author" - in the case of a book author
-<!--    + ["link"](https://github.com/nelsonic/time-mvp-phoenix/issues/4) -->
++ `id`: `Int`
++ `inserted_at`: `Timestamp` - created/managed by `Phoenix`
++ `updated_at`: `Timestamp`
++ `text`: `Binary` (_encrypted_) - the free text you want to capture.
++ `person_id`: `Int` (**FK** `person.id` the "owner" of the item)
++ `status_id`: `Int` (**FK** `status.id`) the `status` of the `item` 
+  e.g: "in progress"
 
-+ `item_tags`
-  + `item_id` (**FK** item.id)
-  + `tag_id` (**FK** tag.id)
-  + `inserted_at`
+<!-- Related: how to ["link"](https://github.com/nelsonic/time-mvp-phoenix/issues/4) items...? -->
+#### `tag`
 
+`tag` - _tags_<sup>2</sup> can be applied 
+to an `item` to ***Categorise*** it.
 
-+ `status` - the status of an item or person
-  + `id`: `Int`
-  + `inserted_at`: `Timestamp`
-  + `updated_at`: `Timestamp`
-  + `person_id`: `Int` (**FK** `person.id` - the person
-      who defined/updated the status)
-  + `text`: `String` - examples:
-    + "unverified" - for a person that has not verified their email address
-    + "open"
-    + "complete"
-    + [etc.](https://github.com/dwyl/checklist/pull/3/files#diff-597edb4596faa11c05c29c0d3a8cf94a)
++ `id`: `Int`
++ `inserted_at`: `Timestamp`
++ `updated_at`: `Timestamp`
++ `person_id`: `Int` (**FK** `person.id` -
+    the person who defined or last updated the `tag.text`)
++ `text`: `String` - examples:
+  + "note"
+  + "task"
+  + "checklist"
+  + "reading"
+  + "shopping"
+  + "exercise"
+  + ["reminder"](https://github.com/nelsonic/time-mvp-phoenix/issues/5)
+  + "quote"
+  + "memo" - https://en.wikipedia.org/wiki/Memorandum
+  + "image" - a link to an image stored on a file system (e.g: IPFS or S3)
+  + "author" - in the case of a book author
+
+#### `item_tags`
+
+`item_tags` - are the `tags` applied to an `item`. 
+  
++ `item_id` (**FK** item.id)
++ `tag_id` (**FK** tag.id)
++ `inserted_at`
+
+#### `status`
+
+`status` - the `status` of an `item` or `person`
+
++ `id`: `Int`
++ `inserted_at`: `Timestamp`
++ `updated_at`: `Timestamp`
++ `person_id`: `Int` (**FK** `person.id` - the person
+    who defined/updated the status)
++ `text`: `String` - examples:
+  + "unverified" - for a person that has not verified their email address
+  + "open"
+  + "complete"
+  + [etc.](https://github.com/dwyl/checklist/pull/3/files#diff-597edb4596faa11c05c29c0d3a8cf94a)
+
+`status` is deliberately both versatile and limited.
+We want to be able to apply a _single_ `status`
+to an `item`. 
+We _could_ have just used `tags` for everything,
+e.g. (pseudocode) 
 
 > Plural form of "status" is "status":
 https://english.stackexchange.com/questions/877/what-is-plural-form-of-status
