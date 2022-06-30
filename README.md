@@ -2,8 +2,9 @@
 
 # @dwyl App MVP `Phoenix`  💡⏳ ✅
 
-A Phoenix`implementation
-of the @dwyl App [MVP feature set](https://github.com/dwyl/app/issues/266).
+A `Phoenix` implementation
+of the @dwyl App 
+[MVP feature set](https://github.com/dwyl/app/issues/266).
 
 [![Build Status](https://img.shields.io/travis/com/dwyl/app-mvp-phoenix/master?color=bright-green&style=flat-square)](https://travis-ci.org/dwyl/app-mvp-phoenix)
 [![codecov.io](https://img.shields.io/codecov/c/github/dwyl/app-mvp-phoenix/master.svg?style=flat-square)](https://codecov.io/github/dwyl/app-mvp-phoenix?branch=master)
@@ -22,6 +23,7 @@ of the @dwyl App [MVP feature set](https://github.com/dwyl/app/issues/266).
 - [Why? 🤷](#why-)
 - [_What_? 💭](#what-)
   - [Tech Stack?](#tech-stack)
+  - [3 Apps into _One_](#3-apps-into-one)
 - [_Who?_ 👥](#who-)
   - [Feedback! 🙏](#feedback-)
 - [_How_? 💻](#how-)
@@ -37,6 +39,7 @@ of the @dwyl App [MVP feature set](https://github.com/dwyl/app/issues/266).
     - [1.5 Update `router.ex`](#15-update-routerex)
     - [1.6 Update Tests](#16-update-tests)
     - [1.7 Delete Page-related Files](#17-delete-page-related-files)
+    - [Side Note: Data-first Design 💡](#side-note-data-first-design-)
   - [2. Create Schemas to Store Data](#2-create-schemas-to-store-data)
     - [2.1 Create Schema Associations](#21-create-schema-associations)
     - [2.2 Run Tests!](#22-run-tests)
@@ -91,11 +94,12 @@ of the app to **_learn_**.
 
 A **_hybrid_ note taking**,
 **categorization**,
-**task and activity** (time) **tracking tool**. <br />
+**task and activity** (time) **tracking tool**
+with buil-in (basic) team **communication**. <br />
 
 We've found it _tedious_ 
-to use **two _separate_ apps**
-for task and time tracking <br />
+to use **several _separate_ apps**
+for task/time tracking and comms <br />
 and think it's _logical_ 
 to _combine_ the functionality.
 
@@ -108,11 +112,30 @@ please just ignore it and get on with your day. 👌
 then there is **no hope** for it._”
 ~ [Albert Einstein](https://www.goodreads.com/quotes/110518-if-at-first-the-idea-is-not-absurd-then-there)
 
+
 ## Tech Stack? 
 
 This **MVP** app uses the **`PETAL` Stack**
 described in: 
 [dwyl/**technology-stack**](https://github.com/dwyl/technology-stack)
+
+## 3 Apps into _One_
+
+We have built the 3 _separate_ apps 
+using the **`PETAL` Stack**
+to showcase the individual features
+from first principals.
+
+The 3 apps we are combining:
+
+1. Todo list: 
+   [github.com/dwyl/phoenix-liveview-**todo-list**](https://github.com/dwyl/phoenix-liveview-todo-list-tutorial)
+2. Stop Watch (Timer):
+   [github.com/dwyl/phoenix-liveview-**stopwatch**](https://github.com/dwyl/phoenix-liveview-stopwatch)
+3. Chat: 
+   [github.com/dwyl/phoenix-liveview-**chat**](https://github.com/dwyl/phoenix-liveview-chat-example)
+
+
 
 # _Who?_ 👥
 
@@ -124,15 +147,17 @@ This **MVP** has **_two_ target audiences**:
   It's meant to work for _us_
   and have just enough functionality 
   to solve our basic needs.
+
 2. **Wider community** of people 
   who want to see a **_fully_-functioning `Phoenix` app**
   with good documentation and testing.
 
 _Longer_ term, the MVP 
 will also help future @dwyl team members
-get **up-to-speed** on our App/Stack **_much_ faster**,
-because they won't have to "grok" 100k+ lines of code;
-understanding the basic in _this_ app
+get 
+[**up-to-speed**](https://dictionary.cambridge.org/dictionary/english/up-to-speed) 
+on our App+Stack **_much_ faster**.
+Understanding the basic in _this_ app
 will be an _excellent_ starting point.
 
 ## Feedback! 🙏
@@ -508,8 +533,39 @@ is now fully setup
 and ready to start _building_!
 
 
+### Side Note: Data-first Design 💡
+
+There are several ways to design and build Apps.
+We can start by trying to define the UI/UX up-front
+e.g: by creating a wireframe in **`Figma`**.
+This makes an implicit assumption
+about how we expect people to interact
+with the App.
+We often build Apps UI/UX-first
+because moving boxes/buttons & text 
+around in a low-fidelity wireframe
+is a _lot_ cheaper/easier/faster
+than writing code. 
+However when we are doing an _exploratory_
+MVP tightly defining the UI/UX
+can mean we create regidity too early.
+Another approach is to think about the 
+**`data`** we want to capture
+and how we may want 
+to _transform_ that **`data`**.
+
+For a _much_ more elequent
+explanation of why **`data`** first
+development maintains flexibility,
+watch
+"Make Data Structures" 
+by Richard Feldman:
+https://youtu.be/x1FU3e0sT1I
 
 ## 2. Create Schemas to Store Data
+
+
+
 
 Create database schemas 
 to store the data 
@@ -527,7 +583,8 @@ mix phx.gen.schema Timer timers item_id:references:items start:naive_datetime en
 
 At the end of this step
 we have the following database
-Entity Relationship Diagram (ERD):
+[Entity Relationship Diagram](https://en.wikipedia.org/wiki/Entity%E2%80%93relationship_model)
+(ERD):
 
 ![mvp-erd-without-associations](https://user-images.githubusercontent.com/194400/176434826-d560f27e-ef23-411f-a549-6ec33215869d.png)
 
