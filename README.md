@@ -589,7 +589,7 @@ we have the following database
 [Entity Relationship Diagram](https://en.wikipedia.org/wiki/Entity%E2%80%93relationship_model)
 (ERD):
 
-![mvp-erd-without-associations](https://user-images.githubusercontent.com/194400/176990183-250324ba-61ea-4434-9c68-5371ce2230c6.png)
+![mvp-erd-without-associations](https://user-images.githubusercontent.com/194400/177001882-209907ec-bd72-4dd5-807e-84566d230ad8.png)
 
 <!-- probably not needed ...
 > **Note**: We used 
