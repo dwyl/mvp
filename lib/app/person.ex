@@ -9,7 +9,6 @@ defmodule App.Person do
     field :locale, :string
     field :picture, :binary
     field :status_id, :id
-    field :tag_id, :id
 
     timestamps()
   end
