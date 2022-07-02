@@ -22,8 +22,8 @@ of the @dwyl App
 - [@dwyl App MVP `Phoenix`  💡⏳ ✅](#dwyl-app-mvp-phoenix---)
 - [Why? 🤷](#why-)
 - [_What_? 💭](#what-)
-  - [Tech Stack?](#tech-stack)
   - [3 Apps into _One_](#3-apps-into-one)
+  - [Tech Stack?](#tech-stack)
 - [_Who?_ 👥](#who-)
   - [Feedback! 🙏](#feedback-)
 - [_How_? 💻](#how-)
@@ -35,21 +35,19 @@ of the @dwyl App
     - [1.1 Run the `Phoenix` App](#11-run-the-phoenix-app)
     - [1.2 Run the tests:](#12-run-the-tests)
     - [1.3 Setup `Tailwind`](#13-setup-tailwind)
-    - [1.4 Create `/live` Directory, LiveView Controller and Template](#14-create-live-directory-liveview-controller-and-template)
+    - [1.4 Setup `LiveView`](#14-setup-liveview)
     - [1.5 Update `router.ex`](#15-update-routerex)
     - [1.6 Update Tests](#16-update-tests)
     - [1.7 Delete Page-related Files](#17-delete-page-related-files)
-    - [Side Note: Data-first Design 💡](#side-note-data-first-design-)
   - [2. Create Schemas to Store Data](#2-create-schemas-to-store-data)
-    - [2.1 Create Schema Associations](#21-create-schema-associations)
-    - [2.2 Run Tests!](#22-run-tests)
     - [_Explanation_ of the Schemas](#explanation-of-the-schemas)
       - [`person`](#person)
       - [`item`](#item)
-      - [`tag`](#tag)
-      - [`item_tags`](#item_tags)
       - [`status`](#status)
-    - [Schema Notes](#schema-notes)
+      - [Schema Notes](#schema-notes)
+    - [2.1 Create `item_tags` Association](#21-create-item_tags-association)
+      - [`item_tags`](#item_tags)
+    - [2.2 Run Tests!](#22-run-tests)
   - [_Create_ Schemas](#create-schemas)
     - [Associate Items with a List](#associate-items-with-a-list)
     - [Categorising Items using Tags](#categorising-items-using-tags)
@@ -95,11 +93,11 @@ of the app to **_learn_**.
 A **_hybrid_ note taking**,
 **categorization**,
 **task and activity** (time) **tracking tool**
-with buil-in (basic) team **communication**. <br />
+with built-in (basic) team **communication**. <br />
 
 We've found it _tedious_ 
 to use **several _separate_ apps**
-for task/time tracking and comms <br />
+for task/time tracking and comms
 and think it's _logical_ 
 to _combine_ the functionality.
 
@@ -112,21 +110,11 @@ please just ignore it and get on with your day. 👌
 then there is **no hope** for it._”
 ~ [Albert Einstein](https://www.goodreads.com/quotes/110518-if-at-first-the-idea-is-not-absurd-then-there)
 
-
-## Tech Stack? 
-
-This **MVP** app uses the **`PETAL` Stack**
-described in: 
-[dwyl/**technology-stack**](https://github.com/dwyl/technology-stack)
-
 ## 3 Apps into _One_
 
-We have built the 3 _separate_ apps 
-using the **`PETAL` Stack**
-to showcase the individual features
-from first principals.
-
-The 3 apps we are combining:
+This MVP will combine 3 apps into one.
+We built the 3 _separate_ apps
+to showcase the individual features:
 
 1. Todo list: 
    [github.com/dwyl/phoenix-liveview-**todo-list**](https://github.com/dwyl/phoenix-liveview-todo-list-tutorial)
@@ -135,7 +123,26 @@ The 3 apps we are combining:
 3. Chat: 
    [github.com/dwyl/phoenix-liveview-**chat**](https://github.com/dwyl/phoenix-liveview-chat-example)
 
+We encourage people to read 
+and understand those individual features
+from first principals
+***`before`***
+trying to to understand 
+how the MVP works. 
+But our _hope_ is that
+the UI/UX in the MVP
+is sufficiently simple
+that it **_immediately_ makes sense**. 
 
+## Tech Stack? 
+
+This **MVP** app uses the **`PETAL` Stack**
+described in: 
+[dwyl/**technology-stack**](https://github.com/dwyl/technology-stack)
+
+Going through the individual feature apps listed above,
+will give you enough knowledge of the stack 
+to understand this MVP. 
 
 # _Who?_ 👥
 
@@ -156,8 +163,8 @@ _Longer_ term, the MVP
 will also help future @dwyl team members
 get 
 [**up-to-speed**](https://dictionary.cambridge.org/dictionary/english/up-to-speed) 
-on our App+Stack **_much_ faster**.
-Understanding the basic in _this_ app
+on our App & Stack **_much_ faster**.
+Understanding the basics in _this_ app
 will be an _excellent_ starting point.
 
 ## Feedback! 🙏
@@ -219,8 +226,6 @@ mix phx.server
 ```
 
 > **`TODO`**: insert **`GIF`** of MVP speed-run once ready.
-
-
 
 
 
@@ -365,11 +370,9 @@ please retrace the steps
 and open an issue:
 [learn-tailwind/issues](https://github.com/dwyl/learn-tailwind/issues)
 
+### 1.4 Setup `LiveView`
 
-
-### 1.4 Create `/live` Directory, LiveView Controller and Template
-
-Create the `lib/app_web/live` folder 
+Create the `lib/app_web/live` directory
 and the controller at `lib/app_web/live/app_live.ex`:
 
 ```elixir
@@ -532,11 +535,13 @@ our **`Phoenix + LiveView`** project
 is now fully setup
 and ready to start _building_!
 
+<!-- temp commenting this out as it's a bit of a side-track ...
 
-### Side Note: Data-first Design 💡
+### Side Note: _Data_-first Design 💡
 
-There are several ways to design and build Apps.
-We can start by trying to define the UI/UX up-front
+There are _several_ ways to design and build Apps.
+One of the popular approaches 
+is to start by trying to define the UI/UX
 e.g: by creating a wireframe in **`Figma`**.
 This makes an implicit assumption
 about how we expect people to interact
@@ -548,7 +553,7 @@ is a _lot_ cheaper/easier/faster
 than writing code. 
 However when we are doing an _exploratory_
 MVP tightly defining the UI/UX
-can mean we create regidity too early.
+can create regidity too early.
 Another approach is to think about the 
 **`data`** we want to capture
 and how we may want 
@@ -556,28 +561,26 @@ to _transform_ that **`data`**.
 
 For a _much_ more elequent
 explanation of why **`data`** first
-development maintains flexibility,
+development makese sense,
 watch
 "Make Data Structures" 
 by Richard Feldman:
 https://youtu.be/x1FU3e0sT1I
+You don't need to know _any_ `Elm`
+to watch this talk.
+
+-->
 
 ## 2. Create Schemas to Store Data
 
-
-
-
 Create database schemas 
 to store the data 
-we're creating 
-in the MVP: 
+we're creating: 
 
 ```sh
-mix phx.gen.schema Tag tags text:string
 mix phx.gen.schema Status status text:string
-mix phx.gen.schema Person people givenName:binary auth_provider:string key_id:integer status_id:references:status tag_id:references:tags picture:binary locale:string
+mix phx.gen.schema Person people givenName:binary auth_provider:string key_id:integer status_id:references:status picture:binary locale:string
 mix phx.gen.schema Item items text:string person_id:references:people status:references:status
-mix phx.gen.schema List lists title:string person_id:references:people status:references:status tag:references:tags
 mix phx.gen.schema Timer timers item_id:references:items start:naive_datetime end:naive_datetime person_id:references:people
 ```
 
@@ -586,29 +589,180 @@ we have the following database
 [Entity Relationship Diagram](https://en.wikipedia.org/wiki/Entity%E2%80%93relationship_model)
 (ERD):
 
-![mvp-erd-without-associations](https://user-images.githubusercontent.com/194400/176434826-d560f27e-ef23-411f-a549-6ec33215869d.png)
+![mvp-erd-without-associations](https://user-images.githubusercontent.com/194400/176990183-250324ba-61ea-4434-9c68-5371ce2230c6.png)
 
+<!-- probably not needed ...
 > **Note**: We used 
 > [**`mix phx.gen.schema`**](https://hexdocs.pm/phoenix/Mix.Tasks.Phx.Gen.Schema.html)
 > instead of the
 [`phx.gen.html`](https://hexdocs.pm/phoenix/Mix.Tasks.Phx.Gen.Html.html)
-generator creates a _lot_ of 
+generator which creates a _lot_ of 
 [boilerplate code](https://github.com/dwyl/app-mvp-phoenix/issues/89#issuecomment-1167548207).
+-->
 
-### 2.1 Create Schema Associations
+In this step we created 5 database tables. 
+Let's run through them.
 
-So far the schemas are quire basic.<sup>1</sup> <br />
+### _Explanation_ of the Schemas
+
+This is a quick breakdown of the schemas created above:
+#### `person`
+
+The `person` _using_ the App
+(AKA the ["user"](https://github.com/dwyl/app/issues/33))
+
++ `id`: `Int`<sup>1</sup>
++ `inserted_at`: `Timestamp` - created/managed by `Phoenix/Ecto`
++ `updated_at`: `Timestamp`
++ `givenName`: `Binary` (_encrypted_) - first name of a person
+ https://schema.org/Person
++ `auth_provider`: `String` - so we can contact the person by email duh.
++ `email_hash`: `Binary` (_salted & hashed for quick lookup_)
++ `key_id`: `String` - the `ID` of the encryption key
+used to encrypt personal data (NOT the key itself!)
+see:
+[dwyl/phoenix-ecto-**encryption**-**example**](https://github.com/dwyl/phoenix-ecto-encryption-example)
++ `status_id`: `Int` (**FK** `status.id`) - e.g: "0: unverified, 1: verified", etc.
+
+#### `item`
+
+An `item` is the most basic unit of content.
+e.g: a "note", "task", "reminder", etc.
+The name **`item`** is **_deliberately_ generic**
+as it maintains complete flexibility 
+for what we are building later on.
+
++ `id`: `Int` - the auto-incrementing `id`.
++ `inserted_at`: `Timestamp` - created/managed by `Phoenix`
++ `updated_at`: `Timestamp`
++ `text`: `Binary` (_encrypted_) - the free text you want to capture.
++ `person_id`: `Int` 
+  ([**FK**](https://en.wikipedia.org/wiki/Foreign_key)  
+    `person.id` the "owner" of the `item`)
++ `status_id`: `Int` (**FK** `status.id`) the `status` of the `item` 
+  e.g: "in progress"
+
+#### `status`
+
+The `status` of an `item` or `person`.
+
++ `id`: `Int`
++ `inserted_at`: `Timestamp`
++ `updated_at`: `Timestamp`
++ `person_id`: `Int` (**FK** `person.id` - the person
+    who defined/updated the status)
++ `text`: `String` - examples:
+  + "unverified" - for a person that has not verified their email address
+  + "verified" - for a person who's identity has been verified.
+  + "open"
+  + "in_progress"
+  + "complete"
+  + [etc.](https://github.com/dwyl/checklist/pull/3/files#diff-597edb4596faa11c05c29c0d3a8cf94a)
+
+`status` is _deliberately_ both versatile and limited.
+We want to be able to apply a _single_ `status`
+to a `person` or `item` at any given time.
+i.e. an `item` cannot be `status` `"active"` and `"done"`
+at the same time.
+
+<!--
+We _could_ have just used `tags` for everything,
+e.g. (SQL pseudocode) 
+
+```sql
+SELECT * FROM items
+JOIN items_tags ON
+  item_tags.item_id = item.id
+JOIN tags on 
+  item_tags.tag_id = tags.id
+WHERE
+  item.person_id = 42
+AND
+  tags.text = 'open';
+```
+
+However we _prefer_ to have `status` 
+_distinct_ from `tags` 
+because we feel it makes it 
+easier to reason about.
+
+e.g:
+
+```sql
+SELECT * FROM items WHERE person_id = 4 AND status_id = 1; -- i.e. 'open'
+```
+
+No join required. 
+The `status_id = 1`
+is defined by the App
+so can be hard-coded.
+
+> FYI: the plural form of "status" is "status":
+https://english.stackexchange.com/questions/877/plural-form-of-status
+
+-->
+
+#### `timer`
+
+A `timer` is attached to an `item`
+to track how long it takes to ***complete***.
+
+  + `id`: `Int`
+  + `inserted_at`
+  + `item_id` (FK item.id)
+  + `start`: `NaiveDateTime` - time started on device
+  + `end`: `NaiveDateTime` - time ended on device
+
+An `item` can have zero or more `timers`.
+Each time a `item` (`task`) is worked on
+a **_new_ `timer`** is started (_and stopped_).
+That allows us to get a running total
+of the amount of time that has
+been taken.
+
+<br />
+
+#### Schema Notes
+
+If naming things is 
+[hard](https://martinfowler.com/bliki/TwoHardThings.html),
+choosing names for schemas/fields is **_extra_ hard_**,
+because once **APIs** are defined
+it can be a _mission_ to modify them
+because **_changing_ APIs "_breaks_" _everything_**!
+We have been thinking about,
+researching and iterating on this idea for a _long_ time.
+Our _hope_ is that it will be obvious to everyone _why_
+a certain database table is named the way it is,
+but if not, 
+[please open an issue/question](https://github.com/nelsonic/time-mvp-phoenix/issues)
+to seek clarification. 
+
+<sup>1</sup> We are using the `default` Phoenix auto-incrementing `id`
+for all `id` fields in this MVP. When we _need_ to make the App "offline first"
+we will transition to a Globally Unique [ContentID](https://github.com/dwyl/cid)
 
 
 
+<br />
+
+### 2.1 Create `item_tags` Association
+
+An `item` should be able 
+to have one or more tags associated with it.
+To enable this we need a new table 
+to store the data.
 
 
-<sup>1</sup> We don't take any of this for granted.
-If you're a complete beginner, 
-please scroll through the _explanation_ section below.
-If you still have any questions, 
-please
-[ask!](https://github.com/dwyl/app-mvp-phoenix/issues) 🙏 
+
+#### `item_tags`
+
+`item_tags` - are the `tags` applied to an `item`. 
+  
++ `item_id` (**FK** item.id)
++ `tag_id` (**FK** tag.id)
++ `inserted_at`
+
 
 ### 2.2 Run Tests!
 
@@ -654,168 +808,10 @@ as we define the _functionality_.
 
 <br />
 
-### _Explanation_ of the Schemas
-
-This is a quick breakdown of the schemas defined above:
-#### `person`
-
-`person` - the person using the App
-(AKA the ["user"](https://github.com/dwyl/app/issues/33))
-
-+ `id`: `Int`<sup>1</sup>
-+ `inserted_at`: `Timestamp` - created/managed by `Phoenix/Ecto`
-+ `updated_at`: `Timestamp`
-+ `givenName`: `Binary` (_encrypted_) - first name of a person
- https://schema.org/Person
-+ `auth_provider`: `String` - so we can contact the person by email duh.
-+ `email_hash`: `Binary` (_salted & hashed for quick lookup_)
-+ `key_id`: `String` - the `ID` of the encryption key
-used to encrypt personal data (NOT the key itself!)
-see:
-[dwyl/phoenix-ecto-**encryption**-**example**](https://github.com/dwyl/phoenix-ecto-encryption-example)
-+ `status_id`: `Int` (**FK** `status.id`) - e.g: "0: unverified, 1: verified", etc.
-
-#### `item`
-
-`item` - a basic/generic unit of content. 
-e.g: a "note", "task" or "reminder"
-
-+ `id`: `Int`
-+ `inserted_at`: `Timestamp` - created/managed by `Phoenix`
-+ `updated_at`: `Timestamp`
-+ `text`: `Binary` (_encrypted_) - the free text you want to capture.
-+ `person_id`: `Int` (**FK** `person.id` the "owner" of the item)
-+ `status_id`: `Int` (**FK** `status.id`) the `status` of the `item` 
-  e.g: "in progress"
-
-<!-- Related: how to ["link"](https://github.com/nelsonic/time-mvp-phoenix/issues/4) items...? -->
-#### `tag`
-
-`tag` - _tags_<sup>2</sup> can be applied 
-to an `item` to ***Categorise*** it.
-
-+ `id`: `Int`
-+ `inserted_at`: `Timestamp`
-+ `updated_at`: `Timestamp`
-+ `person_id`: `Int` (**FK** `person.id` -
-    the person who defined or last updated the `tag.text`)
-+ `text`: `String` - examples:
-  + "note"
-  + "task"
-  + "checklist"
-  + "reading"
-  + "shopping"
-  + "exercise"
-  + ["reminder"](https://github.com/nelsonic/time-mvp-phoenix/issues/5)
-  + "quote"
-  + "memo" - https://en.wikipedia.org/wiki/Memorandum
-  + "image" - a link to an image stored on a file system (e.g: IPFS or S3)
-  + "author" - in the case of a book author
-
-#### `item_tags`
-
-`item_tags` - are the `tags` applied to an `item`. 
-  
-+ `item_id` (**FK** item.id)
-+ `tag_id` (**FK** tag.id)
-+ `inserted_at`
-
-#### `status`
-
-`status` - the `status` of an `item` or `person`
-
-+ `id`: `Int`
-+ `inserted_at`: `Timestamp`
-+ `updated_at`: `Timestamp`
-+ `person_id`: `Int` (**FK** `person.id` - the person
-    who defined/updated the status)
-+ `text`: `String` - examples:
-  + "unverified" - for a person that has not verified their email address
-  + "open"
-  + "complete"
-  + [etc.](https://github.com/dwyl/checklist/pull/3/files#diff-597edb4596faa11c05c29c0d3a8cf94a)
-
-`status` is deliberately both versatile and limited.
-We want to be able to apply a _single_ `status`
-to an `item`. 
-We _could_ have just used `tags` for everything,
-e.g. (pseudocode) 
-
-> Plural form of "status" is "status":
-https://english.stackexchange.com/questions/877/what-is-plural-form-of-status
 
 
-+ `list`<sup>3</sup> - a collection of items
-  + `id`: `Int`<sup>1</sup>
-  + `title`: `String` - e.g: "_Alex's Todo List_"
-  + `order`: `Int` - Enum ["alphabetical", "date", "priority", "unordered"]
-  + `status`: `Int` (**FK** `status.id`)
-
-+ `list_items`
-  + `item_id` (FK item.id)
-  + `list_id` (FK list.id)
-  + `inserted_at`
-
-+ `timer` - A timer attached to an `item`. An `item` can have _multiple_ timers.
-  + `id`: `Int`
-  + `inserted_at`
-  + `item_id` (FK item.id)
-  + `start`: `NaiveDateTime` - time started on device
-  + `end`: `NaiveDateTime` - time ended on device
 
 
-### Schema Notes
-
-If naming things is [hard](https://martinfowler.com/bliki/TwoHardThings.html),
-choosing names for schemas/fields is _extra difficult_,
-because once APIs are defined
-it can be a _mission_ to modify them
-because changing APIs "_breaks_" _everything_!
-We have been thinking about,
-researching and iterating on this idea for a _long_ time.
-Hopefully it will be obvious to everyone _why_
-a certain field is named the way it is,
-but if not, please open an
-[issue/question](https://github.com/nelsonic/time-mvp-phoenix/issues)
-to seek clarification.
-
-
-<sup>1</sup> We are using the `default` Phoenix auto-incrementing `id`
-for all `id` fields in this MVP. When we _need_ to make the App "offline first"
-we will transition to a Globally Unique [ContentID](https://github.com/dwyl/cid)
-
-<sup>2</sup> We expect (_and will encourage_) people to define their own tags.
-When creating tags, the UI will
-[_auto-suggest_](https://github.com/dwyl/app/issues/224)
-existing (public/curated) tags
-to avoid duplication and noise.
-For now we only need "task". <br />
-
-
-<sup>3</sup>
-A "list" is a way of grouping items of content. <br />
-An "essay" or "blog post" is a list of notes. <br />
-A "task list" (_or "todo list" if you prefer_) is a list of tasks.
-
-We are well aware that the word "list"
-is meaningful in many programming languages. <br />
-+ Elm: https://package.elm-lang.org/packages/elm/core/latest/List
-+ Elixir: https://hexdocs.pm/elixir/List.html
-+ Python: https://docs.python.org/3/tutorial/datastructures.html
-+ etc.
-
-We have chosen to use "list" as it's the most obvious word in _english_. <br />
-We did not find a suitable synonym:
-https://www.thesaurus.com/browse/list 🔍 🤷‍
-
-<sup>4</sup> We cannot use the word "type" as a field name,
-because it will be confusing in programming languages
-where `type` is either a reserved word or a language construct.
-see: https://en.wikipedia.org/wiki/Type_system
-Instead we are using the term **`tag`**
-which is relatively familiar to people
-and has the benefit of being both a noun and a verb.
-So the expression "tagging" the data works.
 
 
 ## _Create_ Schemas
