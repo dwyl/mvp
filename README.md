@@ -574,8 +574,10 @@ to watch this talk.
 ## 2. Create Schemas to Store Data
 
 Create database schemas 
-to store the data 
-we're creating: 
+to store the data.
+Run the following 
+[**`mix phx.gen.schema`**](https://hexdocs.pm/phoenix/Mix.Tasks.Phx.Gen.Schema.html)
+commands:
 
 ```sh
 mix phx.gen.schema Status status text:string
@@ -584,12 +586,12 @@ mix phx.gen.schema Item items text:string person_id:references:people status:ref
 mix phx.gen.schema Timer timers item_id:references:items start:naive_datetime end:naive_datetime person_id:references:people
 ```
 
-At the end of this step
+At the end of this step,
 we have the following database
 [Entity Relationship Diagram](https://en.wikipedia.org/wiki/Entity%E2%80%93relationship_model)
 (ERD):
 
-![mvp-erd-without-associations](https://user-images.githubusercontent.com/194400/177001882-209907ec-bd72-4dd5-807e-84566d230ad8.png)
+![mvp-erd-without-associations](https://user-images.githubusercontent.com/194400/177014286-cefc55e8-510f-44dd-befb-59f6e3315fd7.png)
 
 <!-- probably not needed ...
 > **Note**: We used 
@@ -600,7 +602,8 @@ generator which creates a _lot_ of
 [boilerplate code](https://github.com/dwyl/app-mvp-phoenix/issues/89#issuecomment-1167548207).
 -->
 
-In this step we created 5 database tables. 
+In this step we created **4 database tables**;
+`items`, `people`, `status` and `timers`.
 Let's run through them.
 
 ### _Explanation_ of the Schemas
