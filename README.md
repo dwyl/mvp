@@ -23,6 +23,7 @@ of the @dwyl App
 - [Why? 🤷](#why-)
 - [_What_? 💭](#what-)
   - [3 Apps into _One_](#3-apps-into-one)
+  - [Proposed MVP UI/UX](#proposed-mvp-uiux)
   - [Tech Stack?](#tech-stack)
 - [_Who?_ 👥](#who-)
   - [Feedback! 🙏](#feedback-)
@@ -44,13 +45,11 @@ of the @dwyl App
       - [`person`](#person)
       - [`item`](#item)
       - [`status`](#status)
-      - [Schema Notes](#schema-notes)
-    - [2.1 Create `item_tags` Association](#21-create-item_tags-association)
-      - [`item_tags`](#item_tags)
-    - [2.2 Run Tests!](#22-run-tests)
-  - [_Create_ Schemas](#create-schemas)
-    - [Associate Items with a List](#associate-items-with-a-list)
-    - [Categorising Items using Tags](#categorising-items-using-tags)
+    - [2.1 Run Tests!](#21-run-tests)
+    - [3. Input Items!](#3-input-items)
+      - [3.1 Hard-code `item.person_id`](#31-hard-code-itemperson_id)
+    - [4. Add Authentication](#4-add-authentication)
+    - [5. Categorising Items using Tags](#5-categorising-items-using-tags)
     - [Authentication](#authentication)
       - [Create Sessions Table](#create-sessions-table)
       - [Add **`picture`** and **`locale`** to **`person`**](#add-picture-and-locale-to-person)
@@ -106,7 +105,7 @@ appeals to you keep reading. 😍<br />
 If it sounds like a _terrible_ idea to you,
 please just ignore it and get on with your day. 👌
 
-“_If at first the **idea** is **not absurd**,
+> “_If at first the **idea** is **not absurd**,
 then there is **no hope** for it._”
 ~ [Albert Einstein](https://www.goodreads.com/quotes/110518-if-at-first-the-idea-is-not-absurd-then-there)
 
@@ -120,7 +119,7 @@ to showcase the individual features:
    [github.com/dwyl/phoenix-liveview-**todo-list**](https://github.com/dwyl/phoenix-liveview-todo-list-tutorial)
 2. Stop Watch (Timer):
    [github.com/dwyl/phoenix-liveview-**stopwatch**](https://github.com/dwyl/phoenix-liveview-stopwatch)
-3. Chat: 
+3. Chat (Communication): 
    [github.com/dwyl/phoenix-liveview-**chat**](https://github.com/dwyl/phoenix-liveview-chat-example)
 
 We encourage people to read 
@@ -134,6 +133,33 @@ the UI/UX in the MVP
 is sufficiently simple
 that it **_immediately_ makes sense**. 
 
+## Proposed MVP UI/UX
+
+This _proposed_ UI/UX is just to create the MVP functionality.
+It _will_ change over time as we _use_ the App and collect _feedback_.
+
+![mvp-proposed-ux](https://user-images.githubusercontent.com/194400/73374277-d9445480-42b1-11ea-980a-3fabbfe5a9fd.png)
+
+Way more detail: 
+[dwyl/app/issues/265](https://github.com/dwyl/app/issues/265)
+
+> **Note**: This UI/UX _appears_ 
+> to only cover the **`Todo List`** and **`Timer`** features.
+> That is a valid observation.
+> The "communication" aspect will be 
+> covered by having 
+> [***`presence`***](https://hexdocs.pm/phoenix/Phoenix.Presence.html)
+> in the App.
+> i.e. knowing who is using/viewing the App at any given time.
+> Simply knowing that someone is online (_or not_)
+> and what they are working on 
+> is a _huge_ boost to team communication
+> without the constant distraction/interruption of **Chat**.
+> Later we will implement a very _basic_ Chat feature,
+> but it will be _nothing_ like the 
+> [Slack](https://github.com/dwyl/app/issues/205)
+> or other DeepWork killing Chat Apps.
+
 ## Tech Stack? 
 
 This **MVP** app uses the **`PETAL` Stack**
@@ -141,8 +167,8 @@ described in:
 [dwyl/**technology-stack**](https://github.com/dwyl/technology-stack)
 
 Going through the individual feature apps listed above,
-will give you enough knowledge of the stack 
-to understand this MVP. 
+will give you the knowledge
+to understand this MVP.
 
 # _Who?_ 👥
 
@@ -248,6 +274,7 @@ in **20 minutes**. 🏁
 > You don't have to follow every step in
 > the other tutorials/examples,
 > but they are linked in case you get stuck.
+
 
 ## 0. Prerequisites
 
@@ -699,11 +726,11 @@ No join required.
 The `status_id = 1`
 is defined by the App
 so can be hard-coded.
+-->
 
-> FYI: the plural form of "status" is "status":
+> **Note**: the plural form of "status" is "status":
 https://english.stackexchange.com/questions/877/plural-form-of-status
 
--->
 
 #### `timer`
 
@@ -725,6 +752,7 @@ been taken.
 
 <br />
 
+<!--
 #### Schema Notes
 
 If naming things is 
@@ -745,61 +773,38 @@ to seek clarification.
 for all `id` fields in this MVP. When we _need_ to make the App "offline first"
 we will transition to a Globally Unique [ContentID](https://github.com/dwyl/cid)
 
-
+-->
 
 <br />
 
-### 2.1 Create `item_tags` Association
 
-An `item` should be able 
-to have one or more tags associated with it.
-To enable this we need a new table 
-to store the data.
-
-
-
-#### `item_tags`
-
-`item_tags` - are the `tags` applied to an `item`. 
-  
-+ `item_id` (**FK** item.id)
-+ `tag_id` (**FK** tag.id)
-+ `inserted_at`
-
-
-### 2.2 Run Tests!
+### 2.1 Run Tests!
 
 Once we've created the required schemas,
 several new files are created.
-see:
-[**`commits/6d24085`](https://github.com/dwyl/app-mvp-phoenix/pull/90/commits/6d240852aeb1b2d8c21852575c44153e5a463213)
+If we run the tests with coverage:
 
 ```sh
 mix c
 ```
 
-As a result of all the new files, 
-the test coverage lowers considerably:
+We note that the test coverage 
+has dropped considerably:
 
 ```sh
-Finished in 0.1 seconds (0.07s async, 0.1s sync)
+Finished in 0.1 seconds (0.08s async, 0.09s sync)
 3 tests, 0 failures
 
-Randomized with seed 586135
 ----------------
 COV    FILE                                        LINES RELEVANT   MISSED
   0.0% lib/app/item.ex                                19        2        2
-  0.0% lib/app/list.ex                                20        2        2
-  0.0% lib/app/person.ex                              23        2        2
+  0.0% lib/app/person.ex                              22        2        2
   0.0% lib/app/status.ex                              17        2        2
-  0.0% lib/app/tag.ex                                 17        2        2
   0.0% lib/app/timer.ex                               20        2        2
 100.0% lib/app_web/live/app_live.ex                   11        2        0
 100.0% lib/app_web/router.ex                          18        2        0
-  0.0% lib/app_web/views/app_view.ex                   3        0        0
 100.0% lib/app_web/views/error_view.ex                16        1        0
-  0.0% lib/app_web/views/layout_view.ex                7        0        0
-[TOTAL]  29.4%
+[TOTAL]  38.5%
 ----------------
 ```
 
@@ -812,211 +817,24 @@ as we define the _functionality_.
 <br />
 
 
+### 3. Input Items!
+
+
+
+
+#### 3.1 Hard-code `item.person_id`
 
 
 
 
 
-## _Create_ Schemas
 
-We want to be able to create, edit/update and view
-all records in the database therefore we want
-[`phx.gen.html`](https://hexdocs.pm/phoenix/Mix.Tasks.Phx.Gen.Html.html)
-with views, so that we get "free" UI for creating/updating the data.
+### 4. Add Authentication
 
 
-We will need to add `person_id` to a `tag` and `status` _after_
-the person schema has been created.
-Person references `tags` and `status`
-(_i.e. there is a circular reference.
-  but it's fine, don't worry!_
-  see: https://dba.stackexchange.com/questions/102903/circular-foreign-key-references ).
 
 
-This is the order in which the schemas need to be created
-so that related tables can reference each other.
-For example: People references Tags and Status
-so those need to be created first.
-
-<!--
-If you make a mistake during the running of these phx.gen.html commands
-or need to change something e.g: github.com/dwyl/app/issues/232
-your best course of action is:
-rm -rf lib priv test assets config
-psql -U postgres -c 'DROP DATABASE IF EXISTS app_dev;'
-psql -U postgres -c 'DROP DATABASE IF EXISTS app_test;'
-mix new app
-
-mix ecto.create
--->
-
-Create a new Phoenix App:
-```
-mix phx.new app
-```
-When asked to install the dependencies,
-type `Y` and `[Enter]` (_to install everything_)
-
-Next we will run the generator commands
-to create all the schemas:
-```
-mix phx.gen.html Ctx Tag tags text:string
-mix phx.gen.html Ctx Status status text:string
-mix phx.gen.html Ctx Person people username:binary username_hash:binary email:binary email_hash:binary givenName:binary familyName:binary password_hash:binary key_id:integer status:references:status tag:references:tags
-mix phx.gen.html Ctx Item items text:string person_id:references:people status:references:status
-mix phx.gen.html Ctx List lists title:string person_id:references:people status:references:status tag:references:tags
-mix phx.gen.html Ctx Timer timers item_id:references:items start:naive_datetime end:naive_datetime person_id:references:people
-```
-
-Once all those `mix phx.gen.html` commands have been run,
-open the `lib/app_web/router.ex` file in your editor:
-
-locate the section:
-```elixir
-scope "/", AppWeb do
-  pipe_through :browser
-
-  get "/", PageController, :index
-end
-```
-And below the `get "/", PageController, :index` line, add the following lines:
-
-```
- # generic resources for schemas:
-  resources "/items", ItemController
-  resources "/lists", ListController
-  resources "/people", PersonController
-  resources "/status", StatusController
-  resources "/tags", TagController
-  resources "/timers", TimerController
-```
-Your `lib/app_web/router.ex`
-should look like this:
-[lib/app_web/router.ex#L16-L28](https://github.com/dwyl/app-mvp-phoenix/blob/851a1a4c87ef1474b55ee42cc09ed7695334d4a7/lib/app_web/router.ex#L16-L28)
-
-
-After running these `phx.gen` commands,
-and running both `mix ecto.create` and `mix ecto.migrate`,
-we have the following Entity Relationship (ER) diagram:
-
-![app-mvp-er-diagram](https://user-images.githubusercontent.com/194400/68760839-ac659700-060a-11ea-9eef-5767022e0d12.png)
-
-We now need to add `person_id` to `tags` and `status`
-to ensure that a human has ownership over those records.
-
-
-```sh
-mix ecto.gen.migration add_person_id_to_tag
-mix ecto.gen.migration add_person_id_to_status
-```
-
-
-Code additions:
-+ Add `person_id` to `tags`:
-[1dc6630](https://github.com/dwyl/app-mvp-phoenix/pull/18/commits/1dc66303e3ee23bec3dfc1bac87a9c7b80db964a)
-+ Add `person_id` to `status`:
-[4685a91](https://github.com/dwyl/app-mvp-phoenix/pull/18/commits/4685a911b4af5bf4e2bd4e934af2237ba966bcb4)
-
-ER Diagram With the `person_id` field
-added to the `tags` and `status` tables:
-
-![app-er-diagram-person_id-status-kind](https://user-images.githubusercontent.com/194400/68773176-04a89300-0623-11ea-94fa-eff32acc4724.png)
-
-
-### Associate Items with a List
-
-An item will always be on a list even if the list only has one item.
-By `default` the list an item will be associated with is "uncategorised".
-
-Let's create the migration to link `items` to `lists`:
-
-```
-mix ecto.gen.migration create_list_items_association
-```
-
-With the migration file we need to edit the following files:
-
-Open the `lib/app/ctx/item.ex` file, locate the `schema` block:
-```elixir
-schema "items" do
-  field :text, :string
-  field :human_id, :id
-  field :status, :id
-
-  timestamps()
-end
-```
-
-Add the line `belongs_to :list, App.Ctx.List`
-such that your `schema` now looks like this:
-
-```elixir
-schema "items" do
-  field :text, :string
-  field :human_id, :id
-  field :status, :id
-  belongs_to :list, App.Ctx.List # an item can be linked to a list
-
-  timestamps()
-end
-```
-
-
-Open the `lib/app/ctx/list.ex` file
-and locate the `schema` block.
-Add the line `has_many :items, App.Ctx.Item`
-such that your `schema` now looks like this:
-
-```diff
-  schema "lists" do
-    field :title, :string
-    field :person_id, :id
-    field :status, :id
-+   has_many :items, App.Ctx.Item # lists have one or more items
-
-    timestamps()
-  end
-```
-
-Open the newly created migration file:
-`priv/repo/migrations/{timestamp}_create_list_items_association.exs` <br />
-and add the following code to the `change` block:
-```elixir
-def change do
-  create table(:list_items) do
-    add :item_id, references(:items)
-    add :list_id, references(:lists)
-
-    timestamps()
-  end
-
-  create unique_index(:list_items, [:item_id, :list_id])
-end
-```
-
-That will create a lookup table to associate items to a list. <br />
-Code snapshot:
-https://github.com/nelsonic/time-mvp-phoenix/commit/935eac1251580c13b45d9341f0597e4118f1a66f
-
-
-> **Note**: we are not imposing a restriction
-(_at the database level_)
-on how many lists an item can belong to in the `list_items` table.
-The only restriction is in the `items` schema
-`has_one :list, App.Ctx.List`.
-But this can easily be updated to `has_many`
-if/when the use case is validated.
-See:
-[time-mvp-phoenix/issues/12](https://github.com/nelsonic/time-mvp-phoenix/issues/12)
-
-
-After saving the above files, run `mix ecto.migrate`.
-Now when you view the Entity Relationship Diagram
-it should look like this:
-
-![app-er-diagram-with-list_items](https://user-images.githubusercontent.com/194400/68774230-ae3c5400-0624-11ea-8316-179c5b6eb1a4.png)
-
-### Categorising Items using Tags
+### 5. Categorising Items using Tags
 
 An `item` can have _multiple_ `tags`,
 let's make that happen with an `item_tags` table:
