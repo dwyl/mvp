@@ -45,11 +45,12 @@ of the @dwyl App
       - [`person`](#person)
       - [`item`](#item)
       - [`status`](#status)
+      - [`timer`](#timer)
     - [2.1 Run Tests!](#21-run-tests)
-    - [3. Input Items!](#3-input-items)
-      - [3.1 Hard-code `item.person_id`](#31-hard-code-itemperson_id)
-    - [4. Add Authentication](#4-add-authentication)
-    - [5. Categorising Items using Tags](#5-categorising-items-using-tags)
+  - [3. Input Items!](#3-input-items)
+    - [3.1 Hard-code `item.person_id`](#31-hard-code-itemperson_id)
+  - [4. Add Authentication](#4-add-authentication)
+  - [5. Categorising Items using Tags](#5-categorising-items-using-tags)
     - [Authentication](#authentication)
       - [Create Sessions Table](#create-sessions-table)
       - [Add **`picture`** and **`locale`** to **`person`**](#add-picture-and-locale-to-person)
@@ -148,14 +149,14 @@ Way more detail:
 > That is a valid observation.
 > The "communication" aspect will be 
 > covered by having 
-> [***`presence`***](https://hexdocs.pm/phoenix/Phoenix.Presence.html)
+> [***`presence`***](https://github.com/dwyl/phoenix-liveview-chat-example#14-presence)
 > in the App.
-> i.e. knowing who is using/viewing the App at any given time.
+> i.e. knowing **who** is using/viewing the App at any given time.
 > Simply knowing that someone is online (_or not_)
 > and what they are working on 
 > is a _huge_ boost to team communication
 > without the constant distraction/interruption of **Chat**.
-> Later we will implement a very _basic_ Chat feature,
+> Later (post-MVP) we will implement a very _basic_ Chat feature,
 > but it will be _nothing_ like the 
 > [Slack](https://github.com/dwyl/app/issues/205)
 > or other DeepWork killing Chat Apps.
@@ -732,7 +733,7 @@ so can be hard-coded.
 https://english.stackexchange.com/questions/877/plural-form-of-status
 
 
-#### `timer`
+#### `timer`
 
 A `timer` is attached to an `item`
 to track how long it takes to ***complete***.
@@ -746,6 +747,8 @@ to track how long it takes to ***complete***.
 An `item` can have zero or more `timers`.
 Each time a `item` (`task`) is worked on
 a **_new_ `timer`** is started (_and stopped_).
+Meaning a `person` can split the completion 
+of an `item` (`task`) across multiple sessions.
 That allows us to get a running total
 of the amount of time that has
 been taken.
@@ -808,6 +811,12 @@ COV    FILE                                        LINES RELEVANT   MISSED
 ----------------
 ```
 
+Specifically the files:
+`lib/app/item.ex`, 
+`lib/app/person.ex`, 
+`lib/app/status.ex` and 
+`lib/app/timer.ex`
+
 Just be _aware_ of this.
 We _could_ write tests to (_artificially_) cover
 these lines of code.
@@ -817,24 +826,24 @@ as we define the _functionality_.
 <br />
 
 
-### 3. Input Items!
+## 3. Input Items!
 
 
 
 
-#### 3.1 Hard-code `item.person_id`
+### 3.1 Hard-code `item.person_id`
 
 
 
 
 
 
-### 4. Add Authentication
+## 4. Add Authentication
 
 
 
 
-### 5. Categorising Items using Tags
+## 5. Categorising Items using Tags
 
 An `item` can have _multiple_ `tags`,
 let's make that happen with an `item_tags` table:
