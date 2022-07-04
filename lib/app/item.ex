@@ -1,6 +1,9 @@
 defmodule App.Item do
   use Ecto.Schema
   import Ecto.Changeset
+  import Ecto.Query
+  alias App.Repo
+  alias __MODULE__
 
   schema "items" do
     field :text, :string
@@ -63,7 +66,7 @@ defmodule App.Item do
   def list_items do
     Item
     |> order_by(desc: :inserted_at)
-    # |> where([a], is_nil(a.status) or a.status != 2)
+    |> where([a], is_nil(a.status) or a.status != 2)
     |> Repo.all()
   end
 
@@ -86,9 +89,9 @@ defmodule App.Item do
   end
 
   # "soft" delete
-  # def delete_item(id) do
-  #   get_item!(id)
-  #   |> Item.changeset(%{status: 2})
-  #   |> Repo.update()
-  # end
+  def delete_item(id) do
+    get_item!(id)
+    |> Item.changeset(%{status: 2})
+    |> Repo.update()
+  end
 end

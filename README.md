@@ -410,10 +410,6 @@ defmodule AppWeb.AppLive do
   def mount(_params, _session, socket) do
     {:ok, socket}
   end
-
-  def render(assigns) do
-    AppWeb.AppView.render("capture.html", assigns)
-  end
 end
 ```
 
@@ -425,11 +421,8 @@ defmodule AppWeb.AppView do
 end
 ```
 
-Next, create the 
-**`lib/app_web/templates/app`** 
-directory,
-then create  
-**`lib/app_web/templates/app/capture.html.heex`**
+Next, create the
+**`lib/app_web/live/app_live.html.heex`**
 file 
 and add the following line of `HTML`:
 
@@ -816,18 +809,35 @@ Specifically the files:
 `lib/app/person.ex`, 
 `lib/app/status.ex` and 
 `lib/app/timer.ex`
+have **_zero_ test coverage**. 
 
-Just be _aware_ of this.
 We _could_ write tests to (_artificially_) cover
 these lines of code.
 However, we are going to add tests 
 as we define the _functionality_.
+Just be _aware_ of this;
+the problem will be addressed in the next few sections.
+Yes, we _know_ this is not 
+["TDD"](https://github.com/dwyl/learn-tdd#what-is-tdd)
+because we aren't writing the tests _first_.
+But with creating database schemas,
+we feel this is the 
 
 <br />
 
 
+
+
 ## 3. Input Items!
 
+Create the directory `test/app`
+and file:
+`test/app/item_test.exs`
+with the following code:
+
+```elixir
+
+```
 
 
 
