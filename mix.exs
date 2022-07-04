@@ -61,16 +61,17 @@ defmodule App.MixProject do
       {:auth_plug, "~> 1.4"},
       # Useful functions: github.com/dwyl/useful
       {:useful, "~> 1.0.8"},
-
+      # Statuses: github.com/dwyl/statuses
+      {:statuses, "~> 1.0.1"},
       # create docs on localhost by running "mix docs"
       {:ex_doc, "~> 0.22.6", only: :dev, runtime: false},
-      # track test coverage
+      # Track test coverage
       {:excoveralls, "~> 0.14.5", only: [:test, :dev]},
       # git pre-commit hook runs tests before allowing commits
       {:pre_commit, "~> 0.3.4"},
       {:credo, "~> 1.6.4", only: [:dev, :test], runtime: false},
 
-      # Ref: https://github.com/dwyl/learn-tailwind
+      # Ref: github.com/dwyl/learn-tailwind
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
     ]
   end
@@ -83,8 +84,6 @@ defmodule App.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      c: ["coveralls.html"],
-      s: ["phx.server"],
       seeds: ["run priv/repo/seeds.exs"],
       setup: ["deps.get", "ecto.setup"],
       "ecto.setup": ["ecto.create --quiet", "ecto.migrate --quiet", "run priv/repo/seeds.exs"],
