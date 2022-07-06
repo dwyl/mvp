@@ -27,10 +27,10 @@ config :app, AppWeb.Endpoint,
     "IyvSJdeCw6Z8RkFvfK3hsoU6rSRo6B2/5ltW0EGBjuIdQEDy/bYcYzajk32Kbems",
   watchers: [
     # Start the esbuild watcher by calling Esbuild.install_and_run(:default, args)
+    tailwind:
+      {Tailwind, :install_and_run, [:default, ~w(--watch)]},
     esbuild:
       {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]},
-    tailwind: 
-      {Tailwind, :install_and_run, [:default, ~w(--watch)]}
   ]
 
 # ## SSL Support

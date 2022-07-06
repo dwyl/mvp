@@ -86,20 +86,22 @@ repo.<br />
 However we will also maintian this repo
 as a **reference** for **new joiners** <br />
 wanting the **most _basic_ version**
-of the app to **_learn_**.
+of the app to **learn** from.
 
 # _What_? 💭
 
-A **_hybrid_ note taking**,
+A **mobile-first** 
+**_hybrid_ note taking**,
 **categorization**,
-**task and activity** (time) **tracking tool**
-with built-in (basic) team **communication**. <br />
+**task and activity** (time) <br />
+**tracking tool**
+with built-in (basic) team **communication**.
 
 We've found it _tedious_ 
 to use **several _separate_ apps**
-for task/time tracking and comms
+for task/time tracking and comms 🤦‍♂️
 and think it's _logical_ 
-to _combine_ the functionality.
+to _combine_ the functionality. 💡
 
 If the idea of **_combining_ related tools**
 appeals to you keep reading. 😍<br />
@@ -124,14 +126,13 @@ to showcase the individual features:
    [github.com/dwyl/phoenix-liveview-**chat**](https://github.com/dwyl/phoenix-liveview-chat-example)
 
 We encourage people to read 
-and understand those individual features
+and understand the individual feature Apps
 from first principals
 ***`before`***
-trying to to understand 
-how the MVP works. 
+trying run the MVP. 
 But our _hope_ is that
 the UI/UX in the MVP
-is sufficiently simple
+is sufficiently intuitive
 that it **_immediately_ makes sense**. 
 
 ## Proposed MVP UI/UX

@@ -4,7 +4,8 @@ module.exports = {
   content: [
     './js/**/*.js',
     '../lib/*_web.ex',
-    '../lib/*_web/**/*.*ex'
+    '../lib/*_web/**/*.*ex',
+    '../lib/app_web/live/app_live.html.heex'
   ],
   theme: {
     extend: {},

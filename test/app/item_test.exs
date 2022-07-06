@@ -51,7 +51,7 @@ defmodule App.ItemTest do
     test "delete_item/1 soft-deltes an item" do
       item = item_fixture()
       assert {:ok, %Item{} = deleted_item} = Item.delete_item(item.id)
-      assert deleted_item.status == 2
+      assert deleted_item.status == 6
     end
   end
 end
