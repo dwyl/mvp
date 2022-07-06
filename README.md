@@ -137,9 +137,18 @@ that it **_immediately_ makes sense**.
 ## Proposed MVP UI/UX
 
 This _proposed_ UI/UX is just to create the MVP functionality.
-It _will_ change over time as we _use_ the App and collect _feedback_.
 
 ![mvp-proposed-ux](https://user-images.githubusercontent.com/194400/73374277-d9445480-42b1-11ea-980a-3fabbfe5a9fd.png)
+
+It is _deliberately_ "ugly"
+so we don't focus on aesthetics.
+
+It _will_ change over time 
+as we _use_ the App 
+and collect _feedback_.
+
+If you want to _help_ make it better,
+share your feedback!
 
 Way more detail: 
 [dwyl/app/issues/265](https://github.com/dwyl/app/issues/265)
@@ -151,7 +160,9 @@ Way more detail:
 > covered by having 
 > [***`presence`***](https://github.com/dwyl/phoenix-liveview-chat-example#14-presence)
 > in the App.
-> i.e. knowing **who** is using/viewing the App at any given time.
+> i.e. knowing **who** 
+> is using/viewing the App at any given time
+> with appropriate privacy controls.
 > Simply knowing that someone is online (_or not_)
 > and what they are working on 
 > is a _huge_ boost to team communication
@@ -160,6 +171,7 @@ Way more detail:
 > but it will be _nothing_ like the 
 > [Slack](https://github.com/dwyl/app/issues/205)
 > or other DeepWork killing Chat Apps.
+
 
 ## Tech Stack? 
 
