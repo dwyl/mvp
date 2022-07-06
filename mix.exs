@@ -56,7 +56,7 @@ defmodule App.MixProject do
       {:plug_cowboy, "~> 2.5"},
 
       # Easily Encrypt Senstive Data: github.com/dwyl/fields
-      {:fields, "~> 2.8"},
+      {:fields, "~> 2.9"},
       # Auth with ONE Environment Variable™: github.com/dwyl/auth_plug
       {:auth_plug, "~> 1.4"},
       # Useful functions: github.com/dwyl/useful
@@ -72,7 +72,7 @@ defmodule App.MixProject do
       {:credo, "~> 1.6.4", only: [:dev, :test], runtime: false},
 
       # Ref: github.com/dwyl/learn-tailwind
-      {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
+      {:tailwind, "~> 0.1.6", runtime: Mix.env() == :dev},
     ]
   end
 
@@ -85,7 +85,7 @@ defmodule App.MixProject do
   defp aliases do
     [
       seeds: ["run priv/repo/seeds.exs"],
-      setup: ["deps.get", "ecto.setup"],
+      setup: ["deps.get", "ecto.setup", "tailwind.install"],
       "ecto.setup": ["ecto.create --quiet", "ecto.migrate --quiet", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"],

@@ -6,9 +6,9 @@ defmodule App.Item do
   alias __MODULE__
 
   schema "items" do
-    field :text, :string
     field :person_id, :id
     field :status, :id
+    field :text, :string
 
     timestamps()
   end
@@ -66,7 +66,7 @@ defmodule App.Item do
   def list_items do
     Item
     |> order_by(desc: :inserted_at)
-    |> where([a], is_nil(a.status) or a.status != 2)
+    |> where([a], is_nil(a.status) or a.status != 6)
     |> Repo.all()
   end
 
@@ -89,9 +89,9 @@ defmodule App.Item do
   end
 
   # "soft" delete
-  def delete_item(id) do
+  def delete(id) do
     get_item!(id)
-    |> Item.changeset(%{status: 2})
+    |> Item.changeset(%{status: 6})
     |> Repo.update()
   end
 end

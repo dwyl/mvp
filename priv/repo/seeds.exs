@@ -13,7 +13,7 @@ alias App.{Person, Status}
 
 # Statuses: github.com/dwyl/statuses
 Statuses.parse_json()
-|> Enum.each(fn(s) -> 
+|> Enum.each(fn(s) ->
   Status.upsert(%{
     text: s.text,
     id: Integer.parse(s.id)
@@ -22,7 +22,7 @@ end)
 
 
 Person.create(%{
-  givenName: "Beyoncé", 
+  givenName: "Beyoncé",
   auth_provider: "Google",
   status_id: 1
 })
