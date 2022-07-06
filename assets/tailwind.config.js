@@ -10,8 +10,8 @@ module.exports = {
   theme: {
     extend: {},
   },
-  plugins: [ // https://andrewbarr.io/posts/removing-npm/show
-    require('@tailwindcss/forms'),
-    require('@tailwindcss/typography'),
-    require('@tailwindcss/aspect-ratio')  ]
+  // plugins: [ // https://andrewbarr.io/posts/removing-npm/show
+  //   require('@tailwindcss/forms'),
+  //   require('@tailwindcss/typography'),
+  //   require('@tailwindcss/aspect-ratio')  ]
 }

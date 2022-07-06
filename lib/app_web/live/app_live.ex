@@ -32,7 +32,7 @@ defmodule AppWeb.AppLive do
 
   @impl true
   def handle_event("delete", data, socket) do
-    Item.delete(Map.get(data, "id"))
+    Item.delete_item(Map.get(data, "id"))
     socket = assign(socket, items: Item.list_items(), active: %Item{})
     AppWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
     {:noreply, socket}

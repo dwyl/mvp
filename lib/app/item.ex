@@ -89,7 +89,7 @@ defmodule App.Item do
   end
 
   # "soft" delete
-  def delete(id) do
+  def delete_item(id) do
     get_item!(id)
     |> Item.changeset(%{status: 6})
     |> Repo.update()
