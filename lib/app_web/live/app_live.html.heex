@@ -1,30 +1,39 @@
+<h1 class="text-7xl text-white font-bold text-center width-full 
+  bg-gradient-to-r from-green-400 to-blue-500 hover:from-pink-500 hover:to-yellow-500 
+  rounded-xl shadow-lg py-3 mt-3 ml-3">
+  Hello TailWorld!
+</h1>
+
 <div class="h-100 w-full flex items-center justify-center bg-teal-lightest font-sans">
   <div class="bg-white rounded shadow p-6 m-4 w-full lg:w-3/4 lg:max-w-lg">
-    <div class="mb-4">
-      <h1 class="text-grey-darkest">Todo List</h1>
-      <div class="flex mt-4">
+    <div class="mb-4 border border-slate-600 text-center width-full">
+      <h1 class="text-slate-600 text-3xl ">Todo List</h1>
+      <div class="flex mt-3">
         <form phx-submit="create" id="form">
-          <input id="new_todo" class="shadow appearance-none border rounded w-full py-2 px-3 mr-4 text-grey-darker"
+          <input id="new_todo" 
+          class="shadow appearance-none border rounded w-full py-2 px-3 mr-4 text-slate-600 float-left"
             type="text" name="text" placeholder="What is on your mind?" autofocus="" required="required" />
           <button
-            class="flex-no-shrink p-2 border-2 rounded text-teal border-teal hover:text-white hover:bg-teal">Add</button>
+            class="bg-green-600 text-white rounded-xl px-4 py-2 mb-2 mt-3 float-right">
+              Add
+          </button>
         </form>
-
       </div>
     </div>
-    <ul class="flex mb-4 items-center">
 
+    <ul class="flex w-full items-center border border-slate-600">
       <%= for item <- @items do %>
       <li data-id={item.id} class={completed?(item)}>
         <%= if checked?(item) do %>
-          <input class="appearance-none" 
-            type="checkbox" phx-value-id={item.id} phx-click="toggle" checked />
+          <input class="rounded text-pink-500" type="checkbox" 
+            phx-value-id={item.id} phx-click="toggle" checked />
         <% else %>
           <input class="toggle" type="checkbox" phx-value-id={item.id} phx-click="toggle" />
         <% end %>
-        <label class="w-full text-red"><%= item.text %></label>
-        <button class="lex-no-shrink p-2 ml-4 mr-2 border-2 
-          rounded hover:text-white text-grey border-grey hover:bg-grey bg-red" 
+        <label class="w-full text-red text-center">
+          <%= item.text %>
+        </label>
+        <button class="bg-red-600 text-white rounded-xl px-4 py-2 mt-2 float-right" 
           phx-click="delete" phx-value-id={item.id}>Del</button>
       </li>
       <% end %>
