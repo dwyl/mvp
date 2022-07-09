@@ -12,10 +12,12 @@
 alias App.{Person, Status}
 
 # Statuses: github.com/dwyl/statuses
-Statuses.parse_json()
+Statuses.get_statuses()
 |> Enum.each(fn(s) ->
   Status.upsert(%{
-    text: s.text,
+    text: Atom.to_string(s.text) 
+      |> String.split("_", trim: true) 
+      |> Enum.join(" "),
     id: s.code
   })
 end)
