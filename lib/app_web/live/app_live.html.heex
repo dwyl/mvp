@@ -8,7 +8,7 @@
       autofocus="" 
       required="required" />
     <button
-      class="rounded-xl px-4 py-2
+      class="rounded-xl px-4 py-2 mt-1
       bg-green-600 hover:bg-green-700 hover:shadow-lg text-white">
       Save
     </button>
@@ -17,10 +17,10 @@
   <ul class="w-full">
     <%= for item <- @items do %>
     <li data-id={item.id} 
-    class="mt-2 flex w-full border-t border-slate-600 py-2">
+    class="mt-2 flex w-full border-t border-slate-400 py-2">
       <%= if checked?(item) do %>
         <input type="checkbox" phx-value-id={item.id} phx-click="toggle"
-          class="flex-none p-4 m-2 form-checkbox text-slate-500" 
+          class="flex-none p-4 m-2 form-checkbox text-slate-400" 
           checked 
         />
         <label class="w-full text-slate-400  m-2 line-through">
@@ -34,8 +34,8 @@
           <%= item.text %>
         </label>
       <% end %>
-      <button class="bg-red-600 text-white rounded-xl px-2 py-2 mr-2 h-10" 
-        phx-click="delete" phx-value-id={item.id}>Del</button>
+      <button class="bg-green-600 text-white rounded-xl px-2 py-2 mr-2 mt-2 h-10" 
+        phx-click="delete" phx-value-id={item.id}>Start</button>
     </li>
     <% end %>
   </ul>

@@ -62,7 +62,7 @@ defmodule App.MixProject do
       # Useful functions: github.com/dwyl/useful
       {:useful, "~> 1.0.8"},
       # Statuses: github.com/dwyl/statuses
-      {:statuses, "~> 1.0.1"},
+      {:statuses, "~> 1.1"},
       # create docs on localhost by running "mix docs"
       {:ex_doc, "~> 0.22.6", only: :dev, runtime: false},
       # Track test coverage

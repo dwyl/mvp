@@ -16,7 +16,7 @@ Statuses.parse_json()
 |> Enum.each(fn(s) ->
   Status.upsert(%{
     text: s.text,
-    id: Integer.parse(s.id)
+    id: s.code
   })
 end)
 
