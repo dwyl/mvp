@@ -5,6 +5,7 @@
       class="w-full py-2 px-2 text-slate-800 text-3xl
         bg-white bg-clip-padding
         transition ease-in-out
+        border border-b border-slate-200
         focus:border-none focus:outline-none"
       name="text" 
       placeholder="What is on your mind?" 
@@ -21,25 +22,41 @@
   <ul class="w-full">
     <%= for item <- @items do %>
     <li data-id={item.id} 
-    class="mt-2 flex w-full border-t border-slate-200 py-2">
+      class="mt-2 flex w-full border-t border-slate-200 py-2">
+
       <%= if done?(item) do %>
         <input type="checkbox" phx-value-id={item.id} phx-click="toggle"
           class="flex-none p-4 m-2 form-checkbox text-slate-400" 
-          checked 
-        />
+          checked />
         <label class="w-full text-slate-400  m-2 line-through">
           <%= item.text %>
         </label>
+        <button class="bg-red-600 text-white rounded-xl px-2 py-2 mr-2 mt-2 h-10" 
+          phx-click="delete" phx-value-id={item.id}>
+          Delete
+        </button>
       <% else %>
         <input type="checkbox" phx-value-id={item.id} phx-click="toggle"
-          class="flex-none p-4 m-2 form-checkbox hover:text-slate-600" 
-        />
+          class="flex-none p-4 m-2 form-checkbox hover:text-slate-600" />
         <label class="w-full flex-auto text-slate-800 m-2">
           <%= item.text %>
         </label>
+
+        <%= if started?(item, @timer) do %>
+        <!-- render the counting timer! -->
+
+
+          <button class="bg-blue-600 text-white rounded-xl px-2 py-2 mr-2 mt-2 h-10" 
+            phx-click="stop" phx-value-id={item.id} phx-value-timerid={@timer.id}>
+            Stop
+          </button>
+        <% else %>
+          <button class="bg-green-600 text-white rounded-xl px-2 py-2 mr-2 mt-2 h-10" 
+            phx-click="start" phx-value-id={item.id}>
+            Start
+          </button>
+        <% end %>
       <% end %>
-      <button class="bg-green-600 text-white rounded-xl px-2 py-2 mr-2 mt-2 h-10" 
-        phx-click="delete" phx-value-id={item.id}>Start</button>
     </li>
     <% end %>
   </ul>

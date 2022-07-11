@@ -21,6 +21,18 @@ defmodule App.Timer do
     |> validate_required([:item_id, :start])
   end
 
+  @doc """
+  `get_timer/1` gets a single Timer.
+
+  Raises `Ecto.NoResultsError` if the Timer does not exist.
+
+  ## Examples
+
+      iex> get_timer!(123)
+      %Timer{}
+  """
+  def get_timer!(id), do: Repo.get!(Timer, id)
+
 
   @doc """
   `start/1` starts a timer.
@@ -28,15 +40,27 @@ defmodule App.Timer do
   ## Examples
 
       iex> start(%{item_id: 1, })
-      {:ok, %Timer{}}
-
-      iex> create_item(%{item_id: nil})
-      {:error, %Ecto.Changeset{}}
+      {:ok, %Timer{start: ~N[2022-07-11 04:20:42]}}
 
   """
   def start(attrs \\ %{}) do
     %Timer{}
     |> changeset(attrs)
     |> Repo.insert()
+  end
+
+  @doc """
+  `stop/1` stops a timer.
+
+  ## Examples
+
+      iex> stop(%{id: 1})
+      {:ok, %Timer{end: ~N[2022-07-11 05:15:31], etc.}}
+
+  """
+  def stop(attrs \\ %{}) do
+    get_timer!(attrs.id)
+    |> changeset(%{end: NaiveDateTime.utc_now})
+    |> Repo.update()
   end
 end

@@ -55,14 +55,15 @@ defmodule App.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
 
-      # Easily Encrypt Senstive Data: github.com/dwyl/fields
-      {:fields, "~> 2.9"},
       # Auth with ONE Environment Variable™: github.com/dwyl/auth_plug
       {:auth_plug, "~> 1.4"},
+      # Easily Encrypt Senstive Data: github.com/dwyl/fields
+      {:fields, "~> 2.9"},
       # Useful functions: github.com/dwyl/useful
       {:useful, "~> 1.0.8"},
       # Statuses: github.com/dwyl/statuses
       {:statuses, "~> 1.1.1"},
+
       # create docs on localhost by running "mix docs"
       {:ex_doc, "~> 0.22.6", only: :dev, runtime: false},
       # Track test coverage
