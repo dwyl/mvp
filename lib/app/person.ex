@@ -36,4 +36,6 @@ defmodule App.Person do
     |> put_assoc(:status, status)
     |> Repo.insert!()
   end
+
+  def get_person!(id), do: Repo.get!(__MODULE__, id)
 end

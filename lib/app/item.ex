@@ -6,18 +6,18 @@ defmodule App.Item do
   alias __MODULE__
 
   schema "items" do
-    field :person_id, :id
     field :text, :string
 
-    belongs_to :status, App.Status
+    belongs_to :status, App.Status, on_replace: :nilify
+    belongs_to :person, App.Person
     timestamps()
   end
 
   @doc false
   def changeset(item, attrs) do
     item
-    |> cast(attrs, [:text, :person_id])
-    |> validate_required([:text, :person_id])
+    |> cast(attrs, [:text])
+    |> validate_required([:text])
   end
 
   @doc """
@@ -32,9 +32,11 @@ defmodule App.Item do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_item(attrs \\ %{}) do
+  def create_item(attrs \\ %{}, person, status) do
     %Item{}
     |> changeset(attrs)
+    |> put_assoc(:person, person)
+    |> put_assoc(:status, status)
     |> Repo.insert()
   end
 
@@ -68,6 +70,7 @@ defmodule App.Item do
     |> order_by(desc: :inserted_at)
     # |> where([a], is_nil(a.status_code) or a.status_code != 6)
     |> Repo.all()
+    |> Repo.preload([:status])
   end
 
   @doc """
@@ -85,6 +88,14 @@ defmodule App.Item do
   def update_item(%Item{} = item, attrs) do
     item
     |> Item.changeset(attrs)
+    |> Repo.update()
+  end
+
+  def update_status(%Item{} = item, status) do
+    item
+    |> Repo.preload(:status)
+    |> Ecto.Changeset.change()
+    |> put_assoc(:status, status)
     |> Repo.update()
   end
 

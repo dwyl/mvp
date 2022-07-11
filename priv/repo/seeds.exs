@@ -18,13 +18,11 @@ Statuses.get_statuses()
 end)
 
 verified_status = Status.get_by_text!(:verified)
-IO.inspect(verified_status)
 
 Person.create(
   %{
     givenName: "Beyoncé",
-    auth_provider: "Google",
-    status_code: 1
+    auth_provider: "Google"
   },
   verified_status
 )
