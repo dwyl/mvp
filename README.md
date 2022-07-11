@@ -245,11 +245,23 @@ in your terminal:
 
 ```sh
 git clone git@github.com:dwyl/app-mvp-phoenix.git && cd app-mvp-phoenix
+source .env
 mix setup
 ```
 That will download the MVP code, 
 install dependencies
 and create the necessary database + tables.
+
+the line `source .env` load the environment variables required for the
+application to compile and run (see next section).
+
+If for any reason you have an error while running the setup, try to rebuild/compile
+the application by deleting the existing `_build` folder and running the `setup` again:
+
+```sh
+rm -r _build
+mix setup
+```
 
 ## _Single_ Environment Variable: `AUTH_API_KEY`
 

@@ -72,7 +72,7 @@ defmodule App.MixProject do
       {:credo, "~> 1.6.4", only: [:dev, :test], runtime: false},
 
       # Ref: github.com/dwyl/learn-tailwind
-      {:tailwind, "~> 0.1.5", runtime: Mix.env() == :dev}
+      {:tailwind, "~> 0.1", runtime: Mix.env() == :dev}
     ]
   end
 
