@@ -31,7 +31,7 @@
         <label class="w-full text-slate-400  m-2 line-through">
           <%= item.text %>
         </label>
-        <button class="bg-red-600 text-white px-2 py-2 mr-2 mt-2 h-10" 
+        <button class="bg-orange-600 text-white px-2 py-2 mr-2 mt-2 h-10" 
           phx-click="delete" phx-value-id={item.id}>
           Delete
         </button>
@@ -46,7 +46,8 @@
         <%= if started?(item, @timer) do %>
 
           <!-- render the counting timer with Apline.js! see: github.com/dwyl/learn-alpine.js -->
-          <div
+          <div 
+            class=""
             x-data="{
               start: null,
               current: null, 
@@ -56,16 +57,16 @@
             x-init="
               start = Date.now()
               current = start
-              interval = setInterval(() => {current = Date.now()}, 100)
+              interval = setInterval(() => { current = Date.now() }, 100)
             "
             >
-            <p><span x-text="Math.floor((current - start) / 1000)"></span> Seconds</p>
+            <p><span x-text="timer_text(start, current || stop)"
+              class="text-xs text-center font-mono mr-2">00:00:00:00</span></p>
+            <button class="bg-red-500 text-white rounded-xl px-2 py-2 h-10 flex flex-end" 
+              phx-click="stop" phx-value-id={item.id} phx-value-timerid={@timer.id}>
+              Stop
+            </button>
           </div>
-
-          <button class="bg-blue-600 text-white rounded-xl px-2 py-2 mr-2 mt-2 h-10" 
-            phx-click="stop" phx-value-id={item.id} phx-value-timerid={@timer.id}>
-            Stop
-          </button>
 
         <% else %>
           <button class="bg-green-600 text-white rounded-xl px-2 py-2 mr-2 mt-2 h-10" 
@@ -78,3 +79,33 @@
     <% end %>
   </ul>
 </div>
+
+<script>
+	// https://www.theregister.com/2016/03/23/npm_left_pad_chaos/
+	function leftPad(val) {
+		return val < 10 ? '0' + String(val) : val;
+	}
+
+	function timer_text(start, current) {
+		let h="00", m="00", s="00";
+		const diff = current - start;
+		// seconds
+		if(diff > 1000) {
+			s = Math.floor(diff / 1000);
+			s = s > 60 ? s % 60 : s;
+			s = leftPad(s);
+		}
+		// minutes
+		if(diff > 60000) {
+			m = Math.floor(diff/60000);
+			m = m > 60 ? m % 60 : leftPad(m);
+		}
+		// hours
+		if(diff > 3600000) {
+			h = Math.floor(diff/3600000);
+			h = leftPad(h)
+		}
+
+		return h + ':' + m + ':' + s;
+	}
+</script>
