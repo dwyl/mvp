@@ -7,7 +7,7 @@ defmodule App.Item do
 
   schema "items" do
     field :person_id, :id
-    field :status, :id
+    field :status_code, :integer
     field :text, :string
 
     timestamps()
@@ -16,7 +16,7 @@ defmodule App.Item do
   @doc false
   def changeset(item, attrs) do
     item
-    |> cast(attrs, [:text, :person_id, :status])
+    |> cast(attrs, [:text, :person_id, :status_code])
     |> validate_required([:text, :person_id])
   end
 
@@ -66,7 +66,7 @@ defmodule App.Item do
   def list_items do
     Item
     |> order_by(desc: :inserted_at)
-    |> where([a], is_nil(a.status) or a.status != 6)
+    |> where([a], is_nil(a.status_code) or a.status_code != 6)
     |> Repo.all()
   end
 
@@ -91,7 +91,7 @@ defmodule App.Item do
   # "soft" delete
   def delete_item(id) do
     get_item!(id)
-    |> Item.changeset(%{status: 6})
+    |> Item.changeset(%{status_code: 6})
     |> Repo.update()
   end
 end

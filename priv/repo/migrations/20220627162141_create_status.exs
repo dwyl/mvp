@@ -4,6 +4,7 @@ defmodule App.Repo.Migrations.CreateStatus do
   def change do
     create table(:status) do
       add :text, :string
+      add :status_code, :integer
 
       timestamps()
     end

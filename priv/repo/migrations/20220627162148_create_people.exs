@@ -8,11 +8,11 @@ defmodule App.Repo.Migrations.CreatePeople do
       add :key_id, :integer
       add :picture, :binary
       add :locale, :string
-      add :status_id, references(:status, on_delete: :nothing)
+      add :status_code, :integer
 
       timestamps()
     end
 
-    create index(:people, [:status_id])
+    create index(:people, [:status_code])
   end
 end

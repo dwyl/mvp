@@ -2,9 +2,9 @@
 
 # @dwyl App MVP `Phoenix`  💡⏳ ✅
 
-A `Phoenix` implementation
-of the @dwyl App 
-[MVP feature set](https://github.com/dwyl/app/issues/266).
+A **`Phoenix`** implementation
+of the **@dwyl App**
+[**MVP** feature set](https://github.com/dwyl/app/issues/266).
 
 [![Build Status](https://img.shields.io/travis/com/dwyl/app-mvp-phoenix/master?color=bright-green&style=flat-square)](https://travis-ci.org/dwyl/app-mvp-phoenix)
 [![codecov.io](https://img.shields.io/codecov/c/github/dwyl/app-mvp-phoenix/master.svg?style=flat-square)](https://codecov.io/github/dwyl/app-mvp-phoenix?branch=master)
@@ -614,8 +614,8 @@ Run the following
 commands:
 
 ```sh
-mix phx.gen.schema Status status text:string
-mix phx.gen.schema Person people givenName:binary auth_provider:string key_id:integer status_id:references:status picture:binary locale:string
+mix phx.gen.schema Status status text:string status_code:integer
+mix phx.gen.schema Person people givenName:binary auth_provider:string key_id:integer status_code:integer picture:binary locale:string
 mix phx.gen.schema Item items text:string person_id:references:people status:references:status
 mix phx.gen.schema Timer timers item_id:references:items start:naive_datetime end:naive_datetime person_id:references:people
 ```

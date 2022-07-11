@@ -10,7 +10,7 @@ defmodule App.Person do
     field :key_id, :integer
     field :locale, :string
     field :picture, Fields.Encrypted
-    field :status_id, :id
+    field :status_code, :integer
 
     timestamps()
   end
@@ -18,7 +18,7 @@ defmodule App.Person do
   @doc false
   def changeset(person, attrs) do
     person
-    |> cast(attrs, [:givenName, :auth_provider, :key_id, :picture, :locale, :status_id])
+    |> cast(attrs, [:givenName, :auth_provider, :key_id, :picture, :locale, :status_code])
     |> validate_required([:givenName, :auth_provider])
   end
   

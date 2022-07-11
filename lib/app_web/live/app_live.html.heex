@@ -2,11 +2,15 @@
   <form phx-submit="create" 
     class="w-full lg:w-3/4 lg:max-w-lg text-center mx-auto">
     <textarea 
-      class="w-full py-2 px-2 text-slate-800 text-3xl"
+      class="w-full py-2 px-2 text-slate-800 text-3xl
+        bg-white bg-clip-padding
+        transition ease-in-out
+        focus:border-none focus:outline-none"
       name="text" 
       placeholder="What is on your mind?" 
       autofocus="" 
-      required="required" />
+      required="required" 
+    ></textarea>
     <button
       class="rounded-xl px-4 py-2 mt-1
       bg-green-600 hover:bg-green-700 hover:shadow-lg text-white">
@@ -17,8 +21,8 @@
   <ul class="w-full">
     <%= for item <- @items do %>
     <li data-id={item.id} 
-    class="mt-2 flex w-full border-t border-slate-400 py-2">
-      <%= if checked?(item) do %>
+    class="mt-2 flex w-full border-t border-slate-200 py-2">
+      <%= if done?(item) do %>
         <input type="checkbox" phx-value-id={item.id} phx-click="toggle"
           class="flex-none p-4 m-2 form-checkbox text-slate-400" 
           checked 

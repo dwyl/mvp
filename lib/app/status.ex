@@ -6,6 +6,7 @@ defmodule App.Status do
 
   schema "status" do
     field :text, :string
+    field :status_code, :integer
 
     timestamps()
   end
@@ -13,14 +14,14 @@ defmodule App.Status do
   @doc false
   def changeset(status, attrs) do
     status
-    |> cast(attrs, [:text])
+    |> cast(attrs, [:text, :status_code])
     |> validate_required([:text])
   end
 
   def create(attrs) do
     %Status{}
     |> changeset(attrs)
-    |> Repo.insert!()
+    |> Repo.insert()
   end
 
   def upsert(attrs) do
@@ -30,7 +31,7 @@ defmodule App.Status do
         create(attrs)
 
       status ->
-        status
+        {:ok, status}
     end
   end
 

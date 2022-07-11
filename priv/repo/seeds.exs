@@ -18,13 +18,12 @@ Statuses.get_statuses()
     text: Atom.to_string(s.text) 
       |> String.split("_", trim: true) 
       |> Enum.join(" "),
-    id: s.code
+    status_code: s.code
   })
 end)
-
 
 Person.create(%{
   givenName: "Beyoncé",
   auth_provider: "Google",
-  status_id: 1
+  status_code: 1
 })
