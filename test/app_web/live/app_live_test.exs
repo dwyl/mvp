@@ -52,5 +52,19 @@ defmodule AppWeb.AppLiveTest do
 
     {:ok, view, _html} = live(conn, "/")
     assert render_click(view, :stop, %{"id" => item.id, "timerid" => timer.id}) =~ "mind"
+    # timestamp = 
+    # assert AppWeb.AppLive.timestamp(timer) ==
+  end
+
+  # This test is just to ensure coverage of the handle_info/2 function
+  # It's not required but we like to have 100% coverage.
+  # https://stackoverflow.com/a/60852290/1148249
+  test "handle_info/2", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+    {:ok, item} = Item.create_item(%{text: "Always Learning", person_id: 1})
+    started = NaiveDateTime.utc_now
+    {:ok, timer} = Timer.start(%{item_id: item.id, start: started})
+    send(view.pid, %{event: "start|stop", payload: %{items: Item.list_items(), timer: timer }})
+    assert render(view) =~ item.text
   end
 end

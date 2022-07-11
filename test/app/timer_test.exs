@@ -34,7 +34,8 @@ defmodule App.TimerTest do
       {:ok, timer} = Timer.start(%{item_id: item.id, person_id: 1, start: started})
       assert NaiveDateTime.diff(timer.start, started) == 0
 
-      IO.puts "waiting 1 second ... " ; :timer.sleep(1000); IO.puts "done"
+      # IO.puts "waiting 1 second ... " ; :timer.sleep(1000); IO.puts "done"
+      Process.sleep(1000)
 
       ended = NaiveDateTime.utc_now
       {:ok, timer} = Timer.stop(%{id: timer.id, end: ended})

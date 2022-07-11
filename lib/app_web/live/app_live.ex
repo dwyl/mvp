@@ -45,10 +45,10 @@ defmodule AppWeb.AppLive do
     item = Item.get_item!(Map.get(data, "id"))
     # Item.update_item(item, %{id: item.id, status_code: status})
     {:ok, timer} = Timer.start(%{item_id: item.id, person_id: 1, start: NaiveDateTime.utc_now})
-    IO.inspect(timer)
+    # IO.inspect(timer)
 
     socket = assign(socket, items: Item.list_items(), active: %Item{}, timer: timer)
-    AppWeb.Endpoint.broadcast_from(self(), @topic, "start", socket.assigns)
+    AppWeb.Endpoint.broadcast_from(self(), @topic, "start|stop", socket.assigns)
     {:noreply, socket}
   end
 
@@ -61,12 +61,17 @@ defmodule AppWeb.AppLive do
     timer_id = Map.get(data, "timerid")
     # IO.inspect(timer_id, label: "timer_id")
     # Item.update_item(item, %{id: item.id, status_code: status})
-    {:ok, timer} = Timer.stop(%{id: timer_id})
+    {:ok, _timer} = Timer.stop(%{id: timer_id})
     # IO.inspect(timer)
 
-    socket = assign(socket, items: Item.list_items(), active: %Item{}, timer: timer)
-    AppWeb.Endpoint.broadcast_from(self(), @topic, "start", socket.assigns)
+    socket = assign(socket, items: Item.list_items(), active: %Item{}, timer: %Timer{})
+    AppWeb.Endpoint.broadcast_from(self(), @topic, "start|stop", socket.assigns)
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info(%{event: "start|stop", payload: %{items: items, timer: timer}}, socket) do
+    {:noreply, assign(socket, items: items, timer: timer)}
   end
 
   # helper function that checks for status 4 (:done)
@@ -79,4 +84,8 @@ defmodule AppWeb.AppLive do
     # IO.inspect(timer, label: "timer")
     item.id == timer.item_id
   end
+
+  # def timestamp(timer) do
+  #   timer.start |> DateTime.from_naive("Etc/UTC") |> DateTime.to_unix() |> IO.inspect()
+  # end
 end

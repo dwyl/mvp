@@ -31,7 +31,7 @@
         <label class="w-full text-slate-400  m-2 line-through">
           <%= item.text %>
         </label>
-        <button class="bg-red-600 text-white rounded-xl px-2 py-2 mr-2 mt-2 h-10" 
+        <button class="bg-red-600 text-white px-2 py-2 mr-2 mt-2 h-10" 
           phx-click="delete" phx-value-id={item.id}>
           Delete
         </button>
@@ -42,14 +42,31 @@
           <%= item.text %>
         </label>
 
-        <%= if started?(item, @timer) do %>
-        <!-- render the counting timer! -->
 
+        <%= if started?(item, @timer) do %>
+
+          <!-- render the counting timer with Apline.js! see: github.com/dwyl/learn-alpine.js -->
+          <div
+            x-data="{
+              start: null,
+              current: null, 
+              stop: null, 
+              interval: null
+            }"
+            x-init="
+              start = Date.now()
+              current = start
+              interval = setInterval(() => {current = Date.now()}, 100)
+            "
+            >
+            <p><span x-text="Math.floor((current - start) / 1000)"></span> Seconds</p>
+          </div>
 
           <button class="bg-blue-600 text-white rounded-xl px-2 py-2 mr-2 mt-2 h-10" 
             phx-click="stop" phx-value-id={item.id} phx-value-timerid={@timer.id}>
             Stop
           </button>
+
         <% else %>
           <button class="bg-green-600 text-white rounded-xl px-2 py-2 mr-2 mt-2 h-10" 
             phx-click="start" phx-value-id={item.id}>
