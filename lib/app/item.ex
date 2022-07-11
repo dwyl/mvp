@@ -66,11 +66,13 @@ defmodule App.Item do
 
   """
   def list_items do
-    Item
-    |> order_by(desc: :inserted_at)
-    # |> where([a], is_nil(a.status_code) or a.status_code != 6)
-    |> Repo.all()
-    |> Repo.preload([:status])
+    query =
+      from i in Item,
+        join: s in assoc(i, :status),
+        where: s.text != :deleted,
+        preload: [status: s]
+
+    Repo.all(query)
   end
 
   @doc """
@@ -96,13 +98,6 @@ defmodule App.Item do
     |> Repo.preload(:status)
     |> Ecto.Changeset.change()
     |> put_assoc(:status, status)
-    |> Repo.update()
-  end
-
-  # "soft" delete
-  def delete_item(id) do
-    get_item!(id)
-    |> Item.changeset(%{status_code: 6})
     |> Repo.update()
   end
 end

@@ -17,7 +17,7 @@ defmodule AppWeb.AppLive do
   def handle_event("create", %{"text" => text}, socket) do
     person = Person.get_person!(1)
     status = Status.get_by_text!(:uncategorized)
-    Item.create_item(%{text: text, status_code: 2}, person, status)
+    Item.create_item(%{text: text}, person, status)
 
     socket =
       assign(socket, items: Item.list_items(), active: %Item{}, timer: %Timer{})
@@ -48,7 +48,9 @@ defmodule AppWeb.AppLive do
 
   @impl true
   def handle_event("delete", %{"id" => item_id}, socket) do
-    Item.delete_item(item_id)
+    deleted_status = Status.get_by_text!(:deleted)
+    item = Item.get_item!(item_id)
+    Item.update_status(item, deleted_status)
 
     socket =
       assign(socket, items: Item.list_items(), active: %Item{}, timer: %Timer{})

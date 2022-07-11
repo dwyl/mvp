@@ -7,7 +7,6 @@ defmodule App.ItemTest do
     @update_attrs %{text: "some updated text", status_code: 1}
     @invalid_attrs %{text: nil}
 
-
     def item_fixture(attrs \\ %{}) do
       {:ok, item} =
         attrs
@@ -46,12 +45,6 @@ defmodule App.ItemTest do
       item = item_fixture()
       assert {:ok, %Item{} = item} = Item.update_item(item, @update_attrs)
       assert item.text == "some updated text"
-    end
-
-    test "delete_item/1 soft-deltes an item" do
-      item = item_fixture()
-      assert {:ok, %Item{} = deleted_item} = Item.delete_item(item.id)
-      assert deleted_item.status_code == 6
     end
   end
 end
