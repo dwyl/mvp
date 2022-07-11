@@ -73,7 +73,7 @@ defmodule App.MixProject do
       {:credo, "~> 1.6.4", only: [:dev, :test], runtime: false},
 
       # Ref: github.com/dwyl/learn-tailwind
-      {:tailwind, "~> 0.1.5", runtime: Mix.env() == :dev},
+      {:tailwind, "~> 0.1", runtime: Mix.env() == :dev}
     ]
   end
 
@@ -86,14 +86,22 @@ defmodule App.MixProject do
   defp aliases do
     [
       seeds: ["run priv/repo/seeds.exs"],
-      setup: ["deps.get", "ecto.setup", "tailwind.install"],
-      "ecto.setup": ["ecto.create --quiet", "ecto.migrate --quiet", "run priv/repo/seeds.exs"],
-      "ecto.reset": ["ecto.drop", "ecto.setup"],
-      "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"],
+      setup: ["deps.get", "ecto.reset", "tailwind.install"],
+      "ecto.setup": [
+        "ecto.create --quiet",
+        "ecto.migrate --quiet",
+        "run priv/repo/seeds.exs"
+      ],
+      "ecto.reset": ["ecto.drop --quiet", "ecto.setup"],
+      "assets.deploy": [
+        "tailwind default --minify",
+        "esbuild default --minify",
+        "phx.digest"
+      ],
       test: ["ecto.reset", "test"],
       t: ["test"],
       c: ["coveralls.html"],
-      s: ["phx.server"],
+      s: ["phx.server"]
     ]
   end
 end
