@@ -7,16 +7,16 @@ defmodule App.Item do
 
   schema "items" do
     field :person_id, :id
-    field :status_code, :integer
     field :text, :string
 
+    belongs_to :status, App.Status
     timestamps()
   end
 
   @doc false
   def changeset(item, attrs) do
     item
-    |> cast(attrs, [:text, :person_id, :status_code])
+    |> cast(attrs, [:text, :person_id])
     |> validate_required([:text, :person_id])
   end
 
@@ -55,7 +55,7 @@ defmodule App.Item do
   def get_item!(id), do: Repo.get!(Item, id)
 
   @doc """
-  Returns the list of items.
+  Returns the list of items where the status is different to "deleted"
 
   ## Examples
 
@@ -66,7 +66,7 @@ defmodule App.Item do
   def list_items do
     Item
     |> order_by(desc: :inserted_at)
-    |> where([a], is_nil(a.status_code) or a.status_code != 6)
+    # |> where([a], is_nil(a.status_code) or a.status_code != 6)
     |> Repo.all()
   end
 

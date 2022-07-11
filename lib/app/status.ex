@@ -6,7 +6,10 @@ defmodule App.Status do
 
   schema "status" do
     field :text, App.EctoAtom
-    field :status_code, :integer
+    field :code, :integer
+
+    has_many :items, App.Item
+    has_many :person, App.Person
 
     timestamps()
   end
@@ -14,8 +17,9 @@ defmodule App.Status do
   @doc false
   def changeset(status, attrs) do
     status
-    |> cast(attrs, [:text, :status_code])
+    |> cast(attrs, [:text, :code])
     |> validate_required([:text])
+    |> unique_constraint(:text)
   end
 
   def create(attrs) do
@@ -23,6 +27,8 @@ defmodule App.Status do
     |> changeset(attrs)
     |> Repo.insert()
   end
+
+  def get_by_text!(text), do: Repo.get_by!(__MODULE__, text: text)
 
   def upsert(attrs) do
     case Repo.get_by(__MODULE__, text: attrs.text) do

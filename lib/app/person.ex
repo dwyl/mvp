@@ -10,7 +10,8 @@ defmodule App.Person do
     field :key_id, :integer
     field :locale, :string
     field :picture, Fields.Encrypted
-    field :status_code, :integer
+
+    belongs_to :status, App.Status
 
     timestamps()
   end
@@ -18,13 +19,21 @@ defmodule App.Person do
   @doc false
   def changeset(person, attrs) do
     person
-    |> cast(attrs, [:givenName, :auth_provider, :key_id, :picture, :locale, :status_code])
+    |> cast(attrs, [
+      :givenName,
+      :auth_provider,
+      :key_id,
+      :picture,
+      :locale
+    ])
     |> validate_required([:givenName, :auth_provider])
   end
-  
-  def create(attrs) do
+
+  def create(attrs, status) do
     %Person{}
+    |> Repo.preload(:status)
     |> changeset(attrs)
+    |> put_assoc(:status, status)
     |> Repo.insert!()
   end
 end
