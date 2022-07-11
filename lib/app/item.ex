@@ -54,7 +54,7 @@ defmodule App.Item do
       ** (Ecto.NoResultsError)
 
   """
-  def get_item!(id), do: Repo.get!(Item, id)
+  def get_item!(id), do: Repo.get!(Item, id) |> Repo.preload(:status)
 
   @doc """
   Returns the list of items where the status is different to "deleted"
