@@ -3,16 +3,14 @@ defmodule App.Repo.Migrations.CreatePeople do
 
   def change do
     create table(:people) do
-      add :givenName, :binary
-      add :auth_provider, :string
-      add :key_id, :integer
-      add :picture, :binary
-      add :locale, :string
-      add :status_code, :integer
+      add(:givenName, :binary)
+      add(:auth_provider, :string)
+      add(:key_id, :integer)
+      add(:picture, :binary)
+      add(:locale, :string)
+      add(:status_id, references(:status, on_delete: :nothing))
 
       timestamps()
     end
-
-    create index(:people, [:status_code])
   end
 end

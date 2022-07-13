@@ -1,6 +1,6 @@
 defmodule AppWeb.AppLive do
   use AppWeb, :live_view
-  alias App.{Item, Timer}
+  alias App.{Item, Person, Status, Timer}
 
   @topic "live"
 
@@ -8,13 +8,20 @@ defmodule AppWeb.AppLive do
   def mount(_params, _session, socket) do
     # subscribe to the channel
     if connected?(socket), do: AppWeb.Endpoint.subscribe(@topic)
-    {:ok, assign(socket, items: Item.list_items(), editing: nil, timer: %Timer{})}
+
+    {:ok,
+     assign(socket, items: Item.list_items(), editing: nil, timer: %Timer{})}
   end
 
   @impl true
   def handle_event("create", %{"text" => text}, socket) do
-    Item.create_item(%{text: text, person_id: 1, status_code: 2})
-    socket = assign(socket, items: Item.list_items(), active: %Item{}, timer: %Timer{})
+    person = Person.get_person!(1)
+    status = Status.get_by_text!(:uncategorized)
+    Item.create_item(%{text: text}, person, status)
+
+    socket =
+      assign(socket, items: Item.list_items(), active: %Item{}, timer: %Timer{})
+
     AppWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
     {:noreply, socket}
   end
@@ -22,18 +29,32 @@ defmodule AppWeb.AppLive do
   @impl true
   def handle_event("toggle", data, socket) do
     # Toggle the status of the item between 3 (:active) and 4 (:done)
-    status = if Map.has_key?(data, "value"), do: 4, else: 3
+    status =
+      if Map.has_key?(data, "value") do
+        Status.get_by_text!(:done)
+      else
+        Status.get_by_text!(:active)
+      end
+
     item = Item.get_item!(Map.get(data, "id"))
-    Item.update_item(item, %{id: item.id, status_code: status})
-    socket = assign(socket, items: Item.list_items(), active: %Item{}, timer: %Timer{})
+    Item.update_status(item, status)
+
+    socket =
+      assign(socket, items: Item.list_items(), active: %Item{}, timer: %Timer{})
+
     AppWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
     {:noreply, socket}
   end
 
   @impl true
-  def handle_event("delete", data, socket) do
-    Item.delete_item(Map.get(data, "id"))
-    socket = assign(socket, items: Item.list_items(), active: %Item{}, timer: %Timer{})
+  def handle_event("delete", %{"id" => item_id}, socket) do
+    deleted_status = Status.get_by_text!(:deleted)
+    item = Item.get_item!(item_id)
+    Item.update_status(item, deleted_status)
+
+    socket =
+      assign(socket, items: Item.list_items(), active: %Item{}, timer: %Timer{})
+
     AppWeb.Endpoint.broadcast_from(self(), @topic, "delete", socket.assigns)
     {:noreply, socket}
   end
@@ -44,10 +65,18 @@ defmodule AppWeb.AppLive do
     # status = if Map.has_key?(data, "value"), do: 4, else: 3
     item = Item.get_item!(Map.get(data, "id"))
     # Item.update_item(item, %{id: item.id, status_code: status})
-    {:ok, timer} = Timer.start(%{item_id: item.id, person_id: 1, start: NaiveDateTime.utc_now})
+    {:ok, timer} =
+      Timer.start(%{
+        item_id: item.id,
+        person_id: 1,
+        start: NaiveDateTime.utc_now()
+      })
+
     # IO.inspect(timer)
 
-    socket = assign(socket, items: Item.list_items(), active: %Item{}, timer: timer)
+    socket =
+      assign(socket, items: Item.list_items(), active: %Item{}, timer: timer)
+
     AppWeb.Endpoint.broadcast_from(self(), @topic, "start|stop", socket.assigns)
     {:noreply, socket}
   end
@@ -64,20 +93,23 @@ defmodule AppWeb.AppLive do
     {:ok, _timer} = Timer.stop(%{id: timer_id})
     # IO.inspect(timer)
 
-    socket = assign(socket, items: Item.list_items(), active: %Item{}, timer: %Timer{})
+    socket =
+      assign(socket, items: Item.list_items(), active: %Item{}, timer: %Timer{})
+
     AppWeb.Endpoint.broadcast_from(self(), @topic, "start|stop", socket.assigns)
     {:noreply, socket}
   end
 
   @impl true
-  def handle_info(%{event: "start|stop", payload: %{items: items, timer: timer}}, socket) do
+  def handle_info(
+        %{event: "start|stop", payload: %{items: items, timer: timer}},
+        socket
+      ) do
     {:noreply, assign(socket, items: items, timer: timer)}
   end
 
   # helper function that checks for status 4 (:done)
-  def done?(item) do
-    not is_nil(item.status_code) and item.status_code == 4
-  end
+  def done?(item), do: item.status.text == :done
 
   def started?(item, timer) do
     # IO.inspect(item, label: "item")

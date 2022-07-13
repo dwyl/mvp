@@ -13,15 +13,16 @@ alias App.{Person, Status}
 
 # Statuses: github.com/dwyl/statuses
 Statuses.get_statuses()
-|> Enum.each(fn s ->
-  Status.upsert(%{
-    text: s.text,
-    status_code: s.code
-  })
+|> Enum.each(fn status ->
+  Status.upsert(Map.from_struct(status))
 end)
 
-Person.create(%{
-  givenName: "Beyoncé",
-  auth_provider: "Google",
-  status_code: 1
-})
+verified_status = Status.get_by_text!(:verified)
+
+Person.create(
+  %{
+    givenName: "Beyoncé",
+    auth_provider: "Google"
+  },
+  verified_status
+)
