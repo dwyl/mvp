@@ -5,7 +5,7 @@ defmodule App.Status do
   alias __MODULE__
 
   schema "status" do
-    field :text, :string
+    field :text, App.EctoAtom
     field :status_code, :integer
 
     timestamps()
@@ -34,5 +34,4 @@ defmodule App.Status do
         {:ok, status}
     end
   end
-
 end
