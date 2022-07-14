@@ -44,7 +44,6 @@ of the **@dwyl App**
     - [_Explanation_ of the Schemas](#explanation-of-the-schemas)
       - [`person`](#person)
       - [`item`](#item)
-      - [`status`](#status)
       - [`timer`](#timer)
     - [2.1 Run Tests!](#21-run-tests)
   - [3. Input Items!](#3-input-items)
@@ -626,9 +625,8 @@ Run the following
 commands:
 
 ```sh
-mix phx.gen.schema Status status text:string status_code:integer
 mix phx.gen.schema Person people givenName:binary auth_provider:string key_id:integer status_code:integer picture:binary locale:string
-mix phx.gen.schema Item items text:string person_id:references:people status:references:status
+mix phx.gen.schema Item items text:string person_id:references:people status_code:integer
 mix phx.gen.schema Timer timers item_id:references:items start:naive_datetime end:naive_datetime person_id:references:people
 ```
 
@@ -637,7 +635,7 @@ we have the following database
 [Entity Relationship Diagram](https://en.wikipedia.org/wiki/Entity%E2%80%93relationship_model)
 (ERD):
 
-![mvp-erd-without-associations](https://user-images.githubusercontent.com/194400/177014286-cefc55e8-510f-44dd-befb-59f6e3315fd7.png)
+![mvp-erd-without-associations](https://user-images.githubusercontent.com/194400/178869576-c6aff9d7-1bc3-43ff-80ac-71b3e86363dd.png)
 
 <!-- probably not needed ...
 > **Note**: We used 
@@ -648,8 +646,8 @@ generator which creates a _lot_ of
 [boilerplate code](https://github.com/dwyl/app-mvp-phoenix/issues/89#issuecomment-1167548207).
 -->
 
-In this step we created **4 database tables**;
-`items`, `people`, `status` and `timers`.
+In this step we created **3 database tables**;
+`items`, `people` and `timers`.
 Let's run through them.
 
 ### _Explanation_ of the Schemas
@@ -671,7 +669,10 @@ The `person` _using_ the App
 used to encrypt personal data (NOT the key itself!)
 see:
 [dwyl/phoenix-ecto-**encryption**-**example**](https://github.com/dwyl/phoenix-ecto-encryption-example)
-+ `status_id`: `Int` (**FK** `status.id`) - e.g: "0: unverified, 1: verified", etc.
++ `status_code`: `Integer` - e.g: "0: unverified, 1: verified", etc.
+  For the list of available statuses, 
+  please see: 
+  [github.com/dwyl/statuses](https://github.com/dwyl/statuses)
 
 #### `item`
 
@@ -685,71 +686,10 @@ for what we are building later on.
 + `inserted_at`: `Timestamp` - created/managed by `Phoenix`
 + `updated_at`: `Timestamp`
 + `text`: `Binary` (_encrypted_) - the free text you want to capture.
-+ `person_id`: `Int` 
-  ([**FK**](https://en.wikipedia.org/wiki/Foreign_key)  
++ `person_id`: `Integer` 
     `person.id` the "owner" of the `item`)
-+ `status_id`: `Int` (**FK** `status.id`) the `status` of the `item` 
++ `status_code`: `Integer`  the `status` of the `item` 
   e.g: "in progress"
-
-#### `status`
-
-The `status` of an `item` or `person`.
-
-+ `id`: `Int`
-+ `inserted_at`: `Timestamp`
-+ `updated_at`: `Timestamp`
-+ `person_id`: `Int` (**FK** `person.id` - the person
-    who defined/updated the status)
-+ `text`: `String` - examples:
-  + "unverified" - for a person that has not verified their email address
-  + "verified" - for a person who's identity has been verified.
-  + "open"
-  + "in_progress"
-  + "complete"
-  + [etc.](https://github.com/dwyl/checklist/pull/3/files#diff-597edb4596faa11c05c29c0d3a8cf94a)
-
-`status` is _deliberately_ both versatile and limited.
-We want to be able to apply a _single_ `status`
-to a `person` or `item` at any given time.
-i.e. an `item` cannot be `status` `"active"` and `"done"`
-at the same time.
-
-<!--
-We _could_ have just used `tags` for everything,
-e.g. (SQL pseudocode) 
-
-```sql
-SELECT * FROM items
-JOIN items_tags ON
-  item_tags.item_id = item.id
-JOIN tags on 
-  item_tags.tag_id = tags.id
-WHERE
-  item.person_id = 42
-AND
-  tags.text = 'open';
-```
-
-However we _prefer_ to have `status` 
-_distinct_ from `tags` 
-because we feel it makes it 
-easier to reason about.
-
-e.g:
-
-```sql
-SELECT * FROM items WHERE person_id = 4 AND status_id = 1; -- i.e. 'open'
-```
-
-No join required. 
-The `status_id = 1`
-is defined by the App
-so can be hard-coded.
--->
-
-> **Note**: the plural form of "status" is "status":
-https://english.stackexchange.com/questions/877/plural-form-of-status
-
 
 #### `timer`
 
@@ -772,32 +712,6 @@ of the amount of time that has
 been taken.
 
 <br />
-
-<!--
-#### Schema Notes
-
-If naming things is 
-[hard](https://martinfowler.com/bliki/TwoHardThings.html),
-choosing names for schemas/fields is **_extra_ hard_**,
-because once **APIs** are defined
-it can be a _mission_ to modify them
-because **_changing_ APIs "_breaks_" _everything_**!
-We have been thinking about,
-researching and iterating on this idea for a _long_ time.
-Our _hope_ is that it will be obvious to everyone _why_
-a certain database table is named the way it is,
-but if not, 
-[please open an issue/question](https://github.com/nelsonic/time-mvp-phoenix/issues)
-to seek clarification. 
-
-<sup>1</sup> We are using the `default` Phoenix auto-incrementing `id`
-for all `id` fields in this MVP. When we _need_ to make the App "offline first"
-we will transition to a Globally Unique [ContentID](https://github.com/dwyl/cid)
-
--->
-
-<br />
-
 
 ### 2.1 Run Tests!
 

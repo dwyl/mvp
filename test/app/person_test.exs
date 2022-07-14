@@ -1,6 +1,6 @@
 defmodule App.PersonTest do
   use App.DataCase
-  alias App.{Person, Status}
+  alias App.Person
 
   describe "person/people" do
     # test "get!/1 returns the person with given id" do
@@ -9,20 +9,19 @@ defmodule App.PersonTest do
     # end
 
     test "create/1 with valid data creates a person" do
-      status = Status.get_by_text!(:verified)
 
       person =
         Person.create(
           %{
             givenName: "aLeX",
             auth_provider: "dwyl",
-            local: "SoCal"
-          },
-          status
+            local: "SoCal",
+            status_code: 1
+          }
         )
 
       assert person.givenName == "aLeX"
-      assert person.status.code == 1
+      assert person.status_code == 1
     end
   end
 end

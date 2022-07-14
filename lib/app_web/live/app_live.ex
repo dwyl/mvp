@@ -1,6 +1,6 @@
 defmodule AppWeb.AppLive do
   use AppWeb, :live_view
-  alias App.{Item, Person, Status, Timer}
+  alias App.{Item, Timer}
 
   @topic "live"
 
@@ -15,9 +15,7 @@ defmodule AppWeb.AppLive do
 
   @impl true
   def handle_event("create", %{"text" => text}, socket) do
-    person = Person.get_person!(1)
-    status = Status.get_by_text!(:uncategorized)
-    Item.create_item(%{text: text}, person, status)
+    Item.create_item(%{text: text, person_id: 1, status_code: 2})
 
     socket =
       assign(socket, items: Item.list_items(), active: %Item{}, timer: %Timer{})
@@ -29,15 +27,10 @@ defmodule AppWeb.AppLive do
   @impl true
   def handle_event("toggle", data, socket) do
     # Toggle the status of the item between 3 (:active) and 4 (:done)
-    status =
-      if Map.has_key?(data, "value") do
-        Status.get_by_text!(:done)
-      else
-        Status.get_by_text!(:active)
-      end
+    status = if Map.has_key?(data, "value"), do: 4, else: 3
 
     item = Item.get_item!(Map.get(data, "id"))
-    Item.update_status(item, status)
+    Item.update_item(item, %{status_code: status})
 
     socket =
       assign(socket, items: Item.list_items(), active: %Item{}, timer: %Timer{})
@@ -48,9 +41,7 @@ defmodule AppWeb.AppLive do
 
   @impl true
   def handle_event("delete", %{"id" => item_id}, socket) do
-    deleted_status = Status.get_by_text!(:deleted)
-    item = Item.get_item!(item_id)
-    Item.update_status(item, deleted_status)
+    Item.delete_item(item_id)
 
     socket =
       assign(socket, items: Item.list_items(), active: %Item{}, timer: %Timer{})
@@ -71,8 +62,6 @@ defmodule AppWeb.AppLive do
         person_id: 1,
         start: NaiveDateTime.utc_now()
       })
-
-    # IO.inspect(timer)
 
     socket =
       assign(socket, items: Item.list_items(), active: %Item{}, timer: timer)
@@ -119,7 +108,7 @@ defmodule AppWeb.AppLive do
   end
 
   # helper function that checks for status 4 (:done)
-  def done?(item), do: item.status.text == :done
+  def done?(item), do: item.status_code == 4
 
   def started?(item, timer) do
     # IO.inspect(item, label: "item")

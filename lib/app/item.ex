@@ -7,16 +7,16 @@ defmodule App.Item do
 
   schema "items" do
     field :text, :string
-
-    belongs_to :status, App.Status, on_replace: :nilify
-    belongs_to :person, App.Person
+    field :status_code, :integer
+    field :person_id, :integer
+    
     timestamps()
   end
 
   @doc false
   def changeset(item, attrs) do
     item
-    |> cast(attrs, [:text])
+    |> cast(attrs, [:text, :status_code, :person_id])
     |> validate_required([:text])
   end
 
@@ -32,11 +32,9 @@ defmodule App.Item do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_item(attrs \\ %{}, person, status) do
+  def create_item(attrs) do
     %Item{}
     |> changeset(attrs)
-    |> put_assoc(:person, person)
-    |> put_assoc(:status, status)
     |> Repo.insert()
   end
 
@@ -54,7 +52,7 @@ defmodule App.Item do
       ** (Ecto.NoResultsError)
 
   """
-  def get_item!(id), do: Repo.get!(Item, id) |> Repo.preload(:status)
+  def get_item!(id), do: Repo.get!(Item, id)
 
   @doc """
   Returns the list of items where the status is different to "deleted"
@@ -66,13 +64,10 @@ defmodule App.Item do
 
   """
   def list_items do
-    query =
-      from i in Item,
-        join: s in assoc(i, :status),
-        where: s.text != :deleted,
-        preload: [status: s]
-
-    Repo.all(query)
+    Item
+    |> order_by(desc: :inserted_at)
+    |> where([a], is_nil(a.status_code) or a.status_code != 6)
+    |> Repo.all()
   end
 
   @doc """
@@ -93,11 +88,9 @@ defmodule App.Item do
     |> Repo.update()
   end
 
-  def update_status(%Item{} = item, status) do
-    item
-    |> Repo.preload(:status)
-    |> Ecto.Changeset.change()
-    |> put_assoc(:status, status)
+  def delete_item(id) do
+    get_item!(id)
+    |> Item.changeset(%{status_code: 6})
     |> Repo.update()
   end
 end

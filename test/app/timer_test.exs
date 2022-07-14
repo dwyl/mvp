@@ -1,26 +1,12 @@
 defmodule App.TimerTest do
   use App.DataCase
-  alias App.{Item, Person, Status, Timer}
+  alias App.{Item, Timer}
 
   describe "timers" do
     @valid_item_attrs %{text: "some text", person_id: 1}
-    # @update_attrs %{text: "some updated text", status: 1}
-    # @invalid_attrs %{text: nil}
-
-    def item_fixture(attrs \\ %{}) do
-      person = Person.get_person!(1)
-      status = Status.get_by_text!(:uncategorized)
-
-      {:ok, item} =
-        attrs
-        |> Enum.into(@valid_item_attrs)
-        |> Item.create_item(person, status)
-
-      item
-    end
 
     test "Timer.start/1 returns timer that has been started" do
-      item = item_fixture(@valid_item_attrs)
+      {:ok, item} = Item.create_item(@valid_item_attrs)
       assert Item.get_item!(item.id).text == item.text
 
       started = NaiveDateTime.utc_now()
@@ -32,7 +18,7 @@ defmodule App.TimerTest do
     end
 
     test "Timer.stop/1 stops the timer that had been started" do
-      item = item_fixture(@valid_item_attrs)
+      {:ok, item} = Item.create_item(@valid_item_attrs)
       assert Item.get_item!(item.id).text == item.text
 
       started = NaiveDateTime.utc_now()

@@ -10,8 +10,7 @@ defmodule App.Person do
     field :key_id, :integer
     field :locale, :string
     field :picture, Fields.Encrypted
-
-    belongs_to :status, App.Status
+    field :status_code, :integer
 
     timestamps()
   end
@@ -24,18 +23,17 @@ defmodule App.Person do
       :auth_provider,
       :key_id,
       :picture,
-      :locale
+      :locale,
+      :status_code
     ])
     |> validate_required([:givenName, :auth_provider])
   end
 
-  def create(attrs, status) do
+  def create(attrs) do
     %Person{}
-    |> Repo.preload(:status)
     |> changeset(attrs)
-    |> put_assoc(:status, status)
     |> Repo.insert!()
   end
 
-  def get_person!(id), do: Repo.get!(__MODULE__, id)
+  # def get_person!(id), do: Repo.get!(__MODULE__, id)
 end
