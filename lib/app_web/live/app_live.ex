@@ -74,6 +74,16 @@ defmodule AppWeb.AppLive do
     {:noreply, assign(socket, items: items, timer: timer)}
   end
 
+  @impl true
+  def handle_info(%{event: "update", payload: %{items: items, timer: timer}}, socket) do
+    {:noreply, assign(socket, items: items, timer: timer)}
+  end
+
+  @impl true
+  def handle_info(%{event: "delete", payload: %{items: items, timer: timer}}, socket) do
+    {:noreply, assign(socket, items: items, timer: timer)}
+  end
+
   # helper function that checks for status 4 (:done)
   def done?(item) do
     not is_nil(item.status_code) and item.status_code == 4
