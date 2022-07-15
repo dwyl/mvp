@@ -1,6 +1,6 @@
 defmodule App.ItemTest do
   use App.DataCase
-  alias App.Item
+  alias App.{Item, Timer}
 
   describe "items" do
     @valid_attrs %{text: "some text", person_id: 1, status_code: 2}
@@ -30,7 +30,7 @@ defmodule App.ItemTest do
       {:ok, _item1} = Item.create_item(@valid_attrs)
       {:ok, _item2} = Item.create_item(@valid_attrs)
       items = Item.list_items()
-      IO.inspect(items)
+      # IO.inspect(items)
       assert Enum.count(items) == 2
     end
 
@@ -42,23 +42,23 @@ defmodule App.ItemTest do
     end
 
     test "Item.items_with_timers/1 returns a list of items with timers" do
-      {:ok, item1} = Item.create_item(@valid_item_attrs)
-      {:ok, item2} = Item.create_item(@valid_item_attrs)
+      {:ok, item1} = Item.create_item(@valid_attrs)
+      {:ok, item2} = Item.create_item(@valid_attrs)
       assert Item.get_item!(item1.id).text == item1.text
 
       started = NaiveDateTime.utc_now()
 
-      {:ok, timer} =
+      {:ok, timer1} =
         Timer.start(%{item_id: item1.id, person_id: 1, start: started})
-      {:ok, timer2} =
+      {:ok, _timer2} =
         Timer.start(%{item_id: item2.id, person_id: 1, start: started})
 
       assert NaiveDateTime.diff(timer1.start, started) == 0
 
       # list items with timers:
       item_timers = Item.items_with_timers(1)
-      IO.inspect(item_timers)
-      # assert length(item_timers) > 0
+      # IO.inspect(item_timers)
+      assert length(item_timers) > 0
     end
   end
 end
