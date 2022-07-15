@@ -66,9 +66,46 @@ defmodule App.Item do
   def list_items do
     Item
     |> order_by(desc: :inserted_at)
-    |> where([a], is_nil(a.status_code) or a.status_code != 6)
+    |> where([i], is_nil(i.status_code) or i.status_code != 6)
     |> Repo.all()
   end
+
+  # sadly, this is not built-in ...
+  # ref: https://groups.google.com/g/elixir-ecto/c/0cubhSd3QS0/m/DLdQsFrcBAAJ
+  defp map_columns_to_values(res) do
+    Enum.map(res.rows, fn(row) ->
+      Enum.zip(res.columns, row) 
+      |> Map.new |> AtomicMap.convert()
+    end)
+  end
+
+  @doc """
+  `items_with_timers/1` Returns a List of items with the latest associated timers.
+  
+  ## Examples
+
+  iex> items_with_timers()
+  [
+    %{text: "hello", person_id: 1, status_code: 2, start: 2022-07-14 09:35:18},
+    %{text: "world", person_id: 2, status_code: 7, start: 2022-07-15 04:20:42}
+  ]
+  """
+  # 
+  def items_with_timers(person_id \\ 1) do
+    sql = """
+    SELECT DISTINCT ON (i.id)
+      i.id, i.text, i.status_code, i.person_id, t.start, t.end 
+      FROM items i
+    FULL JOIN timers as t ON t.item_id = i.id
+    WHERE i.person_id = $1
+      AND i.status_code IS NOT NULL AND i.status_code != 6
+    ORDER BY i.id DESC, t.start DESC;
+    """
+
+    Ecto.Adapters.SQL.query!(Repo, sql, [person_id])
+    |> map_columns_to_values()
+  end
+
 
   @doc """
   Updates a item.

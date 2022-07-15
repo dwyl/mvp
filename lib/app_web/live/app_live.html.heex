@@ -44,9 +44,14 @@
 
 
         <%= if started?(item, @timer) do %>
+          <button class="bg-red-500 text-white rounded-xl px-2 py-2 h-10 flex flex-end" 
+            phx-click="stop" phx-value-id={item.id} phx-value-timerid={@timer.id}>
+            Stop
+          </button>
 
           <!-- render the counting timer with Apline.js! see: github.com/dwyl/learn-alpine.js -->
           <div 
+            x-ref={@timer.id}
             class=""
             x-data="{
               start: null,
@@ -55,17 +60,15 @@
               interval: null
             }"
             x-init="
-              start = Date.now()
-              current = start
+              console.log($refs.timer_start.innerHTML);
+		          start = parseInt($refs.timer_start.innerHTML, 10);
+		          current = start;
               interval = setInterval(() => { current = Date.now() }, 100)
             "
             >
+            <span x-ref="timer_start" class="hidden">1657807647000</span>
             <p><span x-text="timer_text(start, current || stop)"
-              class="text-xs text-center font-mono mr-2">00:00:00:00</span></p>
-            <button class="bg-red-500 text-white rounded-xl px-2 py-2 h-10 flex flex-end" 
-              phx-click="stop" phx-value-id={item.id} phx-value-timerid={@timer.id}>
-              Stop
-            </button>
+              class="text-xs text-center font-mono mr-2">00:00:00</span></p>
           </div>
 
         <% else %>

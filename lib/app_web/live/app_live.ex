@@ -10,7 +10,7 @@ defmodule AppWeb.AppLive do
     if connected?(socket), do: AppWeb.Endpoint.subscribe(@topic)
 
     {:ok,
-     assign(socket, items: Item.list_items(), editing: nil, timer: %Timer{})}
+     assign(socket, items: Item.items_with_timers(1), editing: nil, timer: %Timer{})}
   end
 
   @impl true

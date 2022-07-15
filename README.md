@@ -42,7 +42,7 @@ of the **@dwyl App**
     - [1.7 Delete Page-related Files](#17-delete-page-related-files)
   - [2. Create Schemas to Store Data](#2-create-schemas-to-store-data)
     - [_Explanation_ of the Schemas](#explanation-of-the-schemas)
-      - [`person`](#person)
+      - [`people`](#people)
       - [`item`](#item)
       - [`timer`](#timer)
     - [2.1 Run Tests!](#21-run-tests)
@@ -140,13 +140,12 @@ This _proposed_ UI/UX is just to create the MVP functionality.
 
 ![mvp-proposed-ux](https://user-images.githubusercontent.com/194400/73374277-d9445480-42b1-11ea-980a-3fabbfe5a9fd.png)
 
-It is _deliberately_ "ugly"
-so we don't focus on aesthetics.
-
-It _will_ change over time 
+It is _deliberately_ "basic" 
+and "ugly"
+so we don't focus on aesthetics. <br />
+It will _definitely_ change over time 
 as we _use_ the App 
-and collect _feedback_.
-
+and collect _feedback_. <br />
 If you want to _help_ make it better,
 share your feedback!
 
@@ -286,7 +285,7 @@ mix phx.server
 
 This is a log 
 of the steps taken 
-to build the MVP.
+to build the MVP. <br />
 It took us _hours_ 
 to write it,
 but you can ***speed-run*** it 
@@ -653,10 +652,10 @@ Let's run through them.
 ### _Explanation_ of the Schemas
 
 This is a quick breakdown of the schemas created above:
-#### `person`
+#### `people`
 
-The `person` _using_ the App
-(AKA the ["user"](https://github.com/dwyl/app/issues/33))
+The **`people`** (or `person`) _using_ the App
+(AKA the ["user"](https://github.com/dwyl/app/issues/33)).
 
 + `id`: `Int`<sup>1</sup>
 + `inserted_at`: `Timestamp` - created/managed by `Phoenix/Ecto`
@@ -674,17 +673,25 @@ see:
   please see: 
   [github.com/dwyl/statuses](https://github.com/dwyl/statuses)
 
+We will use the **`people`** schema
+later on when we add Authentication.
+We're just setting it all up now
+so that both **`items`** and **`timer`** 
+belong to a **`person`** from the start.
+
 #### `item`
 
 An `item` is the most basic unit of content.
+An **`item`** is just a **`String`** of **`text`**.
+Later we will be able to 
 e.g: a "note", "task", "reminder", etc.
 The name **`item`** is **_deliberately_ generic**
 as it maintains complete flexibility 
 for what we are building later on.
 
 + `id`: `Int` - the auto-incrementing `id`.
-+ `inserted_at`: `Timestamp` - created/managed by `Phoenix`
-+ `updated_at`: `Timestamp`
++ `inserted_at`: `NaiveDateTime` - created/managed by `Phoenix`
++ `updated_at`: `NaiveDateTime`
 + `text`: `Binary` (_encrypted_) - the free text you want to capture.
 + `person_id`: `Integer` 
     `person.id` the "owner" of the `item`)
@@ -697,19 +704,27 @@ A `timer` is attached to an `item`
 to track how long it takes to ***complete***.
 
   + `id`: `Int`
-  + `inserted_at`
+  + `inserted_at`: `NaiveDateTime`
+  + `updated_at`: `NaiveDateTime`
   + `item_id` (FK item.id)
   + `start`: `NaiveDateTime` - time started on device
   + `end`: `NaiveDateTime` - time ended on device
 
 An `item` can have zero or more `timers`.
 Each time a `item` (`task`) is worked on
-a **_new_ `timer`** is started (_and stopped_).
+a **_new_ `timer`** is created/started (_and stopped_).
 Meaning a `person` can split the completion 
 of an `item` (`task`) across multiple sessions.
 That allows us to get a running total
 of the amount of time that has
 been taken.
+
+> **Note**: 
+> The point of having a distinct `start` and `end`
+instead of just reusing the `inserted_at`
+and `updated_at` is simple:
+
+
 
 <br />
 
@@ -734,7 +749,6 @@ Finished in 0.1 seconds (0.08s async, 0.09s sync)
 COV    FILE                                        LINES RELEVANT   MISSED
   0.0% lib/app/item.ex                                19        2        2
   0.0% lib/app/person.ex                              22        2        2
-  0.0% lib/app/status.ex                              17        2        2
   0.0% lib/app/timer.ex                               20        2        2
 100.0% lib/app_web/live/app_live.ex                   11        2        0
 100.0% lib/app_web/router.ex                          18        2        0
@@ -746,26 +760,20 @@ COV    FILE                                        LINES RELEVANT   MISSED
 Specifically the files:
 `lib/app/item.ex`, 
 `lib/app/person.ex`, 
-`lib/app/status.ex` and 
+and 
 `lib/app/timer.ex`
 have **_zero_ test coverage**. 
 
-We _could_ write tests to (_artificially_) cover
-these lines of code.
-However, we are going to add tests 
-as we define the _functionality_.
-Just be _aware_ of this;
-the problem will be addressed in the next few sections.
+We will address this test coverage shortfall in the next section.
 Yes, we _know_ this is not 
 ["TDD"](https://github.com/dwyl/learn-tdd#what-is-tdd)
 because we aren't writing the tests _first_.
-But with creating database schemas,
-we feel this is the 
+But by creating database schemas,
+we have a scaffold 
+for the next stage.
+See: https://en.wikipedia.org/wiki/Scaffold_(programming)
 
 <br />
-
-
-
 
 ## 3. Input Items!
 
@@ -775,7 +783,49 @@ and file:
 with the following code:
 
 ```elixir
+defmodule App.ItemTest do
+  use App.DataCase
+  alias App.Item
 
+  describe "items" do
+    @valid_attrs %{text: "some text", person_id: 1, status_code: 2}
+    @update_attrs %{text: "some updated text"}
+    @invalid_attrs %{text: nil}
+
+    test "get_item!/1 returns the item with given id" do
+      {:ok, item} = Item.create_item(@valid_attrs)
+      assert Item.get_item!(item.id).text == item.text
+    end
+
+    test "create_item/1 with valid data creates a item" do
+      assert {:ok, %Item{} = item} = Item.create_item(@valid_attrs)
+
+      assert item.text == "some text"
+
+      inserted_item = List.first(Item.list_items())
+      assert inserted_item.text == @valid_attrs.text
+    end
+
+    test "create_item/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} =
+               Item.create_item(@invalid_attrs)
+    end
+
+    test "list_items/0 returns a list of items stored in the DB" do
+      {:ok, _item1} = Item.create_item(@valid_attrs)
+      {:ok, _item2} = Item.create_item(@valid_attrs)
+      items = Item.list_items()
+      assert Enum.count(items) == 2
+    end
+
+    test "update_item/2 with valid data updates the item" do
+      {:ok, item} = Item.create_item(@valid_attrs)
+
+      assert {:ok, %Item{} = item} = Item.update_item(item, @update_attrs)
+      assert item.text == "some updated text"
+    end
+  end
+end
 ```
 
 

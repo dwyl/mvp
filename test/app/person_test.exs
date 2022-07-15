@@ -8,7 +8,7 @@ defmodule App.PersonTest do
     #   assert Item.get_item!(item.id) == item
     # end
 
-    test "create/1 with valid data creates a person" do
+    test "Person.create/1 with valid data creates a person" do
 
       person =
         Person.create(

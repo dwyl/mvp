@@ -61,6 +61,8 @@ defmodule App.MixProject do
       {:fields, "~> 2.9"},
       # Useful functions: github.com/dwyl/useful
       {:useful, "~> 1.0.8"},
+      # https://hex.pm/packages/atomic_map
+      {:atomic_map, "~> 0.9.3"},
       # Statuses: github.com/dwyl/statuses
       {:statuses, "~> 1.1.1"},
 
