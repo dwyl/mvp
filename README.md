@@ -141,7 +141,8 @@ This _proposed_ UI/UX is just to create the MVP functionality.
 ![mvp-proposed-ux](https://user-images.githubusercontent.com/194400/73374277-d9445480-42b1-11ea-980a-3fabbfe5a9fd.png)
 
 It is _deliberately_ "basic" 
-and "ugly"
+and 
+["ugly"](https://youtu.be/m4isFputh68?t=158)
 so we don't focus on aesthetics. 🚀<br />
 It will _definitely_ change over time 
 as we _use_ the App 
