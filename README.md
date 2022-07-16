@@ -113,8 +113,8 @@ then there is **no hope** for it._”
 
 ## 3 Apps into _One_
 
-This MVP will combine 3 apps into one.
-We built the 3 _separate_ apps
+This MVP combines **3 apps** into ***one***. <br />
+We **built** the 3 _separate_ apps
 to showcase the individual features:
 
 1. Todo list: 
@@ -132,7 +132,7 @@ trying run the MVP.
 But our _hope_ is that
 the UI/UX in the MVP
 is sufficiently intuitive
-that it **_immediately_ makes sense**. 
+that it **_immediately_ makes sense**. 🤞
 
 ## Proposed MVP UI/UX
 
@@ -142,12 +142,12 @@ This _proposed_ UI/UX is just to create the MVP functionality.
 
 It is _deliberately_ "basic" 
 and "ugly"
-so we don't focus on aesthetics. <br />
+so we don't focus on aesthetics. 🚀<br />
 It will _definitely_ change over time 
 as we _use_ the App 
-and collect _feedback_. <br />
+and collect _feedback_. 💬<br />
 If you want to _help_ make it better,
-share your feedback!
+share your feedback! 🙏
 
 Way more detail: 
 [dwyl/app/issues/265](https://github.com/dwyl/app/issues/265)
