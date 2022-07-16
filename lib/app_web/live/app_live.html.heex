@@ -1,6 +1,6 @@
 <div class="h-100 w-full font-sans">
-  <form phx-submit="create" 
-    class="w-full lg:w-3/4 lg:max-w-lg text-center mx-auto">
+  <form phx-submit="create" class="w-full lg:w-3/4 lg:max-w-lg text-center mx-auto">
+
     <textarea 
       class="w-full py-2 px-2 text-slate-800 text-3xl
         bg-white bg-clip-padding
@@ -12,34 +12,38 @@
       autofocus="" 
       required="required" 
     ></textarea>
-    <button class="inline-flex items-center px-2 py-1 mt-1 h-10
-      bg-green-500 hover:bg-green-600 text-white rounded-md">
-      <svg xmlns="http://www.w3.org/2000/svg" 
-        class="h-5 w-5 mr-2" fill="none" 
-        viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-          d="M15 13l-3 3m0 0l-3-3m3 3V8m0 13a9 9 0 110-18 9 9 0 010 18z"
-        />
-      </svg>
-      Save
-    </button>
+
+    <!-- https://tailwindcss.com/docs/justify-content#end -->
+    <div class="flex justify-end mr-1">
+      <button class="inline-flex items-center px-2 py-1 mt-1 h-10
+        bg-green-500 hover:bg-green-600 text-white rounded-md">
+        <svg xmlns="http://www.w3.org/2000/svg" 
+          class="h-5 w-5 mr-2" fill="none" 
+          viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+            d="M15 13l-3 3m0 0l-3-3m3 3V8m0 13a9 9 0 110-18 9 9 0 010 18z"
+          />
+        </svg>
+        Save
+      </button>
+    </div>
+
   </form>
 
+  <!-- List of items -->
   <ul class="w-full">
     <%= for item <- @items do %>
-    <li data-id={item.id} 
-      class="mt-2 flex w-full border-t border-slate-200 py-2">
+    <li data-id={item.id} class="mt-2 flex w-full border-t border-slate-200 py-2">
 
       <!-- if the item is "done" (status_code: 4) -->
       <%= if done?(item) do %>
         <input type="checkbox" phx-value-id={item.id} phx-click="toggle"
           class="flex-none p-4 m-2 form-checkbox text-slate-400" 
           checked />
-
         <label class="w-full text-slate-400  m-2 line-through">
           <%= item.text %>
         </label>
-
+ 
         <!-- "Archive" button with icon see: https://github.com/dwyl/app-mvp-phoenix/issues/101 -->
         <button class="inline-flex items-center px-2 py-1 mr-2 h-10
          bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md"
@@ -58,10 +62,55 @@
         <input type="checkbox" phx-value-id={item.id} phx-click="toggle"
           class="flex-none p-4 m-2 form-checkbox hover:text-slate-600" />
 
-        <label class="w-full flex-auto text-slate-800 m-2">
-          <%= item.text %>
-        </label>
+        <%= if item.id == @editing do %>
+          <form phx-submit="update-item" id="form-update" class="w-full mr-2">
+            <%# <input
+              id="update_todo"
+              class="new-todo"
+              type="text"
+              name="text"
+              required="required"
+              value={item.text}
+            /> %>
+            <textarea 
+              id="editing"
+              class="w-full flex-auto text-slate-800
+                bg-white bg-clip-padding
+                transition ease-in-out
+                border border-b border-slate-200
+                focus:border-none focus:outline-none"
+              name="text" 
+              placeholder="What is on your mind?" 
+              autofocus 
+              required="required" 
+              value={item.text}
+            ><%= item.text %></textarea>
 
+            <input type="hidden" name="id" value={item.id}/>
+
+            <!-- Want to help "DRY" this? see: https://github.com/dwyl/app-mvp-phoenix/issues/105 -->
+            <div class="flex justify-end mr-1">
+              <button class="inline-flex items-center px-2 py-1 mt-1 h-10
+                bg-green-500 hover:bg-green-600 text-white rounded-md">
+                <svg xmlns="http://www.w3.org/2000/svg" 
+                  class="h-5 w-5 mr-2" fill="none" 
+                  viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M15 13l-3 3m0 0l-3-3m3 3V8m0 13a9 9 0 110-18 9 9 0 010 18z"
+                  />
+                </svg>
+                Save
+              </button>
+            </div>
+
+          </form>
+        <% else  %>
+
+          <label class="w-full flex-auto text-slate-800 m-2"
+            phx-click="edit-item" phx-value-id={item.id}>
+            <%= item.text %>
+          </label>
+       <% end %>
 
         <%= if started?(item) do %>
           <!-- render the counting timer with Apline.js! see: github.com/dwyl/learn-alpine.js -->
@@ -79,22 +128,25 @@
               interval = setInterval(() => { current = Date.now() }, 100)
             "
             >
-            <span x-ref="timer_start" class="hidden"><%= timestamp(item.start) %></span>
-            <p><span x-text="timer_text(start, current || stop)"
-              class="text-sm font-mono font-semibold">00:00:00</span></p>
+            <div class="flex flex-col justify-end mr-1">
 
-            <button phx-click="stop" phx-value-id={item.id} phx-value-timerid={item.timer_id}
-              class="inline-flex items-center px-2 py-2 h-10 mr-1
-              bg-red-500 hover:bg-red-700 text-white rounded-md">
-              <svg xmlns="http://www.w3.org/2000/svg" 
-                class="h-5 w-5 mr-1" fill="none" 
-                viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              Stop
-            </button>
+              <button phx-click="stop" phx-value-id={item.id} phx-value-timerid={item.timer_id}
+                class="inline-flex items-center px-2 py-2 h-10 mr-1
+                bg-red-500 hover:bg-red-700 text-white rounded-md">
+                <svg xmlns="http://www.w3.org/2000/svg" 
+                  class="h-5 w-5 mr-1" fill="none" 
+                  viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                Stop
+              </button>
+
+              <span x-ref="timer_start" class="hidden"><%= timestamp(item.start) %></span>
+              <p><span x-text="timer_text(start, current || stop)"
+                class="text-sm font-mono font-semibold">00:00:00</span></p>
+            </div>
           </div>
 
         <% else %>

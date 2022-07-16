@@ -84,21 +84,35 @@ defmodule AppWeb.AppLive do
   end
 
   @impl true
+  def handle_event("edit-item", data, socket) do
+    {:noreply, assign(socket, editing: String.to_integer(data["id"]))}
+  end
+
+  @impl true
+  def handle_event("update-item", %{"id" => item_id, "text" => text}, socket) do
+    current_item = Item.get_item!(item_id)
+    Item.update_item(current_item, %{text: text})
+    socket = assign(socket, items: Item.items_with_timers(1), editing: nil)
+    AppWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_info(
         %{event: "start|stop", payload: %{items: items}},
         socket
       ) do
-    {:noreply, assign(socket, items: items)}
+    {:noreply, assign(socket, items: items, editing: nil)}
   end
 
   @impl true
   def handle_info(%{event: "update", payload: %{items: items}}, socket) do
-    {:noreply, assign(socket, items: items)}
+    {:noreply, assign(socket, items: items, editing: nil)}
   end
 
   @impl true
   def handle_info(%{event: "delete", payload: %{items: items}}, socket) do
-    {:noreply, assign(socket, items: items)}
+    {:noreply, assign(socket, items: items, editing: nil)}
   end
 
   # Check for status 4 (:done)
