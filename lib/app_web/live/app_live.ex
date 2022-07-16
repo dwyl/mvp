@@ -10,7 +10,7 @@ defmodule AppWeb.AppLive do
     if connected?(socket), do: AppWeb.Endpoint.subscribe(@topic)
 
     {:ok,
-     assign(socket, items: Item.items_with_timers(1), editing: nil, timer: %Timer{})}
+     assign(socket, items: Item.items_with_timers(1), editing: nil)}
   end
 
   @impl true
@@ -18,7 +18,7 @@ defmodule AppWeb.AppLive do
     Item.create_item(%{text: text, person_id: 1, status_code: 2})
 
     socket =
-      assign(socket, items: Item.list_items(), active: %Item{}, timer: %Timer{})
+      assign(socket, items: Item.items_with_timers(1), active: %Item{})
 
     AppWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
     {:noreply, socket}
@@ -31,9 +31,9 @@ defmodule AppWeb.AppLive do
 
     item = Item.get_item!(Map.get(data, "id"))
     Item.update_item(item, %{status_code: status})
-
+    # IO.inspect(Item.items_with_timers(1), label: "Item.items_with_timers(1)")
     socket =
-      assign(socket, items: Item.list_items(), active: %Item{}, timer: %Timer{})
+      assign(socket, items: Item.items_with_timers(1), active: %Item{})
 
     AppWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
     {:noreply, socket}
@@ -44,7 +44,7 @@ defmodule AppWeb.AppLive do
     Item.delete_item(item_id)
 
     socket =
-      assign(socket, items: Item.list_items(), active: %Item{}, timer: %Timer{})
+      assign(socket, items: Item.items_with_timers(1), active: %Item{})
 
     AppWeb.Endpoint.broadcast_from(self(), @topic, "delete", socket.assigns)
     {:noreply, socket}
@@ -56,7 +56,7 @@ defmodule AppWeb.AppLive do
     # status = if Map.has_key?(data, "value"), do: 4, else: 3
     item = Item.get_item!(Map.get(data, "id"))
     # Item.update_item(item, %{id: item.id, status_code: status})
-    {:ok, timer} =
+    {:ok, _timer} =
       Timer.start(%{
         item_id: item.id,
         person_id: 1,
@@ -64,7 +64,7 @@ defmodule AppWeb.AppLive do
       })
 
     socket =
-      assign(socket, items: Item.list_items(), active: %Item{}, timer: timer)
+      assign(socket, items: Item.items_with_timers(1), active: %Item{})
 
     AppWeb.Endpoint.broadcast_from(self(), @topic, "start|stop", socket.assigns)
     {:noreply, socket}
@@ -73,17 +73,11 @@ defmodule AppWeb.AppLive do
   @impl true
   def handle_event("stop", data, socket) do
     # Toggle the status of the item between 3 (:active) and 4 (:done)
-    # status = if Map.has_key?(data, "value"), do: 4, else: 3
-    # item = Item.get_item!(Map.get(data, "id"))
-    # IO.inspect(data, label: "data")
     timer_id = Map.get(data, "timerid")
-    # IO.inspect(timer_id, label: "timer_id")
-    # Item.update_item(item, %{id: item.id, status_code: status})
     {:ok, _timer} = Timer.stop(%{id: timer_id})
-    # IO.inspect(timer)
 
     socket =
-      assign(socket, items: Item.list_items(), active: %Item{}, timer: %Timer{})
+      assign(socket, items: Item.items_with_timers(1), active: %Item{})
 
     AppWeb.Endpoint.broadcast_from(self(), @topic, "start|stop", socket.assigns)
     {:noreply, socket}
@@ -91,32 +85,33 @@ defmodule AppWeb.AppLive do
 
   @impl true
   def handle_info(
-        %{event: "start|stop", payload: %{items: items, timer: timer}},
+        %{event: "start|stop", payload: %{items: items}},
         socket
       ) do
-    {:noreply, assign(socket, items: items, timer: timer)}
+    {:noreply, assign(socket, items: items)}
   end
 
   @impl true
-  def handle_info(%{event: "update", payload: %{items: items, timer: timer}}, socket) do
-    {:noreply, assign(socket, items: items, timer: timer)}
+  def handle_info(%{event: "update", payload: %{items: items}}, socket) do
+    {:noreply, assign(socket, items: items)}
   end
 
   @impl true
-  def handle_info(%{event: "delete", payload: %{items: items, timer: timer}}, socket) do
-    {:noreply, assign(socket, items: items, timer: timer)}
+  def handle_info(%{event: "delete", payload: %{items: items}}, socket) do
+    {:noreply, assign(socket, items: items)}
   end
 
-  # helper function that checks for status 4 (:done)
+  # Check for status 4 (:done)
   def done?(item), do: item.status_code == 4
 
-  def started?(item, timer) do
-    # IO.inspect(item, label: "item")
-    # IO.inspect(timer, label: "timer")
-    item.id == timer.item_id
+  # Check if an item has an active timer
+  def started?(item) do
+    not is_nil(item.start) and is_nil(item.end)
   end
 
-  # def timestamp(timer) do
-  #   timer.start |> DateTime.from_naive("Etc/UTC") |> DateTime.to_unix() |> IO.inspect()
-  # end
+  # Convert Elixir NaiveDateTime to JS (Unix) Timestamp
+  def timestamp(naive_datetime) do
+    DateTime.from_naive!(naive_datetime, "Etc/UTC")
+    |> DateTime.to_unix(:millisecond)
+  end
 end

@@ -24,34 +24,46 @@
     <li data-id={item.id} 
       class="mt-2 flex w-full border-t border-slate-200 py-2">
 
+      <!-- if the item is "done" (status_code: 4) -->
       <%= if done?(item) do %>
         <input type="checkbox" phx-value-id={item.id} phx-click="toggle"
           class="flex-none p-4 m-2 form-checkbox text-slate-400" 
           checked />
+
         <label class="w-full text-slate-400  m-2 line-through">
           <%= item.text %>
         </label>
-        <button class="bg-orange-600 text-white px-2 py-2 mr-2 mt-2 h-10" 
+
+        <button class="inline-flex items-center px-4 py-2 mr-2
+         bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md"
           phx-click="delete" phx-value-id={item.id}>
-          Delete!
+	        <svg xmlns="http://www.w3.org/2000/svg" 
+            class="h-5 w-5 mr-2" fill="none" 
+            viewBox="0 0 24 24" stroke="currentColor">
+	          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+              d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+	        </svg>
+          Archive
         </button>
+
+      <!-- else render the buttons for start|stop timer -->
       <% else %>
         <input type="checkbox" phx-value-id={item.id} phx-click="toggle"
           class="flex-none p-4 m-2 form-checkbox hover:text-slate-600" />
+
         <label class="w-full flex-auto text-slate-800 m-2">
           <%= item.text %>
         </label>
 
 
-        <%= if started?(item, @timer) do %>
+        <%= if started?(item) do %>
           <button class="bg-red-500 text-white rounded-xl px-2 py-2 h-10 flex flex-end" 
-            phx-click="stop" phx-value-id={item.id} phx-value-timerid={@timer.id}>
+            phx-click="stop" phx-value-id={item.id} phx-value-timerid={item.timer_id}>
             Stop
           </button>
 
           <!-- render the counting timer with Apline.js! see: github.com/dwyl/learn-alpine.js -->
           <div 
-            x-ref={@timer.id}
             class=""
             x-data="{
               start: null,
@@ -60,13 +72,12 @@
               interval: null
             }"
             x-init="
-              console.log($refs.timer_start.innerHTML);
 		          start = parseInt($refs.timer_start.innerHTML, 10);
 		          current = start;
               interval = setInterval(() => { current = Date.now() }, 100)
             "
             >
-            <span x-ref="timer_start" class="hidden">1657807647000</span>
+            <span x-ref="timer_start" class="hidden"><%= timestamp(item.start) %></span>
             <p><span x-text="timer_text(start, current || stop)"
               class="text-xs text-center font-mono mr-2">00:00:00</span></p>
           </div>

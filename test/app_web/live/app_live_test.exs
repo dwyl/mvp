@@ -12,14 +12,24 @@ defmodule AppWeb.AppLiveTest do
   test "connect and create an item", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
 
-    assert render_submit(view, :create, %{text: "Learn Elixir", person_id: 1}) =~
-             "Learn Elixir"
+    assert render_submit(view, :create, 
+      %{text: "Learn Elixir", person_id: 1}) =~ "Learn Elixir"
   end
 
   test "toggle an item", %{conn: conn} do
-    assert {:ok, item} = Item.create_item(%{text: "Learn Elixir", status_code: 2})
+    {:ok, item} = 
+      Item.create_item(%{text: "Learn Elixir", status_code: 2, person_id: 1})
+    {:ok, _item2} = 
+      Item.create_item(%{text: "Learn Elixir", status_code: 4, person_id: 1})
 
     assert item.status_code == 2
+
+    started = NaiveDateTime.utc_now()
+    {:ok, _timer} =
+      Timer.start(%{item_id: item.id, person_id: 1, start: started})
+
+    assert Useful.typeof(:timer_id) == "atom"
+    assert Item.items_with_timers(1) > 0
 
     {:ok, view, _html} = live(conn, "/")
 
@@ -72,11 +82,11 @@ defmodule AppWeb.AppLiveTest do
 
     {:ok, item} = Item.create_item(%{text: "Always Learning", person_id: 1, status_code: 2})
     started = NaiveDateTime.utc_now()
-    {:ok, timer} = Timer.start(%{item_id: item.id, start: started})
+    {:ok, _timer} = Timer.start(%{item_id: item.id, start: started})
 
     send(view.pid, %{
       event: "start|stop",
-      payload: %{items: Item.list_items(), timer: timer}
+      payload: %{items: Item.items_with_timers(1)}
     })
 
     assert render(view) =~ item.text
@@ -89,7 +99,7 @@ defmodule AppWeb.AppLiveTest do
 
     send(view.pid, %{
       event: "update",
-      payload: %{items: Item.list_items(), timer: %Timer{}}
+      payload: %{items: Item.items_with_timers(1)}
     })
 
     assert render(view) =~ item.text
@@ -102,7 +112,7 @@ defmodule AppWeb.AppLiveTest do
 
     send(view.pid, %{
       event: "delete",
-      payload: %{items: Item.list_items(), timer: %Timer{}}
+      payload: %{items: Item.items_with_timers(1)}
     })
 
     refute render(view) =~ item.text

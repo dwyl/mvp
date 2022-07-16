@@ -93,12 +93,9 @@ defmodule App.Item do
   # 
   def items_with_timers(person_id \\ 1) do
     sql = """
-    SELECT DISTINCT ON (i.id)
-      i.id, i.text, i.status_code, i.person_id, t.start, t.end 
-      FROM items i
+    SELECT DISTINCT ON (i.id) i.id, i.text, i.status_code, i.person_id, t.start, t.end, t.id as timer_id FROM items i
     FULL JOIN timers as t ON t.item_id = i.id
-    WHERE i.person_id = $1
-      AND i.status_code IS NOT NULL AND i.status_code != 6
+    WHERE i.person_id = $1 AND i.status_code IS NOT NULL AND i.status_code != 6
     ORDER BY i.id DESC, t.start DESC;
     """
 
