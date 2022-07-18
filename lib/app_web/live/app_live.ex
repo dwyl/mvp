@@ -149,7 +149,7 @@ defmodule AppWeb.AppLive do
 
     # seconds
     s = if diff > 1000 do 
-      s = diff / 1000 |> round()
+      s = diff / 1000 |> trunc()
       s = if s > 60, do: Integer.mod(s, 60), else: s
       leftPad(s)
     else
@@ -158,7 +158,7 @@ defmodule AppWeb.AppLive do
 
     # minutes
     m = if diff > 60000 do
-      m = diff / 60000 |> round()
+      m = diff / 60000 |> trunc()
       m = if m > 60, do: Integer.mod(m, 60), else: m
       leftPad(m)
     else
@@ -167,7 +167,7 @@ defmodule AppWeb.AppLive do
 
     # hours
     h = if diff > 3600000 do
-      h = diff / 3600000 |> round()
+      h = diff / 3600000 |> trunc()
       leftPad(h)
     else
       "00"

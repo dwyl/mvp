@@ -128,9 +128,9 @@
                   Resume
                 </button>
                 <p> 
-                  <span class="text-sm font-mono font-semibold flex flex-col justify-end"> 
+                  <span class="text-sm font-mono font-semibold flex flex-col justify-end text-right mr-2 mt-1"> 
                     <%= timer_text(item.start, item.end) %> 
-                    </span>
+                  </span>
                 </p>
               </div>
             </div>
@@ -169,7 +169,7 @@
                   </button>
 
                   <p><span x-text="timer_text(start, current || stop)"
-                    class="text-sm font-mono font-semibold">00:00:00</span></p>
+                    class="text-sm font-mono font-semibold text-right mr-1">00:00:00</span></p>
                 </div>
               </div>
 
@@ -181,7 +181,6 @@
           <% end %>
 
         <% else %>
-          <h1> No Timers</h1>
           <!-- render start button -->
           <button phx-click="start" phx-value-id={item.id}
             class="inline-flex items-center px-2 py-2 h-10 mr-1
