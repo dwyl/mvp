@@ -1,6 +1,8 @@
 <div class="h-100 w-full font-sans">
   <form phx-submit="create" class="w-full lg:w-3/4 lg:max-w-lg text-center mx-auto">
 
+    <!-- textarea so that we can have multi-line capturing 
+      help wanted auto re-sizing: https://github.com/dwyl/learn-alpine.js/issues/3 -->
     <textarea 
       class="w-full py-2 px-2 text-slate-800 text-3xl
         bg-white bg-clip-padding
@@ -13,6 +15,7 @@
       required="required" 
     ></textarea>
 
+    <!-- Want to help "DRY" this? see: https://github.com/dwyl/app-mvp-phoenix/issues/105 -->
     <!-- https://tailwindcss.com/docs/justify-content#end -->
     <div class="flex justify-end mr-1">
       <button class="inline-flex items-center px-2 py-1 mt-1 h-10
@@ -30,12 +33,12 @@
 
   </form>
 
-  <!-- List of items -->
+  <!-- List of items with inline buttons and controls -->
   <ul class="w-full">
     <%= for item <- @items do %>
     <li data-id={item.id} class="mt-2 flex w-full border-t border-slate-200 py-2">
 
-      <!-- if the item is "done" (status_code: 4) -->
+      <!-- if item is "done" (status_code: 4) strike-through and show "Archive" button -->
       <%= if done?(item) do %>
         <input type="checkbox" phx-value-id={item.id} phx-click="toggle"
           class="flex-none p-4 m-2 form-checkbox text-slate-400" 
@@ -59,19 +62,14 @@
 
       <!-- else render the buttons for start|stop timer -->
       <% else %>
+        <!-- Show checkbox so the item can be marked as "done" -->
         <input type="checkbox" phx-value-id={item.id} phx-click="toggle"
           class="flex-none p-4 m-2 form-checkbox hover:text-slate-600" />
 
+        <!-- Editing renders the textarea and "save" button - near identical (duplicate) code from above
+          Help wanted DRY-ing this ... see: https://github.com/dwyl/app-mvp-phoenix/issues/105 -->
         <%= if item.id == @editing do %>
           <form phx-submit="update-item" id="form-update" class="w-full mr-2">
-            <%# <input
-              id="update_todo"
-              class="new-todo"
-              type="text"
-              name="text"
-              required="required"
-              value={item.text}
-            /> %>
             <textarea 
               id="editing"
               class="w-full flex-auto text-slate-800
@@ -88,7 +86,6 @@
 
             <input type="hidden" name="id" value={item.id}/>
 
-            <!-- Want to help "DRY" this? see: https://github.com/dwyl/app-mvp-phoenix/issues/105 -->
             <div class="flex justify-end mr-1">
               <button class="inline-flex items-center px-2 py-1 mt-1 h-10
                 bg-green-500 hover:bg-green-600 text-white rounded-md">
@@ -105,51 +102,87 @@
 
           </form>
         <% else  %>
-
+          <!-- Render item.text as click-able label -->
           <label class="w-full flex-auto text-slate-800 m-2"
             phx-click="edit-item" phx-value-id={item.id}>
             <%= item.text %>
           </label>
        <% end %>
 
-        <%= if started?(item) do %>
-          <!-- render the counting timer with Apline.js! see: github.com/dwyl/learn-alpine.js -->
-          <div 
-            class="flex flex-col"
-            x-data="{
-              start: null,
-              current: null, 
-              stop: null, 
-              interval: null
-            }"
-            x-init="
-		          start = parseInt($refs.timer_start.innerHTML, 10);
-		          current = start;
-              interval = setInterval(() => { current = Date.now() }, 100)
-            "
-            >
-            <div class="flex flex-col justify-end mr-1">
-
-              <button phx-click="stop" phx-value-id={item.id} phx-value-timerid={item.timer_id}
-                class="inline-flex items-center px-2 py-2 h-10 mr-1
-                bg-red-500 hover:bg-red-700 text-white rounded-md">
-                <svg xmlns="http://www.w3.org/2000/svg" 
-                  class="h-5 w-5 mr-1" fill="none" 
-                  viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                Stop
-              </button>
-
-              <span x-ref="timer_start" class="hidden"><%= timestamp(item.start) %></span>
-              <p><span x-text="timer_text(start, current || stop)"
-                class="text-sm font-mono font-semibold">00:00:00</span></p>
+       <%= if timers_any?(item) do %>
+          <!-- always display the time elapsed in the UI https://github.com/dwyl/app-mvp-phoenix/issues/106 -->
+          <%= if timer_stopped?(item) do %>
+            <div class="flex flex-col">
+              <div class="flex flex-col justify-end mr-1">
+                <!-- render "continue" button -->
+                <button phx-click="start" phx-value-id={item.id}
+                  class="inline-flex items-center px-2 py-2 h-10 mr-1
+                  bg-teal-600 hover:bg-teal-800 text-white rounded-md">
+                  <svg xmlns="http://www.w3.org/2000/svg" 
+                    class="h-5 w-5 mr-1" fill="none" 
+                    viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  Resume
+                </button>
+                <p> 
+                  <span class="text-sm font-mono font-semibold flex flex-col justify-end"> 
+                    <%= timer_text(item.start, item.end) %> 
+                    </span>
+                </p>
+              </div>
             </div>
-          </div>
+          <% else %>
+            <%= if started?(item) do %>
+              <!-- render the counting timer with Apline.js! see: github.com/dwyl/learn-alpine.js -->
+              <div class="flex flex-col"
+                x-data="{
+                  start: parseInt($refs.timer_start.innerHTML, 10),
+                  current: null, 
+                  stop: null, 
+                  interval: null
+                }"
+                x-init="
+                  start = parseInt($refs.timer_start.innerHTML, 10);
+                  current = start;
+                  interval = setInterval(() => { current = Date.now() }, 100)
+                "
+                >
+                <!-- this is how we pass the start|stop time from Elixir (server) to Alping (client) -->
+                <span x-ref="timer_start" class="hidden"><%= timestamp(item.start) %></span>
+
+                <div class="flex flex-col justify-end mr-1">
+
+                  <button phx-click="stop" phx-value-id={item.id} phx-value-timerid={item.timer_id}
+                    class="inline-flex items-center px-2 py-2 h-10 mr-1
+                    bg-red-500 hover:bg-red-700 text-white rounded-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" 
+                      class="h-5 w-5 mr-1" fill="none" 
+                      viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    Stop
+                  </button>
+
+                  <p><span x-text="timer_text(start, current || stop)"
+                    class="text-sm font-mono font-semibold">00:00:00</span></p>
+                </div>
+              </div>
+
+            <% else %>
+           
+            <!-- end if started?(item) -->
+            <% end %>
+
+          <% end %>
 
         <% else %>
+          <h1> No Timers</h1>
+          <!-- render start button -->
           <button phx-click="start" phx-value-id={item.id}
             class="inline-flex items-center px-2 py-2 h-10 mr-1
             bg-teal-500 hover:bg-teal-700 text-white rounded-md">
@@ -162,8 +195,14 @@
             </svg>
             Start
           </button>
+        <!-- end timers_any?(item) -->
         <% end %>
+
       <% end %>
+      
+
+
+      
     </li>
     <% end %>
   </ul>
@@ -176,6 +215,7 @@
 	}
 
 	function timer_text(start, current) {
+    console.log("timer_text(start, current)", start, current)
 		let h="00", m="00", s="00";
 		const diff = current - start;
 		// seconds
@@ -198,4 +238,9 @@
 
 		return h + ':' + m + ':' + s;
 	}
+
+
+
+
 </script>
+

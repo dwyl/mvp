@@ -171,7 +171,8 @@ defmodule App.Item do
   Again, DRAGONS! 
   """
   def timer_diff(timer) do
-    if is_nil(timer.end) or is_nil(timer.start) do
+    # ignore timers that have not ended (current timer is factored in the UI!)
+    if is_nil(timer.end) do
       0
     else 
       NaiveDateTime.diff(timer.end, timer.start)
@@ -221,5 +222,6 @@ defmodule App.Item do
 
     # return the list of items without duplicates and only the last/active timer:
     Map.values(item_map)
+    |> Enum.reverse()
   end
 end
