@@ -8,7 +8,7 @@ defmodule AppWeb.AppLive do
   def mount(_params, _session, socket) do
     # subscribe to the channel
     if connected?(socket), do: AppWeb.Endpoint.subscribe(@topic)
-
+    # IO.inspect(Item.items_with_timers(1))
     {:ok,
      assign(socket, items: Item.items_with_timers(1), editing: nil)}
   end
@@ -64,7 +64,7 @@ defmodule AppWeb.AppLive do
       })
 
     socket =
-      assign(socket, items: Item.items_with_timers(1), active: %Item{})
+      assign(socket, items: Item.items_with_timers(1), active: %Item{}, editing: nil)
 
     AppWeb.Endpoint.broadcast_from(self(), @topic, "start|stop", socket.assigns)
     {:noreply, socket}
