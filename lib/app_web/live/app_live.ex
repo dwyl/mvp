@@ -141,40 +141,38 @@ defmodule AppWeb.AppLive do
 
   # Elixir implementation of `timer_text/2`
   def leftPad(val) do
-		if val < 10, do: "0#{to_string(val)}", else: val
-	end
+    if val < 10, do: "0#{to_string(val)}", else: val
+  end
 
-	def timer_text(start, stop) do
-		diff = timestamp(stop) - timestamp(start)
-		
+  def timer_text(start, stop) do
+    diff = timestamp(stop) - timestamp(start)
+
     # seconds
-		s = if diff > 1000 do 
-			s = diff / 1000 |> round()
-			s = if s > 60, do: Integer.mod(s, 60), else: s
-			s = leftPad(s)
+    s = if diff > 1000 do 
+      s = diff / 1000 |> round()
+      s = if s > 60, do: Integer.mod(s, 60), else: s
+      leftPad(s)
+    else
+     "00"
+    end
+
+    # minutes
+    m = if diff > 60000 do
+      m = diff / 60000 |> round()
+      m = if m > 60, do: Integer.mod(m, 60), else: m
+      leftPad(m)
     else
       "00"
     end
 
-		# minutes
-		m = if diff > 60000 do
-			m = diff / 60000 |> round()
-			m = if m > 60, do: Integer.mod(m, 60), else: m
-      m = leftPad(m)
+    # hours
+    h = if diff > 3600000 do
+      h = diff / 3600000 |> round()
+      leftPad(h)
     else
       "00"
     end
 
-		# hours
-		h = if diff > 3600000 do
-			h = diff / 3600000 |> round()
-			h = leftPad(h)
-    else
-      "00"
-    end
-
-		"#{h}:#{m}:#{s}"
-	end
-
-  
+    "#{h}:#{m}:#{s}"
+  end
 end

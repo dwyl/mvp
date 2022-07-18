@@ -139,4 +139,11 @@ defmodule AppWeb.AppLiveTest do
     updated_item = Item.get_item!(item.id)
     assert updated_item.text == "Learn more Elixir"
   end
+
+  test "timer_text(start, stop)" do
+    start = ~N[2022-07-17 09:01:42.000000]
+    stop = ~N[2022-07-17 13:21:24.000000]
+
+    assert AppWeb.AppLive.timer_text(start, stop) == "04:20:42"
+  end
 end
