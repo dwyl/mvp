@@ -4,6 +4,7 @@ defmodule App.Timer do
   # import Ecto.Query
   alias App.Repo
   alias __MODULE__
+  require Logger
 
   schema "timers" do
     field :end, :naive_datetime
@@ -75,6 +76,19 @@ defmodule App.Timer do
 
   """
   def stop_timer_for_item_id(item_id) do
-    
+    # get timer by item_id
+    sql = """
+    SELECT t.id FROM timers t WHERE t.item_id = $1 AND t.end IS NULL ORDER BY t.id DESC LIMIT 1;
+    """
+
+    res = Ecto.Adapters.SQL.query!(Repo, sql, [item_id])
+    if res.num_rows > 0 do
+      # IO.inspect(res.rows)
+      timer_id = res.rows |> List.first() |> List.first()
+      Logger.debug("Found timer.id: #{timer_id} for item: #{item_id}, attempting to stop.")
+      stop(%{id: timer_id})
+    else
+      Logger.debug("No active timers found for item: #{item_id}")
+    end
   end
 end

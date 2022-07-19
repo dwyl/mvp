@@ -37,15 +37,20 @@ defmodule App.TimerTest do
       assert NaiveDateTime.diff(timer.end, timer.start) == 1
     end
 
-    test "stop_timer_for_item_id(item_id) should stop the active timer happy path" do
+    test "stop_timer_for_item_id(item_id) should stop the active timer (happy path)" do
       {:ok, item} = Item.create_item(@valid_item_attrs)
       {:ok, seven_seconds_ago} = 
         NaiveDateTime.new(Date.utc_today, Time.add(Time.utc_now, -7))
-
+      # Start the timer 7 seconds ago:
       {:ok, timer} =
         Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
       
-
+      # stop the timer based on it's item_id
+      Timer.stop_timer_for_item_id(item.id)
+      
+      stopped_timer = Timer.get_timer!(timer.id)
+      assert NaiveDateTime.diff(stopped_timer.start, seven_seconds_ago) == 0
+      assert NaiveDateTime.diff(stopped_timer.end, stopped_timer.start) == 7
     end
 
     # test "stop_timer_for_item_id(item_id) should not explode if there is no timer (unhappy path)" do
@@ -55,6 +60,7 @@ defmodule App.TimerTest do
 
     # test "stop_timer_for_item_id(item_id) should not melt down if there is no item (sad path)" do
     #   fake_item_id = # random int
+    #       Timer.stop_timer_for_item_id(42)
 
     # end
   end
