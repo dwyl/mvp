@@ -8,9 +8,7 @@ defmodule AppWeb.AppLive do
   def mount(_params, _session, socket) do
     # subscribe to the channel
     if connected?(socket), do: AppWeb.Endpoint.subscribe(@topic)
-    # IO.inspect(Item.items_with_timers(1))
-    {:ok,
-     assign(socket, items: Item.items_with_timers(1), editing: nil)}
+    {:ok, assign(socket, items: Item.items_with_timers(1), editing: nil)}
   end
 
   @impl true
@@ -31,7 +29,7 @@ defmodule AppWeb.AppLive do
 
     item = Item.get_item!(Map.get(data, "id"))
     Item.update_item(item, %{status_code: status})
-    # IO.inspect(Item.items_with_timers(1), label: "Item.items_with_timers(1)")
+
     socket =
       assign(socket, items: Item.items_with_timers(1), active: %Item{})
 
@@ -52,10 +50,8 @@ defmodule AppWeb.AppLive do
 
   @impl true
   def handle_event("start", data, socket) do
-    # Toggle the status of the item between 3 (:active) and 4 (:done)
-    # status = if Map.has_key?(data, "value"), do: 4, else: 3
     item = Item.get_item!(Map.get(data, "id"))
-    # Item.update_item(item, %{id: item.id, status_code: status})
+
     {:ok, _timer} =
       Timer.start(%{
         item_id: item.id,
@@ -72,7 +68,6 @@ defmodule AppWeb.AppLive do
 
   @impl true
   def handle_event("stop", data, socket) do
-    # Toggle the status of the item between 3 (:active) and 4 (:done)
     timer_id = Map.get(data, "timerid")
     {:ok, _timer} = Timer.stop(%{id: timer_id})
 

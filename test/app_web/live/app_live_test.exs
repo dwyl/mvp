@@ -5,8 +5,8 @@ defmodule AppWeb.AppLiveTest do
 
   test "disconnected and connected render", %{conn: conn} do
     {:ok, page_live, disconnected_html} = live(conn, "/")
-    assert disconnected_html =~ "mind"
-    assert render(page_live) =~ "mind"
+    assert disconnected_html =~ "done"
+    assert render(page_live) =~ "done"
   end
 
   test "connect and create an item", %{conn: conn} do
@@ -47,7 +47,7 @@ defmodule AppWeb.AppLiveTest do
     assert item.status_code == 2
 
     {:ok, view, _html} = live(conn, "/")
-    assert render_click(view, :delete, %{"id" => item.id}) =~ "mind"
+    assert render_click(view, :delete, %{"id" => item.id}) =~ "done"
 
     updated_item = Item.get_item!(item.id)
     assert updated_item.status_code == 6
@@ -72,7 +72,7 @@ defmodule AppWeb.AppLiveTest do
     {:ok, view, _html} = live(conn, "/")
 
     assert render_click(view, :stop, 
-      %{"id" => item.id, "timerid" => timer.id}) =~ "mind"
+      %{"id" => item.id, "timerid" => timer.id}) =~ "done"
   end
 
   # This test is just to ensure coverage of the handle_info/2 function

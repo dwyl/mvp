@@ -10,7 +10,7 @@
         border border-b border-slate-200
         focus:border-none focus:outline-none"
       name="text" 
-      placeholder="What is on your mind?" 
+      placeholder="What needs to be done?" 
       autofocus="" 
       required="required" 
     ></textarea>
@@ -107,7 +107,7 @@
             phx-click="edit-item" phx-value-id={item.id}>
             <%= item.text %>
           </label>
-       <% end %>
+        <% end %>
 
        <%= if timers_any?(item) do %>
           <!-- always display the time elapsed in the UI https://github.com/dwyl/app-mvp-phoenix/issues/106 -->
@@ -154,7 +154,6 @@
                 <span x-ref="timer_start" class="hidden"><%= timestamp(item.start) %></span>
 
                 <div class="flex flex-col justify-end mr-1">
-
                   <button phx-click="stop" phx-value-id={item.id} phx-value-timerid={item.timer_id}
                     class="inline-flex items-center px-2 py-2 h-10 mr-1
                     bg-red-500 hover:bg-red-700 text-white rounded-md">
@@ -171,15 +170,9 @@
                   <p><span x-text="timer_text(start, current || stop)"
                     class="text-sm font-mono font-semibold text-right mr-1">00:00:00</span></p>
                 </div>
-              </div>
-
-            <% else %>
-           
-            <!-- end if started?(item) -->
-            <% end %>
-
+              </div>           
+            <% end %> <!-- end if started?(item) -->
           <% end %>
-
         <% else %>
           <!-- render start button -->
           <button phx-click="start" phx-value-id={item.id}
@@ -194,52 +187,42 @@
             </svg>
             Start
           </button>
-        <!-- end timers_any?(item) -->
-        <% end %>
-
+        <% end %><!-- end timers_any?(item) -->
       <% end %>
-      
-
-
-      
+            
     </li>
-    <% end %>
+    <% end %><!-- end for item <- @items -->
   </ul>
 </div>
 
 <script>
-	// https://www.theregister.com/2016/03/23/npm_left_pad_chaos/
-	function leftPad(val) {
-		return val < 10 ? '0' + String(val) : val;
-	}
+function leftPad(val) {
+  return val < 10 ? '0' + String(val) : val;
+}
 
-	function timer_text(start, current) {
-    console.log("timer_text(start, current)", start, current)
-		let h="00", m="00", s="00";
-		const diff = current - start;
-		// seconds
-		if(diff > 1000) {
-			s = Math.floor(diff / 1000);
-			s = s > 60 ? s % 60 : s;
-			s = leftPad(s);
-		}
-		// minutes
-		if(diff > 60000) {
-			m = Math.floor(diff/60000);
-			m = m > 60 ? m % 60 : m;
-      m = leftPad(m)
-		}
-		// hours
-		if(diff > 3600000) {
-			h = Math.floor(diff/3600000);
-			h = leftPad(h)
-		}
+function timer_text(start, current) {
+  console.log("timer_text(start, current)", start, current)
+  let h="00", m="00", s="00";
+  const diff = current - start;
+  // seconds
+  if(diff > 1000) {
+    s = Math.floor(diff / 1000);
+    s = s > 60 ? s % 60 : s;
+    s = leftPad(s);
+  }
+  // minutes
+  if(diff > 60000) {
+    m = Math.floor(diff/60000);
+    m = m > 60 ? m % 60 : m;
+    m = leftPad(m)
+  }
+  // hours
+  if(diff > 3600000) {
+    h = Math.floor(diff/3600000);
+    h = leftPad(h)
+  }
 
-		return h + ':' + m + ':' + s;
-	}
-
-
-
-
+  return h + ':' + m + ':' + s;
+}
 </script>
 
