@@ -18,16 +18,27 @@
     <nav class="bg-white border-gray-200 px-2 sm:px-4 py-2 rounded dark:bg-gray-900">
       <div class="container flex flex-wrap justify-between items-center mx-auto">
 
-        <a href="https://github.com/iteles" class="flex items-center">
-            <img src="https://avatars.githubusercontent.com/u/4185328?s=88&u=328b0bfd79c6d0acb009c2802a84a817e61e1614&v=4" class="mr-3 h-6 sm:h-9 rounded-full" alt="dwyl logo">
-        </a>
+        <%= if @loggedin do %>
+          <img src={@person.picture} class="mr-3 h-6 sm:h-9 rounded-full" alt="avatar image">
+        <% else %>
+          <h1 class="text-white">Hi Friend!</h1>
+        <% end %>
+
         <a href="/" class="flex items-center">
             <img src="https://dwyl.com/img/favicon-32x32.png" class="mr-3 h-6 sm:h-9" alt="dwyl logo">
         </a>
 
-        <button class="bg-teal-600 text-white rounded-xl px-3 py-1 text-sm align-middle float-right mr-1">
-          <%= link "logout", to: "/login" %>
+        <%= if @loggedin do %>
+          <button
+            class="bg-teal-600 text-white rounded-xl px-3 py-1 text-sm align-middle float-right mr-1">
+            <%= link "logout", to: "/logout" %>
+          </button>
+
+        <% else %>
+        <button class="bg-teal-500 text-white rounded-xl -pt-1 px-3 py-1 text-sm align-middle float-right mr-1">
+          <%= link "Login", to: "/login" %>
         </button>
+        <% end %>
       </div>
     </nav>
     </header>

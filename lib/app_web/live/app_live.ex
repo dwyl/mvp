@@ -1,38 +1,65 @@
 defmodule AppWeb.AppLive do
   use AppWeb, :live_view
   alias App.{Item, Timer}
+  # run authentication on mount
+  on_mount AppWeb.AuthController
 
   @topic "live"
 
+  defp get_person_id(assigns) do
+    if Map.has_key?(assigns, :person) do
+      assigns.person.id
+    else
+      1
+    end
+    # |> IO.inspect(label: "get_person_id(assigns)")
+  end
+
   @impl true
   def mount(_params, _session, socket) do
+    person_id = get_person_id(socket.assigns)
     # subscribe to the channel
     if connected?(socket), do: AppWeb.Endpoint.subscribe(@topic)
-    {:ok, assign(socket, items: Item.items_with_timers(1), editing: nil)}
+    {:ok, assign(socket, items: Item.items_with_timers(person_id), editing: nil)}
   end
 
   @impl true
   def handle_event("create", %{"text" => text}, socket) do
-    Item.create_item(%{text: text, person_id: 1, status_code: 2})
-
-    socket =
-      assign(socket, items: Item.items_with_timers(1), active: %Item{})
+    person_id = get_person_id(socket.assigns)
+    Item.create_item(%{text: text, person_id: person_id, status_code: 2})
+    # IO.inspect(socket.assigns, label: "handle_event create socket.assigns")
+    socket = 
+      assign(socket, items: Item.items_with_timers(person_id), active: %Item{})
 
     AppWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
     {:noreply, socket}
   end
+
+  # @impl true
+  # def handle_event("logout", _data, socket) do
+  #   socket = %{ socket | assigns: Map.delete(socket.assigns, [:person, :loggedin])}
+  #   person_id = get_person_id(socket.assigns)
+
+  #   socket =
+  #     assign(socket, items: Item.items_with_timers(person_id), active: %Item{})
+
+  #   AppWeb.Endpoint.broadcast_from(self(), @topic, "logout", socket.assigns)
+  #   {:noreply, socket}
+  # end
 
   @impl true
   def handle_event("toggle", data, socket) do
     # Toggle the status of the item between 3 (:active) and 4 (:done)
     status = if Map.has_key?(data, "value"), do: 4, else: 3
 
+    # need to restrict getting items to the people who own or have rights to access them!
     item = Item.get_item!(Map.get(data, "id"))
     Item.update_item(item, %{status_code: status})
     Timer.stop_timer_for_item_id(item.id)
     
+    person_id = get_person_id(socket.assigns)
     socket =
-      assign(socket, items: Item.items_with_timers(1), active: %Item{})
+      assign(socket, items: Item.items_with_timers(person_id), active: %Item{})
 
     AppWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
     {:noreply, socket}
@@ -42,8 +69,9 @@ defmodule AppWeb.AppLive do
   def handle_event("delete", %{"id" => item_id}, socket) do
     Item.delete_item(item_id)
 
+    person_id = get_person_id(socket.assigns)
     socket =
-      assign(socket, items: Item.items_with_timers(1), active: %Item{})
+      assign(socket, items: Item.items_with_timers(person_id), active: %Item{})
 
     AppWeb.Endpoint.broadcast_from(self(), @topic, "delete", socket.assigns)
     {:noreply, socket}
@@ -60,8 +88,9 @@ defmodule AppWeb.AppLive do
         start: NaiveDateTime.utc_now()
       })
 
+    person_id = get_person_id(socket.assigns)
     socket =
-      assign(socket, items: Item.items_with_timers(1), active: %Item{}, editing: nil)
+      assign(socket, items: Item.items_with_timers(person_id), active: %Item{}, editing: nil)
 
     AppWeb.Endpoint.broadcast_from(self(), @topic, "start|stop", socket.assigns)
     {:noreply, socket}
@@ -72,8 +101,9 @@ defmodule AppWeb.AppLive do
     timer_id = Map.get(data, "timerid")
     {:ok, _timer} = Timer.stop(%{id: timer_id})
 
+    person_id = get_person_id(socket.assigns)
     socket =
-      assign(socket, items: Item.items_with_timers(1), active: %Item{})
+      assign(socket, items: Item.items_with_timers(person_id), active: %Item{})
 
     AppWeb.Endpoint.broadcast_from(self(), @topic, "start|stop", socket.assigns)
     {:noreply, socket}
@@ -88,7 +118,8 @@ defmodule AppWeb.AppLive do
   def handle_event("update-item", %{"id" => item_id, "text" => text}, socket) do
     current_item = Item.get_item!(item_id)
     Item.update_item(current_item, %{text: text})
-    socket = assign(socket, items: Item.items_with_timers(1), editing: nil)
+    person_id = get_person_id(socket.assigns)
+    socket = assign(socket, items: Item.items_with_timers(person_id), editing: nil)
     AppWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
     {:noreply, socket}
   end
@@ -110,6 +141,14 @@ defmodule AppWeb.AppLive do
   def handle_info(%{event: "delete", payload: %{items: items}}, socket) do
     {:noreply, assign(socket, items: items, editing: nil)}
   end
+
+  # @impl true
+  # def handle_info(%{event: "logout", payload: %{items: _items}}, socket) do
+  #   IO.inspect(socket, label: "logout event called with socket:")
+  #   socket = %{ socket | assigns: Map.delete(socket.assigns, [:person, :loggedin])}
+  #   person_id = get_person_id(socket.assigns)
+  #   {:noreply, assign(socket, items: Item.items_with_timers(person_id), editing: nil)}
+  # end
 
   # Check for status 4 (:done)
   def done?(item), do: item.status_code == 4

@@ -56,11 +56,11 @@ defmodule App.MixProject do
       {:plug_cowboy, "~> 2.5"},
 
       # Auth with ONE Environment Variable™: github.com/dwyl/auth_plug
-      {:auth_plug, "~> 1.4"},
+      {:auth_plug, "~> 1.4.13"},
       # Easily Encrypt Senstive Data: github.com/dwyl/fields
       {:fields, "~> 2.9"},
       # Useful functions: github.com/dwyl/useful
-      {:useful, "~> 1.0.8"},
+      {:useful, "~> 1.0.8", override: true},
       # https://hex.pm/packages/atomic_map
       {:atomic_map, "~> 0.9.3"},
       # Statuses: github.com/dwyl/statuses
