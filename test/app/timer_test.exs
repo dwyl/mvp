@@ -53,16 +53,17 @@ defmodule App.TimerTest do
       assert NaiveDateTime.diff(stopped_timer.end, stopped_timer.start) == 7
     end
 
-    # test "stop_timer_for_item_id(item_id) should not explode if there is no timer (unhappy path)" do
-    #   {:ok, item} = Item.create_item(@valid_item_attrs)
+    test "stop_timer_for_item_id(item_id) should not explode if there is no timer (unhappy path)" do
+      zero_item_id = 0 # random int
+      Timer.stop_timer_for_item_id(zero_item_id)
+      assert "Don't stop believing!"
+    end
 
-    # end
-
-    # test "stop_timer_for_item_id(item_id) should not melt down if there is no item (sad path)" do
-    #   fake_item_id = # random int
-    #       Timer.stop_timer_for_item_id(42)
-
-    # end
+    test "stop_timer_for_item_id(item_id) should not melt down if item_id is nil (sad path)" do
+      nil_item_id = nil # random int
+      Timer.stop_timer_for_item_id(nil_item_id)
+      assert "Keep on truckin'"
+    end
   end
 
   describe "accumulate timers #103" do

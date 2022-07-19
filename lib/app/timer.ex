@@ -75,13 +75,17 @@ defmodule App.Timer do
       {:ok, %Timer{item_id: 42, end: ~N[2022-07-11 05:15:31], etc.}}
 
   """
+  def stop_timer_for_item_id(item_id) when is_nil(item_id) do
+    Logger.debug("stop_timer_for_item_id/1 called without item_id: #{item_id} fail.")
+  end
+
   def stop_timer_for_item_id(item_id) do
-    # get timer by item_id
+    # get timer by item_id find the latest one that has not been stopped:
     sql = """
     SELECT t.id FROM timers t WHERE t.item_id = $1 AND t.end IS NULL ORDER BY t.id DESC LIMIT 1;
     """
-
     res = Ecto.Adapters.SQL.query!(Repo, sql, [item_id])
+    
     if res.num_rows > 0 do
       # IO.inspect(res.rows)
       timer_id = res.rows |> List.first() |> List.first()

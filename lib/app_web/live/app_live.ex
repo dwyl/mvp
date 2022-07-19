@@ -29,7 +29,8 @@ defmodule AppWeb.AppLive do
 
     item = Item.get_item!(Map.get(data, "id"))
     Item.update_item(item, %{status_code: status})
-
+    Timer.stop_timer_for_item_id(item.id)
+    
     socket =
       assign(socket, items: Item.items_with_timers(1), active: %Item{})
 
