@@ -46,19 +46,28 @@
         <label class="w-full text-slate-400  m-2 line-through">
           <%= item.text %>
         </label>
- 
-        <!-- "Archive" button with icon see: https://github.com/dwyl/app-mvp-phoenix/issues/101 -->
-        <button class="inline-flex items-center px-2 py-1 mr-2 h-10
-         bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md"
-          phx-click="delete" phx-value-id={item.id}>
-	        <svg xmlns="http://www.w3.org/2000/svg" 
-            class="h-5 w-5 mr-2" fill="none" 
-            viewBox="0 0 24 24" stroke="currentColor">
-	          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-              d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-	        </svg>
-          Archive
-        </button>
+
+        <div class="flex flex-col">
+        <div class="flex flex-col justify-end mr-1">
+          <!-- "Archive" button with icon see: https://github.com/dwyl/app-mvp-phoenix/issues/101 -->
+          <button class="inline-flex items-center px-2 py-1 mr-2 h-10
+          bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md"
+            phx-click="delete" phx-value-id={item.id}>
+            <svg xmlns="http://www.w3.org/2000/svg" 
+              class="h-5 w-5 mr-2" fill="none" 
+              viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+            </svg>
+            Archive
+          </button>
+          <p> 
+            <span class="text-sm font-mono font-semibold flex flex-col justify-end text-right mr-2 mt-1"> 
+              <%= timer_text(item) %> 
+            </span>
+          </p>
+        </div>
+      </div>
 
       <!-- else render the buttons for start|stop timer -->
       <% else %>
@@ -129,7 +138,7 @@
                 </button>
                 <p> 
                   <span class="text-sm font-mono font-semibold flex flex-col justify-end text-right mr-2 mt-1"> 
-                    <%= timer_text(item.start, item.end) %> 
+                    <%= timer_text(item) %> 
                   </span>
                 </p>
               </div>

@@ -95,17 +95,9 @@ defmodule App.Item do
   end
 
 
-
-  # HERE BE DRAGONS! [ Working with Time is all Dragons! Pairing/Refactoring Welcome! ]
-
-  # sadly, this is not built-in ...
-  # ref: https://groups.google.com/g/elixir-ecto/c/0cubhSd3QS0/m/DLdQsFrcBAAJ
-  defp map_columns_to_values(res) do
-    Enum.map(res.rows, fn(row) ->
-      Enum.zip(res.columns, row) 
-      |> Map.new |> AtomicMap.convert()
-    end)
-  end
+  #  🐲       H E R E   B E   D R A G O N S!     🐉
+  #  ⏳     Working with Time is all Dragons!    🙄
+  #  👩‍💻   Feedback/Pairing/Refactoring Welcome!  🙏
 
   @doc """
   `items_with_timers/1` Returns a List of items with the latest associated timers.
@@ -132,6 +124,22 @@ defmodule App.Item do
     |> accumulate_item_timers()
   end
 
+
+  @doc """
+  `map_columns_to_values/1` takes an Ecto SQL query result
+  which has the List of columns and rows separate
+  and returns a List of Maps where the keys are the column names and values the data.
+
+  Sadly, Ecto returns rows without column keys so we have to map them manually:
+  ref: https://groups.google.com/g/elixir-ecto/c/0cubhSd3QS0/m/DLdQsFrcBAAJ
+  """
+
+  defp map_columns_to_values(res) do
+    Enum.map(res.rows, fn(row) ->
+      Enum.zip(res.columns, row) 
+      |> Map.new |> AtomicMap.convert()
+    end)
+  end
 
   @doc """
   `map_timer_diff/1` transforms a list of items_with_timers
@@ -180,6 +188,17 @@ defmodule App.Item do
   end
 
   @doc """
+  `accumulate_item_timers/1` aggregates the elapsed time 
+  for all the timers associated with an item
+  and then subtracs that time from the start value of the *current* active timer.
+  This is done to create the appearance that a single timer is being started/stopped
+  when in fact there are multiple timers in the backend. 
+  For MVP we *could* have just had a single timer ... 
+  and given the "ugliness" of this code, I wish I had done that!!
+  But the "USP" of our product [IMO] is that 
+  we can track the completion of a task across multiple work sessions.
+  And having multiple timers is the *only* way to achieve that.
+
   If you can think of a better way of achieving the same result,
   please share: https://github.com/dwyl/app-mvp-phoenix/issues/103
   This function *relies* on the list of items being orderd by timer_id ASC
@@ -212,16 +231,16 @@ defmodule App.Item do
     end)
 
     # creates a nested map: %{ item.id: %{id: 1, text: "my item", etc.}}
-    item_map = Map.new(items_with_timers, fn item -> 
+    Map.new(items_with_timers, fn item -> 
       time_elapsed = Map.get(item_id_timer_diff_map, item.id)
       start = if is_nil(item.start), do: nil, 
         else: NaiveDateTime.add(item.start, -time_elapsed)
 
       { item.id, %{item | start: start}}
     end)
-
-    # return the list of items without duplicates and only the last/active timer:
-    Map.values(item_map)
-    |> Enum.reverse()
+    # Return the list of items without duplicates and only the last/active timer:
+    |> Map.values()
+    # Sort list by item.id descending (ordered by timer_id ASC above) so newest item first:
+    |> Enum.sort_by(fn(i) -> i.id end, :desc)
   end
 end

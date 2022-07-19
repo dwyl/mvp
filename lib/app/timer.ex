@@ -63,4 +63,18 @@ defmodule App.Timer do
     |> changeset(%{end: NaiveDateTime.utc_now})
     |> Repo.update()
   end
+
+  @doc """
+  `stop_timer_for_item_id/1` stops a timer for the given item_id if there is one.
+  Fails silently if there is no timer for the given item_id.
+
+  ## Examples
+
+      iex> stop_timer_for_item_id(42)
+      {:ok, %Timer{item_id: 42, end: ~N[2022-07-11 05:15:31], etc.}}
+
+  """
+  def stop_timer_for_item_id(item_id) do
+    
+  end
 end

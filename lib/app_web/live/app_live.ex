@@ -139,35 +139,39 @@ defmodule AppWeb.AppLive do
     if val < 10, do: "0#{to_string(val)}", else: val
   end
 
-  def timer_text(start, stop) do
-    diff = timestamp(stop) - timestamp(start)
-
-    # seconds
-    s = if diff > 1000 do 
-      s = diff / 1000 |> trunc()
-      s = if s > 60, do: Integer.mod(s, 60), else: s
-      leftPad(s)
+  def timer_text(item) do
+    if is_nil(item) or is_nil(item.start) or is_nil(item.end) do
+      ""
     else
-     "00"
-    end
+      diff = timestamp(item.end) - timestamp(item.start)
 
-    # minutes
-    m = if diff > 60000 do
-      m = diff / 60000 |> trunc()
-      m = if m > 60, do: Integer.mod(m, 60), else: m
-      leftPad(m)
-    else
+      # seconds
+      s = if diff > 1000 do 
+        s = diff / 1000 |> trunc()
+        s = if s > 60, do: Integer.mod(s, 60), else: s
+        leftPad(s)
+      else
       "00"
-    end
+      end
 
-    # hours
-    h = if diff > 3600000 do
-      h = diff / 3600000 |> trunc()
-      leftPad(h)
-    else
-      "00"
-    end
+      # minutes
+      m = if diff > 60000 do
+        m = diff / 60000 |> trunc()
+        m = if m > 60, do: Integer.mod(m, 60), else: m
+        leftPad(m)
+      else
+        "00"
+      end
 
-    "#{h}:#{m}:#{s}"
+      # hours
+      h = if diff > 3600000 do
+        h = diff / 3600000 |> trunc()
+        leftPad(h)
+      else
+        "00"
+      end
+
+      "#{h}:#{m}:#{s}"
+    end
   end
 end
