@@ -55,6 +55,8 @@ defmodule App.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
 
+      # Check/get Environment Variables: https://github.com/dwyl/envar
+      {:envar, "~> 1.0.5"},
       # Auth with ONE Environment Variable™: github.com/dwyl/auth_plug
       {:auth_plug, "~> 1.4.13"},
       # Easily Encrypt Senstive Data: github.com/dwyl/fields

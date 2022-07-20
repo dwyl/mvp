@@ -10,6 +10,12 @@ defmodule AppWeb.Router do
     plug :put_secure_browser_headers
   end
 
+  # No Auth
+  scope "/", AppWeb do
+    pipe_through :browser
+    get "/init", InitController, :index
+  end
+
   pipeline :authOptional, do: plug(AuthPlugOptional)
 
   scope "/", AppWeb do

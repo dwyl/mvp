@@ -8,7 +8,8 @@ config :app, AppWeb.Endpoint,
   url: [host: "localhost"],
   render_errors: [view: AppWeb.ErrorView, accepts: ~w(html json), layout: false],
   pubsub_server: App.PubSub,
-  live_view: [signing_salt: "IJG3BS8I"]
+  live_view: [signing_salt: "IJG3BS8I"],
+  secret_key_base: System.get_env("SECRET_KEY_BASE")
 
 # Configure esbuild (the version is required)
 config :esbuild,
@@ -39,10 +40,13 @@ config :tailwind,
     cd: Path.expand("../assets", __DIR__)
   ]
 
-config :auth_plug,
-  api_key: System.get_env("AUTH_API_KEY")
-
-
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
+
+# https://hexdocs.pm/joken/introduction.html#usage
+config :joken, default_signer: System.get_env("SECRET_KEY_BASE")
+
+# 
+config :auth_plug,
+  api_key: System.get_env("AUTH_API_KEY")
