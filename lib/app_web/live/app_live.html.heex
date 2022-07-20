@@ -156,7 +156,7 @@
                 x-init="
                   start = parseInt($refs.timer_start.innerHTML, 10);
                   current = start;
-                  interval = setInterval(() => { current = Date.now() }, 100)
+                  interval = setInterval(() => { current = Date.now() }, 500)
                 "
                 >
                 <!-- this is how we pass the start|stop time from Elixir (server) to Alping (client) -->
