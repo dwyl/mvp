@@ -14,12 +14,17 @@ defmodule AppWeb.AppLive do
     end
   end
 
+  # assign default values to socket:
+  defp assign_socket(socket) do
+    person_id = get_person_id(socket.assigns)
+    assign(socket, items: Item.items_with_timers(person_id), active: %Item{}, editing: nil)
+  end
+
   @impl true
   def mount(_params, _session, socket) do
-    person_id = get_person_id(socket.assigns)
     # subscribe to the channel
     if connected?(socket), do: AppWeb.Endpoint.subscribe(@topic)
-    {:ok, assign(socket, items: Item.items_with_timers(person_id), editing: nil)}
+    {:ok, assign_socket(socket)}
   end
 
   @impl true
@@ -27,8 +32,7 @@ defmodule AppWeb.AppLive do
     person_id = get_person_id(socket.assigns)
     Item.create_item(%{text: text, person_id: person_id, status_code: 2})
     # IO.inspect(socket.assigns, label: "handle_event create socket.assigns")
-    socket = 
-      assign(socket, items: Item.items_with_timers(person_id), active: %Item{})
+    socket = assign_socket(socket)
 
     AppWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
     {:noreply, socket}
@@ -43,11 +47,7 @@ defmodule AppWeb.AppLive do
     item = Item.get_item!(Map.get(data, "id"))
     Item.update_item(item, %{status_code: status})
     Timer.stop_timer_for_item_id(item.id)
-    
-    person_id = get_person_id(socket.assigns)
-    socket =
-      assign(socket, items: Item.items_with_timers(person_id), active: %Item{})
-
+    socket = assign_socket(socket)
     AppWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
     {:noreply, socket}
   end
@@ -55,11 +55,7 @@ defmodule AppWeb.AppLive do
   @impl true
   def handle_event("delete", %{"id" => item_id}, socket) do
     Item.delete_item(item_id)
-
-    person_id = get_person_id(socket.assigns)
-    socket =
-      assign(socket, items: Item.items_with_timers(person_id), active: %Item{})
-
+    socket = assign_socket(socket)
     AppWeb.Endpoint.broadcast_from(self(), @topic, "delete", socket.assigns)
     {:noreply, socket}
   end
@@ -67,17 +63,15 @@ defmodule AppWeb.AppLive do
   @impl true
   def handle_event("start", data, socket) do
     item = Item.get_item!(Map.get(data, "id"))
-
+    person_id = get_person_id(socket.assigns)
     {:ok, _timer} =
       Timer.start(%{
         item_id: item.id,
-        person_id: 1,
+        person_id: person_id,
         start: NaiveDateTime.utc_now()
       })
 
-    person_id = get_person_id(socket.assigns)
-    socket =
-      assign(socket, items: Item.items_with_timers(person_id), active: %Item{}, editing: nil)
+    socket = assign_socket(socket)
 
     AppWeb.Endpoint.broadcast_from(self(), @topic, "start|stop", socket.assigns)
     {:noreply, socket}
@@ -87,10 +81,7 @@ defmodule AppWeb.AppLive do
   def handle_event("stop", data, socket) do
     timer_id = Map.get(data, "timerid")
     {:ok, _timer} = Timer.stop(%{id: timer_id})
-
-    person_id = get_person_id(socket.assigns)
-    socket =
-      assign(socket, items: Item.items_with_timers(person_id), active: %Item{})
+    socket = assign_socket(socket)
 
     AppWeb.Endpoint.broadcast_from(self(), @topic, "start|stop", socket.assigns)
     {:noreply, socket}
@@ -105,28 +96,27 @@ defmodule AppWeb.AppLive do
   def handle_event("update-item", %{"id" => item_id, "text" => text}, socket) do
     current_item = Item.get_item!(item_id)
     Item.update_item(current_item, %{text: text})
-    person_id = get_person_id(socket.assigns)
-    socket = assign(socket, items: Item.items_with_timers(person_id), editing: nil)
+    socket = assign_socket(socket)
     AppWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
     {:noreply, socket}
   end
 
   @impl true
   def handle_info(
-        %{event: "start|stop", payload: %{items: items}},
+        %{event: "start|stop", payload: %{items: _items}},
         socket
       ) do
-    {:noreply, assign(socket, items: items, editing: nil)}
+    {:noreply, assign_socket(socket)}
   end
 
   @impl true
-  def handle_info(%{event: "update", payload: %{items: items}}, socket) do
-    {:noreply, assign(socket, items: items, editing: nil)}
+  def handle_info(%{event: "update", payload: %{items: _items}}, socket) do
+    {:noreply, assign_socket(socket)}
   end
 
   @impl true
-  def handle_info(%{event: "delete", payload: %{items: items}}, socket) do
-    {:noreply, assign(socket, items: items, editing: nil)}
+  def handle_info(%{event: "delete", payload: %{items: _items}}, socket) do
+    {:noreply, assign_socket(socket)}
   end
 
   # Check for status 4 (:done)

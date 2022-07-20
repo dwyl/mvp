@@ -23,7 +23,6 @@ And help us to ...
 
 </div>
 
-
 - [@dwyl App MVP `PETAL`  💡⏳ ✅](#dwyl-app-mvp-petal---)
 - [Please ***`try`*** it: mvp.fly.dev](#please-try-it-mvpflydev)
 - [Why? 🤷](#why-)
@@ -33,6 +32,7 @@ And help us to ...
   - [Tech Stack?](#tech-stack)
 - [_Who?_ 👥](#who-)
   - [Feedback! 🙏](#feedback-)
+    - [Seriously, Please ***`try`*** it: mvp.fly.dev](#seriously-please-try-it-mvpflydev)
 - [_How_? 💻](#how-)
   - [Run the MVP App on your `localhost` ⬇️](#run-the-mvp-app-on-your-localhost-️)
   - [_Single_ Environment Variable: `AUTH_API_KEY`](#single-environment-variable-auth_api_key)
@@ -171,6 +171,8 @@ Way more detail:
 > but are still curious,
 > ***subscribe*** as we will cover it later on!
 
+
+
 <!--
 > The "communication" aspect will be 
 > covered by having 
@@ -230,6 +232,37 @@ And if you have any questions,
 please open an issue:
 [app-mvp-phoenix/issues](https://github.com/dwyl/app-mvp-phoenix/issues) ❓
 <br />
+
+### Seriously, Please ***`try`*** it: [mvp.fly.dev](https://mvp.fly.dev/)
+
+1. ***Create*** a todo list `item`; <br />
+   This item is **`public`** (anyone can see it!) <br />
+   If you want **`private`** items you need to **login**. 
+2. ***Start*** a `timer` for the (`public`) `item`
+3. ***Stop*** the `timer` for the `item` (press **`start`**)
+4. ***Mark*** the `item` as `done` (press/tap the `checkbox` to the left of the `item.text`)
+5. ***`Archive`*** the `item` (it will disappear)
+6. ***Create*** a new (`public`) `item`
+7. ***Start*** a `timer` for the (`public`) `item` and leave it running.
+8. ***Login*** using your **`GitHub`** or **`Google`** account.
+9.  ***Create*** a todo list `item` while logged-in
+10. ***Start*** a `timer` for the `item`
+11. ***Stop*** the `timer`
+12. ***Resume*** the `timer` that was previously stopped.
+13. ***Create*** a `new` (`private`) todo list `item` while logged-in
+14. ***Start*** a `timer` for the `item`
+15. ***Open*** a second web browser and watch the ***realtime sync***!
+16. ***Edit*** the `item.text` for the timer that is already running.
+17. ***Mark*** the (`private`) `item` as `done` and see the time it took.
+18. ***`Archive`*** the `item`
+19. ***Logout*** of the app
+20. ***View*** the (`public`) `item` you created earlier with the `timer` still runinng.
+
+That's it. 
+The MVP in a nutshell. 
+Here's a GIF if you're low on time:
+
+
 <!--
 If you are using the "full" @dwyl App,
 and have a question/idea,
