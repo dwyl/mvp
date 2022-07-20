@@ -58,7 +58,7 @@ defmodule App.MixProject do
       # Check/get Environment Variables: https://github.com/dwyl/envar
       {:envar, "~> 1.0.5"},
       # Auth with ONE Environment Variable™: github.com/dwyl/auth_plug
-      {:auth_plug, "~> 1.4.13"},
+      {:auth_plug, "~> 1.4.14"},
       # Easily Encrypt Senstive Data: github.com/dwyl/fields
       {:fields, "~> 2.9"},
       # Useful functions: github.com/dwyl/useful
