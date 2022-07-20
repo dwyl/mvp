@@ -1,12 +1,23 @@
-ARG BUILDER_IMAGE="hexpm/elixir:1.12.3-erlang-24.1.4-debian-bullseye-20210902-slim"
+# Find eligible builder and runner images on Docker Hub. We use Ubuntu/Debian instead of
+# Alpine to avoid DNS resolution issues in production.
+#
+# https://hub.docker.com/r/hexpm/elixir/tags?page=1&name=ubuntu
+# https://hub.docker.com/_/ubuntu?tab=tags
+#
+#
+# This file is based on these images:
+#
+#   - https://hub.docker.com/r/hexpm/elixir/tags - for the build image
+#   - https://hub.docker.com/_/debian?tab=tags&page=1&name=bullseye-20210902-slim - for the release image
+#   - https://pkgs.org/ - resource for finding needed packages
+#   - Ex: hexpm/elixir:1.12.3-erlang-24.1.5-debian-bullseye-20210902-slim
+#
+ARG BUILDER_IMAGE="hexpm/elixir:1.12.3-erlang-24.1.5-debian-bullseye-20210902-slim"
 ARG RUNNER_IMAGE="debian:bullseye-20210902-slim"
 
 FROM ${BUILDER_IMAGE} as builder
 
 # install build dependencies
-# RUN apt-get update -y && apt-get install -y build-essential git nodejs npm \
-#     && apt-get clean && rm -f /var/lib/apt/lists/*_*
-
 RUN apt-get update -y && apt-get install -y build-essential git \
     && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
@@ -20,6 +31,10 @@ RUN mix local.hex --force && \
 # set build ENV
 ENV MIX_ENV="prod"
 
+# copy the .env_sample file to read environment variable keys:
+COPY .env_sample ./
+
+ENV AUTH_API_KEY=$AUTH_API_KEY
 # install mix dependencies
 COPY mix.exs mix.lock ./
 RUN mix deps.get --only $MIX_ENV
@@ -31,17 +46,19 @@ RUN mkdir config
 COPY config/config.exs config/${MIX_ENV}.exs config/
 RUN mix deps.compile
 
-# COPY priv priv - Moved down
-# Compile the release
-COPY lib lib
-
 COPY priv priv
 
+# note: if your project uses a tool like https://purgecss.com/,
+# which customizes asset compilation based on what it finds in
+# your Elixir templates, you will need to move the asset compilation
+# step down so that `lib` is available.
 COPY assets assets
 
-# RUN cd assets && npm install
-
+# compile assets
 RUN mix assets.deploy
+
+# Compile the release
+COPY lib lib
 
 RUN mix compile
 
@@ -69,13 +86,11 @@ WORKDIR "/app"
 RUN chown nobody /app
 
 # Only copy the final release from the build stage
-COPY --from=builder --chown=nobody:root /app/_build/prod/rel ./
+COPY --from=builder --chown=nobody:root /app/_build/prod/rel/app ./
 
 USER nobody
 
-# Create a symlink to the application directory by extracting the directory name. This is required
-# since the release directory will be named after the application, and we don't know that name.
-RUN set -eux; \
-  ln -nfs /app/$(basename *)/bin/$(basename *) /app/entry
-
-CMD /app/entry start
+CMD /app/bin/server
+# Appended by flyctl
+ENV ECTO_IPV6 true
+ENV ERL_AFLAGS "-proto_dist inet6_tcp"
