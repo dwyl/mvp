@@ -262,6 +262,8 @@ That's it.
 The MVP in a nutshell. 
 Here's a GIF if you're low on time:
 
+![mvp-fly-auth](https://user-images.githubusercontent.com/194400/180079997-b43a24c2-7a50-4755-aef9-ef3f2aa28816.gif)
+
 
 <!--
 If you are using the "full" @dwyl App,
@@ -324,8 +326,6 @@ you can run the app with:
 ```sh
 mix phx.server
 ```
-
-> **`TODO`**: insert **`GIF`** of MVP speed-run once ready.
 
 
 
