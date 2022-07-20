@@ -56,11 +56,11 @@ defmodule App.MixProject do
       {:plug_cowboy, "~> 2.5"},
 
       # Check/get Environment Variables: https://github.com/dwyl/envar
-      {:envar, "~> 1.0.5"},
+      {:envar, "~> 1.0.8"},
       # Auth with ONE Environment Variable™: github.com/dwyl/auth_plug
       {:auth_plug, "~> 1.4.14"},
       # Easily Encrypt Senstive Data: github.com/dwyl/fields
-      {:fields, "~> 2.9"},
+      {:fields, "~> 2.9.1"},
       # Useful functions: github.com/dwyl/useful
       {:useful, "~> 1.0.8", override: true},
       # https://github.com/dwyl/useful/issues/17
