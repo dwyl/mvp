@@ -1,10 +1,18 @@
 <div align="center">
 
-# @dwyl App MVP `Phoenix`  💡⏳ ✅
+# @dwyl App MVP `PETAL`  💡⏳ ✅
 
-A **`Phoenix`** implementation
+A **`PETAL` stack** implementation
 of the **@dwyl App**
 [**MVP** feature set](https://github.com/dwyl/app/issues/266).
+
+# Please ***`try`*** it: [mvp.fly.dev](https://mvp.fly.dev/)
+
+And help us to ...
+
+<a href="https://agilevelocity.com/product-owner/mvp-mmf-psi-wtf-part-one-understanding-the-mvp">
+  <img src="https://user-images.githubusercontent.com/194400/65666966-b28dbd00-e036-11e9-9d11-1f5d3e22258e.png" width="500" alt="MVP Loop">
+</a>
 
 [![Build Status](https://img.shields.io/travis/com/dwyl/app-mvp-phoenix/master?color=bright-green&style=flat-square)](https://travis-ci.org/dwyl/app-mvp-phoenix)
 [![codecov.io](https://img.shields.io/codecov/c/github/dwyl/app-mvp-phoenix/master.svg?style=flat-square)](https://codecov.io/github/dwyl/app-mvp-phoenix?branch=master)
@@ -13,13 +21,11 @@ of the **@dwyl App**
 [![HitCount](https://hits.dwyl.com/dwyl/app-mvp-phoenix.svg)](https://hits.dwyl.com/dwyl/app-mvp-phoenix)
 
 
-  <a href="https://agilevelocity.com/product-owner/mvp-mmf-psi-wtf-part-one-understanding-the-mvp">
-    <img src="https://user-images.githubusercontent.com/194400/65666966-b28dbd00-e036-11e9-9d11-1f5d3e22258e.png" width="500" alt="MVP Loop">
-  </a>
 </div>
 
 
-- [@dwyl App MVP `Phoenix`  💡⏳ ✅](#dwyl-app-mvp-phoenix---)
+- [@dwyl App MVP `PETAL`  💡⏳ ✅](#dwyl-app-mvp-petal---)
+- [Please ***`try`*** it: mvp.fly.dev](#please-try-it-mvpflydev)
 - [Why? 🤷](#why-)
 - [_What_? 💭](#what-)
   - [3 Apps into _One_](#3-apps-into-one)
@@ -136,7 +142,9 @@ that it **_immediately_ makes sense**. 🤞
 
 ## Proposed MVP UI/UX
 
-This _proposed_ UI/UX is just to create the MVP functionality.
+This is our wireframe UI/UX
+we used as the _guide_ 
+to create the MVP functionality:
 
 ![mvp-proposed-ux](https://user-images.githubusercontent.com/194400/73374277-d9445480-42b1-11ea-980a-3fabbfe5a9fd.png)
 
@@ -156,6 +164,14 @@ Way more detail:
 > **Note**: This UI/UX _appears_ 
 > to only cover the **`Todo List`** and **`Timer`** features.
 > That is a valid observation.
+> Hopefully you can use your imagination
+> to think of how **`Communication`**
+> can be integrated into this.
+> If you can't imagine it,
+> but are still curious,
+> ***subscribe*** as we will cover it later on!
+
+<!--
 > The "communication" aspect will be 
 > covered by having 
 > [***`presence`***](https://github.com/dwyl/phoenix-liveview-chat-example#14-presence)
@@ -171,7 +187,7 @@ Way more detail:
 > but it will be _nothing_ like the 
 > [Slack](https://github.com/dwyl/app/issues/205)
 > or other DeepWork killing Chat Apps.
-
+-->
 
 ## Tech Stack? 
 
