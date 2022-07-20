@@ -5,7 +5,7 @@ defmodule App.MixProject do
     [
       app: :app,
       version: "1.0.0",
-      elixir: "~> 1.12.3",
+      elixir: "~> 1.12",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: Mix.compilers(),
       start_permanent: Mix.env() == :prod,
@@ -61,7 +61,7 @@ defmodule App.MixProject do
       {:fields, "~> 2.9"},
       # Useful functions: github.com/dwyl/useful
       {:useful, "~> 1.0.8", override: true},
-      # https://hex.pm/packages/atomic_map
+      # https://github.com/dwyl/useful/issues/17
       {:atomic_map, "~> 0.9.3"},
       # Statuses: github.com/dwyl/statuses
       {:statuses, "~> 1.1.1"},

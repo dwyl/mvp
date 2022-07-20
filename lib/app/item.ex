@@ -133,8 +133,7 @@ defmodule App.Item do
   Sadly, Ecto returns rows without column keys so we have to map them manually:
   ref: https://groups.google.com/g/elixir-ecto/c/0cubhSd3QS0/m/DLdQsFrcBAAJ
   """
-
-  defp map_columns_to_values(res) do
+  def map_columns_to_values(res) do
     Enum.map(res.rows, fn(row) ->
       Enum.zip(res.columns, row) 
       |> Map.new |> AtomicMap.convert()
