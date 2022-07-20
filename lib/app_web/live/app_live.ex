@@ -12,7 +12,6 @@ defmodule AppWeb.AppLive do
     else
       1
     end
-    # |> IO.inspect(label: "get_person_id(assigns)")
   end
 
   @impl true
@@ -34,18 +33,6 @@ defmodule AppWeb.AppLive do
     AppWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
     {:noreply, socket}
   end
-
-  # @impl true
-  # def handle_event("logout", _data, socket) do
-  #   socket = %{ socket | assigns: Map.delete(socket.assigns, [:person, :loggedin])}
-  #   person_id = get_person_id(socket.assigns)
-
-  #   socket =
-  #     assign(socket, items: Item.items_with_timers(person_id), active: %Item{})
-
-  #   AppWeb.Endpoint.broadcast_from(self(), @topic, "logout", socket.assigns)
-  #   {:noreply, socket}
-  # end
 
   @impl true
   def handle_event("toggle", data, socket) do
@@ -141,14 +128,6 @@ defmodule AppWeb.AppLive do
   def handle_info(%{event: "delete", payload: %{items: items}}, socket) do
     {:noreply, assign(socket, items: items, editing: nil)}
   end
-
-  # @impl true
-  # def handle_info(%{event: "logout", payload: %{items: _items}}, socket) do
-  #   IO.inspect(socket, label: "logout event called with socket:")
-  #   socket = %{ socket | assigns: Map.delete(socket.assigns, [:person, :loggedin])}
-  #   person_id = get_person_id(socket.assigns)
-  #   {:noreply, assign(socket, items: Item.items_with_timers(person_id), editing: nil)}
-  # end
 
   # Check for status 4 (:done)
   def done?(item), do: item.status_code == 4
