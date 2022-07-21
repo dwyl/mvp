@@ -75,7 +75,7 @@ is to build the **minimal _useable_ App** <br />
 that covers our basic "***Capture, Categorize, Complete***"
 [**workflow**](https://github.com/dwyl/product-roadmap#what). <br />
 It is well-documented, tested
-and easy for a _complete beginner_ to run & understand.
+and easy for a beginner to run & understand.
 
 The idea is to _ship_ this App to
 [Heroku](https://github.com/dwyl/app/issues/231)
@@ -324,7 +324,7 @@ Once you've got that setup,
 you can run the app with:
 
 ```sh
-mix phx.server
+mix s
 ```
 
 
