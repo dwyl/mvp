@@ -32,15 +32,14 @@ And help us to ...
   - [Tech Stack?](#tech-stack)
 - [_Who?_ 👥](#who-)
   - [Feedback! 🙏](#feedback-)
-    - [Seriously, Please ***`try`*** it: mvp.fly.dev](#seriously-please-try-it-mvpflydev)
+    - [Perform Some Actions in the App](#perform-some-actions-in-the-app)
 - [_How_? 💻](#how-)
   - [Run the MVP App on your `localhost` ⬇️](#run-the-mvp-app-on-your-localhost-️)
-  - [_Single_ Environment Variable: `AUTH_API_KEY`](#single-environment-variable-auth_api_key)
 - [Build Log 👩‍💻](#build-log-)
-  - [0. Prerequisites](#0-prerequisites)
   - [1. Create a New `Phoenix` App](#1-create-a-new-phoenix-app)
     - [1.1 Run the `Phoenix` App](#11-run-the-phoenix-app)
     - [1.2 Run the tests:](#12-run-the-tests)
+      - [Test Coverage?](#test-coverage)
     - [1.3 Setup `Tailwind`](#13-setup-tailwind)
     - [1.4 Setup `LiveView`](#14-setup-liveview)
     - [1.5 Update `router.ex`](#15-update-routerex)
@@ -78,7 +77,8 @@ It is well-documented, tested
 and easy for a beginner to run & understand.
 
 The idea is to _ship_ this App to
-[Heroku](https://github.com/dwyl/app/issues/231)
+Fly: 
+[mvp.fly.dev](https://mvp.fly.dev/)
 and then _use/test_ it (_internally_). <br />
 Once we have collected initial feedback,
 we can share it with the world!
@@ -97,14 +97,13 @@ of the app to **learn** from.
 
 A **mobile-first** 
 **_hybrid_ note taking**,
-**categorization**,
-**task and activity** (time) <br />
-**tracking tool**
-with built-in (basic) team **communication**.
+**task and activity** (time)
+**tracking tool**.
+<!-- with built-in (basic) team **communication**. -->
 
 We've found it _tedious_ 
 to use **several _separate_ apps**
-for task/time tracking and comms 🤦‍♂️
+for task and time tracking 🤦‍♂️ <br />
 and think it's _logical_ 
 to _combine_ the functionality. 💡
 
@@ -119,16 +118,18 @@ then there is **no hope** for it._”
 
 ## 3 Apps into _One_
 
-This MVP combines **3 apps** into ***one***. <br />
-We **built** the 3 _separate_ apps
+This MVP combines **2 apps** into ***one***. <br />
+We **built** the 2 _separate_ apps
 to showcase the individual features:
 
 1. Todo list: 
    [github.com/dwyl/phoenix-liveview-**todo-list**](https://github.com/dwyl/phoenix-liveview-todo-list-tutorial)
 2. Stop Watch (Timer):
    [github.com/dwyl/phoenix-liveview-**stopwatch**](https://github.com/dwyl/phoenix-liveview-stopwatch)
+<!--
 3. Chat (Communication): 
    [github.com/dwyl/phoenix-liveview-**chat**](https://github.com/dwyl/phoenix-liveview-chat-example)
+--> 
 
 We encourage people to read 
 and understand the individual feature Apps
@@ -158,9 +159,10 @@ and collect _feedback_. 💬<br />
 If you want to _help_ make it better,
 share your feedback! 🙏
 
-Way more detail: 
+Way more detail on the features: 
 [dwyl/app/issues/265](https://github.com/dwyl/app/issues/265)
 
+<!--
 > **Note**: This UI/UX _appears_ 
 > to only cover the **`Todo List`** and **`Timer`** features.
 > That is a valid observation.
@@ -171,9 +173,6 @@ Way more detail:
 > but are still curious,
 > ***subscribe*** as we will cover it later on!
 
-
-
-<!--
 > The "communication" aspect will be 
 > covered by having 
 > [***`presence`***](https://github.com/dwyl/phoenix-liveview-chat-example#14-presence)
@@ -233,7 +232,12 @@ please open an issue:
 [app-mvp-phoenix/issues](https://github.com/dwyl/app-mvp-phoenix/issues) ❓
 <br />
 
-### Seriously, Please ***`try`*** it: [mvp.fly.dev](https://mvp.fly.dev/)
+
+### Perform Some Actions in the App
+
+Visit [mvp.fly.dev](https://mvp.fly.dev/) 
+(_or run the app on your `localhost` - see below_)
+and perform some actions to test the App:
 
 1. ***Create*** a todo list `item`; <br />
    This item is **`public`** (anyone can see it!) <br />
@@ -289,22 +293,31 @@ see:
 and 
 [learn-postgresql#installation](https://github.com/dwyl/learn-postgresql#installation)
 
+> **Tip**: check the prerequisites in:
+> [**/phoenix-chat-example**](https://github.com/dwyl/phoenix-chat-example#0-pre-requisites-before-you-start)
+
 On your `localhost`, 
 run the following commands 
 in your terminal:
 
 ```sh
 git clone git@github.com:dwyl/app-mvp-phoenix.git && cd app-mvp-phoenix
-source .env
+source .env_sample
 mix setup
 ```
 That will download the MVP code, 
 install dependencies
 and create the necessary database + tables.
 
-the line `source .env` load the environment variables required for the
-application to compile and run (see next section).
+The line 
+`source .env_sample` 
+loads the environment variables 
+required for the
+application to run.
 
+
+
+<!--
 If for any reason you have an error while running the setup, try to rebuild/compile
 the application by deleting the existing `_build` folder and running the `setup` again:
 
@@ -313,6 +326,7 @@ rm -r _build
 mix setup
 ```
 
+
 ## _Single_ Environment Variable: `AUTH_API_KEY`
 
 Follow the instructions in **Step 2** of
@@ -320,14 +334,17 @@ Follow the instructions in **Step 2** of
 to create your 
 **`AUTH_API_KEY`**.
 
-Once you've got that setup,
+-->
+
+Once the `mix setup` command completes,
 you can run the app with:
 
 ```sh
 mix s
 ```
 
-
+Open the App in your web browser
+and start your tour! 
 
 <br />
 
@@ -349,23 +366,10 @@ in **20 minutes**. 🏁
 > the other tutorials/examples,
 > but they are linked in case you get stuck.
 
-
-## 0. Prerequisites
-
-Not required, but recommened,
-if you're totally new 
-to building **`Phoenix`** Apps,
-consider following the 
-[**/phoenix-chat-example**](https://github.com/dwyl/phoenix-chat-example#0-pre-requisites-before-you-start)
-_first_.
-At the very least,
-check-out the prerequisites there
-before you start here.
-
-
 ## 1. Create a New `Phoenix` App
 
-Create a new `Phoenix` app
+Open your terminal and 
+**create** a **new `Phoenix` app**
 with the following command:
 
 ```sh
@@ -420,6 +424,42 @@ You should see something similar to the following
 
 To run the tests with 
 
+
+You should see output similar to:
+
+```sh
+...
+
+Finished in 0.1 seconds (0.07s async, 0.07s sync)
+3 tests, 0 failures
+```
+
+That tells us everything is working as expected. 🚀
+
+
+#### Test Coverage?
+
+If you prefer to see **test coverage** - we certainly do -
+then you will need to add a few lines to the 
+[`mix.exs`](https://github.com/dwyl/app-mvp-phoenix/blob/main/mix.exs)
+file and
+create a 
+[`coveralls.json`](https://github.com/dwyl/app-mvp-phoenix/blob/main/coveralls.json)
+file to exclude `Phoenix` files from `excoveralls` checking.
+Add alias (shortcuts) in `mix.exs` `defp aliases do` list.
+e.g: `mix c` runs `mix coveralls.html` 
+see: [**`commits/d6ab5ef`**](https://github.com/dwyl/app-mvp-phoenix/pull/90/commits/d6ab5ef7c2be5dcad7d060e782393ae29c94a526)
+This is just standard `Phoenix` project setup for us, 
+so we don't duplicate any of the steps here.
+For more detail, please see:
+[Automated Testing](https://github.com/dwyl/phoenix-chat-example#testing-our-app-automated-testing)
+in the 
+[dwyl/phoenix-chat-example](https://github.com/dwyl/phoenix-chat-example#testing-our-app-automated-testing)
+and specifically
+[What is _not_ tested?](https://github.com/dwyl/phoenix-chat-example#13-what-is-not-tested)
+
+With that setup, run:
+
 ```sh
 mix c
 ```
@@ -428,24 +468,6 @@ You should see output similar to the following:
 
 <img width="653" alt="Phoenix tests passing coverage 100%" src="https://user-images.githubusercontent.com/194400/175767439-4f609357-24c0-4975-a3d4-6ed6057bb321.png">
 
-> **Note**: for the **`mix c`** command (alias) to work,
-> you need to add a few **`dev`** dependencies in
-> [`mix.exs`](https://github.com/dwyl/app-mvp-phoenix/blob/main/mix.exs)
-> to track test coverage,
-> a 
-> [`coveralls.json`](https://github.com/dwyl/app-mvp-phoenix/blob/main/coveralls.json)
-> file to exclude `Phoenix` files from `excoveralls` checking
-> and the alias (shortcuts) in `mix.exs` `defp aliases do` list.
-> e.g: `mix c` runs `mix coveralls.html` 
-> see: [**`commits/d6ab5ef`**](https://github.com/dwyl/app-mvp-phoenix/pull/90/commits/d6ab5ef7c2be5dcad7d060e782393ae29c94a526)
-> This is just standard `Phoenix` project setup for us, 
-> so we don't duplicate any of the steps here.
-> For more detail, please see:
-> [Automated Testing](https://github.com/dwyl/phoenix-chat-example#testing-our-app-automated-testing)
-> in the 
-> [dwyl/phoenix-chat-example](https://github.com/dwyl/phoenix-chat-example#testing-our-app-automated-testing)
-> and specifically
-> [What is _not_ tested?](https://github.com/dwyl/phoenix-chat-example#13-what-is-not-tested)
 
 ### 1.3 Setup `Tailwind`
 
