@@ -1,8 +1,8 @@
 <div align="center">
 
-# @dwyl App MVP `PETAL`  💡⏳ ✅
+# @dwyl App MVP  💡⏳ ✅
 
-A **`PETAL` stack** implementation
+The most basic implementation
 of the **@dwyl App**
 [**MVP** feature set](https://github.com/dwyl/app/issues/266).
 
@@ -17,17 +17,17 @@ And help us to ...
 [![Build Status](https://img.shields.io/travis/com/dwyl/app-mvp-phoenix/master?color=bright-green&style=flat-square)](https://travis-ci.org/dwyl/app-mvp-phoenix)
 [![codecov.io](https://img.shields.io/codecov/c/github/dwyl/app-mvp-phoenix/master.svg?style=flat-square)](https://codecov.io/github/dwyl/app-mvp-phoenix?branch=master)
 [![Hex.pm](https://img.shields.io/hexpm/v/elixir_auth_google?color=brightgreen&style=flat-square)](https://hex.pm/packages/elixir_auth_google)
-[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat-square)](https://github.com/dwyl/app-mvp-phoenix/issues)
+[![contributions welcome](https://img.shields.io/badge/feedback-welcome-brightgreen.svg?style=flat-square)](https://github.com/dwyl/app-mvp-phoenix/issues)
 [![HitCount](https://hits.dwyl.com/dwyl/app-mvp-phoenix.svg)](https://hits.dwyl.com/dwyl/app-mvp-phoenix)
 
 
 </div>
 
-- [@dwyl App MVP `PETAL`  💡⏳ ✅](#dwyl-app-mvp-petal---)
+- [@dwyl App MVP  💡⏳ ✅](#dwyl-app-mvp---)
 - [Please ***`try`*** it: mvp.fly.dev](#please-try-it-mvpflydev)
 - [Why? 🤷](#why-)
 - [_What_? 💭](#what-)
-  - [3 Apps into _One_](#3-apps-into-one)
+  - [2 Apps into _One_](#2-apps-into-one)
   - [Proposed MVP UI/UX](#proposed-mvp-uiux)
   - [Tech Stack?](#tech-stack)
 - [_Who?_ 👥](#who-)
@@ -105,7 +105,7 @@ please just ignore it and get on with your day. 👌
 then there is **no hope** for it._”
 ~ [Albert Einstein](https://www.goodreads.com/quotes/110518-if-at-first-the-idea-is-not-absurd-then-there)
 
-## 3 Apps into _One_
+## 2 Apps into _One_
 
 This MVP combines **2 apps** into ***one***. <br />
 We **built** the 2 _separate_ apps
@@ -688,7 +688,7 @@ commands:
 ```sh
 mix phx.gen.schema Person people givenName:binary auth_provider:string key_id:integer status_code:integer picture:binary locale:string
 mix phx.gen.schema Item items text:string person_id:references:people status_code:integer
-mix phx.gen.schema Timer timers item_id:references:items start:naive_datetime end:naive_datetime person_id:references:people
+mix phx.gen.schema Timer timers item_id:references:items start:naive_datetime stop:naive_datetime person_id:references:people
 ```
 
 At the end of this step,
@@ -707,7 +707,7 @@ generator which creates a _lot_ of
 [boilerplate code](https://github.com/dwyl/app-mvp-phoenix/issues/89#issuecomment-1167548207).
 -->
 
-In this step we created **3 database tables**;
+We created **3 database tables**;
 `items`, `people` and `timers`.
 Let's run through them.
 
@@ -770,7 +770,7 @@ to track how long it takes to ***complete***.
   + `updated_at`: `NaiveDateTime`
   + `item_id` (FK item.id)
   + `start`: `NaiveDateTime` - time started on device
-  + `end`: `NaiveDateTime` - time ended on device
+  + `stop`: `NaiveDateTime` - time ended on device
 
 An `item` can have zero or more `timers`.
 Each time a `item` (`task`) is worked on
@@ -781,10 +781,16 @@ That allows us to get a running total
 of the amount of time that has
 been taken.
 
+<!--
 > **Note**: 
-> The point of having a distinct `start` and `end`
+> The point of having a distinct `start` and `stop`
 instead of just reusing the `inserted_at`
 and `updated_at` is simple:
+it will allow people to set their timer `start` and/or `stop`
+to a different time than the automatic one. 
+But they will not be able to update the `inserted_at` or `updated_at`
+so we always know when the record was created/updated.
+-->
 
 
 

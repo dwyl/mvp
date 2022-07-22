@@ -7,10 +7,10 @@ defmodule App.Timer do
   require Logger
 
   schema "timers" do
-    field :end, :naive_datetime
-    field :start, :naive_datetime
     field :item_id, :id
     field :person_id, :id
+    field :start, :naive_datetime
+    field :stop, :naive_datetime
 
     timestamps()
   end
@@ -18,7 +18,7 @@ defmodule App.Timer do
   @doc false
   def changeset(timer, attrs) do
     timer
-    |> cast(attrs, [:item_id, :start, :end, :person_id])
+    |> cast(attrs, [:item_id, :person_id, :start, :stop])
     |> validate_required([:item_id, :start])
   end
 
@@ -56,12 +56,12 @@ defmodule App.Timer do
   ## Examples
 
       iex> stop(%{id: 1})
-      {:ok, %Timer{end: ~N[2022-07-11 05:15:31], etc.}}
+      {:ok, %Timer{stop: ~N[2022-07-11 05:15:31], etc.}}
 
   """
   def stop(attrs \\ %{}) do
     get_timer!(attrs.id)
-    |> changeset(%{end: NaiveDateTime.utc_now})
+    |> changeset(%{stop: NaiveDateTime.utc_now})
     |> Repo.update()
   end
 
@@ -72,7 +72,7 @@ defmodule App.Timer do
   ## Examples
 
       iex> stop_timer_for_item_id(42)
-      {:ok, %Timer{item_id: 42, end: ~N[2022-07-11 05:15:31], etc.}}
+      {:ok, %Timer{item_id: 42, stop: ~N[2022-07-11 05:15:31], etc.}}
 
   """
   def stop_timer_for_item_id(item_id) when is_nil(item_id) do
@@ -82,7 +82,7 @@ defmodule App.Timer do
   def stop_timer_for_item_id(item_id) do
     # get timer by item_id find the latest one that has not been stopped:
     sql = """
-    SELECT t.id FROM timers t WHERE t.item_id = $1 AND t.end IS NULL ORDER BY t.id DESC LIMIT 1;
+    SELECT t.id FROM timers t WHERE t.item_id = $1 AND t.stop IS NULL ORDER BY t.id DESC LIMIT 1;
     """
     res = Ecto.Adapters.SQL.query!(Repo, sql, [item_id])
     

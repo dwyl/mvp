@@ -8,7 +8,7 @@ module.exports = {
     '../lib/app_web/live/app_live.html.heex'
   ],
   theme: {
-    extend: {},
+    extstop: {},
   },
   plugins: [ // https://andrewbarr.io/posts/removing-npm/show
     require('@tailwindcss/forms'),

@@ -124,12 +124,12 @@ defmodule AppWeb.AppLive do
 
   # Check if an item has an active timer
   def started?(item) do
-    not is_nil(item.start) and is_nil(item.end)
+    not is_nil(item.start) and is_nil(item.stop)
   end
 
   # An item without an end should be counting
   def timer_stopped?(item) do
-    not is_nil(item.end)
+    not is_nil(item.stop)
   end
 
   def timers_any?(item) do
@@ -149,10 +149,10 @@ defmodule AppWeb.AppLive do
   end
 
   def timer_text(item) do
-    if is_nil(item) or is_nil(item.start) or is_nil(item.end) do
+    if is_nil(item) or is_nil(item.start) or is_nil(item.stop) do
       ""
     else
-      diff = timestamp(item.end) - timestamp(item.start)
+      diff = timestamp(item.stop) - timestamp(item.start)
 
       # seconds
       s = if diff > 1000 do 

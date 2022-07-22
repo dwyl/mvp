@@ -143,7 +143,7 @@ defmodule AppWeb.AppLiveTest do
   test "timer_text(start, stop)" do
     timer = %{
       start: ~N[2022-07-17 09:01:42.000000],
-      end: ~N[2022-07-17 13:22:24.000000]
+      stop: ~N[2022-07-17 13:22:24.000000]
     }
 
     assert AppWeb.AppLive.timer_text(timer) == "04:20:42"

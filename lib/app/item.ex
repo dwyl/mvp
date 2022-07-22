@@ -113,7 +113,7 @@ defmodule App.Item do
   # 
   def items_with_timers(person_id \\ 1) do
     sql = """
-    SELECT i.id, i.text, i.status_code, i.person_id, t.start, t.end, t.id as timer_id FROM items i
+    SELECT i.id, i.text, i.status_code, i.person_id, t.start, t.stop, t.id as timer_id FROM items i
     FULL JOIN timers as t ON t.item_id = i.id
     WHERE i.person_id = $1 AND i.status_code IS NOT NULL AND i.status_code != 6
     ORDER BY timer_id ASC;
@@ -143,18 +143,18 @@ defmodule App.Item do
   @doc """
   `map_timer_diff/1` transforms a list of items_with_timers
   into a flat map where the key is the timer_id and the value is the difference
-  between timer.end and timer.start 
+  between timer.stop and timer.start 
   If there is no active timer return {0, 0}.
-  If there is no timer.end return Now - timer.start
+  If there is no timer.stop return Now - timer.start
 
   ## Examples
 
   iex> list = [
-    %{ end: nil, id: 3, start: nil, timer_id: nil },
-    %{ end: ~N[2022-07-17 11:18:24], id: 1, start: ~N[2022-07-17 11:18:18], timer_id: 1 },
-    %{ end: ~N[2022-07-17 11:18:31], id: 1, start: ~N[2022-07-17 11:18:26], timer_id: 2 },
-    %{ end: ~N[2022-07-17 11:18:24], id: 2, start: ~N[2022-07-17 11:18:00], timer_id: 3 },
-    %{ end: nil, id: 2, start: seven_seconds_ago, timer_id: 4 }
+    %{ stop: nil, id: 3, start: nil, timer_id: nil },
+    %{ stop: ~N[2022-07-17 11:18:24], id: 1, start: ~N[2022-07-17 11:18:18], timer_id: 1 },
+    %{ stop: ~N[2022-07-17 11:18:31], id: 1, start: ~N[2022-07-17 11:18:26], timer_id: 2 },
+    %{ stop: ~N[2022-07-17 11:18:24], id: 2, start: ~N[2022-07-17 11:18:00], timer_id: 3 },
+    %{ stop: nil, id: 2, start: seven_seconds_ago, timer_id: 4 }
   ]
   iex> map_timer_diff(list)
   %{0 => 0, 1 => 6, 2 => 5, 3 => 24, 4 => 7}
@@ -171,7 +171,7 @@ defmodule App.Item do
   end
 
   @doc """
-  `timer_diff/1` calculates the difference between timer.end and timer.start 
+  `timer_diff/1` calculates the difference between timer.stop and timer.start 
   If there is no active timer OR timer has not ended return 0.
   The reasoning is: an *active* timer (no end) does not have to
   be subtracted from the timer.start in the UI ... 
@@ -179,10 +179,10 @@ defmodule App.Item do
   """
   def timer_diff(timer) do
     # ignore timers that have not ended (current timer is factored in the UI!)
-    if is_nil(timer.end) do
+    if is_nil(timer.stop) do
       0
     else 
-      NaiveDateTime.diff(timer.end, timer.start)
+      NaiveDateTime.diff(timer.stop, timer.start)
     end
   end
 

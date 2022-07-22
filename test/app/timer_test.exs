@@ -33,8 +33,8 @@ defmodule App.TimerTest do
       # Process.sleep(1000)
 
       ended = NaiveDateTime.utc_now()
-      {:ok, timer} = Timer.stop(%{id: timer.id, end: ended})
-      assert NaiveDateTime.diff(timer.end, timer.start) == 1
+      {:ok, timer} = Timer.stop(%{id: timer.id, stop: ended})
+      assert NaiveDateTime.diff(timer.stop, timer.start) == 1
     end
 
     test "stop_timer_for_item_id(item_id) should stop the active timer (happy path)" do
@@ -50,7 +50,7 @@ defmodule App.TimerTest do
       
       stopped_timer = Timer.get_timer!(timer.id)
       assert NaiveDateTime.diff(stopped_timer.start, seven_seconds_ago) == 0
-      assert NaiveDateTime.diff(stopped_timer.end, stopped_timer.start) == 7
+      assert NaiveDateTime.diff(stopped_timer.stop, stopped_timer.start) == 7
     end
 
     test "stop_timer_for_item_id(item_id) should not explode if there is no timer (unhappy path)" do
@@ -75,42 +75,42 @@ defmodule App.TimerTest do
 
       items_with_timers = [
         %{
-          end: nil,
+          stop: nil,
           id: 3,
           start: nil,
           text: "This item has no timers",
           timer_id: nil
         },
         %{
-          end: ~N[2022-07-17 11:18:10.000000],
+          stop: ~N[2022-07-17 11:18:10.000000],
           id: 2,
           start: ~N[2022-07-17 11:18:00.000000],
           text: "Item #2 has one active (no end) and one complete timer should total 17sec",
           timer_id: 3
         },
         %{
-          end: nil,
+          stop: nil,
           id: 2,
           start: seven_seconds_ago,
           text: "Item #2 has one active (no end) and one complete timer should total 17sec",
           timer_id: 4
         },
         %{
-          end: ~N[2022-07-17 11:18:31.000000],
+          stop: ~N[2022-07-17 11:18:31.000000],
           id: 1,
           start: ~N[2022-07-17 11:18:26.000000],
           text: "Item with 3 complete timers that should add up to 42 seconds elapsed",
           timer_id: 2
         },
         %{
-          end: ~N[2022-07-17 11:18:24.000000],
+          stop: ~N[2022-07-17 11:18:24.000000],
           id: 1,
           start: ~N[2022-07-17 11:18:18.000000],
           text: "Item with 3 complete timers that should add up to 42 seconds elapsed",
           timer_id: 1
         },
         %{
-          end: ~N[2022-07-17 11:19:42.000000],
+          stop: ~N[2022-07-17 11:19:42.000000],
           id: 1,
           start: ~N[2022-07-17 11:19:11.000000],
           text: "Item with 3 complete timers that should add up to 42 seconds elapsed",
@@ -126,8 +126,8 @@ defmodule App.TimerTest do
       item2 = Map.get(item_map, 2)
       item3 = Map.get(item_map, 3)
       
-      # It's easy to calculate time elapsed for timers that have an end:
-      assert NaiveDateTime.diff(item1.end, item1.start) == 42
+      # It's easy to calculate time elapsed for timers that have an stop:
+      assert NaiveDateTime.diff(item1.stop, item1.start) == 42
       # This is the fun one that we need to be 17 seconds:
       assert NaiveDateTime.diff(NaiveDateTime.utc_now(), item2.start) == 17
       # The diff will always be 17 seconds because we control the start in the test data above.
