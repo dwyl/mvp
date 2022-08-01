@@ -12,15 +12,15 @@ defmodule AppWeb.AppLiveTest do
   test "connect and create an item", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
 
-    assert render_submit(view, :create, 
+    assert render_submit(view, :create,
       %{text: "Learn Elixir", person_id: 1}) =~ "Learn Elixir"
   end
 
   test "toggle an item", %{conn: conn} do
-    {:ok, item} = 
-      Item.create_item(%{text: "Learn Elixir", status_code: 2, person_id: 1})
-    {:ok, _item2} = 
-      Item.create_item(%{text: "Learn Elixir", status_code: 4, person_id: 1})
+    {:ok, item} =
+      Item.create_item(%{text: "Learn Elixir", status_code: 2, person_id: 0})
+    {:ok, _item2} =
+      Item.create_item(%{text: "Learn Elixir", status_code: 4, person_id: 0})
 
     assert item.status_code == 2
 
@@ -34,7 +34,7 @@ defmodule AppWeb.AppLiveTest do
 
     {:ok, view, _html} = live(conn, "/")
 
-    assert render_click(view, :toggle, 
+    assert render_click(view, :toggle,
       %{"id" => item.id, "value" => "on"}) =~ "line-through"
 
     updated_item = Item.get_item!(item.id)
@@ -42,7 +42,7 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "(soft) delete an item", %{conn: conn} do
-    {:ok, item} = Item.create_item(%{text: "Learn Elixir", person_id: 1, status_code: 2})
+    {:ok, item} = Item.create_item(%{text: "Learn Elixir", person_id: 0, status_code: 2})
 
     assert item.status_code == 2
 
@@ -54,7 +54,7 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "start a timer", %{conn: conn} do
-    {:ok, item} = Item.create_item(%{text: "Get Fancy!", person_id: 1, status_code: 2})
+    {:ok, item} = Item.create_item(%{text: "Get Fancy!", person_id: 0, status_code: 2})
 
     assert item.status_code == 2
 
@@ -63,7 +63,7 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "stop a timer", %{conn: conn} do
-    {:ok, item} = Item.create_item(%{text: "Get Fancy!", person_id: 1, status_code: 2})
+    {:ok, item} = Item.create_item(%{text: "Get Fancy!", person_id: 0, status_code: 2})
 
     assert item.status_code == 2
     started = NaiveDateTime.utc_now()
@@ -71,7 +71,7 @@ defmodule AppWeb.AppLiveTest do
 
     {:ok, view, _html} = live(conn, "/")
 
-    assert render_click(view, :stop, 
+    assert render_click(view, :stop,
       %{"id" => item.id, "timerid" => timer.id}) =~ "done"
   end
 
@@ -81,7 +81,7 @@ defmodule AppWeb.AppLiveTest do
   test "handle_info/2 start|stop", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
 
-    {:ok, item} = Item.create_item(%{text: "Always Learning", person_id: 1, status_code: 2})
+    {:ok, item} = Item.create_item(%{text: "Always Learning", person_id: 0, status_code: 2})
     started = NaiveDateTime.utc_now()
     {:ok, _timer} = Timer.start(%{item_id: item.id, start: started})
 
@@ -96,7 +96,7 @@ defmodule AppWeb.AppLiveTest do
   test "handle_info/2 update", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
 
-    {:ok, item} = Item.create_item(%{text: "Always Learning", person_id: 1, status_code: 2})
+    {:ok, item} = Item.create_item(%{text: "Always Learning", person_id: 0, status_code: 2})
 
     send(view.pid, %{
       event: "update",
@@ -109,7 +109,7 @@ defmodule AppWeb.AppLiveTest do
   test "handle_info/2 delete", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
 
-    {:ok, item} = Item.create_item(%{text: "Always Learning", person_id: 1, status_code: 6})
+    {:ok, item} = Item.create_item(%{text: "Always Learning", person_id: 0, status_code: 6})
 
     send(view.pid, %{
       event: "delete",
@@ -120,7 +120,7 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "edit-item", %{conn: conn} do
-    {:ok, item} = Item.create_item(%{text: "Learn Elixir", person_id: 1, status_code: 2})
+    {:ok, item} = Item.create_item(%{text: "Learn Elixir", person_id: 0, status_code: 2})
 
     {:ok, view, _html} = live(conn, "/")
 
@@ -129,7 +129,7 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "update an item", %{conn: conn} do
-    {:ok, item} = Item.create_item(%{text: "Learn Elixir", person_id: 1, status_code: 2})
+    {:ok, item} = Item.create_item(%{text: "Learn Elixir", person_id: 0, status_code: 2})
 
     {:ok, view, _html} = live(conn, "/")
 

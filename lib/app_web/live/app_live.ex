@@ -10,7 +10,7 @@ defmodule AppWeb.AppLive do
     if Map.has_key?(assigns, :person) do
       assigns.person.id
     else
-      1
+      0
     end
   end
 
@@ -155,7 +155,7 @@ defmodule AppWeb.AppLive do
       diff = timestamp(item.stop) - timestamp(item.start)
 
       # seconds
-      s = if diff > 1000 do 
+      s = if diff > 1000 do
         s = diff / 1000 |> trunc()
         s = if s > 60, do: Integer.mod(s, 60), else: s
         leftPad(s)

@@ -9,7 +9,7 @@ defmodule AppWeb.AuthController do
     |> AuthPlug.Helpers.strip_struct_metadata()
     |> Useful.atomize_map_keys()
 
-    App.Person.create(claims)
+    App.Person.upsert(claims)
 
     socket =
       socket
