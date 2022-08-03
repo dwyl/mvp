@@ -1,6 +1,6 @@
 defmodule AppWeb.AppLive do
   use AppWeb, :live_view
-  alias App.{Item, Timer}
+  alias App.{Item, Timer, Person}
   # run authentication on mount
   on_mount AppWeb.AuthController
 
@@ -8,7 +8,8 @@ defmodule AppWeb.AppLive do
 
   defp get_person_id(assigns) do
     if Map.has_key?(assigns, :person) do
-      assigns.person.id
+      person = Person.get_person_by_auth_id!(assigns.person.id)
+      person.id
     else
       1
     end
@@ -17,7 +18,12 @@ defmodule AppWeb.AppLive do
   # assign default values to socket:
   defp assign_socket(socket) do
     person_id = get_person_id(socket.assigns)
-    assign(socket, items: Item.items_with_timers(person_id), active: %Item{}, editing: nil)
+
+    assign(socket,
+      items: Item.items_with_timers(person_id),
+      active: %Item{},
+      editing: nil
+    )
   end
 
   @impl true
@@ -64,6 +70,7 @@ defmodule AppWeb.AppLive do
   def handle_event("start", data, socket) do
     item = Item.get_item!(Map.get(data, "id"))
     person_id = get_person_id(socket.assigns)
+
     {:ok, _timer} =
       Timer.start(%{
         item_id: item.id,
@@ -142,7 +149,6 @@ defmodule AppWeb.AppLive do
     |> DateTime.to_unix(:millisecond)
   end
 
-
   # Elixir implementation of `timer_text/2`
   def leftPad(val) do
     if val < 10, do: "0#{to_string(val)}", else: val
@@ -155,30 +161,33 @@ defmodule AppWeb.AppLive do
       diff = timestamp(item.stop) - timestamp(item.start)
 
       # seconds
-      s = if diff > 1000 do 
-        s = diff / 1000 |> trunc()
-        s = if s > 60, do: Integer.mod(s, 60), else: s
-        leftPad(s)
-      else
-      "00"
-      end
+      s =
+        if diff > 1000 do
+          s = (diff / 1000) |> trunc()
+          s = if s > 60, do: Integer.mod(s, 60), else: s
+          leftPad(s)
+        else
+          "00"
+        end
 
       # minutes
-      m = if diff > 60000 do
-        m = diff / 60000 |> trunc()
-        m = if m > 60, do: Integer.mod(m, 60), else: m
-        leftPad(m)
-      else
-        "00"
-      end
+      m =
+        if diff > 60000 do
+          m = (diff / 60000) |> trunc()
+          m = if m > 60, do: Integer.mod(m, 60), else: m
+          leftPad(m)
+        else
+          "00"
+        end
 
       # hours
-      h = if diff > 3600000 do
-        h = diff / 3600000 |> trunc()
-        leftPad(h)
-      else
-        "00"
-      end
+      h =
+        if diff > 3_600_000 do
+          h = (diff / 3_600_000) |> trunc()
+          leftPad(h)
+        else
+          "00"
+        end
 
       "#{h}:#{m}:#{s}"
     end

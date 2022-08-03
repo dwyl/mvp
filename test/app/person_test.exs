@@ -9,16 +9,14 @@ defmodule App.PersonTest do
     # end
 
     test "Person.create/1 with valid data creates a person" do
-
       person =
-        Person.create(
-          %{
-            givenName: "aLeX",
-            auth_provider: "dwyl",
-            local: "SoCal",
-            status_code: 1
-          }
-        )
+        Person.create(%{
+          givenName: "aLeX",
+          auth_provider: "dwyl",
+          local: "SoCal",
+          status_code: 1,
+          auth_id: 1
+        })
 
       assert person.givenName == "aLeX"
       assert person.status_code == 1

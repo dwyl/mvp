@@ -11,6 +11,7 @@ defmodule App.Person do
     field :locale, :string
     field :picture, Fields.Encrypted
     field :status_code, :integer
+    field :auth_id, :integer
 
     timestamps()
   end
@@ -24,9 +25,11 @@ defmodule App.Person do
       :key_id,
       :picture,
       :locale,
-      :status_code
+      :status_code,
+      :auth_id
     ])
-    |> validate_required([:givenName, :auth_provider])
+    |> validate_required([:givenName, :auth_provider, :auth_id])
+    |> unique_constraint([:auth_id])
   end
 
   def create(attrs) do
@@ -35,5 +38,12 @@ defmodule App.Person do
     |> Repo.insert!()
   end
 
-  # def get_person!(id), do: Repo.get!(__MODULE__, id)
+  def upsert(attrs) do
+    %Person{}
+    |> changeset(attrs)
+    |> Repo.insert!(on_conflict: :nothing)
+  end
+
+  def get_person_by_auth_id!(auth_id),
+    do: Repo.get_by!(__MODULE__, auth_id: auth_id)
 end
