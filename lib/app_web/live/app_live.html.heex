@@ -47,7 +47,7 @@
     <%= for item <- @items do %>
     <li data-id={item.id} class="mt-2 flex w-full border-t border-slate-200 py-2">
 
-      <!-- if item is "done" (status_code: 4) strike-through and show "Archive" button -->
+      <!-- if item is "done" (status: 4) strike-through and show "Archive" button -->
       <%= if done?(item) do %>
         <input type="checkbox" phx-value-id={item.id} phx-click="toggle"
           class="flex-none p-4 m-2 form-checkbox text-slate-400" 

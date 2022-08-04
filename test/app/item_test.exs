@@ -3,7 +3,7 @@ defmodule App.ItemTest do
   alias App.{Item, Timer}
 
   describe "items" do
-    @valid_attrs %{text: "some text", person_id: 1, status_code: 2}
+    @valid_attrs %{text: "some text", person_id: 1, status: 2}
     @update_attrs %{text: "some updated text"}
     @invalid_attrs %{text: nil}
 

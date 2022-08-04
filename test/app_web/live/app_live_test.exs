@@ -18,11 +18,11 @@ defmodule AppWeb.AppLiveTest do
 
   test "toggle an item", %{conn: conn} do
     {:ok, item} =
-      Item.create_item(%{text: "Learn Elixir", status_code: 2, person_id: 0})
+      Item.create_item(%{text: "Learn Elixir", status: 2, person_id: 0})
     {:ok, _item2} =
-      Item.create_item(%{text: "Learn Elixir", status_code: 4, person_id: 0})
+      Item.create_item(%{text: "Learn Elixir", status: 4, person_id: 0})
 
-    assert item.status_code == 2
+    assert item.status == 2
 
     started = NaiveDateTime.utc_now()
     {:ok, _timer} =
@@ -38,34 +38,34 @@ defmodule AppWeb.AppLiveTest do
       %{"id" => item.id, "value" => "on"}) =~ "line-through"
 
     updated_item = Item.get_item!(item.id)
-    assert updated_item.status_code == 4
+    assert updated_item.status == 4
   end
 
   test "(soft) delete an item", %{conn: conn} do
-    {:ok, item} = Item.create_item(%{text: "Learn Elixir", person_id: 0, status_code: 2})
+    {:ok, item} = Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
-    assert item.status_code == 2
+    assert item.status == 2
 
     {:ok, view, _html} = live(conn, "/")
     assert render_click(view, :delete, %{"id" => item.id}) =~ "done"
 
     updated_item = Item.get_item!(item.id)
-    assert updated_item.status_code == 6
+    assert updated_item.status == 6
   end
 
   test "start a timer", %{conn: conn} do
-    {:ok, item} = Item.create_item(%{text: "Get Fancy!", person_id: 0, status_code: 2})
+    {:ok, item} = Item.create_item(%{text: "Get Fancy!", person_id: 0, status: 2})
 
-    assert item.status_code == 2
+    assert item.status == 2
 
     {:ok, view, _html} = live(conn, "/")
     assert render_click(view, :start, %{"id" => item.id}) =~ "stop"
   end
 
   test "stop a timer", %{conn: conn} do
-    {:ok, item} = Item.create_item(%{text: "Get Fancy!", person_id: 0, status_code: 2})
+    {:ok, item} = Item.create_item(%{text: "Get Fancy!", person_id: 0, status: 2})
 
-    assert item.status_code == 2
+    assert item.status == 2
     started = NaiveDateTime.utc_now()
     {:ok, timer} = Timer.start(%{item_id: item.id, start: started})
 
@@ -81,7 +81,7 @@ defmodule AppWeb.AppLiveTest do
   test "handle_info/2 start|stop", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
 
-    {:ok, item} = Item.create_item(%{text: "Always Learning", person_id: 0, status_code: 2})
+    {:ok, item} = Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
     started = NaiveDateTime.utc_now()
     {:ok, _timer} = Timer.start(%{item_id: item.id, start: started})
 
@@ -96,7 +96,7 @@ defmodule AppWeb.AppLiveTest do
   test "handle_info/2 update", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
 
-    {:ok, item} = Item.create_item(%{text: "Always Learning", person_id: 0, status_code: 2})
+    {:ok, item} = Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
 
     send(view.pid, %{
       event: "update",
@@ -109,7 +109,7 @@ defmodule AppWeb.AppLiveTest do
   test "handle_info/2 delete", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
 
-    {:ok, item} = Item.create_item(%{text: "Always Learning", person_id: 0, status_code: 6})
+    {:ok, item} = Item.create_item(%{text: "Always Learning", person_id: 0, status: 6})
 
     send(view.pid, %{
       event: "delete",
@@ -120,7 +120,7 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "edit-item", %{conn: conn} do
-    {:ok, item} = Item.create_item(%{text: "Learn Elixir", person_id: 0, status_code: 2})
+    {:ok, item} = Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
     {:ok, view, _html} = live(conn, "/")
 
@@ -129,7 +129,7 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "update an item", %{conn: conn} do
-    {:ok, item} = Item.create_item(%{text: "Learn Elixir", person_id: 0, status_code: 2})
+    {:ok, item} = Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
     {:ok, view, _html} = live(conn, "/")
 

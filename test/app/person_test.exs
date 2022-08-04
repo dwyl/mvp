@@ -13,12 +13,12 @@ defmodule App.PersonTest do
           %{
             givenName: "aLeX",
             auth_provider: "dwyl",
-            status_code: 1
+            status: 1
           }
         )
 
       assert person.givenName == "aLeX"
-      assert person.status_code == 1
+      assert person.status == 1
     end
 
     test "Person.upsert/1 with valid data updates a person" do
@@ -26,10 +26,10 @@ defmodule App.PersonTest do
       person = Person.upsert(%{
         givenName: "aLeX",
         auth_provider: "dwyl",
-        status_code: 1
+        status: 1
       })
       assert person.givenName == "aLeX"
-      assert person.status_code == 1
+      assert person.status == 1
 
       # update the auth_provider for the person record:
       person_updated = Person.upsert(%{person | auth_provider: "updated"})

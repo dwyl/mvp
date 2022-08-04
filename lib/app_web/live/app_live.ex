@@ -30,7 +30,7 @@ defmodule AppWeb.AppLive do
   @impl true
   def handle_event("create", %{"text" => text}, socket) do
     person_id = get_person_id(socket.assigns)
-    Item.create_item(%{text: text, person_id: person_id, status_code: 2})
+    Item.create_item(%{text: text, person_id: person_id, status: 2})
     # IO.inspect(socket.assigns, label: "handle_event create socket.assigns")
     socket = assign_socket(socket)
 
@@ -45,7 +45,7 @@ defmodule AppWeb.AppLive do
 
     # need to restrict getting items to the people who own or have rights to access them!
     item = Item.get_item!(Map.get(data, "id"))
-    Item.update_item(item, %{status_code: status})
+    Item.update_item(item, %{status: status})
     Timer.stop_timer_for_item_id(item.id)
     socket = assign_socket(socket)
     AppWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
@@ -120,7 +120,7 @@ defmodule AppWeb.AppLive do
   end
 
   # Check for status 4 (:done)
-  def done?(item), do: item.status_code == 4
+  def done?(item), do: item.status == 4
 
   # Check if an item has an active timer
   def started?(item) do

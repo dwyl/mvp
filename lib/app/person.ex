@@ -10,7 +10,7 @@ defmodule App.Person do
     field :key_id, :integer
     field :locale, :string
     field :picture, Fields.Encrypted
-    field :status_code, :integer
+    field :status, :integer
 
     timestamps()
   end
@@ -25,7 +25,7 @@ defmodule App.Person do
       :auth_provider,
       :picture,
       :locale,
-      :status_code,
+      :status,
       :id
     ])
     |> validate_required([:givenName, :auth_provider])
