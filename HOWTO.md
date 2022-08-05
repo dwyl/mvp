@@ -356,7 +356,7 @@ we have the following database
 [Entity Relationship Diagram](https://en.wikipedia.org/wiki/Entity%E2%80%93relationship_model)
 (ERD):
 
-![mvp-erd-items-timers](https://user-images.githubusercontent.com/194400/180363191-79c0621b-04a1-4b0e-81e1-51345cc2e86d.png)
+![mvp-erd-items-timers](https://user-images.githubusercontent.com/194400/183075195-c1b50232-5988-47cb-ad18-47dfd4c0bcc3.png)
 
 
 We created **2 database tables**;
@@ -385,6 +385,16 @@ for what we are building later on.
    the "owner" of the `item`)
 + `status`: `Integer`  the `status` of the `item` 
   e.g: "in progress"
+
+
+The keen-eyed observer 
+(with PostgreSQL experience)
+will have noticed that `items.person_id` is an `Integer` (`int4`) data type.
+This means we are limted to **`2147483647` people** using the MVP.
+See:
+[/datatype-numeric.html](https://www.postgresql.org/docs/current/datatype-numeric.html)
+We aren't expecting more than 
+***2 billion*** people to use the MVP. 😜
 
 #### `timer`
 
