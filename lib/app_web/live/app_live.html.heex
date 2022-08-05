@@ -6,6 +6,8 @@
     <textarea 
       class="w-full py-1 px-1 text-slate-800 text-3xl
         bg-white bg-clip-padding
+        resize-none
+        max-h-80
         transition ease-in-out
         border border-b border-slate-200
         focus:border-none focus:outline-none"
@@ -13,6 +15,13 @@
       placeholder="What needs to be done?" 
       autofocus="" 
       required="required" 
+      x-data="{resize() {
+           $el.style.height = '80px';
+           $el.style.height = $el.scrollHeight + 'px';
+        }
+      }"
+      x-init="resize"
+      x-on:input="resize"
     ></textarea>
 
     <!-- Want to help "DRY" this? see: https://github.com/dwyl/app-mvp-phoenix/issues/105 -->
@@ -38,7 +47,7 @@
     <%= for item <- @items do %>
     <li data-id={item.id} class="mt-2 flex w-full border-t border-slate-200 py-2">
 
-      <!-- if item is "done" (status_code: 4) strike-through and show "Archive" button -->
+      <!-- if item is "done" (status: 4) strike-through and show "Archive" button -->
       <%= if done?(item) do %>
         <input type="checkbox" phx-value-id={item.id} phx-click="toggle"
           class="flex-none p-4 m-2 form-checkbox text-slate-400" 

@@ -686,8 +686,8 @@ Run the following
 commands:
 
 ```sh
-mix phx.gen.schema Person people givenName:binary auth_provider:string key_id:integer status_code:integer picture:binary locale:string
-mix phx.gen.schema Item items text:string person_id:references:people status_code:integer
+mix phx.gen.schema Person people givenName:binary auth_provider:string key_id:integer status:integer picture:binary locale:string
+mix phx.gen.schema Item items text:string person_id:references:people status:integer
 mix phx.gen.schema Timer timers item_id:references:items start:naive_datetime stop:naive_datetime person_id:references:people
 ```
 
@@ -730,7 +730,7 @@ The **`people`** (or `person`) _using_ the App
 used to encrypt personal data (NOT the key itself!)
 see:
 [dwyl/phoenix-ecto-**encryption**-**example**](https://github.com/dwyl/phoenix-ecto-encryption-example)
-+ `status_code`: `Integer` - e.g: "0: unverified, 1: verified", etc.
++ `status`: `Integer` - e.g: "0: unverified, 1: verified", etc.
   For the list of available statuses, 
   please see: 
   [github.com/dwyl/statuses](https://github.com/dwyl/statuses)
@@ -757,7 +757,7 @@ for what we are building later on.
 + `text`: `Binary` (_encrypted_) - the free text you want to capture.
 + `person_id`: `Integer` 
     `person.id` the "owner" of the `item`)
-+ `status_code`: `Integer`  the `status` of the `item` 
++ `status`: `Integer`  the `status` of the `item` 
   e.g: "in progress"
 
 #### `timer`
@@ -856,7 +856,7 @@ defmodule App.ItemTest do
   alias App.Item
 
   describe "items" do
-    @valid_attrs %{text: "some text", person_id: 1, status_code: 2}
+    @valid_attrs %{text: "some text", person_id: 1, status: 2}
     @update_attrs %{text: "some updated text"}
     @invalid_attrs %{text: nil}
 
