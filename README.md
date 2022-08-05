@@ -26,14 +26,13 @@ And help us to ...
 
 - [@dwyl App MVP  💡⏳ ✅](#dwyl-app-mvp---)
 - [_Please `try` it_: mvp.fly.dev 🙏](#please-try-it-mvpflydev-)
-- [Why? 🤷](#why-)
+- [Why? 🤷‍♀️](#why-️)
+  - [But _Why_...?](#but-why)
+  - [Startup Ideas? 💡](#startup-ideas-)
 - [_What_? 💭](#what-)
   - [MVP?](#mvp)
-  - [Combining Features of Several Apps](#combining-features-of-several-apps)
   - [2 Apps into _One_](#2-apps-into-one)
     - [Proposed MVP UI/UX](#proposed-mvp-uiux)
-  - [Why This?](#why-this)
-  - [Startup Ideas? 💡](#startup-ideas-)
 - [_Who?_ 👥](#who-)
   - [Feedback! 🙏](#feedback-)
     - [Perform Some Actions in the App](#perform-some-actions-in-the-app)
@@ -43,7 +42,7 @@ And help us to ...
   - [Tech Stack?](#tech-stack)
   - [Run the MVP App on your `localhost` ⬇️](#run-the-mvp-app-on-your-localhost-️)
 
-# Why? 🤷
+# Why? 🤷‍♀️ 
 
 Our goal with this 
 [MVP](https://github.com/dwyl/technical-glossary/issues/44)
@@ -61,139 +60,21 @@ Once we have collected initial feedback,
 we can share it with the world!
 
 Once the MVP features are complete,
-the code will be merged
-into the main
+the code will be used
+in the main
 [dwyl/**app**](https://github.com/dwyl/app) 
 repo.<br />
 However we will also maintian this repo
 as a **reference** for **new joiners** <br />
 wanting the **most _basic_ version**
-of the app to **learn** from.
+to **learn** from.
 
-# _What_? 💭
+## But _Why_...? 
 
-A **mobile-first** 
-**_hybrid_**
-**task and activity** (time)
-**tracking tool**.
-<!-- with built-in (basic) team **communication**. -->
-## MVP? 
-
-A Minimum Viable Product ("MVP"),
-as its' name suggests,
-is the _minimum_ 
-we can do to test the idea.
-
-> If you're new to MVPs, 
-> the Wikpedia article is a good starting point:
-[wikipedia.org/wiki/Minimum_viable_product](https://en.wikipedia.org/wiki/Minimum_viable_product) <br />
-> Or listen to Eric Ries describe it in 3 minutes:
-> https://youtu.be/1FoCbbbcYT8 <br />
-> Validate your business idea: 
-> THE LEAN STARTUP by Eric Ries:
-> https://youtu.be/QaoVWtLX038
-
-
-## Combining Features of Several Apps
-
-We've found it _tedious_ 
-to use **several _separate_ apps**
-for task and time tracking 🤦‍♂️ <br />
-and think it's _logical_ 
-to _combine_ the functionality. 💡
-
-If the idea of **_combining_ related tools**
-appeals to you keep reading. 😍<br />
-If it sounds like a _terrible_ idea to you,
-please just ignore it and get on with your day. 👌
-
-> “_If at first the **idea** is **not absurd**,
-then there is **no hope** for it._”
-~ [Albert Einstein](https://www.goodreads.com/quotes/110518-if-at-first-the-idea-is-not-absurd-then-there)
-
-
-
-## 2 Apps into _One_
-
-This MVP combines **2 apps** into ***one***. <br />
-We **built** the 2 _separate_ apps
-to showcase the individual features:
-
-1. Todo list: 
-   [github.com/dwyl/phoenix-liveview-**todo-list**](https://github.com/dwyl/phoenix-liveview-todo-list-tutorial)
-2. Stop Watch (Timer):
-   [github.com/dwyl/phoenix-liveview-**stopwatch**](https://github.com/dwyl/phoenix-liveview-stopwatch)
-<!--
-3. Chat (Communication): 
-   [github.com/dwyl/phoenix-liveview-**chat**](https://github.com/dwyl/phoenix-liveview-chat-example)
---> 
-
-We encourage people to read 
-and understand the individual feature Apps
-from first principals
-***`before`***
-trying run the MVP. 
-But our _hope_ is that
-the UI/UX in the MVP
-is sufficiently intuitive
-that it **_immediately_ makes sense**. 🤞
-
-### Proposed MVP UI/UX
-
-This is our wireframe UI/UX
-we used as the _guide_ 
-to create the MVP functionality:
-
-![mvp-proposed-ux](https://user-images.githubusercontent.com/194400/73374277-d9445480-42b1-11ea-980a-3fabbfe5a9fd.png)
-
-It is _deliberately_ "basic" 
-and 
-["ugly"](https://youtu.be/m4isFputh68?t=158)
-so we don't focus on aesthetics. 🚀<br />
-It will _definitely_ change over time 
-as we _use_ the App 
-and collect _feedback_. 💬<br />
-If you want to _help_ make it better,
-share your feedback! 🙏
-
-More detail on the features: 
-[dwyl/app/issues/265](https://github.com/dwyl/app/issues/265)
-
-<!--
-> **Note**: This UI/UX _appears_ 
-> to only cover the **`Todo List`** and **`Timer`** features.
-> That is a valid observation.
-> Hopefully you can use your imagination
-> to think of how **`Communication`**
-> can be integrated into this.
-> If you can't imagine it,
-> but are still curious,
-> ***subscribe*** as we will cover it later on!
-
-> The "communication" aspect will be 
-> covered by having 
-> [***`presence`***](https://github.com/dwyl/phoenix-liveview-chat-example#14-presence)
-> in the App.
-> i.e. knowing **who** 
-> is using/viewing the App at any given time
-> with appropriate privacy controls.
-> Simply knowing that someone is online (_or not_)
-> and what they are working on 
-> is a _huge_ boost to team communication
-> without the constant distraction/interruption of **Chat**.
-> Later (post-MVP) we will implement a very _basic_ Chat feature,
-> but it will be _nothing_ like the 
-> [Slack](https://github.com/dwyl/app/issues/205)
-> or other DeepWork killing Chat Apps.
--->
-
-<br />
-
-## Why This?
-
-We are building this MVP
-for _ourselves_
-because we have felt the 
+Our 
+[why](https://www.ted.com/talks/simon_sinek_how_great_leaders_inspire_action)
+for building this MVP
+is that we have felt the 
 [_pain_](https://github.com/dwyl/app/issues/213#issuecomment-650531694)
 of _not_ having the App.
 
@@ -232,6 +113,88 @@ _How to Get and Test Startup Ideas_:
 [youtu.be/vDXkpJw16os](https://youtu.be/vDXkpJw16os)
 + Kevin Hale's _How to Evaluate Startup Ideas_:
 https://youtu.be/DOtCl5PU8F0
+
+<br />
+
+# _What_? 💭
+
+A **mobile-first** 
+**_hybrid_**
+**task and activity** (time)
+**tracking tool**.
+<!-- with built-in (basic) team **communication**. -->
+## MVP? 
+
+A Minimum Viable Product ("MVP"),
+as its' name suggests,
+is the _minimum_ 
+we can do to test the idea.
+
+> If you're new to MVPs, 
+> the Wikpedia article is a good starting point:
+[wikipedia.org/wiki/Minimum_viable_product](https://en.wikipedia.org/wiki/Minimum_viable_product) <br />
+> Or listen to Eric Ries describe it in 3 minutes:
+> https://youtu.be/1FoCbbbcYT8 <br />
+> Validate your business idea: 
+> THE LEAN STARTUP by Eric Ries:
+> https://youtu.be/QaoVWtLX038
+
+## 2 Apps into _One_
+
+We've found it _tedious_ 
+to use **several _separate_ apps**
+for task and time tracking 🤦‍♂️ <br />
+and think it's _logical_ 
+to _combine_ the functionality. 💡
+
+This MVP combines **2 apps** into ***one***.
+
+We **built** the 2 _separate_ apps
+to showcase the individual features:
+
+1. Todo list: 
+   [github.com/dwyl/phoenix-liveview-**todo-list**](https://github.com/dwyl/phoenix-liveview-todo-list-tutorial)
+2. Stop Watch (Timer):
+   [github.com/dwyl/phoenix-liveview-**stopwatch**](https://github.com/dwyl/phoenix-liveview-stopwatch)
+<!--
+3. Chat (Communication): 
+   [github.com/dwyl/phoenix-liveview-**chat**](https://github.com/dwyl/phoenix-liveview-chat-example)
+--> 
+
+We encourage people to read 
+and understand the individual feature Apps
+from first principals
+***`before`***
+trying run the MVP. 
+But our _hope_ is that
+the UI/UX in the MVP
+is sufficiently intuitive
+that it **_immediately_ makes sense**. 🤞
+
+### Proposed MVP UI/UX
+
+This is our wireframe UI/UX
+we used as the _guide_ 
+to create the MVP functionality:
+
+![mvp-proposed-ux](https://user-images.githubusercontent.com/194400/73374277-d9445480-42b1-11ea-980a-3fabbfe5a9fd.png)
+
+The idea is just to have a todo list
+that allows you to track how much time
+you have spent on a task. 
+
+It is _deliberately_ "basic" 
+and 
+["ugly"](https://youtu.be/m4isFputh68?t=158)
+so we _don't_ focus on aesthetics. 🚀<br />
+It will _definitely_ change over time 
+as we _use_ the App 
+and collect _feedback_. 💬<br />
+If you want to _help_ make it better,
+share your feedback! 🙏
+
+More detail on the features: 
+[dwyl/app/issues/265](https://github.com/dwyl/app/issues/265)
 
 <br />
 
@@ -305,13 +268,6 @@ Here's a GIF if you're low on time:
 
 ![mvp-fly-auth](https://user-images.githubusercontent.com/194400/180079997-b43a24c2-7a50-4755-aef9-ef3f2aa28816.gif)
 
-
-<!--
-If you are using the "full" @dwyl App,
-and have a question/idea,
-please open an issue in:
-[app/issues](https://github.com/dwyl/app/issues)
--->
 
 ## Contributing 👩‍💻
 
