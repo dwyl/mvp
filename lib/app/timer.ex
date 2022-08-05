@@ -8,7 +8,6 @@ defmodule App.Timer do
 
   schema "timers" do
     field :item_id, :id
-    field :person_id, :id
     field :start, :naive_datetime
     field :stop, :naive_datetime
 
@@ -18,7 +17,7 @@ defmodule App.Timer do
   @doc false
   def changeset(timer, attrs) do
     timer
-    |> cast(attrs, [:item_id, :person_id, :start, :stop])
+    |> cast(attrs, [:item_id, :start, :stop])
     |> validate_required([:item_id, :start])
   end
 

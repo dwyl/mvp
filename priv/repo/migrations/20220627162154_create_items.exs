@@ -4,7 +4,7 @@ defmodule App.Repo.Migrations.CreateItems do
   def change do
     create table(:items) do
       add(:text, :string)
-      add(:person_id, references(:people, on_delete: :nothing))
+      add(:person_id, :integer)
       add(:status, :integer)
 
       timestamps()

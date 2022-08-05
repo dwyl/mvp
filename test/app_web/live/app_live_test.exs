@@ -26,7 +26,7 @@ defmodule AppWeb.AppLiveTest do
 
     started = NaiveDateTime.utc_now()
     {:ok, _timer} =
-      Timer.start(%{item_id: item.id, person_id: 1, start: started})
+      Timer.start(%{item_id: item.id, start: started})
 
     # See: https://github.com/dwyl/useful/issues/17#issuecomment-1186070198
     # assert Useful.typeof(:timer_id) == "atom"
@@ -189,9 +189,4 @@ defmodule AppWeb.AppLiveTest do
     conn = get(conn, "/login")
     assert redirected_to(conn, 302) =~ "auth.dwyl.com"
   end
-
-  # test "test clicking logout button fires handle_event :logout", %{conn: conn} do
-  #   conn = get(conn, "/login")
-  #   assert redirected_to(conn, 302) =~ "auth.dwyl.com"
-  # end
 end
