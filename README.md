@@ -14,11 +14,11 @@ And help us to ...
   <img src="https://user-images.githubusercontent.com/194400/65666966-b28dbd00-e036-11e9-9d11-1f5d3e22258e.png" width="500" alt="MVP Loop">
 </a>
 
-[![Build Status](https://img.shields.io/travis/com/dwyl/app-mvp-phoenix/master?color=bright-green&style=flat-square)](https://travis-ci.org/dwyl/app-mvp-phoenix)
-[![codecov.io](https://img.shields.io/codecov/c/github/dwyl/app-mvp-phoenix/master.svg?style=flat-square)](https://codecov.io/github/dwyl/app-mvp-phoenix?branch=master)
+[![Build Status](https://img.shields.io/travis/com/dwyl/app-mvp/master?color=bright-green&style=flat-square)](https://travis-ci.org/dwyl/app-mvp)
+[![codecov.io](https://img.shields.io/codecov/c/github/dwyl/app-mvp/master.svg?style=flat-square)](https://codecov.io/github/dwyl/app-mvp?branch=master)
 [![Hex.pm](https://img.shields.io/hexpm/v/elixir_auth_google?color=brightgreen&style=flat-square)](https://hex.pm/packages/elixir_auth_google)
-[![contributions welcome](https://img.shields.io/badge/feedback-welcome-brightgreen.svg?style=flat-square)](https://github.com/dwyl/app-mvp-phoenix/issues)
-[![HitCount](https://hits.dwyl.com/dwyl/app-mvp-phoenix.svg)](https://hits.dwyl.com/dwyl/app-mvp-phoenix)
+[![contributions welcome](https://img.shields.io/badge/feedback-welcome-brightgreen.svg?style=flat-square)](https://github.com/dwyl/app-mvp/issues)
+[![HitCount](https://hits.dwyl.com/dwyl/app-mvp.svg)](https://hits.dwyl.com/dwyl/app-mvp)
 
 
 </div>
@@ -29,9 +29,9 @@ And help us to ...
 - [_What_? 💭](#what-)
   - [MVP?](#mvp)
   - [Combining Features of Several Apps](#combining-features-of-several-apps)
-    - [Startup Ideas? 💡](#startup-ideas-)
   - [2 Apps into _One_](#2-apps-into-one)
-  - [Proposed MVP UI/UX](#proposed-mvp-uiux)
+    - [Proposed MVP UI/UX](#proposed-mvp-uiux)
+  - [Startup Ideas? 💡](#startup-ideas-)
 - [_Who?_ 👥](#who-)
   - [Feedback! 🙏](#feedback-)
     - [Perform Some Actions in the App](#perform-some-actions-in-the-app)
@@ -97,7 +97,19 @@ A **mobile-first**
 <!-- with built-in (basic) team **communication**. -->
 ## MVP? 
 
-A Minimum Viable Product ("MVP")
+A Minimum Viable Product ("MVP"),
+as its' name suggests,
+is the _minimum_ 
+we can do to test the idea.
+
+> If you're new to MVPs, 
+> the Wikpedia article is a good starting point:
+[wikipedia.org/wiki/Minimum_viable_product](https://en.wikipedia.org/wiki/Minimum_viable_product) <br />
+> Or listen to Eric Ries describe it in 3 minutes:
+> https://youtu.be/1FoCbbbcYT8 <br />
+> Validate your business idea: 
+> THE LEAN STARTUP by Eric Ries:
+> https://youtu.be/QaoVWtLX038
 
 
 ## Combining Features of Several Apps
@@ -117,23 +129,6 @@ please just ignore it and get on with your day. 👌
 then there is **no hope** for it._”
 ~ [Albert Einstein](https://www.goodreads.com/quotes/110518-if-at-first-the-idea-is-not-absurd-then-there)
 
-### Startup Ideas? 💡
-
-We _love_ talking about startup ideas. ❤️ 🎉 <br />
-If you are new to this, 
-we recommend watching the following
-[YC](https://www.ycombinator.com/)
-videos:
-
-+ Jared Friedman's
-_How to Get Startup Ideas_:
-[youtu.be/uvw-u99yj8w](https://youtu.be/uvw-u99yj8w?t=424)
-and <br />
-+ Michael Seibel's
-_How to Get and Test Startup Ideas_:
-[youtu.be/vDXkpJw16os](https://youtu.be/vDXkpJw16os)
-+ Kevin Hale's _How to Evaluate Startup Ideas_:
-https://youtu.be/DOtCl5PU8F0
 
 
 ## 2 Apps into _One_
@@ -161,7 +156,7 @@ the UI/UX in the MVP
 is sufficiently intuitive
 that it **_immediately_ makes sense**. 🤞
 
-## Proposed MVP UI/UX
+### Proposed MVP UI/UX
 
 This is our wireframe UI/UX
 we used as the _guide_ 
@@ -209,6 +204,26 @@ Way more detail on the features:
 > [Slack](https://github.com/dwyl/app/issues/205)
 > or other DeepWork killing Chat Apps.
 -->
+
+## Startup Ideas? 💡
+
+We _love_ talking about startup ideas. ❤️ 🎉 <br />
+If you are new to this, 
+we recommend watching the following
+[YC](https://www.ycombinator.com/)
+videos:
+
++ Jared Friedman's
+_How to Get Startup Ideas_:
+[youtu.be/uvw-u99yj8w](https://youtu.be/uvw-u99yj8w?t=424)
+and <br />
++ Michael Seibel's
+_How to Get and Test Startup Ideas_:
+[youtu.be/vDXkpJw16os](https://youtu.be/vDXkpJw16os)
++ Kevin Hale's _How to Evaluate Startup Ideas_:
+https://youtu.be/DOtCl5PU8F0
+
+
 
 # _Who?_ 👥
 
@@ -371,7 +386,7 @@ run the following commands
 in your terminal:
 
 ```sh
-git clone git@github.com:dwyl/app-mvp-phoenix.git && cd app-mvp-phoenix
+git clone git@github.com:dwyl/app-mvp.git && cd app-mvp
 source .env_sample
 mix setup
 ```
@@ -511,14 +526,14 @@ That tells us everything is working as expected. 🚀
 
 If you prefer to see **test coverage** - we certainly do -
 then you will need to add a few lines to the 
-[`mix.exs`](https://github.com/dwyl/app-mvp-phoenix/blob/main/mix.exs)
+[`mix.exs`](https://github.com/dwyl/app-mvp/blob/main/mix.exs)
 file and
 create a 
-[`coveralls.json`](https://github.com/dwyl/app-mvp-phoenix/blob/main/coveralls.json)
+[`coveralls.json`](https://github.com/dwyl/app-mvp/blob/main/coveralls.json)
 file to exclude `Phoenix` files from `excoveralls` checking.
 Add alias (shortcuts) in `mix.exs` `defp aliases do` list.
 e.g: `mix c` runs `mix coveralls.html` 
-see: [**`commits/d6ab5ef`**](https://github.com/dwyl/app-mvp-phoenix/pull/90/commits/d6ab5ef7c2be5dcad7d060e782393ae29c94a526) ...
+see: [**`commits/d6ab5ef`**](https://github.com/dwyl/app-mvp/pull/90/commits/d6ab5ef7c2be5dcad7d060e782393ae29c94a526) ...
 
 This is just standard `Phoenix` project setup for us, 
 so we don't duplicate any of the steps here.
@@ -785,7 +800,7 @@ we have the following database
 > instead of the
 [`phx.gen.html`](https://hexdocs.pm/phoenix/Mix.Tasks.Phx.Gen.Html.html)
 generator which creates a _lot_ of 
-[boilerplate code](https://github.com/dwyl/app-mvp-phoenix/issues/89#issuecomment-1167548207).
+[boilerplate code](https://github.com/dwyl/app-mvp/issues/89#issuecomment-1167548207).
 -->
 
 We created **3 database tables**;
