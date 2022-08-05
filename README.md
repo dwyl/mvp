@@ -6,7 +6,7 @@ The most basic implementation
 of the **@dwyl App**
 [**MVP** feature set](https://github.com/dwyl/app/issues/266).
 
-# Please ***`try`*** it: [mvp.fly.dev](https://mvp.fly.dev/)
+# _Please `try` it_: [mvp.fly.dev](https://mvp.fly.dev/) 🙏
 
 And help us to ...
 
@@ -24,16 +24,22 @@ And help us to ...
 </div>
 
 - [@dwyl App MVP  💡⏳ ✅](#dwyl-app-mvp---)
-- [Please ***`try`*** it: mvp.fly.dev](#please-try-it-mvpflydev)
+- [_Please `try` it_: mvp.fly.dev 🙏](#please-try-it-mvpflydev-)
 - [Why? 🤷](#why-)
 - [_What_? 💭](#what-)
+  - [MVP?](#mvp)
+  - [Combining Features of Several Apps](#combining-features-of-several-apps)
+    - [Startup Ideas? 💡](#startup-ideas-)
   - [2 Apps into _One_](#2-apps-into-one)
   - [Proposed MVP UI/UX](#proposed-mvp-uiux)
-  - [Tech Stack?](#tech-stack)
 - [_Who?_ 👥](#who-)
   - [Feedback! 🙏](#feedback-)
     - [Perform Some Actions in the App](#perform-some-actions-in-the-app)
+  - [Contributing 👩‍💻](#contributing-)
+    - [More Features?](#more-features)
+  - [Build Your Own Idea!](#build-your-own-idea)
 - [_How_? 💻](#how-)
+  - [Tech Stack?](#tech-stack)
   - [Run the MVP App on your `localhost` ⬇️](#run-the-mvp-app-on-your-localhost-️)
 - [Build Log 👩‍💻](#build-log-)
   - [1. Create a New `Phoenix` App](#1-create-a-new-phoenix-app)
@@ -85,10 +91,16 @@ of the app to **learn** from.
 # _What_? 💭
 
 A **mobile-first** 
-**_hybrid_ note taking**,
+**_hybrid_**
 **task and activity** (time)
 **tracking tool**.
 <!-- with built-in (basic) team **communication**. -->
+## MVP? 
+
+A Minimum Viable Product ("MVP")
+
+
+## Combining Features of Several Apps
 
 We've found it _tedious_ 
 to use **several _separate_ apps**
@@ -104,6 +116,25 @@ please just ignore it and get on with your day. 👌
 > “_If at first the **idea** is **not absurd**,
 then there is **no hope** for it._”
 ~ [Albert Einstein](https://www.goodreads.com/quotes/110518-if-at-first-the-idea-is-not-absurd-then-there)
+
+### Startup Ideas? 💡
+
+We _love_ talking about startup ideas. ❤️ 🎉 <br />
+If you are new to this, 
+we recommend watching the following
+[YC](https://www.ycombinator.com/)
+videos:
+
++ Jared Friedman's
+_How to Get Startup Ideas_:
+[youtu.be/uvw-u99yj8w](https://youtu.be/uvw-u99yj8w?t=424)
+and <br />
++ Michael Seibel's
+_How to Get and Test Startup Ideas_:
+[youtu.be/vDXkpJw16os](https://youtu.be/vDXkpJw16os)
++ Kevin Hale's _How to Evaluate Startup Ideas_:
+https://youtu.be/DOtCl5PU8F0
+
 
 ## 2 Apps into _One_
 
@@ -179,16 +210,6 @@ Way more detail on the features:
 > or other DeepWork killing Chat Apps.
 -->
 
-## Tech Stack? 
-
-This **MVP** app uses the **`PETAL` Stack**
-described in: 
-[dwyl/**technology-stack**](https://github.com/dwyl/technology-stack)
-
-Going through the individual feature apps listed above,
-will give you the knowledge
-to understand this MVP.
-
 # _Who?_ 👥
 
 This **MVP** has **_two_ target audiences**:
@@ -198,10 +219,11 @@ This **MVP** has **_two_ target audiences**:
   the basic workflow in our App. <br />
   It's meant to work for _us_
   and have just enough functionality 
-  to solve our basic needs.
+  to solve our _basic_ needs.
 
 2. **Wider community** of people 
-  who want to see a **_fully_-functioning `Phoenix` app**
+  who want to see a 
+  **_fully_-functioning `Phoenix` app**
   with good documentation and testing.
 
 _Longer_ term, the MVP 
@@ -218,18 +240,19 @@ Your feedback is very much encouraged/welcome! 💬<br />
 If you find the repo interesting/useful, please ⭐ on GitHub. <br />
 And if you have any questions,
 please open an issue:
-[app-mvp-phoenix/issues](https://github.com/dwyl/app-mvp-phoenix/issues) ❓
+[app-mvp/issues](https://github.com/dwyl/app-mvp/issues) ❓
 <br />
 
 
 ### Perform Some Actions in the App
 
-Visit [mvp.fly.dev](https://mvp.fly.dev/) 
-(_or run the app on your `localhost` - see below_)
+Please visit 
+[`mvp.fly.dev`](https://mvp.fly.dev/) 
+(_or run the app on your `localhost` - see below_) <br />
 and perform some actions to test the App:
 
 1. ***Create*** a todo list `item`; <br />
-   This item is **`public`** (anyone can see it!) <br />
+   > Note: this item is **`public`** (anyone can see it!) <br />
    If you want **`private`** items you need to **login**. 
 2. ***Start*** a `timer` for the (`public`) `item`
 3. ***Stop*** the `timer` for the `item` (press **`start`**)
@@ -265,6 +288,44 @@ please open an issue in:
 [app/issues](https://github.com/dwyl/app/issues)
 -->
 
+## Contributing 👩‍💻
+
+All contributions 
+from typo fixes
+to feature enhancements
+are always welcome! 🙌
+
+Please start by: <br />
+a. **Star** the repo on GitHub 
+  so you have a "bookmark" you can return to. ⭐ <br />
+b. **Fork** the repo 
+  so you have a copy you can "hack" on. 🍴 <br />
+c. **Clone** the repo to your `localhost` 
+  and run it! (see below) 👩‍💻 <br />
+
+
+For more detail,
+please see:
+[github.com/dwyl/contributing](https://github.com/dwyl/contributing)
+
+### More Features? 
+
+Please note that our goal with this MVP
+is _not_ to have _all_ the features. 
+
+
+## Build Your Own Idea! 
+
+We are building this MVP App for _ourselves_
+because we have felt the 
+[_pain_](https://github.com/dwyl/app/issues/213#issuecomment-650531694)
+of _not_ having the App.
+
+![nelson-persona](https://user-images.githubusercontent.com/194400/85919307-faf63780-b861-11ea-959c-6a16f0d251fb.png)
+
+
+<br />
+
 # _How_? 💻
 
 Our goal is 
@@ -272,6 +333,26 @@ to document as much
 of the implementation as possible,
 so that _anyone_ 
 can follow along.
+
+If you spot a gap in the docs,
+please
+
+
+## Tech Stack? 
+
+This **MVP** app uses the **`PETAL` Stack**
+described in: 
+[dwyl/**technology-stack**](https://github.com/dwyl/technology-stack)
+
+Going through the individual feature apps listed above,
+will give you the knowledge
+to understand this MVP.
+
+If you have _any_ coding skills 
+(e.g: `JavaScript`, `Java`,  `Python`, `Ruby`, `PHP`, `SQL`, etc.)
+you will be able to follow along
+without any issues
+as the code is **_deliberately_ simple**.
 
 ## Run the MVP App on your `localhost` ⬇️
 

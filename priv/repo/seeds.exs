@@ -7,7 +7,7 @@ App.Person.upsert(
   %{
     givenName: "guest",
     auth_provider: "none",
-    status: 1, # no association just an integer.
+    status: 2, # no association just an int
     id: 0 # stackoverflow.com/questions/32728179/primary-key-postgres-zero
   }
 )
