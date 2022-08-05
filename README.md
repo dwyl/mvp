@@ -696,7 +696,7 @@ we have the following database
 [Entity Relationship Diagram](https://en.wikipedia.org/wiki/Entity%E2%80%93relationship_model)
 (ERD):
 
-![mvp-erd-without-associations](https://user-images.githubusercontent.com/194400/178869576-c6aff9d7-1bc3-43ff-80ac-71b3e86363dd.png)
+![mvp-erd-people-items-timers](https://user-images.githubusercontent.com/194400/180363191-79c0621b-04a1-4b0e-81e1-51345cc2e86d.png)
 
 <!-- probably not needed ...
 > **Note**: We used 
