@@ -22,17 +22,18 @@ And help us to ...
 
 
 </div>
+<br />
 
 - [@dwyl App MVP  💡⏳ ✅](#dwyl-app-mvp---)
 - [_Please `try` it_: mvp.fly.dev 🙏](#please-try-it-mvpflydev-)
 - [Why? 🤷](#why-)
-  - [Build Your Own Idea!](#build-your-own-idea)
-  - [Startup Ideas? 💡](#startup-ideas-)
 - [_What_? 💭](#what-)
   - [MVP?](#mvp)
   - [Combining Features of Several Apps](#combining-features-of-several-apps)
   - [2 Apps into _One_](#2-apps-into-one)
     - [Proposed MVP UI/UX](#proposed-mvp-uiux)
+  - [Why This?](#why-this)
+  - [Startup Ideas? 💡](#startup-ideas-)
 - [_Who?_ 👥](#who-)
   - [Feedback! 🙏](#feedback-)
     - [Perform Some Actions in the App](#perform-some-actions-in-the-app)
@@ -68,42 +69,6 @@ However we will also maintian this repo
 as a **reference** for **new joiners** <br />
 wanting the **most _basic_ version**
 of the app to **learn** from.
-
-## Build Your Own Idea! 
-
-We are building this MVP App for _ourselves_
-because we have felt the 
-[_pain_](https://github.com/dwyl/app/issues/213#issuecomment-650531694)
-of _not_ having the App.
-
-![nelson-persona](https://user-images.githubusercontent.com/194400/85919307-faf63780-b861-11ea-959c-6a16f0d251fb.png)
-
-If you have felt the pain of
-lacking focus/priority,
-not knowing what to work on now/next
-or suffer from 
-[procrastination](https://github.com/nelsonic/nelsonic.github.io/issues/849),
-then you too have the problem we ~~have~~ _are fixing_!
-
-
-## Startup Ideas? 💡
-
-We _love_ talking about startup ideas. ❤️ 🎉 <br />
-If you are new to this, 
-we recommend watching the following
-[YC](https://www.ycombinator.com/)
-videos:
-
-+ Jared Friedman's
-_How to Get Startup Ideas_:
-[youtu.be/uvw-u99yj8w](https://youtu.be/uvw-u99yj8w?t=424)
-and <br />
-+ Michael Seibel's
-_How to Get and Test Startup Ideas_:
-[youtu.be/vDXkpJw16os](https://youtu.be/vDXkpJw16os)
-+ Kevin Hale's _How to Evaluate Startup Ideas_:
-https://youtu.be/DOtCl5PU8F0
-
 
 # _What_? 💭
 
@@ -191,7 +156,7 @@ and collect _feedback_. 💬<br />
 If you want to _help_ make it better,
 share your feedback! 🙏
 
-Way more detail on the features: 
+More detail on the features: 
 [dwyl/app/issues/265](https://github.com/dwyl/app/issues/265)
 
 <!--
@@ -222,6 +187,53 @@ Way more detail on the features:
 > or other DeepWork killing Chat Apps.
 -->
 
+<br />
+
+## Why This?
+
+We are building this MVP
+for _ourselves_
+because we have felt the 
+[_pain_](https://github.com/dwyl/app/issues/213#issuecomment-650531694)
+of _not_ having the App.
+
+![nelson-persona](https://user-images.githubusercontent.com/194400/85919307-faf63780-b861-11ea-959c-6a16f0d251fb.png)
+
+If you have felt the pain of
+lacking focus/priority,
+not knowing what to work on now/next
+or suffer from 
+[procrastination](https://github.com/nelsonic/nelsonic.github.io/issues/849),
+then you too have the problem we ~~have~~ _are fixing_!
+
+We consider the problem of knowing what to work on,
+how to prioritise work
+and keep track of it
+to be a 
+["keystone"](https://en.wikipedia.org/wiki/Keystone_(architecture)#Metaphor)
+to what we want to build in the 
+[future](https://github.com/dwyl/phase-two).
+If you _agree_,
+please let us know.
+
+## Startup Ideas? 💡
+
+We _love_ talking about startup ideas. ❤️ 🎉 <br />
+If you are new to this, 
+we recommend watching the following
+[YC](https://www.ycombinator.com/)
+videos:
+
++ Jared Friedman's
+_How to Get Startup Ideas_:
+[youtu.be/uvw-u99yj8w](https://youtu.be/uvw-u99yj8w?t=424)
++ Michael Seibel's
+_How to Get and Test Startup Ideas_:
+[youtu.be/vDXkpJw16os](https://youtu.be/vDXkpJw16os)
++ Kevin Hale's _How to Evaluate Startup Ideas_:
+https://youtu.be/DOtCl5PU8F0
+
+<br />
 
 # _Who?_ 👥
 
@@ -324,8 +336,13 @@ please see:
 ### More Features? 
 
 Please note that our goal with this MVP
-is _not_ to have _all_ the features. 
-
+is _not_ to have _all_ the features. <br />
+We will be adding _lots_ more features
+to the _full_
+[**App**](https://github.com/dwyl/app). <br />
+If you have feature ideas, that's great! 🎉
+Please _share_ them: 
+[**app/issues**](https://github.com/dwyl/app/issues)
 
 
 <br />

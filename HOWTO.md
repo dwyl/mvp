@@ -387,7 +387,7 @@ for what we are building later on.
   e.g: "in progress"
 
 
-The keen-eyed observer 
+> **Note**: The keen-eyed observer 
 (with PostgreSQL experience)
 will have noticed that `items.person_id` is an `Integer` (`int4`) data type.
 This means we are limted to **`2147483647` people** using the MVP.
