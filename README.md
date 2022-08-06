@@ -27,8 +27,6 @@ And help us to ...
 - [@dwyl App MVP  💡⏳ ✅](#dwyl-app-mvp---)
 - [_Please `try` it_: mvp.fly.dev 🙏](#please-try-it-mvpflydev-)
 - [Why? 🤷‍♀️](#why-️)
-  - [But _Why_...?](#but-why)
-  - [Startup Ideas? 💡](#startup-ideas-)
 - [_What_? 💭](#what-)
   - [MVP?](#mvp)
   - [2 Apps into _One_](#2-apps-into-one)
@@ -69,18 +67,20 @@ as a **reference** for **new joiners** <br />
 wanting the **most _basic_ version**
 to **learn** from.
 
+<!-- going to move this somewhere else ...
 ## But _Why_...? 
 
 Our 
 [why](https://www.ted.com/talks/simon_sinek_how_great_leaders_inspire_action)
 for building this MVP
-is that we have felt the 
+(and subsequent [App](https://github.com/dwyl/app))
+is that we felt the 
 [_pain_](https://github.com/dwyl/app/issues/213#issuecomment-650531694)
-of _not_ having the App.
+of _not_ having it!
 
 ![nelson-persona](https://user-images.githubusercontent.com/194400/85919307-faf63780-b861-11ea-959c-6a16f0d251fb.png)
 
-If you have felt the pain of
+If you have feel the pain of
 lacking focus/priority,
 not knowing what to work on now/next
 or suffer from 
@@ -115,6 +115,7 @@ _How to Get and Test Startup Ideas_:
 https://youtu.be/DOtCl5PU8F0
 
 <br />
+-->
 
 # _What_? 💭
 
@@ -312,7 +313,8 @@ so that _anyone_
 can follow along.
 
 If you spot a gap in the docs,
-please
+please 
+[let us know!](https://github.com/dwyl/app-mvp/issues)
 
 
 ## Tech Stack? 
