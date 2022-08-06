@@ -29,7 +29,7 @@ And help us to ...
 - [Why? 🤷‍♀️](#why-️)
 - [_What_? 💭](#what-)
   - [MVP?](#mvp)
-  - [2 Apps into _One_](#2-apps-into-one)
+  - [Two Apps into _One_](#two-apps-into-one)
     - [Proposed MVP UI/UX](#proposed-mvp-uiux)
 - [_Who?_ 👥](#who-)
   - [Feedback! 🙏](#feedback-)
@@ -39,10 +39,11 @@ And help us to ...
 - [_How_? 💻](#how-)
   - [Tech Stack?](#tech-stack)
   - [Run the MVP App on your `localhost` ⬇️](#run-the-mvp-app-on-your-localhost-️)
+    - [Build It!](#build-it)
 
 # Why? 🤷‍♀️ 
 
-Our goal with this 
+Our goal with this
 [MVP](https://github.com/dwyl/technical-glossary/issues/44)
 is to build the **minimal _useable_ App** <br />
 that covers our basic "***Capture, Categorize, Complete***"
@@ -50,19 +51,15 @@ that covers our basic "***Capture, Categorize, Complete***"
 It is well-documented, tested
 and easy for a beginner to run & understand.
 
-The idea is to _ship_ this App to
+We _shiped_ the App to
 Fly: 
 [mvp.fly.dev](https://mvp.fly.dev/)
-and then _use/test_ it (_internally_). <br />
-Once we have collected initial feedback,
-we can share it with the world!
-
-Once the MVP features are complete,
-the code will be used
-in the main
+and _use/test_ it (_internally_). <br />
+After collecting initial feedback,
+we integrated it into the main
 [dwyl/**app**](https://github.com/dwyl/app) 
 repo.<br />
-However we will also maintian this repo
+We maintian this repo
 as a **reference** for **new joiners** <br />
 wanting the **most _basic_ version**
 to **learn** from.
@@ -140,7 +137,7 @@ we can do to test the idea.
 > THE LEAN STARTUP by Eric Ries:
 > https://youtu.be/QaoVWtLX038
 
-## 2 Apps into _One_
+## Two Apps into _One_
 
 We've found it _tedious_ 
 to use **several _separate_ apps**
@@ -148,9 +145,9 @@ for task and time tracking 🤦‍♂️ <br />
 and think it's _logical_ 
 to _combine_ the functionality. 💡
 
-This MVP combines **2 apps** into ***one***.
+This MVP combines **two apps** into ***one***.
 
-We **built** the 2 _separate_ apps
+We **built** the two _separate_ apps
 to showcase the individual features:
 
 1. Todo list: 
@@ -180,11 +177,11 @@ to create the MVP functionality:
 
 ![mvp-proposed-ux](https://user-images.githubusercontent.com/194400/73374277-d9445480-42b1-11ea-980a-3fabbfe5a9fd.png)
 
-The idea is just to have a todo list
-that allows you to track how much time
-you have spent on a task. 
+The idea is to have a todo list
+that allows us to track how much time
+we have spent on a task. 
 
-It is _deliberately_ "basic" 
+It's _deliberately_ "basic" 
 and 
 ["ugly"](https://youtu.be/m4isFputh68?t=158)
 so we _don't_ focus on aesthetics. 🚀<br />
@@ -192,7 +189,7 @@ It will _definitely_ change over time
 as we _use_ the App 
 and collect _feedback_. 💬<br />
 If you want to _help_ make it better,
-share your feedback! 🙏
+share your thoughts! 🙏
 
 More detail on the features: 
 [dwyl/app/issues/265](https://github.com/dwyl/app/issues/265)
@@ -203,8 +200,8 @@ More detail on the features:
 
 This **MVP** has **_two_ target audiences**:
 
-1. **@dwyl team** to start 
-  ["dogfooding"](https://en.wikipedia.org/wiki/Eating_your_own_dog_food)
+1. **@dwyl team** to 
+  ["dogfood"](https://en.wikipedia.org/wiki/Eating_your_own_dog_food)
   the basic workflow in our App. <br />
   It's meant to work for _us_
   and have just enough functionality 
@@ -288,16 +285,17 @@ c. **Clone** the repo to your `localhost`
 
 For more detail,
 please see:
-[github.com/dwyl/contributing](https://github.com/dwyl/contributing)
+[github.com/dwyl/**contributing**](https://github.com/dwyl/contributing)
 
 ### More Features? 
 
 Please note that our goal with this MVP
-is _not_ to have _all_ the features. <br />
+is _not_ to have _all_ the features; 
+again, it's _deliberatly_  simple.<br />
 We will be adding _lots_ more features
 to the _full_
 [**App**](https://github.com/dwyl/app). <br />
-If you have feature ideas, that's great! 🎉
+If you have feature ideas, that's great! 🎉 <br />
 Please _share_ them: 
 [**app/issues**](https://github.com/dwyl/app/issues)
 
@@ -397,3 +395,8 @@ and start your tour!
 
 <br />
 
+### Build It!
+
+If you want to learn how we _built_ the MVP,
+please see:
+[**`BUILDIT.md`**](https://github.com/dwyl/app-mvp/blob/main/BUILDIT.md)
