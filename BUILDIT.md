@@ -21,6 +21,16 @@ it in **20 minutes**. 🏁
 > the other tutorials/examples,
 > but they are linked in case you get stuck.
 
+In this log we have written the "CRUD" functions first
+and _then_ built the UI. 
+We were able to to do this because we had a good idea
+of which functions we were going to need.
+If you are reading through this
+and scratching your head 
+wondering where a particular function will be used,
+simply scroll down to the UI section
+where (_hopefully_) it will all be clear. 
+
 
 ## 1. Create a New `Phoenix` App
 
@@ -869,12 +879,213 @@ So we need a way of: <br />
 **a.** Selecting all the `timers` for a given `item` <br />
 **b.** Accumulating the `timers` for the `item` <br />
 
+> **Note**: We would have _loved_ 
+to find a single `Ecto` function to do this,
+but we didn't.
+If you know of one,
+please share!
+
+
+### 5.1 Test for `accummulate_item_timers/1`
+
+This might feel like we are working in reverse,
+that's because we _are_!
+We are working _back_ from our stated goal
+of accumulating all the `timer` for a given `item`
+so that we can display a _single_ elapsed time
+when an `item` has had more than one timer.
+
+Open the 
+`test/app/item_test.exs`
+file and add the following block of test code:
+
+```elixir
+  describe "accumulate timers for a list of items #103" do
+    test "accummulate_item_timers/1 to display cummulative timer" do
+      # https://hexdocs.pm/elixir/1.13/NaiveDateTime.html#new/2
+      # "Add" -7 seconds: https://hexdocs.pm/elixir/1.13/Time.html#add/3
+      {:ok, seven_seconds_ago} =
+        NaiveDateTime.new(Date.utc_today, Time.add(Time.utc_now, -7))
+
+      # this is the "shape" of the data that items_with_timers/1 will return:
+      items_with_timers = [
+        %{
+          stop: nil,
+          id: 3,
+          start: nil,
+          text: "This item has no timers",
+          timer_id: nil
+        },
+        %{
+          stop: ~N[2022-07-17 11:18:10.000000],
+          id: 2,
+          start: ~N[2022-07-17 11:18:00.000000],
+          text: "Item #2 has one active (no end) and one complete timer should total 17sec",
+          timer_id: 3
+        },
+        %{
+          stop: nil,
+          id: 2,
+          start: seven_seconds_ago,
+          text: "Item #2 has one active (no end) and one complete timer should total 17sec",
+          timer_id: 4
+        },
+        %{
+          stop: ~N[2022-07-17 11:18:31.000000],
+          id: 1,
+          start: ~N[2022-07-17 11:18:26.000000],
+          text: "Item with 3 complete timers that should add up to 42 seconds elapsed",
+          timer_id: 2
+        },
+        %{
+          stop: ~N[2022-07-17 11:18:24.000000],
+          id: 1,
+          start: ~N[2022-07-17 11:18:18.000000],
+          text: "Item with 3 complete timers that should add up to 42 seconds elapsed",
+          timer_id: 1
+        },
+        %{
+          stop: ~N[2022-07-17 11:19:42.000000],
+          id: 1,
+          start: ~N[2022-07-17 11:19:11.000000],
+          text: "Item with 3 complete timers that should add up to 42 seconds elapsed",
+          timer_id: 5
+        }
+      ]
+
+      # The *interesting* timer is the *active* one (started seven_seconds_ago) ...
+      # The "hard" part to test in accumulating timers are the *active* ones ...
+      acc = Item.accumulate_item_timers(items_with_timers)
+      item_map = Map.new(acc, fn item -> {item.id, item} end)
+      item1 = Map.get(item_map, 1)
+      item2 = Map.get(item_map, 2)
+      item3 = Map.get(item_map, 3)
+
+      # It's easy to calculate time elapsed for timers that have an stop:
+      assert NaiveDateTime.diff(item1.stop, item1.start) == 42
+      # This is the fun one that we need to be 17 seconds:
+      assert NaiveDateTime.diff(NaiveDateTime.utc_now(), item2.start) == 17
+      # The diff will always be 17 seconds because we control the start in the test data above.
+      # But we still get the function to calculate it so we know it works.
+
+      # The 3rd item doesn't have any timers, its the control:
+      assert item3.start == nil
+    end
+  end
+```
+
+This is a large test but most of it is the test data (`items_with_timers`) in the format we will be returning from 
+`items_with_timers/1` in the next section. 
+
+With that test in place, we can write the function.
+
+### 5.2 Implement the `accummulate_item_timers/1` function
+
+Open the 
+`lib/app/item.ex`
+file and add the following function:
+
+```elixir
+@doc """
+  `accumulate_item_timers/1` aggregates the elapsed time
+  for all the timers associated with an item
+  and then subtracs that time from the start value of the *current* active timer.
+  This is done to create the appearance that a single timer is being started/stopped
+  when in fact there are multiple timers in the backend.
+  For MVP we *could* have just had a single timer ...
+  and given the "ugliness" of this code, I wish I had done that!!
+  But the "USP" of our product [IMO] is that
+  we can track the completion of a task across multiple work sessions.
+  And having multiple timers is the *only* way to achieve that.
+
+  If you can think of a better way of achieving the same result,
+  please share: https://github.com/dwyl/app-mvp-phoenix/issues/103
+  This function *relies* on the list of items being orderd by timer_id ASC
+  because it "pops" the last timer and ignores it to avoid double-counting.
+  """
+  def accumulate_item_timers(items_with_timers) do
+    # e.g: %{0 => 0, 1 => 6, 2 => 5, 3 => 24, 4 => 7}
+    timer_id_diff_map = map_timer_diff(items_with_timers)
+
+    # e.g: %{1 => [2, 1], 2 => [4, 3], 3 => []}
+    item_id_timer_id_map = Map.new(items_with_timers, fn i ->
+      { i.id, Enum.map(items_with_timers, fn it ->
+          if i.id == it.id, do: it.timer_id, else: nil
+        end)
+        # stackoverflow.com/questions/46339815/remove-nil-from-list
+        |> Enum.reject(&is_nil/1)
+      }
+    end)
+
+    # this one is "wasteful" but I can't think of how to simplify it ...
+    item_id_timer_diff_map = Map.new(items_with_timers, fn item ->
+      timer_id_list = Map.get(item_id_timer_id_map, item.id, [0])
+      # Remove last item from list before summing to avoid double-counting
+      {_, timer_id_list} = List.pop_at(timer_id_list, -1)
+
+      { item.id, Enum.reduce(timer_id_list, 0, fn timer_id, acc ->
+          Map.get(timer_id_diff_map, timer_id) + acc
+        end)
+      }
+    end)
+
+    # creates a nested map: %{ item.id: %{id: 1, text: "my item", etc.}}
+    Map.new(items_with_timers, fn item ->
+      time_elapsed = Map.get(item_id_timer_diff_map, item.id)
+      start = if is_nil(item.start), do: nil,
+        else: NaiveDateTime.add(item.start, -time_elapsed)
+
+      { item.id, %{item | start: start}}
+    end)
+    # Return the list of items without duplicates and only the last/active timer:
+    |> Map.values()
+    # Sort list by item.id descending (ordered by timer_id ASC above) so newest item first:
+    |> Enum.sort_by(fn(i) -> i.id end, :desc)
+  end
+```
+
+There's no getting around this,
+the function is huge and not very pretty.
+But hopefully the comments clarify it.
+
+If anything is unclear, we're very happy to expand/explain.
+We're also _very_ happy for anyone `else` to refactor it!
+[Please open an issue](https://github.com/dwyl/app-mvp/issues/) 
+so we can discuss. 🙏
+
+### 5.3 Test for `items_with_timers/1`
+
+Open the 
+`test/app/item_test.exs`
+file and the following test to the bottom:
+
+```elixir
+    test "Item.items_with_timers/1 returns a list of items with timers" do
+      {:ok, item1} = Item.create_item(@valid_attrs)
+      {:ok, item2} = Item.create_item(@valid_attrs)
+      assert Item.get_item!(item1.id).text == item1.text
+
+      started = NaiveDateTime.utc_now()
+
+      {:ok, timer1} =
+        Timer.start(%{item_id: item1.id, person_id: 1, start: started})
+      {:ok, _timer2} =
+        Timer.start(%{item_id: item2.id, person_id: 1, start: started})
+
+      assert NaiveDateTime.diff(timer1.start, started) == 0
+
+      # list items with timers:
+      item_timers = Item.items_with_timers(1)
+      assert length(item_timers) > 0
+    end
+```
 
 
 ## 6. Add Authentication
 
 This section borrows heavily from:
 [dwyl/phoenix-liveview-chat-example](https://github.com/dwyl/phoenix-liveview-chat-example#12-authentication)
+
 
 
 

@@ -111,7 +111,7 @@ defmodule App.Item do
   ]
   """
   #
-  def items_with_timers(person_id \\ 1) do
+  def items_with_timers(person_id \\ 0) do
     sql = """
     SELECT i.id, i.text, i.status, i.person_id, t.start, t.stop, t.id as timer_id FROM items i
     FULL JOIN timers as t ON t.item_id = i.id
