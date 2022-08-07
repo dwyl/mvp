@@ -2,7 +2,7 @@
 
 # Build Log 👩‍💻 [![Build Status](https://img.shields.io/travis/com/dwyl/app-mvp/master?color=bright-green&style=flat-square)](https://travis-ci.org/dwyl/app-mvp)
 
-</div>
+
 
 This is a log 
 of the steps taken 
@@ -12,6 +12,8 @@ to write it,
 but you can 
 [***speedrun***](https://en.wikipedia.org/wiki/Speedrun)
 it in **20 minutes**. 🏁
+
+</div>
 
 > **Note**: we have referenced sections 
 > in our more extensive tutorials/examples
@@ -30,6 +32,36 @@ and scratching your head
 wondering where a particular function will be used,
 simply scroll down to the UI section
 where (_hopefully_) it will all be clear. 
+
+- [Build Log 👩‍💻 ![Build Status](https://travis-ci.org/dwyl/app-mvp)](#build-log--)
+  - [1. Create a New `Phoenix` App](#1-create-a-new-phoenix-app)
+    - [1.1 Run the `Phoenix` App](#11-run-the-phoenix-app)
+    - [1.2 Run the tests:](#12-run-the-tests)
+      - [Test Coverage?](#test-coverage)
+    - [1.3 Setup `Tailwind`](#13-setup-tailwind)
+    - [1.4 Setup `LiveView`](#14-setup-liveview)
+    - [1.5 Update `router.ex`](#15-update-routerex)
+    - [1.6 Update Tests](#16-update-tests)
+    - [1.7 Delete Page-related Files](#17-delete-page-related-files)
+  - [2. Create Schemas to Store Data](#2-create-schemas-to-store-data)
+    - [_Explanation_ of the Schemas](#explanation-of-the-schemas)
+      - [`item`](#item)
+      - [`timer`](#timer)
+    - [2.1 Run Tests!](#21-run-tests)
+  - [3. Input `items`](#3-input-items)
+    - [3.1 Make the `item` Tests Pass](#31-make-the-item-tests-pass)
+  - [4. Create `Timer`](#4-create-timer)
+    - [Make `timer` tests pass](#make-timer-tests-pass)
+  - [5. `items` with `timers`](#5-items-with-timers)
+    - [5.1 Test for `accummulate_item_timers/1`](#51-test-for-accummulate_item_timers1)
+    - [5.2 Implement the `accummulate_item_timers/1` function](#52-implement-the-accummulate_item_timers1-function)
+    - [5.3 Test for `items_with_timers/1`](#53-test-for-items_with_timers1)
+    - [5.4 Implement `items_with_timers/1`](#54-implement-items_with_timers1)
+  - [6. Add Authentication](#6-add-authentication)
+  - [7. Create `LiveView` Functions](#7-create-liveview-functions)
+    - [7.1 Write `LiveView` Tests](#71-write-liveview-tests)
+    - [7.2 Implement the `LiveView` functions](#72-implement-the-liveview-functions)
+  - [8. Implement the `LiveView` UI Template](#8-implement-the-liveview-ui-template)
 
 
 ## 1. Create a New `Phoenix` App
@@ -1080,22 +1112,371 @@ file and the following test to the bottom:
     end
 ```
 
+### 5.4 Implement `items_with_timers/1`
+
+Open the 
+`lib/app/item.ex`
+file and add the followin code to the bottom:
+
+```elixir
+@doc """
+  `items_with_timers/1` Returns a List of items with the latest associated timers.
+
+  ## Examples
+
+  iex> items_with_timers()
+  [
+    %{text: "hello", person_id: 1, status: 2, start: 2022-07-14 09:35:18},
+    %{text: "world", person_id: 2, status: 7, start: 2022-07-15 04:20:42}
+  ]
+  """
+  #
+  def items_with_timers(person_id \\ 0) do
+    sql = """
+    SELECT i.id, i.text, i.status, i.person_id, t.start, t.stop, t.id as timer_id FROM items i
+    FULL JOIN timers as t ON t.item_id = i.id
+    WHERE i.person_id = $1 AND i.status IS NOT NULL AND i.status != 6
+    ORDER BY timer_id ASC;
+    """
+
+    Ecto.Adapters.SQL.query!(Repo, sql, [person_id])
+    |> map_columns_to_values()
+    |> accumulate_item_timers()
+  end
+
+
+  @doc """
+  `map_columns_to_values/1` takes an Ecto SQL query result
+  which has the List of columns and rows separate
+  and returns a List of Maps where the keys are the column names and values the data.
+
+  Sadly, Ecto returns rows without column keys so we have to map them manually:
+  ref: https://groups.google.com/g/elixir-ecto/c/0cubhSd3QS0/m/DLdQsFrcBAAJ
+  """
+  def map_columns_to_values(res) do
+    Enum.map(res.rows, fn(row) ->
+      Enum.zip(res.columns, row)
+      |> Map.new |> AtomicMap.convert()
+    end)
+  end
+
+  @doc """
+  `map_timer_diff/1` transforms a list of items_with_timers
+  into a flat map where the key is the timer_id and the value is the difference
+  between timer.stop and timer.start
+  If there is no active timer return {0, 0}.
+  If there is no timer.stop return Now - timer.start
+
+  ## Examples
+
+  iex> list = [
+    %{ stop: nil, id: 3, start: nil, timer_id: nil },
+    %{ stop: ~N[2022-07-17 11:18:24], id: 1, start: ~N[2022-07-17 11:18:18], timer_id: 1 },
+    %{ stop: ~N[2022-07-17 11:18:31], id: 1, start: ~N[2022-07-17 11:18:26], timer_id: 2 },
+    %{ stop: ~N[2022-07-17 11:18:24], id: 2, start: ~N[2022-07-17 11:18:00], timer_id: 3 },
+    %{ stop: nil, id: 2, start: seven_seconds_ago, timer_id: 4 }
+  ]
+  iex> map_timer_diff(list)
+  %{0 => 0, 1 => 6, 2 => 5, 3 => 24, 4 => 7}
+  """
+  def map_timer_diff(list) do
+    Map.new(list, fn item ->
+      if is_nil(item.timer_id) do
+        # item without any active timer
+        { 0, 0}
+      else
+        { item.timer_id, timer_diff(item)}
+      end
+    end)
+  end
+
+  @doc """
+  `timer_diff/1` calculates the difference between timer.stop and timer.start
+  If there is no active timer OR timer has not ended return 0.
+  The reasoning is: an *active* timer (no end) does not have to
+  be subtracted from the timer.start in the UI ...
+  Again, DRAGONS!
+  """
+  def timer_diff(timer) do
+    # ignore timers that have not ended (current timer is factored in the UI!)
+    if is_nil(timer.stop) do
+      0
+    else
+      NaiveDateTime.diff(timer.stop, timer.start)
+    end
+  end
+```
+
+Once again, there is quite a lot going on here.
+We have broken down the functions into chunks
+and added inline comments to clarify the code.
+But again, if anything is unclear please let us know!!
+
 
 ## 6. Add Authentication
 
 This section borrows heavily from:
 [dwyl/phoenix-liveview-chat-example](https://github.com/dwyl/phoenix-liveview-chat-example#12-authentication)
 
+Create a new file with the path:
+`lib/app_web/controllers/auth_controller.ex`
+and add the following code:
+
+```elixir
+defmodule AppWeb.AuthController do
+  use AppWeb, :controller
+  import Phoenix.LiveView, only: [assign_new: 3]
+
+  def on_mount(:default, _params, %{"jwt" => jwt} = _session, socket) do
+
+    claims = jwt
+    |> AuthPlug.Token.verify_jwt!()
+    |> AuthPlug.Helpers.strip_struct_metadata()
+    |> Useful.atomize_map_keys()
+
+    socket =
+      socket
+      |> assign_new(:person, fn -> claims end)
+      |> assign_new(:loggedin, fn -> true end)
+
+    {:cont, socket}
+  end
+
+  def on_mount(:default, _params, _session, socket) do
+    socket = assign_new(socket, :loggedin, fn -> false end)
+    {:cont, socket}
+  end
+
+  def login(conn, _params) do
+    redirect(conn, external: AuthPlug.get_auth_url(conn, "/"))
+  end
+
+  def logout(conn, _params) do
+    conn
+    |> AuthPlug.logout()
+    |> put_status(302)
+    |> redirect(to: "/")
+  end
+end
+```
+
+## 7. Create `LiveView` Functions
+
+_Finally_ we have all the "backend" functions we're going to need. 
+
+### 7.1 Write `LiveView` Tests
+
+Opent the 
+`test/app_web/live/app_live_test.exs` 
+file and replace the contents with the following test code:
+
+```elixir
+defmodule AppWeb.AppLiveTest do
+  use AppWeb.ConnCase
+  alias App.{Item, Timer}
+  import Phoenix.LiveViewTest
+
+  test "disconnected and connected render", %{conn: conn} do
+    {:ok, page_live, disconnected_html} = live(conn, "/")
+    assert disconnected_html =~ "done"
+    assert render(page_live) =~ "done"
+  end
+
+  test "connect and create an item", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+
+    assert render_submit(view, :create,
+      %{text: "Learn Elixir", person_id: 1}) =~ "Learn Elixir"
+  end
+
+  test "toggle an item", %{conn: conn} do
+    {:ok, item} =
+      Item.create_item(%{text: "Learn Elixir", status: 2, person_id: 0})
+    {:ok, _item2} =
+      Item.create_item(%{text: "Learn Elixir", status: 4, person_id: 0})
+
+    assert item.status == 2
+
+    started = NaiveDateTime.utc_now()
+    {:ok, _timer} =
+      Timer.start(%{item_id: item.id, start: started})
+
+    # See: https://github.com/dwyl/useful/issues/17#issuecomment-1186070198
+    # assert Useful.typeof(:timer_id) == "atom"
+    assert Item.items_with_timers(1) > 0
+
+    {:ok, view, _html} = live(conn, "/")
+
+    assert render_click(view, :toggle,
+      %{"id" => item.id, "value" => "on"}) =~ "line-through"
+
+    updated_item = Item.get_item!(item.id)
+    assert updated_item.status == 4
+  end
+
+  test "(soft) delete an item", %{conn: conn} do
+    {:ok, item} = Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+
+    assert item.status == 2
+
+    {:ok, view, _html} = live(conn, "/")
+    assert render_click(view, :delete, %{"id" => item.id}) =~ "done"
+
+    updated_item = Item.get_item!(item.id)
+    assert updated_item.status == 6
+  end
+
+  test "start a timer", %{conn: conn} do
+    {:ok, item} = Item.create_item(%{text: "Get Fancy!", person_id: 0, status: 2})
+
+    assert item.status == 2
+
+    {:ok, view, _html} = live(conn, "/")
+    assert render_click(view, :start, %{"id" => item.id}) =~ "stop"
+  end
+
+  test "stop a timer", %{conn: conn} do
+    {:ok, item} = Item.create_item(%{text: "Get Fancy!", person_id: 0, status: 2})
+
+    assert item.status == 2
+    started = NaiveDateTime.utc_now()
+    {:ok, timer} = Timer.start(%{item_id: item.id, start: started})
+
+    {:ok, view, _html} = live(conn, "/")
+
+    assert render_click(view, :stop,
+      %{"id" => item.id, "timerid" => timer.id}) =~ "done"
+  end
+
+  # This test is just to ensure coverage of the handle_info/2 function
+  # It's not required but we like to have 100% coverage.
+  # https://stackoverflow.com/a/60852290/1148249
+  test "handle_info/2 start|stop", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+
+    {:ok, item} = Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
+    started = NaiveDateTime.utc_now()
+    {:ok, _timer} = Timer.start(%{item_id: item.id, start: started})
+
+    send(view.pid, %{
+      event: "start|stop",
+      payload: %{items: Item.items_with_timers(1)}
+    })
+
+    assert render(view) =~ item.text
+  end
+
+  test "handle_info/2 update", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+
+    {:ok, item} = Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
+
+    send(view.pid, %{
+      event: "update",
+      payload: %{items: Item.items_with_timers(1)}
+    })
+
+    assert render(view) =~ item.text
+  end
+
+  test "handle_info/2 delete", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+
+    {:ok, item} = Item.create_item(%{text: "Always Learning", person_id: 0, status: 6})
+
+    send(view.pid, %{
+      event: "delete",
+      payload: %{items: Item.items_with_timers(1)}
+    })
+
+    refute render(view) =~ item.text
+  end
+
+  test "edit-item", %{conn: conn} do
+    {:ok, item} = Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+
+    {:ok, view, _html} = live(conn, "/")
+
+    assert render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)}) =~
+             "<form phx-submit=\"update-item\" id=\"form-update\""
+  end
+
+  test "update an item", %{conn: conn} do
+    {:ok, item} = Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+
+    {:ok, view, _html} = live(conn, "/")
+
+    assert render_submit(view, "update-item", %{"id" => item.id, "text" => "Learn more Elixir"}) =~
+             "Learn more Elixir"
+
+    updated_item = Item.get_item!(item.id)
+    assert updated_item.text == "Learn more Elixir"
+  end
+
+  test "timer_text(start, stop)" do
+    timer = %{
+      start: ~N[2022-07-17 09:01:42.000000],
+      stop: ~N[2022-07-17 13:22:24.000000]
+    }
+
+    assert AppWeb.AppLive.timer_text(timer) == "04:20:42"
+  end
+
+  test "get / with valid JWT", %{conn: conn} do
+    data = %{email: "test@dwyl.com", givenName: "Alex", picture: "this", auth_provider: "GitHub", id: 2}
+    jwt = AuthPlug.Token.generate_jwt!(data)
+
+    {:ok, view, _html} = live(conn, "/?jwt=#{jwt}")
+    assert render(view)
+  end
+
+  test "Logout link displayed when loggedin", %{conn: conn} do
+    data = %{email: "test@dwyl.com", givenName: "Alex", picture: "this", auth_provider: "GitHub", id: 2}
+    jwt = AuthPlug.Token.generate_jwt!(data)
+
+    conn = get(conn, "/?jwt=#{jwt}")
+    assert html_response(conn, 200) =~ "logout"
+  end
+
+  test "get /logout with valid JWT", %{conn: conn} do
+    data = %{
+      email: "test@dwyl.com",
+      givenName: "Alex",
+      picture: "this",
+      auth_provider: "GitHub",
+      sid: 1,
+      id: 2
+    }
+
+    jwt = AuthPlug.Token.generate_jwt!(data)
+
+    conn =
+      conn
+      |> put_req_header("authorization", jwt)
+      |> get("/logout")
+
+    assert "/" = redirected_to(conn, 302)
+  end
+
+  test "test login link redirect to auth.dwyl.com", %{conn: conn} do
+    conn = get(conn, "/login")
+    assert redirected_to(conn, 302) =~ "auth.dwyl.com"
+  end
+end
+```
+
+These tests are written in the order we created them.
+Feel free to comment out all but one at a time
+to implement the functions gradually.
 
 
+### 7.2 Implement the `LiveView` functions
 
-## X. _Accumulate_ `timers`
+Open the 
+`lib/app_web/live/app_live.ex`
+file and 
 
-
-
-
-## X. List All `items` for a `person` with `timers`
-
+## 8. Implement the `LiveView` UI Template
 
 
 <br />
