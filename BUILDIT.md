@@ -1,4 +1,8 @@
-# Build Log 👩‍💻
+<div align="center">
+
+# Build Log 👩‍💻 [![Build Status](https://img.shields.io/travis/com/dwyl/app-mvp/master?color=bright-green&style=flat-square)](https://travis-ci.org/dwyl/app-mvp)
+
+</div>
 
 This is a log 
 of the steps taken 
@@ -543,3 +547,4 @@ end
 
 
 
+[![HitCount](https://hits.dwyl.com/dwyl/app-mvp-build.svg)](https://hits.dwyl.com/dwyl/app-mvp)

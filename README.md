@@ -1,6 +1,6 @@
 <div align="center">
 
-# @dwyl App MVP  💡⏳ ✅
+# @dwyl App MVP 💡 ⏳ ✅
 
 The most basic version
 of the **@dwyl App**
@@ -24,22 +24,22 @@ And help us to ...
 </div>
 <br />
 
-- [@dwyl App MVP  💡⏳ ✅](#dwyl-app-mvp---)
+- [@dwyl App MVP 💡 ⏳ ✅](#dwyl-app-mvp---)
 - [_Please `try` it_: mvp.fly.dev 🙏](#please-try-it-mvpflydev-)
 - [Why? 🤷‍♀️](#why-️)
 - [_What_? 💭](#what-)
-  - [MVP?](#mvp)
-  - [Two Apps into _One_](#two-apps-into-one)
-    - [Proposed MVP UI/UX](#proposed-mvp-uiux)
+  - [MVP? 🚧](#mvp-)
+  - [Two Apps in _One_ ⏳ + ✅](#two-apps-in-one---)
+    - [Proposed MVP UI/UX 💡](#proposed-mvp-uiux-)
 - [_Who?_ 👥](#who-)
   - [Feedback! 🙏](#feedback-)
-    - [Perform Some Actions in the App](#perform-some-actions-in-the-app)
-  - [Contributing 👩‍💻](#contributing-)
-    - [More Features?](#more-features)
+    - [Perform Some Actions in the App 📱](#perform-some-actions-in-the-app-)
 - [_How_? 💻](#how-)
-  - [Tech Stack?](#tech-stack)
+  - [Tech Stack? 🧰](#tech-stack-)
   - [Run the MVP App on your `localhost` ⬇️](#run-the-mvp-app-on-your-localhost-️)
-    - [Build It!](#build-it)
+  - [_Build_ It! 👷‍♀️](#build-it-️)
+  - [Contributing 👩‍💻](#contributing-)
+    - [More Features? 🔔](#more-features-)
 
 # Why? 🤷‍♀️ 
 
@@ -121,7 +121,8 @@ A **mobile-first**
 **task and activity** (time)
 **tracking tool**.
 <!-- with built-in (basic) team **communication**. -->
-## MVP? 
+
+## MVP? 🚧
 
 A Minimum Viable Product ("MVP"),
 as its' name suggests,
@@ -137,18 +138,20 @@ we can do to test the idea.
 > THE LEAN STARTUP by Eric Ries:
 > https://youtu.be/QaoVWtLX038
 
-## Two Apps into _One_
+## Two Apps in _One_ ⏳ + ✅
 
 We've found it _tedious_ 
 to use **several _separate_ apps**
 for task and time tracking 🤦‍♂️ <br />
 and think it's _logical_ 
-to _combine_ the functionality. 💡
+to _combine_ the functionality. 
+This MVP combines **two apps** into ***one***. 💡
 
-This MVP combines **two apps** into ***one***.
-
-We **built** the two _separate_ apps
-to showcase the individual features:
+In our journey 
+to understand the features we want
+from 
+[first principals](https://fs.blog/first-principles/),
+we **built** the two _separate_ apps:
 
 1. Todo list: 
    [github.com/dwyl/phoenix-liveview-**todo-list**](https://github.com/dwyl/phoenix-liveview-todo-list-tutorial)
@@ -159,17 +162,16 @@ to showcase the individual features:
    [github.com/dwyl/phoenix-liveview-**chat**](https://github.com/dwyl/phoenix-liveview-chat-example)
 --> 
 
-We encourage people to read 
+We encourage you to read 
 and understand the individual feature Apps
-from first principals
 ***`before`***
 trying run the MVP. 
-But our _hope_ is that
+But our hope is that
 the UI/UX in the MVP
 is sufficiently intuitive
 that it **_immediately_ makes sense**. 🤞
 
-### Proposed MVP UI/UX
+### Proposed MVP UI/UX 💡
 
 This is our wireframe UI/UX
 we used as the _guide_ 
@@ -177,9 +179,9 @@ to create the MVP functionality:
 
 ![mvp-proposed-ux](https://user-images.githubusercontent.com/194400/73374277-d9445480-42b1-11ea-980a-3fabbfe5a9fd.png)
 
-The idea is to have a todo list
-that allows us to track how much time
-we have spent on a task. 
+The idea is a todo list
+that tracks how much time
+we spend on a task. 
 
 It's _deliberately_ "basic" 
 and 
@@ -189,9 +191,9 @@ It will _definitely_ change over time
 as we _use_ the App 
 and collect _feedback_. 💬<br />
 If you want to _help_ make it better,
-share your thoughts! 🙏
+[share your thoughts!](https://github.com/dwyl/app-mvp/issues/) 🙏
 
-More detail on the features: 
+More detail on the MVP features: 
 [dwyl/app/issues/265](https://github.com/dwyl/app/issues/265)
 
 <br />
@@ -230,7 +232,7 @@ please open an issue:
 <br />
 
 
-### Perform Some Actions in the App
+### Perform Some Actions in the App 📱
 
 Please visit 
 [`mvp.fly.dev`](https://mvp.fly.dev/) 
@@ -262,43 +264,10 @@ and perform some actions to test the App:
 
 That's it. 
 The MVP in a nutshell. 
-Here's a GIF if you're low on time:
+Here's a **`GIF`** 
+if you're low on time:
 
 ![mvp-fly-auth](https://user-images.githubusercontent.com/194400/180079997-b43a24c2-7a50-4755-aef9-ef3f2aa28816.gif)
-
-
-## Contributing 👩‍💻
-
-All contributions 
-from typo fixes
-to feature enhancements
-are always welcome! 🙌
-
-Please start by: <br />
-a. **Star** the repo on GitHub 
-  so you have a "bookmark" you can return to. ⭐ <br />
-b. **Fork** the repo 
-  so you have a copy you can "hack" on. 🍴 <br />
-c. **Clone** the repo to your `localhost` 
-  and run it! (see below) 👩‍💻 <br />
-
-
-For more detail,
-please see:
-[github.com/dwyl/**contributing**](https://github.com/dwyl/contributing)
-
-### More Features? 
-
-Please note that our goal with this MVP
-is _not_ to have _all_ the features; 
-again, it's _deliberatly_  simple.<br />
-We will be adding _lots_ more features
-to the _full_
-[**App**](https://github.com/dwyl/app). <br />
-If you have feature ideas, that's great! 🎉 <br />
-Please _share_ them: 
-[**app/issues**](https://github.com/dwyl/app/issues)
-
 
 <br />
 
@@ -315,7 +284,7 @@ please
 [let us know!](https://github.com/dwyl/app-mvp/issues)
 
 
-## Tech Stack? 
+## Tech Stack? 🧰
 
 This **MVP** app uses the **`PETAL` Stack**
 described in: 
@@ -352,15 +321,15 @@ git clone git@github.com:dwyl/app-mvp.git && cd app-mvp
 source .env_sample
 mix setup
 ```
-That will download the MVP code, 
+That will download the **`code`**, 
 install dependencies
 and create the necessary database + tables.
 
 The line 
 `source .env_sample` 
-loads the environment variables 
-required for the
-application to run.
+loads the 
+[environment variables](https://github.com/dwyl/learn-environment-variables)
+required to run the App.
 
 
 
@@ -391,12 +360,49 @@ mix s
 ```
 
 Open the App in your web browser
+[**`localhost:4000`**](http://localhost:4000/)
 and start your tour! 
 
 <br />
 
-### Build It!
+## _Build_ It! 👷‍♀️
 
-If you want to learn how we _built_ the MVP,
+If you want to understand how to _build_ the MVP,
 please see:
 [**`BUILDIT.md`**](https://github.com/dwyl/app-mvp/blob/main/BUILDIT.md)
+
+<br />
+
+
+## Contributing 👩‍💻
+
+All contributions 
+from typo fixes
+to feature requests
+are always welcome! 🙌
+
+Please start by: <br />
+a. **Star** the repo on GitHub 
+  so you have a "bookmark" you can return to. ⭐ <br />
+b. **Fork** the repo 
+  so you have a copy you can "hack" on. 🍴 <br />
+c. **Clone** the repo to your `localhost` 
+  and run it! (see below) 👩‍💻 <br />
+
+
+For more detail,
+please see:
+[github.com/dwyl/**contributing**](https://github.com/dwyl/contributing)
+
+### More Features? 🔔
+
+Please note that our goal with this MVP
+is _not_ to have _all_ the features; 
+again, it's _deliberatly_  simple.<br />
+We will be adding _lots_ more features
+to the _full_
+[**App**](https://github.com/dwyl/app). <br />
+If you have feature ideas, that's great! 🎉 <br />
+Please _share_ them: 
+[**app/issues**](https://github.com/dwyl/app/issues)
+
