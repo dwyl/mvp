@@ -6,11 +6,12 @@
 
 This is a log 
 of the steps taken 
-to build the MVP. <br />
+to build the MVP. 🚀 <br />
 It took us _hours_ 
 to write it,
-but you can ***speed-run*** it 
-in **20 minutes**. 🏁
+but you can 
+[***speedrun***](https://en.wikipedia.org/wiki/Speedrun)
+it in **20 minutes**. 🏁
 
 > **Note**: we have referenced sections 
 > in our more extensive tutorials/examples
@@ -19,6 +20,7 @@ in **20 minutes**. 🏁
 > You don't have to follow every step in
 > the other tutorials/examples,
 > but they are linked in case you get stuck.
+
 
 ## 1. Create a New `Phoenix` App
 
@@ -37,11 +39,11 @@ The MVP won't be
 send emails,
 display dashboards 
 or translate to other languages
-(sorry).
-However _all_ of those things 
+(sorry). <br />
+_All_ of those things 
 will be in the _main_ 
-[dwyl/**app**](https://github.com/dwyl/app)
-we're just excluding them here
+[dwyl/**app**](https://github.com/dwyl/app). <br />
+We're excluding them here
 to reduce complexity/dependencies.
 
 ### 1.1 Run the `Phoenix` App
@@ -100,12 +102,13 @@ file and
 create a 
 [`coveralls.json`](https://github.com/dwyl/app-mvp/blob/main/coveralls.json)
 file to exclude `Phoenix` files from `excoveralls` checking.
-Add alias (shortcuts) in `mix.exs` `defp aliases do` list.
+Add alias (shortcuts) in `mix.exs` `defp aliases do` list. 
+
 e.g: `mix c` runs `mix coveralls.html` 
 see: [**`commits/d6ab5ef`**](https://github.com/dwyl/app-mvp/pull/90/commits/d6ab5ef7c2be5dcad7d060e782393ae29c94a526) ...
 
 This is just standard `Phoenix` project setup for us, 
-so we don't duplicate any of the steps here.
+so we don't duplicate any of the steps here. <br />
 For more detail, please see:
 [Automated Testing](https://github.com/dwyl/phoenix-chat-example#testing-our-app-automated-testing)
 in the 
@@ -345,13 +348,13 @@ to watch this talk.
 ## 2. Create Schemas to Store Data
 
 Create database schemas 
-to store the data.
-Run the following 
+to store the data
+with the following 
 [**`mix phx.gen.schema`**](https://hexdocs.pm/phoenix/Mix.Tasks.Phx.Gen.Schema.html)
 commands:
 
 ```sh
-mix phx.gen.schema Item items text:string person_id:integer status:integer
+mix phx.gen.schema Item items person_id:integer status:integer text:string
 mix phx.gen.schema Timer timers item_id:references:items start:naive_datetime stop:naive_datetime
 ```
 
@@ -382,37 +385,41 @@ as it maintains complete flexibility
 for what we are building later on.
 
 + `id`: `Int` - the auto-incrementing `id`.
-+ `inserted_at`: `NaiveDateTime` - created/managed by `Phoenix`
-+ `updated_at`: `NaiveDateTime`
 + `text`: `Binary` (_encrypted_) - the free text you want to capture.
 + `person_id`: `Integer` 
    the "owner" of the `item`)
 + `status`: `Integer`  the `status` of the `item` 
-  e.g: "in progress"
+  e.g: **`3`** = 
+  [**`active`**](https://github.com/dwyl/statuses/blob/176acda7ea4a177da90011100ad2758bd90415b1/lib/statuses.ex#L24-L28)
++ `inserted_at`: `NaiveDateTime` - created/managed by `Phoenix`
++ `updated_at`: `NaiveDateTime`
 
 
+<!--
 > **Note**: The keen-eyed observer 
 (with PostgreSQL experience)
 will have noticed that `items.person_id` is an `Integer` (`int4`) data type.
-This means we are limted to **`2147483647` people** using the MVP.
+This means we are _limted_ to **`2147483647` people** using the MVP.
 See:
 [/datatype-numeric.html](https://www.postgresql.org/docs/current/datatype-numeric.html)
 We aren't expecting more than 
 ***2 billion*** people to use the MVP. 😜
+-->
 
 #### `timer`
 
-A `timer` is attached to an `item`
+A `timer` is associated with an `item`
 to track how long it takes to ***complete***.
 
   + `id`: `Int`
-  + `inserted_at`: `NaiveDateTime`
-  + `updated_at`: `NaiveDateTime`
   + `item_id` (Foreign Key `item.id`)
-  + `start`: `NaiveDateTime` - time started on device
-  + `stop`: `NaiveDateTime` - time ended on device
+  + `start`: `NaiveDateTime` - start time for the timer
+  + `stop`: `NaiveDateTime` - stop time for the timer
+  + `inserted_at`: `NaiveDateTime` - record insertion time
+  + `updated_at`: `NaiveDateTime`
 
 An `item` can have zero or more `timers`.
+
 Each time a `item` (`task`) is worked on
 a **_new_ `timer`** is created/started (_and stopped_).
 Meaning a `person` can split the completion 
@@ -465,7 +472,7 @@ COV    FILE                                        LINES RELEVANT   MISSED
 ```
 
 Specifically the files:
-`lib/app/item.ex`, 
+`lib/app/item.ex`
 and 
 `lib/app/timer.ex`
 have **_zero_ test coverage**. 
@@ -481,7 +488,10 @@ See: https://en.wikipedia.org/wiki/Scaffold_(programming)
 
 <br />
 
-## 3. Input Items!
+## 3. Input `items`
+
+We're going to 
+
 
 Create the directory `test/app`
 and file:
@@ -491,7 +501,7 @@ with the following code:
 ```elixir
 defmodule App.ItemTest do
   use App.DataCase
-  alias App.Item
+  alias App.{Item, Timer}
 
   describe "items" do
     @valid_attrs %{text: "some text", person_id: 1, status: 2}
@@ -520,8 +530,8 @@ defmodule App.ItemTest do
     test "list_items/0 returns a list of items stored in the DB" do
       {:ok, _item1} = Item.create_item(@valid_attrs)
       {:ok, _item2} = Item.create_item(@valid_attrs)
-      items = Item.list_items()
-      assert Enum.count(items) == 2
+
+      assert Enum.count(Item.list_items()) == 2
     end
 
     test "update_item/2 with valid data updates the item" do
@@ -534,17 +544,349 @@ defmodule App.ItemTest do
 end
 ```
 
+The first five tests are basic 
+[CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete).
+
+If you run these tests:
+```sh
+mix test test/app/item_test.exs
+```
+
+You will see all the testes _fail_.
+This is expected as the code is not there yet!
 
 
-### 3.1 Hard-code `item.person_id`
+
+### 3.1 Make the `item` Tests Pass
+
+Open the 
+`lib/app/item.ex` 
+file and replace the contents 
+with the following code:
+
+
+```elixir
+defmodule App.Item do
+  use Ecto.Schema
+  import Ecto.Changeset
+  import Ecto.Query
+  alias App.Repo
+  alias __MODULE__
+
+  schema "items" do
+    field :person_id, :integer
+    field :status, :integer
+    field :text, :string
+
+    timestamps()
+  end
+
+  @doc false
+  def changeset(item, attrs) do
+    item
+    |> cast(attrs, [:person_id, :status, :text])
+    |> validate_required([:text])
+  end
+
+  @doc """
+  Creates a item.
+
+  ## Examples
+
+      iex> create_item(%{text: "Learn LiveView"})
+      {:ok, %Item{}}
+
+      iex> create_item(%{text: nil})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_item(attrs) do
+    %Item{}
+    |> changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Gets a single item.
+
+  Raises `Ecto.NoResultsError` if the Item does not exist.
+
+  ## Examples
+
+      iex> get_item!(123)
+      %Item{}
+
+      iex> get_item!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_item!(id), do: Repo.get!(Item, id)
+
+  @doc """
+  Returns the list of items where the status is different to "deleted"
+
+  ## Examples
+
+      iex> list_items()
+      [%Item{}, ...]
+
+  """
+  def list_items do
+    Item
+    |> order_by(desc: :inserted_at)
+    |> where([i], is_nil(i.status) or i.status != 6)
+    |> Repo.all()
+  end
+
+  @doc """
+  Updates a item.
+
+  ## Examples
+
+      iex> update_item(item, %{field: new_value})
+      {:ok, %Item{}}
+
+      iex> update_item(item, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_item(%Item{} = item, attrs) do
+    item
+    |> Item.changeset(attrs)
+    |> Repo.update()
+  end
+
+  # soft delete an item:
+  def delete_item(id) do
+    get_item!(id)
+    |> Item.changeset(%{status: 6})
+    |> Repo.update()
+  end
+end
+```
+
+Once you have saved the file, re-run the tests.
+They should now pass.
+
+
+## 4. Create `Timer`
+
+Open the `test/app/timer_test.exs` file and add the following tests:
+
+```elixir
+defmodule App.TimerTest do
+  use App.DataCase
+  alias App.{Item, Timer}
+
+  describe "timers" do
+    @valid_item_attrs %{text: "some text", person_id: 1}
+
+    test "Timer.start/1 returns timer that has been started" do
+      {:ok, item} = Item.create_item(@valid_item_attrs)
+      assert Item.get_item!(item.id).text == item.text
+
+      started = NaiveDateTime.utc_now()
+
+      {:ok, timer} =
+        Timer.start(%{item_id: item.id, person_id: 1, start: started})
+
+      assert NaiveDateTime.diff(timer.start, started) == 0
+    end
+
+    test "Timer.stop/1 stops the timer that had been started" do
+      {:ok, item} = Item.create_item(@valid_item_attrs)
+      assert Item.get_item!(item.id).text == item.text
+
+      {:ok, started} = 
+        NaiveDateTime.new(Date.utc_today, Time.add(Time.utc_now, -1))
+
+      {:ok, timer} =
+        Timer.start(%{item_id: item.id, person_id: 1, start: started})
+
+      assert NaiveDateTime.diff(timer.start, started) == 0
+
+      ended = NaiveDateTime.utc_now()
+      {:ok, timer} = Timer.stop(%{id: timer.id, stop: ended})
+      assert NaiveDateTime.diff(timer.stop, timer.start) == 1
+    end
+
+    test "stop_timer_for_item_id(item_id) should stop the active timer (happy path)" do
+      {:ok, item} = Item.create_item(@valid_item_attrs)
+      {:ok, seven_seconds_ago} = 
+        NaiveDateTime.new(Date.utc_today, Time.add(Time.utc_now, -7))
+      # Start the timer 7 seconds ago:
+      {:ok, timer} =
+        Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
+      
+      # stop the timer based on it's item_id
+      Timer.stop_timer_for_item_id(item.id)
+      
+      stopped_timer = Timer.get_timer!(timer.id)
+      assert NaiveDateTime.diff(stopped_timer.start, seven_seconds_ago) == 0
+      assert NaiveDateTime.diff(stopped_timer.stop, stopped_timer.start) == 7
+    end
+
+    test "stop_timer_for_item_id(item_id) should not explode if there is no timer (unhappy path)" do
+      zero_item_id = 0 # random int
+      Timer.stop_timer_for_item_id(zero_item_id)
+      assert "Don't stop believing!"
+    end
+
+    test "stop_timer_for_item_id(item_id) should not melt down if item_id is nil (sad path)" do
+      nil_item_id = nil # random int
+      Timer.stop_timer_for_item_id(nil_item_id)
+      assert "Keep on truckin'"
+    end
+  end
+end
+```
+
+### Make `timer` tests pass
+
+Open the `lib/app/timer.ex` file
+and replace the contents with the following code:
+
+```elixir
+defmodule App.Timer do
+  use Ecto.Schema
+  import Ecto.Changeset
+  # import Ecto.Query
+  alias App.Repo
+  alias __MODULE__
+  require Logger
+
+  schema "timers" do
+    field :item_id, :id
+    field :start, :naive_datetime
+    field :stop, :naive_datetime
+
+    timestamps()
+  end
+
+  @doc false
+  def changeset(timer, attrs) do
+    timer
+    |> cast(attrs, [:item_id, :start, :stop])
+    |> validate_required([:item_id, :start])
+  end
+
+  @doc """
+  `get_timer/1` gets a single Timer.
+
+  Raises `Ecto.NoResultsError` if the Timer does not exist.
+
+  ## Examples
+
+      iex> get_timer!(123)
+      %Timer{}
+  """
+  def get_timer!(id), do: Repo.get!(Timer, id)
+
+
+  @doc """
+  `start/1` starts a timer.
+
+  ## Examples
+
+      iex> start(%{item_id: 1, })
+      {:ok, %Timer{start: ~N[2022-07-11 04:20:42]}}
+
+  """
+  def start(attrs \\ %{}) do
+    %Timer{}
+    |> changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  `stop/1` stops a timer.
+
+  ## Examples
+
+      iex> stop(%{id: 1})
+      {:ok, %Timer{stop: ~N[2022-07-11 05:15:31], etc.}}
+
+  """
+  def stop(attrs \\ %{}) do
+    get_timer!(attrs.id)
+    |> changeset(%{stop: NaiveDateTime.utc_now})
+    |> Repo.update()
+  end
+
+  @doc """
+  `stop_timer_for_item_id/1` stops a timer for the given item_id if there is one.
+  Fails silently if there is no timer for the given item_id.
+
+  ## Examples
+
+      iex> stop_timer_for_item_id(42)
+      {:ok, %Timer{item_id: 42, stop: ~N[2022-07-11 05:15:31], etc.}}
+
+  """
+  def stop_timer_for_item_id(item_id) when is_nil(item_id) do
+    Logger.debug("stop_timer_for_item_id/1 called without item_id: #{item_id} fail.")
+  end
+
+  def stop_timer_for_item_id(item_id) do
+    # get timer by item_id find the latest one that has not been stopped:
+    sql = """
+    SELECT t.id FROM timers t 
+    WHERE t.item_id = $1 
+    AND t.stop IS NULL 
+    ORDER BY t.id 
+    DESC LIMIT 1;
+    """
+    res = Ecto.Adapters.SQL.query!(Repo, sql, [item_id])
+    
+    if res.num_rows > 0 do
+      # IO.inspect(res.rows)
+      timer_id = res.rows |> List.first() |> List.first()
+      Logger.debug("Found timer.id: #{timer_id} for item: #{item_id}, attempting to stop.")
+      stop(%{id: timer_id})
+    else
+      Logger.debug("No active timers found for item: #{item_id}")
+    end
+  end
+end
+```
+
+The first few functions are simple again.
+The more advanced function is `stop_timer_for_item_id/1`.
+The _reason_ for the function is,
+as it's name suggests,
+to stop a `timer` for an `item` by its' `item_id`. 
+
+We have written the function using "raw" `SQL` 
+so that it's easier for people who are `new`
+to `Phoenix`, and _specifically_ `Ecto` to understand.
+
+## 5. `items` with `timers`
+
+The _interesting_ thing we are UX-testing in the MVP
+is the _combination_ of (todo list) `items` and `timers`.
+
+So we need a way of: <br />
+**a.** Selecting all the `timers` for a given `item` <br />
+**b.** Accumulating the `timers` for the `item` <br />
+
+
+
+## 6. Add Authentication
+
+This section borrows heavily from:
+[dwyl/phoenix-liveview-chat-example](https://github.com/dwyl/phoenix-liveview-chat-example#12-authentication)
+
+
+
+## X. _Accumulate_ `timers`
 
 
 
 
+## X. List All `items` for a `person` with `timers`
 
 
-## 4. Add Authentication
 
-
+<br />
 
 [![HitCount](https://hits.dwyl.com/dwyl/app-mvp-build.svg)](https://hits.dwyl.com/dwyl/app-mvp)

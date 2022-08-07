@@ -29,9 +29,8 @@ defmodule App.ItemTest do
     test "list_items/0 returns a list of items stored in the DB" do
       {:ok, _item1} = Item.create_item(@valid_attrs)
       {:ok, _item2} = Item.create_item(@valid_attrs)
-      items = Item.list_items()
-      # IO.inspect(items)
-      assert Enum.count(items) == 2
+
+      assert Enum.count(Item.list_items()) == 2
     end
 
     test "update_item/2 with valid data updates the item" do
@@ -57,7 +56,6 @@ defmodule App.ItemTest do
 
       # list items with timers:
       item_timers = Item.items_with_timers(1)
-      # IO.inspect(item_timers)
       assert length(item_timers) > 0
     end
   end

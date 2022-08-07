@@ -21,16 +21,13 @@ defmodule App.TimerTest do
       {:ok, item} = Item.create_item(@valid_item_attrs)
       assert Item.get_item!(item.id).text == item.text
 
-      {:ok, started} = 
+      {:ok, started} =
         NaiveDateTime.new(Date.utc_today, Time.add(Time.utc_now, -1))
 
       {:ok, timer} =
         Timer.start(%{item_id: item.id, person_id: 1, start: started})
 
       assert NaiveDateTime.diff(timer.start, started) == 0
-
-      # IO.puts "waiting 1 second ... " ; :timer.sleep(1000); IO.puts "done"
-      # Process.sleep(1000)
 
       ended = NaiveDateTime.utc_now()
       {:ok, timer} = Timer.stop(%{id: timer.id, stop: ended})
@@ -39,15 +36,15 @@ defmodule App.TimerTest do
 
     test "stop_timer_for_item_id(item_id) should stop the active timer (happy path)" do
       {:ok, item} = Item.create_item(@valid_item_attrs)
-      {:ok, seven_seconds_ago} = 
+      {:ok, seven_seconds_ago} =
         NaiveDateTime.new(Date.utc_today, Time.add(Time.utc_now, -7))
       # Start the timer 7 seconds ago:
       {:ok, timer} =
         Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
-      
+
       # stop the timer based on it's item_id
       Timer.stop_timer_for_item_id(item.id)
-      
+
       stopped_timer = Timer.get_timer!(timer.id)
       assert NaiveDateTime.diff(stopped_timer.start, seven_seconds_ago) == 0
       assert NaiveDateTime.diff(stopped_timer.stop, stopped_timer.start) == 7
@@ -70,7 +67,7 @@ defmodule App.TimerTest do
     test "accummulate_item_timers/1 to display cummulative timer" do
       # https://hexdocs.pm/elixir/1.13/NaiveDateTime.html#new/2
       # "Add" -7 seconds: https://hexdocs.pm/elixir/1.13/Time.html#add/3
-      {:ok, seven_seconds_ago} = 
+      {:ok, seven_seconds_ago} =
         NaiveDateTime.new(Date.utc_today, Time.add(Time.utc_now, -7))
 
       items_with_timers = [
@@ -117,7 +114,7 @@ defmodule App.TimerTest do
           timer_id: 5
         }
       ]
-      
+
       # The *interesting* timer is the *active* one (started seven_seconds_ago) ...
       # The "hard" part to test in accumulating timers are the *active* ones ...
       acc = Item.accumulate_item_timers(items_with_timers)
@@ -125,7 +122,7 @@ defmodule App.TimerTest do
       item1 = Map.get(item_map, 1)
       item2 = Map.get(item_map, 2)
       item3 = Map.get(item_map, 3)
-      
+
       # It's easy to calculate time elapsed for timers that have an stop:
       assert NaiveDateTime.diff(item1.stop, item1.start) == 42
       # This is the fun one that we need to be 17 seconds:

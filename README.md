@@ -29,7 +29,7 @@ And help us to ...
 - [Why? 🤷‍♀️](#why-️)
 - [_What_? 💭](#what-)
   - [MVP? 🚧](#mvp-)
-  - [Two Apps in _One_ ⏳ + ✅](#two-apps-in-one---)
+  - [Two Apps in _One_ ✌️](#two-apps-in-one-️)
     - [Proposed MVP UI/UX 💡](#proposed-mvp-uiux-)
 - [_Who?_ 👥](#who-)
   - [Feedback! 🙏](#feedback-)
@@ -138,7 +138,7 @@ we can do to test the idea.
 > THE LEAN STARTUP by Eric Ries:
 > https://youtu.be/QaoVWtLX038
 
-## Two Apps in _One_ ⏳ + ✅
+## Two Apps in _One_ ✌️
 
 We've found it _tedious_ 
 to use **several _separate_ apps**

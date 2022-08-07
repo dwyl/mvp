@@ -6,9 +6,9 @@ defmodule App.Item do
   alias __MODULE__
 
   schema "items" do
-    field :text, :string
-    field :status, :integer
     field :person_id, :integer
+    field :status, :integer
+    field :text, :string
 
     timestamps()
   end
@@ -16,7 +16,7 @@ defmodule App.Item do
   @doc false
   def changeset(item, attrs) do
     item
-    |> cast(attrs, [:text, :status, :person_id])
+    |> cast(attrs, [:person_id, :status, :text])
     |> validate_required([:text])
   end
 
