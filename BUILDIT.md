@@ -1,6 +1,7 @@
 <div align="center">
 
-# Build Log 👩‍💻 [![Build Status](https://img.shields.io/travis/com/dwyl/app-mvp/master?color=bright-green&style=flat-square)](https://travis-ci.org/dwyl/app-mvp)
+# Build Log 👩‍💻 
+[![Build Status](https://img.shields.io/travis/com/dwyl/app-mvp/master?color=bright-green&style=flat-square)](https://travis-ci.org/dwyl/app-mvp)
 
 
 
@@ -24,9 +25,9 @@ it in **20 minutes**. 🏁
 > but they are linked in case you get stuck.
 
 In this log we have written the "CRUD" functions first
-and _then_ built the UI. 
+and _then_ built the UI. <br />
 We were able to to do this because we had a good idea
-of which functions we were going to need.
+of which functions we were going to need. <br />
 If you are reading through this
 and scratching your head 
 wondering where a particular function will be used,
@@ -64,7 +65,7 @@ where (_hopefully_) it will all be clear.
   - [8. Implement the `LiveView` UI Template](#8-implement-the-liveview-ui-template)
 
 
-## 1. Create a New `Phoenix` App
+# 1. Create a New `Phoenix` App
 
 Open your terminal and 
 **create** a **new `Phoenix` app**
@@ -88,7 +89,7 @@ will be in the _main_
 We're excluding them here
 to reduce complexity/dependencies.
 
-### 1.1 Run the `Phoenix` App
+## 1.1 Run the `Phoenix` App
 
 Run the `Phoenix` app with the command:
 
@@ -118,7 +119,7 @@ You should see something similar to the following
 ![phoenix-default-homepage](https://user-images.githubusercontent.com/194400/174807257-34120dc5-723e-4b2c-9e8e-4b6f3aefca14.png)
 
 
-### 1.2 Run the tests:
+## 1.2 Run the tests:
 
 To run the tests with 
 
@@ -135,7 +136,7 @@ Finished in 0.1 seconds (0.07s async, 0.07s sync)
 That tells us everything is working as expected. 🚀
 
 
-#### Test Coverage?
+### Test Coverage?
 
 If you prefer to see **test coverage** - we certainly do -
 then you will need to add a few lines to the 
@@ -169,7 +170,7 @@ You should see output similar to the following:
 <img width="653" alt="Phoenix tests passing coverage 100%" src="https://user-images.githubusercontent.com/194400/175767439-4f609357-24c0-4975-a3d4-6ed6057bb321.png">
 
 
-### 1.3 Setup `Tailwind`
+## 1.3 Setup `Tailwind`
 
 As we're using **`Tailwind CSS`**
 for the **UI** in this project
@@ -193,7 +194,7 @@ please retrace the steps
 and open an issue:
 [learn-tailwind/issues](https://github.com/dwyl/learn-tailwind/issues)
 
-### 1.4 Setup `LiveView`
+## 1.4 Setup `LiveView`
 
 Create the `lib/app_web/live` directory
 and the controller at `lib/app_web/live/app_live.ex`:
@@ -242,7 +243,7 @@ update the contents of the `<body>` to:
 </body>
 ```
 
-### 1.5 Update `router.ex`
+## 1.5 Update `router.ex`
 
 Now that you've created the necessary files,
 open the router
@@ -269,7 +270,7 @@ you should see the following:
 
 ![liveveiw-page-with-tailwind-style](https://user-images.githubusercontent.com/194400/176137805-34467c88-add2-487f-9593-931d0314df62.png)
 
-### 1.6 Update Tests
+## 1.6 Update Tests
 
 At this point we have made a few changes 
 that mean our automated test suite will no longer pass ... 
@@ -334,7 +335,7 @@ Finished in 0.1 seconds (0.08s async, 0.1s sync)
 Randomized with seed 796477
 ```
 
-### 1.7 Delete Page-related Files
+## 1.7 Delete Page-related Files
 
 Since we won't be using the `page` meatphore in our App, 
 we can delete the default files created by `Phoenix`:
@@ -387,7 +388,7 @@ to watch this talk.
 
 -->
 
-## 2. Create Schemas to Store Data
+# 2. Create Schemas to Store Data
 
 Create database schemas 
 to store the data
@@ -412,11 +413,11 @@ We created **2 database tables**;
 `items`  and `timers`.
 Let's run through them.
 
-### _Explanation_ of the Schemas
+## _Explanation_ of the Schemas
 
 This is a quick breakdown of the schemas created above:
 
-#### `item`
+### `item`
 
 An `item` is the most basic unit of content.
 An **`item`** is just a **`String`** of **`text`**.
@@ -448,7 +449,7 @@ We aren't expecting more than
 ***2 billion*** people to use the MVP. 😜
 -->
 
-#### `timer`
+### `timer`
 
 A `timer` is associated with an `item`
 to track how long it takes to ***complete***.
@@ -485,7 +486,7 @@ so we always know when the record was created/updated.
 
 <br />
 
-### 2.1 Run Tests!
+## 2.1 Run Tests!
 
 Once we've created the required schemas,
 several new files are created.
@@ -530,7 +531,7 @@ See: https://en.wikipedia.org/wiki/Scaffold_(programming)
 
 <br />
 
-## 3. Input `items`
+# 3. Input `items`
 
 We're going to 
 
@@ -599,7 +600,7 @@ This is expected as the code is not there yet!
 
 
 
-### 3.1 Make the `item` Tests Pass
+## 3.1 Make the `item` Tests Pass
 
 Open the 
 `lib/app/item.ex` 
@@ -711,7 +712,7 @@ Once you have saved the file, re-run the tests.
 They should now pass.
 
 
-## 4. Create `Timer`
+# 4. Create `Timer`
 
 Open the `test/app/timer_test.exs` file and add the following tests:
 
@@ -783,7 +784,7 @@ defmodule App.TimerTest do
 end
 ```
 
-### Make `timer` tests pass
+## Make `timer` tests pass
 
 Open the `lib/app/timer.ex` file
 and replace the contents with the following code:
@@ -902,7 +903,7 @@ We have written the function using "raw" `SQL`
 so that it's easier for people who are `new`
 to `Phoenix`, and _specifically_ `Ecto` to understand.
 
-## 5. `items` with `timers`
+# 5. `items` with `timers`
 
 The _interesting_ thing we are UX-testing in the MVP
 is the _combination_ of (todo list) `items` and `timers`.
@@ -918,7 +919,7 @@ If you know of one,
 please share!
 
 
-### 5.1 Test for `accummulate_item_timers/1`
+## 5.1 Test for `accummulate_item_timers/1`
 
 This might feel like we are working in reverse,
 that's because we _are_!
@@ -1011,7 +1012,7 @@ This is a large test but most of it is the test data (`items_with_timers`) in th
 
 With that test in place, we can write the function.
 
-### 5.2 Implement the `accummulate_item_timers/1` function
+## 5.2 Implement the `accummulate_item_timers/1` function
 
 Open the 
 `lib/app/item.ex`
@@ -1085,7 +1086,7 @@ We're also _very_ happy for anyone `else` to refactor it!
 [Please open an issue](https://github.com/dwyl/app-mvp/issues/) 
 so we can discuss. 🙏
 
-### 5.3 Test for `items_with_timers/1`
+## 5.3 Test for `items_with_timers/1`
 
 Open the 
 `test/app/item_test.exs`
@@ -1112,7 +1113,7 @@ file and the following test to the bottom:
     end
 ```
 
-### 5.4 Implement `items_with_timers/1`
+## 5.4 Implement `items_with_timers/1`
 
 Open the 
 `lib/app/item.ex`
@@ -1213,7 +1214,7 @@ and added inline comments to clarify the code.
 But again, if anything is unclear please let us know!!
 
 
-## 6. Add Authentication
+# 6. Add Authentication
 
 This section borrows heavily from:
 [dwyl/phoenix-liveview-chat-example](https://github.com/dwyl/phoenix-liveview-chat-example#12-authentication)
@@ -1260,11 +1261,11 @@ defmodule AppWeb.AuthController do
 end
 ```
 
-## 7. Create `LiveView` Functions
+# 7. Create `LiveView` Functions
 
 _Finally_ we have all the "backend" functions we're going to need. 
 
-### 7.1 Write `LiveView` Tests
+## 7.1 Write `LiveView` Tests
 
 Opent the 
 `test/app_web/live/app_live_test.exs` 
@@ -1470,13 +1471,568 @@ Feel free to comment out all but one at a time
 to implement the functions gradually.
 
 
-### 7.2 Implement the `LiveView` functions
+## 7.2 Implement the `LiveView` functions
 
 Open the 
 `lib/app_web/live/app_live.ex`
-file and 
+file and replace the contents with the following code:
 
-## 8. Implement the `LiveView` UI Template
+```elixir
+defmodule AppWeb.AppLive do
+  use AppWeb, :live_view
+  alias App.{Item, Timer}
+  # run authentication on mount
+  on_mount AppWeb.AuthController
+
+  @topic "live"
+
+  defp get_person_id(assigns) do
+    if Map.has_key?(assigns, :person) do
+      assigns.person.id
+    else
+      0
+    end
+  end
+
+  # assign default values to socket:
+  defp assign_socket(socket) do
+    person_id = get_person_id(socket.assigns)
+    assign(socket, items: Item.items_with_timers(person_id), active: %Item{}, editing: nil)
+  end
+
+  @impl true
+  def mount(_params, _session, socket) do
+    # subscribe to the channel
+    if connected?(socket), do: AppWeb.Endpoint.subscribe(@topic)
+    {:ok, assign_socket(socket)}
+  end
+
+  @impl true
+  def handle_event("create", %{"text" => text}, socket) do
+    person_id = get_person_id(socket.assigns)
+    Item.create_item(%{text: text, person_id: person_id, status: 2})
+    # IO.inspect(socket.assigns, label: "handle_event create socket.assigns")
+    socket = assign_socket(socket)
+
+    AppWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("toggle", data, socket) do
+    # Toggle the status of the item between 3 (:active) and 4 (:done)
+    status = if Map.has_key?(data, "value"), do: 4, else: 3
+
+    # need to restrict getting items to the people who own or have rights to access them!
+    item = Item.get_item!(Map.get(data, "id"))
+    Item.update_item(item, %{status: status})
+    Timer.stop_timer_for_item_id(item.id)
+    socket = assign_socket(socket)
+    AppWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("delete", %{"id" => item_id}, socket) do
+    Item.delete_item(item_id)
+    socket = assign_socket(socket)
+    AppWeb.Endpoint.broadcast_from(self(), @topic, "delete", socket.assigns)
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("start", data, socket) do
+    item = Item.get_item!(Map.get(data, "id"))
+    person_id = get_person_id(socket.assigns)
+    {:ok, _timer} =
+      Timer.start(%{
+        item_id: item.id,
+        person_id: person_id,
+        start: NaiveDateTime.utc_now()
+      })
+
+    socket = assign_socket(socket)
+
+    AppWeb.Endpoint.broadcast_from(self(), @topic, "start|stop", socket.assigns)
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("stop", data, socket) do
+    timer_id = Map.get(data, "timerid")
+    {:ok, _timer} = Timer.stop(%{id: timer_id})
+    socket = assign_socket(socket)
+
+    AppWeb.Endpoint.broadcast_from(self(), @topic, "start|stop", socket.assigns)
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("edit-item", data, socket) do
+    {:noreply, assign(socket, editing: String.to_integer(data["id"]))}
+  end
+
+  @impl true
+  def handle_event("update-item", %{"id" => item_id, "text" => text}, socket) do
+    current_item = Item.get_item!(item_id)
+    Item.update_item(current_item, %{text: text})
+    socket = assign_socket(socket)
+    AppWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info(
+        %{event: "start|stop", payload: %{items: _items}},
+        socket
+      ) do
+    {:noreply, assign_socket(socket)}
+  end
+
+  @impl true
+  def handle_info(%{event: "update", payload: %{items: _items}}, socket) do
+    {:noreply, assign_socket(socket)}
+  end
+
+  @impl true
+  def handle_info(%{event: "delete", payload: %{items: _items}}, socket) do
+    {:noreply, assign_socket(socket)}
+  end
+
+  # Check for status 4 (:done)
+  def done?(item), do: item.status == 4
+
+  # Check if an item has an active timer
+  def started?(item) do
+    not is_nil(item.start) and is_nil(item.stop)
+  end
+
+  # An item without an end should be counting
+  def timer_stopped?(item) do
+    not is_nil(item.stop)
+  end
+
+  def timers_any?(item) do
+    not is_nil(item.timer_id)
+  end
+
+  # Convert Elixir NaiveDateTime to JS (Unix) Timestamp
+  def timestamp(naive_datetime) do
+    DateTime.from_naive!(naive_datetime, "Etc/UTC")
+    |> DateTime.to_unix(:millisecond)
+  end
+
+
+  # Elixir implementation of `timer_text/2`
+  def leftPad(val) do
+    if val < 10, do: "0#{to_string(val)}", else: val
+  end
+
+  def timer_text(item) do
+    if is_nil(item) or is_nil(item.start) or is_nil(item.stop) do
+      ""
+    else
+      diff = timestamp(item.stop) - timestamp(item.start)
+
+      # seconds
+      s = if diff > 1000 do
+        s = diff / 1000 |> trunc()
+        s = if s > 60, do: Integer.mod(s, 60), else: s
+        leftPad(s)
+      else
+      "00"
+      end
+
+      # minutes
+      m = if diff > 60000 do
+        m = diff / 60000 |> trunc()
+        m = if m > 60, do: Integer.mod(m, 60), else: m
+        leftPad(m)
+      else
+        "00"
+      end
+
+      # hours
+      h = if diff > 3600000 do
+        h = diff / 3600000 |> trunc()
+        leftPad(h)
+      else
+        "00"
+      end
+
+      "#{h}:#{m}:#{s}"
+    end
+  end
+end
+```
+
+Again, a bunch of code here.
+Please work through each function 
+to understand what is going on.
+
+
+# 8. Implement the `LiveView` UI Template
+
+_Finally_ we have all the `LiveView` functions,
+
+## 8.1 Update the `root` layout/template
+
+Open the
+`lib/app_web/templates/layout/root.html.heex`
+file and replace the contents with the following:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="csrf-token" content={csrf_token_value()}>
+    <%= live_title_tag assigns[:page_title] || "dwyl mvp"%>
+    <%= render "icons.html" %>
+    <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/assets/app.css")}/> 
+    <script defer phx-track-static type="text/javascript" 
+      src={Routes.static_path(@conn, "/assets/app.js")}></script>
+    <!-- see: https://github.com/dwyl/learn-alpine.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.10.2/cdn.js" defer></script>
+  </head>
+  <body>
+    <nav class="px-2 sm:px-4 py-2 bg-gray-900 w-full min-h-[12%]">
+      <div class="container flex flex-wrap justify-between items-center mx-auto">
+
+        <%= if @loggedin do %>
+          <img src={@person.picture} class="mr-3 h-6 sm:h-9 rounded-full" alt="avatar image">
+        <% else %>
+          <h1 class="text-white">Hi Friend!</h1>
+        <% end %>
+
+        <!-- always display logo -->
+        <a href="/" class="flex items-center">
+            <img src="https://dwyl.com/img/favicon-32x32.png" class="mr-3 h-6 sm:h-9" alt="dwyl logo">
+        </a>
+
+        <%= if @loggedin do %>
+          <button
+            class="bg-teal-600 text-white rounded-md px-3 py-1 text-sm align-middle float-right">
+            <%= link "logout", to: "/logout" %>
+          </button>
+
+        <% else %>
+        <button class="bg-teal-500 text-white rounded-md -pt-1 px-3 py-1 text-sm align-middle float-right">
+          <%= link "Login", to: "/login" %>
+        </button>
+        <% end %>
+
+      </div>
+    </nav>
+    <%= @inner_content %>
+  </body>
+</html>
+```
+
+## 8.2 Create the `icons` template
+
+To make the App more Mobile-friendly,
+we define a bunch of iOS/Android related icons.
+
+Create a new file with the path 
+`lib/app_web/templates/layout/icons.html.heex`
+and add the following code to it:
+
+```html
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="dwyl is a worldwide community of people using technology to solve real problems.">
+<meta name="robots" content="noarchive">
+<link rel="shortcut-icon" href="https://dwyl.com/img/favicon.ico">
+<link rel="apple-touch-icon" sizes="57x57" href="https://dwyl.com/img/apple-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="https://dwyl.com/img/apple-icon-60x60.png">
+<link rel="apple-touch-icon" sizes="72x72" href="https://dwyl.com/img/apple-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="76x76" href="https://dwyl.com/img/apple-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="114x114" href="https://dwyl.com/img/apple-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="120x120" href="https://dwyl.com/img/apple-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="144x144" href="https://dwyl.com/img/apple-icon-144x144.png">
+<link rel="apple-touch-icon" sizes="152x152" href="https://dwyl.com/img/apple-icon-152x152.png">
+<link rel="apple-touch-icon" sizes="180x180" href="https://dwyl.com/img/apple-icon-180x180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="https://dwyl.com/img/android-icon-192x192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://dwyl.com/img/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96" href="https://dwyl.com/img/favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://dwyl.com/img/favicon-16x16.png">
+<link rel="manifest" href="https://dwyl.com/img/manifest.json">
+<meta name="msapplication-TileColor" content="#ffffff">
+<meta name="msapplication-TileImage" content="https://dwyl.com/img/ms-icon-144x144.png">
+```
+
+This is static and very repetitive, 
+hence creating a partial to hide it from the root layout.
+
+Finally ...
+
+
+# 9. Update the `LiveView` Tempalte
+
+Open the `app_live.html.heex` 
+file and replace the contents 
+with the following template code:
+
+```html
+<div class="h-90 w-full font-sans">
+  <form phx-submit="create" class="w-full lg:w-3/4 lg:max-w-lg text-center mx-auto">
+
+    <!-- textarea so that we can have multi-line capturing 
+      help wanted auto re-sizing: https://github.com/dwyl/learn-alpine.js/issues/3 -->
+    <textarea 
+      class="w-full py-1 px-1 text-slate-800 text-3xl
+        bg-white bg-clip-padding
+        resize-none
+        max-h-80
+        transition ease-in-out
+        border border-b border-slate-200
+        focus:border-none focus:outline-none"
+      name="text" 
+      placeholder="What needs to be done?" 
+      autofocus="" 
+      required="required" 
+      x-data="{resize() {
+           $el.style.height = '80px';
+           $el.style.height = $el.scrollHeight + 'px';
+        }
+      }"
+      x-init="resize"
+      x-on:input="resize"
+    ></textarea>
+
+    <!-- Want to help "DRY" this? see: https://github.com/dwyl/app-mvp-phoenix/issues/105 -->
+    <!-- https://tailwindcss.com/docs/justify-content#end -->
+    <div class="flex justify-end mr-1">
+      <button class="inline-flex items-center px-2 py-1 mt-1 h-9
+        bg-green-500 hover:bg-green-600 text-white rounded-md">
+        <svg xmlns="http://www.w3.org/2000/svg" 
+          class="h-5 w-5 mr-2" fill="none" 
+          viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+            d="M15 13l-3 3m0 0l-3-3m3 3V8m0 13a9 9 0 110-18 9 9 0 010 18z"
+          />
+        </svg>
+        Save
+      </button>
+    </div>
+
+  </form>
+
+  <!-- List of items with inline buttons and controls -->
+  <ul class="w-full">
+    <%= for item <- @items do %>
+    <li data-id={item.id} class="mt-2 flex w-full border-t border-slate-200 py-2">
+
+      <!-- if item is "done" (status: 4) strike-through and show "Archive" button -->
+      <%= if done?(item) do %>
+        <input type="checkbox" phx-value-id={item.id} phx-click="toggle"
+          class="flex-none p-4 m-2 form-checkbox text-slate-400" 
+          checked />
+        <label class="w-full text-slate-400  m-2 line-through">
+          <%= item.text %>
+        </label>
+
+        <div class="flex flex-col">
+        <div class="flex flex-col justify-end mr-1">
+          <!-- "Archive" button with icon see: https://github.com/dwyl/app-mvp-phoenix/issues/101 -->
+          <button class="inline-flex items-center px-2 py-1 mr-2 h-9
+          bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md"
+            phx-click="delete" phx-value-id={item.id}>
+            <svg xmlns="http://www.w3.org/2000/svg" 
+              class="h-5 w-5 mr-2" fill="none" 
+              viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+            </svg>
+            Archive
+          </button>
+          <p> 
+            <span class="text-sm font-mono font-semibold flex flex-col justify-end text-right mr-2 mt-1"> 
+              <%= timer_text(item) %> 
+            </span>
+          </p>
+        </div>
+      </div>
+
+      <!-- else render the buttons for start|stop timer -->
+      <% else %>
+        <!-- Show checkbox so the item can be marked as "done" -->
+        <input type="checkbox" phx-value-id={item.id} phx-click="toggle"
+          class="flex-none p-4 m-2 form-checkbox hover:text-slate-600" />
+
+        <!-- Editing renders the textarea and "save" button - near identical (duplicate) code from above
+          Help wanted DRY-ing this ... see: https://github.com/dwyl/app-mvp-phoenix/issues/105 -->
+        <%= if item.id == @editing do %>
+          <form phx-submit="update-item" id="form-update" class="w-full mr-2">
+            <textarea 
+              id="editing"
+              class="w-full flex-auto text-slate-800
+                bg-white bg-clip-padding
+                transition ease-in-out
+                border border-b border-slate-200
+                focus:border-none focus:outline-none"
+              name="text" 
+              placeholder="What is on your mind?" 
+              autofocus 
+              required="required" 
+              value={item.text}
+            ><%= item.text %></textarea>
+
+            <input type="hidden" name="id" value={item.id}/>
+
+            <div class="flex justify-end mr-1">
+              <button class="inline-flex items-center px-2 py-1 mt-1 h-9
+                bg-green-500 hover:bg-green-600 text-white rounded-md">
+                <svg xmlns="http://www.w3.org/2000/svg" 
+                  class="h-5 w-5 mr-2" fill="none" 
+                  viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M15 13l-3 3m0 0l-3-3m3 3V8m0 13a9 9 0 110-18 9 9 0 010 18z"
+                  />
+                </svg>
+                Save
+              </button>
+            </div>
+
+          </form>
+        <% else  %>
+          <!-- Render item.text as click-able label -->
+          <label class="w-full flex-auto text-slate-800 m-2"
+            phx-click="edit-item" phx-value-id={item.id}>
+            <%= item.text %>
+          </label>
+        <% end %>
+
+       <%= if timers_any?(item) do %>
+          <!-- always display the time elapsed in the UI https://github.com/dwyl/app-mvp-phoenix/issues/106 -->
+          <%= if timer_stopped?(item) do %>
+            <div class="flex flex-col">
+              <div class="flex flex-col justify-end mr-1">
+                <!-- render "continue" button -->
+                <button phx-click="start" phx-value-id={item.id}
+                  class="inline-flex items-center px-2 py-2 h-9 mr-1
+                  bg-teal-600 hover:bg-teal-800 text-white rounded-md">
+                  <svg xmlns="http://www.w3.org/2000/svg" 
+                    class="h-5 w-5 mr-1" fill="none" 
+                    viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  Resume
+                </button>
+                <p> 
+                  <span class="text-sm font-mono font-semibold flex flex-col justify-end text-right mr-2 mt-1"> 
+                    <%= timer_text(item) %> 
+                  </span>
+                </p>
+              </div>
+            </div>
+          <% else %>
+            <%= if started?(item) do %>
+              <!-- render the counting timer with Apline.js! see: github.com/dwyl/learn-alpine.js -->
+              <div class="flex flex-col"
+                x-data="{
+                  start: parseInt($refs.timer_start.innerHTML, 10),
+                  current: null, 
+                  stop: null, 
+                  interval: null
+                }"
+                x-init="
+                  start = parseInt($refs.timer_start.innerHTML, 10);
+                  current = start;
+                  interval = setInterval(() => { current = Date.now() }, 500)
+                "
+                >
+                <!-- this is how we pass the start|stop time from Elixir (server) to Alping (client) -->
+                <span x-ref="timer_start" class="hidden"><%= timestamp(item.start) %></span>
+
+                <div class="flex flex-col justify-end mr-1">
+                  <button phx-click="stop" phx-value-id={item.id} phx-value-timerid={item.timer_id}
+                    class="inline-flex items-center px-2 py-2 h-9 mr-1
+                    bg-red-500 hover:bg-red-700 text-white rounded-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" 
+                      class="h-5 w-5 mr-1" fill="none" 
+                      viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    Stop
+                  </button>
+
+                  <p><span x-text="timer_text(start, current || stop)"
+                    class="text-sm font-mono font-semibold text-right mr-1">00:00:00</span></p>
+                </div>
+              </div>           
+            <% end %> <!-- end if started?(item) -->
+          <% end %>
+        <% else %>
+          <!-- render start button -->
+          <button phx-click="start" phx-value-id={item.id}
+            class="inline-flex items-center px-2 py-2 h-9 mr-1
+            bg-teal-500 hover:bg-teal-700 text-white rounded-md">
+            <svg xmlns="http://www.w3.org/2000/svg" 
+              class="h-5 w-5 mr-1" fill="none" 
+              viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            Start
+          </button>
+        <% end %><!-- end timers_any?(item) -->
+      <% end %>
+            
+    </li>
+    <% end %><!-- end for item <- @items -->
+  </ul>
+</div>
+
+<script>
+// Render the *counting* timer using JavaScript
+// (Stopped timers are rendered by Elixir)
+
+function leftPad(val) {
+  return val < 10 ? '0' + String(val) : val;
+}
+
+function timer_text(start, current) {
+  console.log("timer_text(start, current)", start, current)
+  let h="00", m="00", s="00";
+  const diff = current - start;
+  // seconds
+  if(diff > 1000) {
+    s = Math.floor(diff / 1000);
+    s = s > 60 ? s % 60 : s;
+    s = leftPad(s);
+  }
+  // minutes
+  if(diff > 60000) {
+    m = Math.floor(diff/60000);
+    m = m > 60 ? m % 60 : m;
+    m = leftPad(m)
+  }
+  // hours
+  if(diff > 3600000) {
+    h = Math.floor(diff/3600000);
+    h = leftPad(h)
+  }
+
+  return h + ':' + m + ':' + s;
+}
+</script>
+```
+
+The bulk of the App is containted in this one template file.
+work your way through it and if anything is unclear,
+let us know!
+
+Thanks for reading this far.
+If you found it interesting,
+please let us know by starring the repo on GitHub! ⭐
 
 
 <br />
