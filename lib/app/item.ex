@@ -21,7 +21,7 @@ defmodule App.Item do
   end
 
   @doc """
-  Creates a item.
+  Creates an `item`.
 
   ## Examples
 
@@ -189,7 +189,7 @@ defmodule App.Item do
   @doc """
   `accumulate_item_timers/1` aggregates the elapsed time
   for all the timers associated with an item
-  and then subtracs that time from the start value of the *current* active timer.
+  and then subtract that time from the start value of the *current* active timer.
   This is done to create the appearance that a single timer is being started/stopped
   when in fact there are multiple timers in the backend.
   For MVP we *could* have just had a single timer ...

@@ -26,7 +26,7 @@ it in **20 minutes**. 🏁
 
 In this log we have written the "CRUD" functions first
 and _then_ built the UI. <br />
-We were able to to do this because we had a good idea
+We were able to do this because we had a good idea
 of which functions we were going to need. <br />
 If you are reading through this
 and scratching your head 
@@ -35,7 +35,7 @@ simply scroll down to the UI section
 where (_hopefully_) it will all be clear. 
 
 At the end of each step,
-rememer to run the tests:
+remember to run the tests:
 
 ```sh
 mix test
@@ -84,7 +84,7 @@ With that in place, let's get building!
 - [8. Implement the `LiveView` UI Template](#8-implement-the-liveview-ui-template)
   - [8.1 Update the `root` layout/template](#81-update-the-root-layouttemplate)
   - [8.2 Create the `icons` template](#82-create-the-icons-template)
-- [9. Update the `LiveView` Tempalte](#9-update-the-liveview-tempalte)
+- [9. Update the `LiveView` Template](#9-update-the-liveview-template)
 - [10. Run the _Finished_ MVP App!](#10-run-the-finished-mvp-app)
   - [10.1 Run the Tests](#101-run-the-tests)
   - [10.2 Run The App](#102-run-the-app)
@@ -104,7 +104,7 @@ mix phx.new app --no-mailer --no-dashboard --no-gettext
 When asked to install the dependencies,
 type `Y` and `[Enter]` (_to install everything_).
 
-The MVP won't be 
+The MVP won't
 send emails,
 display dashboards 
 or translate to other languages
@@ -363,7 +363,7 @@ Randomized with seed 796477
 
 ## 1.7 Delete Page-related Files
 
-Since we won't be using the `page` meatphore in our App, 
+Since we won't be using the `page` in our App, 
 we can delete the default files created by `Phoenix`:
 
 ```sh
@@ -489,7 +489,7 @@ to track how long it takes to ***complete***.
 
 An `item` can have zero or more `timers`.
 
-Each time a `item` (`task`) is worked on
+Each time an `item` (`task`) is worked on
 a **_new_ `timer`** is created/started (_and stopped_).
 Meaning a `person` can split the completion 
 of an `item` (`task`) across multiple sessions.
@@ -708,7 +708,7 @@ defmodule App.Item do
   end
 
   @doc """
-  Updates a item.
+  Updates an `item`.
 
   ## Examples
 
@@ -945,7 +945,7 @@ If you know of one,
 please share!
 
 
-## 5.1 Test for `accummulate_item_timers/1`
+## 5.1 Test for `accumulate_item_timers/1`
 
 This might feel like we are working in reverse,
 that's because we _are_!
@@ -960,7 +960,7 @@ file and add the following block of test code:
 
 ```elixir
   describe "accumulate timers for a list of items #103" do
-    test "accummulate_item_timers/1 to display cummulative timer" do
+    test "accumulate_item_timers/1 to display cumulative timer" do
       # https://hexdocs.pm/elixir/1.13/NaiveDateTime.html#new/2
       # "Add" -7 seconds: https://hexdocs.pm/elixir/1.13/Time.html#add/3
       {:ok, seven_seconds_ago} =
@@ -1027,7 +1027,7 @@ file and add the following block of test code:
       # The diff will always be 17 seconds because we control the start in the test data above.
       # But we still get the function to calculate it so we know it works.
 
-      # The 3rd item doesn't have any timers, its the control:
+      # The 3rd item doesn't have any timers, it's the control:
       assert item3.start == nil
     end
   end
@@ -1059,7 +1059,7 @@ file and add the following function:
 
   If you can think of a better way of achieving the same result,
   please share: https://github.com/dwyl/app-mvp-phoenix/issues/103
-  This function *relies* on the list of items being orderd by timer_id ASC
+  This function *relies* on the list of items being ordered by timer_id ASC
   because it "pops" the last timer and ignores it to avoid double-counting.
   """
   def accumulate_item_timers(items_with_timers) do
@@ -1143,7 +1143,7 @@ file and the following test to the bottom:
 
 Open the 
 `lib/app/item.ex`
-file and add the followin code to the bottom:
+file and add the following code to the bottom:
 
 ```elixir
 @doc """

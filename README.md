@@ -45,13 +45,13 @@ And help us to ...
 
 Our goal with this
 [MVP](https://github.com/dwyl/technical-glossary/issues/44)
-is to build the **minimal _useable_ App** <br />
+is to build the **minimal _usable_ App** <br />
 that covers our basic "***Capture, Categorize, Complete***"
 [**workflow**](https://github.com/dwyl/product-roadmap#what). <br />
 It is well-documented, tested
 and easy for a beginner to run & understand.
 
-We _shiped_ the App to
+We _shipped_ the App to
 Fly: 
 [mvp.fly.dev](https://mvp.fly.dev/)
 and _use/test_ it (_internally_). <br />
@@ -59,7 +59,7 @@ After collecting initial feedback,
 we integrated it into the main
 [dwyl/**app**](https://github.com/dwyl/app) 
 repo.<br />
-We maintian this repo
+We maintain this repo
 as a **reference** for **new joiners** <br />
 wanting the **most _basic_ version**
 to **learn** from.
@@ -130,7 +130,7 @@ is the _minimum_
 we can do to test the idea.
 
 > If you're new to MVPs, 
-> the Wikpedia article is a good starting point:
+> the Wikipedia article is a good starting point:
 [wikipedia.org/wiki/Minimum_viable_product](https://en.wikipedia.org/wiki/Minimum_viable_product) <br />
 > Or listen to Eric Ries describe it in 3 minutes:
 > https://youtu.be/1FoCbbbcYT8 <br />
@@ -151,7 +151,7 @@ This MVP combines **two apps** into ***one***. 💡
 In our journey 
 to understand the features we want
 from 
-[first principals](https://fs.blog/first-principles/),
+[first principles](https://fs.blog/first-principles/),
 we **built** the two _separate_ apps:
 
 1. Todo list: 
@@ -166,7 +166,7 @@ we **built** the two _separate_ apps:
 We encourage you to read 
 and understand the individual feature Apps
 ***`before`***
-trying run the MVP. 👀<br />
+trying to run the MVP. 👀<br />
 But our hope is that
 the UI/UX in the MVP
 is sufficiently intuitive
@@ -259,7 +259,7 @@ and perform some actions to test the App:
 17. ***Mark*** the (`private`) `item` as `done` and see the time it took.
 18. ***`Archive`*** the `item`
 19. ***Logout*** of the app
-20. ***View*** the (`public`) `item` you created earlier with the `timer` still runinng.
+20. ***View*** the (`public`) `item` you created earlier with the `timer` still running.
 
 That's it. 
 The MVP in a nutshell. 
@@ -403,7 +403,7 @@ please see:
 
 Please note that our goal with this MVP
 is _not_ to have _all_ the features; 
-again, it's _deliberatly_  simple.<br />
+again, it's _deliberately_  simple.<br />
 We will be adding _lots_ more features
 to the _full_
 [**App**](https://github.com/dwyl/app). <br />
