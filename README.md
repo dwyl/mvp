@@ -136,7 +136,11 @@ we can do to test the idea.
 > https://youtu.be/1FoCbbbcYT8 <br />
 > Validate your business idea: 
 > THE LEAN STARTUP by Eric Ries:
-> https://youtu.be/QaoVWtLX038
+> https://youtu.be/QaoVWtLX038 <br />
+> Building Minimal Viable Product with Michael Seibel UC Berkeley Course:
+> https://youtu.be/m4isFputh68?t=75 <br />
+> How _Not_ To Start A Startup | Michael Seibel: 
+> https://youtu.be/9tq-lTjTu2Q?t=413
 
 
 ## Two Apps in _One_ ✌️
