@@ -124,7 +124,7 @@ A **mobile-first**
 
 ## MVP? 🚧
 
-A Minimum Viable Product ("MVP"),
+A Minimum Viable Product (MVP),
 as its' name suggests,
 is the _minimum_ 
 we can do to test the idea.
@@ -137,6 +137,7 @@ we can do to test the idea.
 > Validate your business idea: 
 > THE LEAN STARTUP by Eric Ries:
 > https://youtu.be/QaoVWtLX038
+
 
 ## Two Apps in _One_ ✌️
 
@@ -165,7 +166,7 @@ we **built** the two _separate_ apps:
 We encourage you to read 
 and understand the individual feature Apps
 ***`before`***
-trying run the MVP. 
+trying run the MVP. 👀<br />
 But our hope is that
 the UI/UX in the MVP
 is sufficiently intuitive
@@ -215,12 +216,10 @@ This **MVP** has **_two_ target audiences**:
   with good documentation and testing.
 
 _Longer_ term, the MVP 
-will also help future @dwyl team members
+will help future @dwyl team members
 get 
 [**up-to-speed**](https://dictionary.cambridge.org/dictionary/english/up-to-speed) 
 on our App & Stack **_much_ faster**.
-Understanding the basics in _this_ app
-will be an _excellent_ starting point.
 
 ## Feedback! 🙏
 
@@ -269,6 +268,10 @@ if you're low on time:
 
 ![mvp-fly-auth](https://user-images.githubusercontent.com/194400/180079997-b43a24c2-7a50-4755-aef9-ef3f2aa28816.gif)
 
+The **`GIF`** showcases the (todo list) `items` and `timers`
+being synched across 3 browsers/devices in realtime.
+
+
 <br />
 
 # _How_? 💻
@@ -290,14 +293,16 @@ This **MVP** app uses the **`PETAL` Stack**
 described in: 
 [dwyl/**technology-stack**](https://github.com/dwyl/technology-stack)
 
-Going through the individual feature apps listed above,
+Going through the individual feature apps listed 
+[above](#two-apps-in-one-️)
 will give you the knowledge
 to understand this MVP.
 
 If you have _any_ coding skills 
-(e.g: `JavaScript`, `Java`,  `Python`, `Ruby`, `PHP`, `SQL`, etc.)
+(e.g: `JavaScript`, `Java`,  `Python`, 
+`Ruby`, `PHP`, `SQL`, etc.) <br />
 you will be able to follow along
-without any issues
+without much difficulty
 as the code is **_deliberately_ simple**.
 
 ## Run the MVP App on your `localhost` ⬇️
@@ -392,7 +397,7 @@ c. **Clone** the repo to your `localhost`
 
 For more detail,
 please see:
-[github.com/dwyl/**contributing**](https://github.com/dwyl/contributing)
+[dwyl/**contributing**](https://github.com/dwyl/contributing)
 
 ### More Features? 🔔
 

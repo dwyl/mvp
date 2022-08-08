@@ -18,8 +18,8 @@ it in **20 minutes**. 🏁
 
 > **Note**: we have referenced sections 
 > in our more extensive tutorials/examples
-> to keep this doc brief
-> and avoid duplication.
+> to keep this doc 
+> [DRY](https://en.wikipedia.org/wiki/Don't_repeat_yourself). <br />
 > You don't have to follow every step in
 > the other tutorials/examples,
 > but they are linked in case you get stuck.
@@ -33,6 +33,22 @@ and scratching your head
 wondering where a particular function will be used,
 simply scroll down to the UI section
 where (_hopefully_) it will all be clear. 
+
+At the end of each step,
+rememer to run the tests:
+
+```sh
+mix test
+```
+
+This will help you keep track of where you are
+and retrace your steps if something is not working as expected.
+
+We suggest keeping two terminal tabs/windows running
+one for the server `mix phx.server` and the other for the tests.
+That way you can also see the UI as you progress.
+
+With that in place, let's get building! 
 
 - [Build Log 👩‍💻](#build-log-)
 - [1. Create a New `Phoenix` App](#1-create-a-new-phoenix-app)
@@ -59,6 +75,9 @@ where (_hopefully_) it will all be clear.
   - [5.3 Test for `items_with_timers/1`](#53-test-for-items_with_timers1)
   - [5.4 Implement `items_with_timers/1`](#54-implement-items_with_timers1)
 - [6. Add Authentication](#6-add-authentication)
+  - [6.1 Add `auth_plug` to `deps`](#61-add-auth_plug-to-deps)
+  - [6.2 Get your `AUTH_API_KEY`](#62-get-your-auth_api_key)
+  - [6.2 Create Auth Controller](#62-create-auth-controller)
 - [7. Create `LiveView` Functions](#7-create-liveview-functions)
   - [7.1 Write `LiveView` Tests](#71-write-liveview-tests)
   - [7.2 Implement the `LiveView` functions](#72-implement-the-liveview-functions)
@@ -66,6 +85,10 @@ where (_hopefully_) it will all be clear.
   - [8.1 Update the `root` layout/template](#81-update-the-root-layouttemplate)
   - [8.2 Create the `icons` template](#82-create-the-icons-template)
 - [9. Update the `LiveView` Tempalte](#9-update-the-liveview-tempalte)
+- [10. Run the _Finished_ MVP App!](#10-run-the-finished-mvp-app)
+  - [10.1 Run the Tests](#101-run-the-tests)
+  - [10.2 Runt The App](#102-runt-the-app)
+- [Thanks!](#thanks)
 
 
 # 1. Create a New `Phoenix` App
@@ -1222,6 +1245,30 @@ But again, if anything is unclear please let us know!!
 This section borrows heavily from:
 [dwyl/phoenix-liveview-chat-example](https://github.com/dwyl/phoenix-liveview-chat-example#12-authentication)
 
+## 6.1 Add `auth_plug` to `deps`
+
+Open the `mix.exs` file and add `auth_plug` to the `deps` section:
+
+```elixir
+{:auth_plug, "~> 1.4.14"},
+```
+
+Once the file is saved,
+run:
+
+```sh
+mix deps.get
+```
+
+## 6.2 Get your `AUTH_API_KEY`
+
+Follow the steps in the 
+[docs](https://github.com/dwyl/auth_plug#2-get-your-auth_api_key-)
+to get your `AUTH_API_KEY` environment variable. (1 minute)
+
+
+## 6.2 Create Auth Controller
+
 Create a new file with the path:
 `lib/app_web/controllers/auth_controller.ex`
 and add the following code:
@@ -1266,7 +1313,8 @@ end
 
 # 7. Create `LiveView` Functions
 
-_Finally_ we have all the "backend" functions we're going to need. 
+_Finally_ we have all the "CRUD" functions we're going to need
+we can focus on the `LiveView` code that will be the actual UI/UX!
 
 ## 7.1 Write `LiveView` Tests
 
@@ -2029,9 +2077,65 @@ function timer_text(start, current) {
 </script>
 ```
 
-The bulk of the App is containted in this one template file.
-work your way through it and if anything is unclear,
+The bulk of the App is containted in this one template file. <br />
+Work your way through it and if anything is unclear,
 let us know!
+
+# 10. Run the _Finished_ MVP App!
+
+With all the code saved, let's run the tests one more time.
+
+## 10.1 Run the Tests
+
+In your terminal window, run: 
+
+```sh
+mix c
+```
+
+> Note: this alias was defined [above](#test-coverage)
+
+You should see output similar to the following:
+
+```sh
+Finished in 0.7 seconds (0.1s async, 0.5s sync)
+31 tests, 0 failures
+
+----------------
+COV    FILE                                        LINES RELEVANT   MISSED
+100.0% lib/app/item.ex                               245       34        0
+100.0% lib/app/timer.ex                               97       16        0
+100.0% lib/app_web/controllers/auth_controller.       35        9        0
+100.0% lib/app_web/live/app_live.ex                  186       57        0
+[TOTAL]  100.0%
+----------------
+```
+
+All tests pass and we have **`100%` Test Coverage**.
+This reminds us just how few _relevant_ lines of code there are in the MVP!
+
+## 10.2 Runt The App
+
+In your second terminal tab/window, run:
+
+```sh
+mix phx.server
+```
+
+Open the app 
+[`localhost:4000`](http://localhost:4000) 
+in two or more web browsers
+(so that you can see the realtime sync)
+and perform the actions
+listed in the `REAMDE.md`.
+
+
+
+
+
+<br />
+
+# Thanks!
 
 Thanks for reading this far.
 If you found it interesting,
