@@ -87,7 +87,7 @@ With that in place, let's get building!
 - [9. Update the `LiveView` Tempalte](#9-update-the-liveview-tempalte)
 - [10. Run the _Finished_ MVP App!](#10-run-the-finished-mvp-app)
   - [10.1 Run the Tests](#101-run-the-tests)
-  - [10.2 Runt The App](#102-runt-the-app)
+  - [10.2 Run The App](#102-run-the-app)
 - [Thanks!](#thanks)
 
 
@@ -2114,7 +2114,7 @@ COV    FILE                                        LINES RELEVANT   MISSED
 All tests pass and we have **`100%` Test Coverage**.
 This reminds us just how few _relevant_ lines of code there are in the MVP!
 
-## 10.2 Runt The App
+## 10.2 Run The App
 
 In your second terminal tab/window, run:
 
@@ -2129,7 +2129,9 @@ in two or more web browsers
 and perform the actions
 listed in the `REAMDE.md`.
 
+e.g: 
 
+![mvp-localhost-demo](https://user-images.githubusercontent.com/194400/183337496-429af597-45a2-447f-9061-a494907736d9.gif)
 
 
 
