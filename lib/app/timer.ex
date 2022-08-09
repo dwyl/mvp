@@ -1,15 +1,15 @@
 defmodule App.Timer do
   use Ecto.Schema
   import Ecto.Changeset
-  import Ecto.Query, warn: false
+  # import Ecto.Query
   alias App.Repo
   alias __MODULE__
+  require Logger
 
   schema "timers" do
-    field :end, :naive_datetime
-    field :start, :naive_datetime
     field :item_id, :id
-    field :person_id, :id
+    field :start, :naive_datetime
+    field :stop, :naive_datetime
 
     timestamps()
   end
@@ -17,25 +17,12 @@ defmodule App.Timer do
   @doc false
   def changeset(timer, attrs) do
     timer
-    |> cast(attrs, [:start, :end])
-    |> validate_required([:start, :end])
+    |> cast(attrs, [:item_id, :start, :stop])
+    |> validate_required([:item_id, :start])
   end
 
   @doc """
-  Returns the list of timers.
-
-  ## Examples
-
-      iex> list_timers()
-      [%Timer{}, ...]
-
-  """
-  def list_timers do
-    Repo.all(Timer)
-  end
-
-  @doc """
-  Gets a single timer.
+  `get_timer/1` gets a single Timer.
 
   Raises `Ecto.NoResultsError` if the Timer does not exist.
 
@@ -43,75 +30,68 @@ defmodule App.Timer do
 
       iex> get_timer!(123)
       %Timer{}
-
-      iex> get_timer!(456)
-      ** (Ecto.NoResultsError)
-
   """
   def get_timer!(id), do: Repo.get!(Timer, id)
 
+
   @doc """
-  Creates a timer.
+  `start/1` starts a timer.
 
   ## Examples
 
-      iex> create_timer(%{field: value})
-      {:ok, %Timer{}}
-
-      iex> create_timer(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
+      iex> start(%{item_id: 1, })
+      {:ok, %Timer{start: ~N[2022-07-11 04:20:42]}}
 
   """
-  def create_timer(attrs \\ %{}) do
+  def start(attrs \\ %{}) do
     %Timer{}
-    |> Timer.changeset(attrs)
+    |> changeset(attrs)
     |> Repo.insert()
   end
 
   @doc """
-  Updates a timer.
+  `stop/1` stops a timer.
 
   ## Examples
 
-      iex> update_timer(timer, %{field: new_value})
-      {:ok, %Timer{}}
-
-      iex> update_timer(timer, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
+      iex> stop(%{id: 1})
+      {:ok, %Timer{stop: ~N[2022-07-11 05:15:31], etc.}}
 
   """
-  def update_timer(%Timer{} = timer, attrs) do
-    timer
-    |> Timer.changeset(attrs)
+  def stop(attrs \\ %{}) do
+    get_timer!(attrs.id)
+    |> changeset(%{stop: NaiveDateTime.utc_now})
     |> Repo.update()
   end
 
   @doc """
-  Deletes a Timer.
+  `stop_timer_for_item_id/1` stops a timer for the given item_id if there is one.
+  Fails silently if there is no timer for the given item_id.
 
   ## Examples
 
-      iex> delete_timer(timer)
-      {:ok, %Timer{}}
-
-      iex> delete_timer(timer)
-      {:error, %Ecto.Changeset{}}
+      iex> stop_timer_for_item_id(42)
+      {:ok, %Timer{item_id: 42, stop: ~N[2022-07-11 05:15:31], etc.}}
 
   """
-  def delete_timer(%Timer{} = timer) do
-    Repo.delete(timer)
+  def stop_timer_for_item_id(item_id) when is_nil(item_id) do
+    Logger.debug("stop_timer_for_item_id/1 called without item_id: #{item_id} fail.")
   end
 
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking timer changes.
-
-  ## Examples
-
-      iex> change_timer(timer)
-      %Ecto.Changeset{source: %Timer{}}
-
-  """
-  def change_timer(%Timer{} = timer) do
-    Timer.changeset(timer, %{})
+  def stop_timer_for_item_id(item_id) do
+    # get timer by item_id find the latest one that has not been stopped:
+    sql = """
+    SELECT t.id FROM timers t WHERE t.item_id = $1 AND t.stop IS NULL ORDER BY t.id DESC LIMIT 1;
+    """
+    res = Ecto.Adapters.SQL.query!(Repo, sql, [item_id])
+    
+    if res.num_rows > 0 do
+      # IO.inspect(res.rows)
+      timer_id = res.rows |> List.first() |> List.first()
+      Logger.debug("Found timer.id: #{timer_id} for item: #{item_id}, attempting to stop.")
+      stop(%{id: timer_id})
+    else
+      Logger.debug("No active timers found for item: #{item_id}")
+    end
   end
 end

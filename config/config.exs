@@ -1,11 +1,4 @@
-# This file is responsible for configuring your application
-# and its dependencies with the aid of the Mix.Config module.
-#
-# This configuration file is loaded before any dependency and
-# is restricted to this project.
-
-# General application configuration
-use Mix.Config
+import Config
 
 config :app,
   ecto_repos: [App.Repo]
@@ -13,9 +6,20 @@ config :app,
 # Configures the endpoint
 config :app, AppWeb.Endpoint,
   url: [host: "localhost"],
-  secret_key_base: System.get_env("SECRET_KEY_BASE"),
-  render_errors: [view: AppWeb.ErrorView, accepts: ~w(html json)],
-  pubsub_server: App.PubSub
+  render_errors: [view: AppWeb.ErrorView, accepts: ~w(html json), layout: false],
+  pubsub_server: App.PubSub,
+  live_view: [signing_salt: "IJG3BS8I"],
+  secret_key_base: System.get_env("SECRET_KEY_BASE")
+
+# Configure esbuild (the version is required)
+config :esbuild,
+  version: "0.14.29",
+  default: [
+    args:
+      ~w(js/app.js --bundle --target=es2017 --outdir=../priv/static/assets --external:/fonts/* --external:/images/*),
+    cd: Path.expand("../assets", __DIR__),
+    env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
+  ]
 
 # Configures Elixir's Logger
 config :logger, :console,
@@ -25,19 +29,24 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+config :tailwind,
+  version: "3.1.0",
+  default: [
+    args: ~w(
+      --config=tailwind.config.js
+      --input=css/app.css
+      --output=../priv/static/assets/app.css
+    ),
+    cd: Path.expand("../assets", __DIR__)
+  ]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
+import_config "#{config_env()}.exs"
 
-config :fields, Fields.AES,
-  keys:
-    System.get_env("ENCRYPTION_KEYS")
-    # remove single-quotes around key list in .env
-    |> String.replace("'", "")
-    # split the CSV list of keys
-    |> String.split(",")
-    # decode the key.
-    |> Enum.map(fn key -> :base64.decode(key) end)
+# https://hexdocs.pm/joken/introduction.html#usage
+config :joken, default_signer: System.get_env("SECRET_KEY_BASE")
 
-config :fields, Fields, secret_key_base: System.get_env("SECRET_KEY_BASE")
-
-import_config "#{Mix.env()}.exs"
+# 
+config :auth_plug,
+  api_key: System.get_env("AUTH_API_KEY")

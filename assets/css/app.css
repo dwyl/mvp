@@ -1,36 +1,41 @@
-/* This file is for your main application css. */
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
 
-@import "./tachyons.css";
+/* This file is for your main application CSS */
 
-html,
-body {
-  height: 100%;
-}
-
-body {
-  margin: 0;
+.fade-in-scale {
+  animation: 0.2s ease-in 0s normal forwards 1 fade-in-scale-keys;
 }
 
-/* from https://git.io/Je174 */
-.border-dwyl-teal {
-  border-color: #4bc0a9;
+.fade-out-scale {
+  animation: 0.2s ease-out 0s normal forwards 1 fade-out-scale-keys;
 }
-.border-dwyl-teal-darkest {
-  border-color: #318d7b;
+
+.fade-in {
+  animation: 0.2s ease-out 0s normal forwards 1 fade-in-keys;
 }
-.dwyl-teal {
-  color: #4bc0a9;
+.fade-out {
+  animation: 0.2s ease-out 0s normal forwards 1 fade-out-keys;
 }
-.dwyl-bg-teal {
-  background-color: #4bc0a9;
+
+@keyframes fade-in-scale-keys{
+  0% { scale: 0.95; opacity: 0; }
+  100% { scale: 1.0; opacity: 1; }
 }
-.dwyl-bg-teal-dark {
-  background-color: #339999;
+
+@keyframes fade-out-scale-keys{
+  0% { scale: 1.0; opacity: 1; }
+  100% { scale: 0.95; opacity: 0; }
 }
-.hover-dwyl-teal-darkest:hover,
-.hover-dwyl-teal-darkest:focus {
-  background-color: #318d7b;
+
+@keyframes fade-in-keys{
+  0% { opacity: 0; }
+  100% { opacity: 1; }
 }
-.resize-none {
-  resize: none;
+
+@keyframes fade-out-keys{
+  0% { opacity: 1; }
+  100% { opacity: 0; }
 }
+

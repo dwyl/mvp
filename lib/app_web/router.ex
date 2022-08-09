@@ -1,63 +1,28 @@
 defmodule AppWeb.Router do
   use AppWeb, :router
-  # import AppWeb.Auth
 
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
-    plug :fetch_flash
+    plug :fetch_live_flash
+    plug :put_root_layout, {AppWeb.LayoutView, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
-    plug AuthPlugOptional
   end
 
-  pipeline :api do
-    plug CORSPlug,
-      origin:
-        System.get_env("ALLOW_API_ORIGINS")
-        |> String.replace("'", "")
-        |> String.split(",")
-
-    plug :accepts, ["json"]
+  # No Auth
+  scope "/", AppWeb do
+    pipe_through :browser
+    get "/init", InitController, :index
   end
+
+  pipeline :authOptional, do: plug(AuthPlugOptional)
 
   scope "/", AppWeb do
-    pipe_through [:browser]
+    pipe_through [:browser, :authOptional]
 
-    get "/", PageController, :index
-  end
-
-  pipeline :auth,
-    do: plug(AuthPlug, %{auth_url: "https://dwylauth.herokuapp.com"})
-
-  scope "/", AppWeb do
-    pipe_through [:browser, :auth]
-
-    # need to re-create logout
-    # get "/people/logout", PersonController, :logout
-    # resources "/people", PersonController
-
-    # generic resources for schemas:
-    resources "/items", ItemController
-    resources "/lists", ListController
-    resources "/status", StatusController
-    resources "/tags", TagController
-    resources "/timers", TimerController
-
-    # capture
-    resources "/capture", CaptureController, only: [:new, :create]
-
-    # categorise
-    resources "/categorise", CategoriseController, only: [:index]
-  end
-
-  # Other scopes may use custom stacks.
-  scope "/api", AppWeb do
-    pipe_through :api
-
-    post "/captures/create", CaptureController, :api_create
-    # options "/captures/create", CaptureController, :api_create
-    get "/items", ItemController, :api_index
-    # options "/items", ItemController, :api_index
+    live "/", AppLive
+    get "/login", AuthController, :login
+    get "/logout", AuthController, :logout
   end
 end

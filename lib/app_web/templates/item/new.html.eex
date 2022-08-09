@@ -1,5 +1,0 @@
-<h2 class="tc"><em>Capture</em> what's on your mind</h2>
-
-<div class="center">
-  <%= render "form.html", Map.put(assigns, :action, Routes.item_path(@conn, :create)) %>
-</div>

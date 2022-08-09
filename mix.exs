@@ -4,10 +4,10 @@ defmodule App.MixProject do
   def project do
     [
       app: :app,
-      version: "1.0.3",
-      elixir: "~> 1.9",
+      version: "1.0.0",
+      elixir: "~> 1.12",
       elixirc_paths: elixirc_paths(Mix.env()),
-      compilers: [:phoenix, :gettext] ++ Mix.compilers(),
+      compilers: Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
@@ -16,7 +16,8 @@ defmodule App.MixProject do
         c: :test,
         coveralls: :test,
         "coveralls.json": :test,
-        "coveralls.html": :test
+        "coveralls.html": :test,
+        t: :test
       ]
     ]
   end
@@ -40,48 +41,69 @@ defmodule App.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.5.5"},
-      {:phoenix_pubsub, "~> 2.0.0"},
-      {:phoenix_ecto, "~> 4.2.1"},
-      {:ecto_sql, "~> 3.4.5"},
-      {:postgrex, ">= 0.15.6"},
-      {:phoenix_html, "~> 2.14.2"},
-      {:phoenix_live_reload, "~> 1.2.4", only: :dev},
-      {:gettext, "~> 0.18.2"},
-      {:jason, "~> 1.2.2"},
-      {:plug_cowboy, "~> 2.3.0"},
+      {:phoenix, "~> 1.6.10"},
+      {:phoenix_ecto, "~> 4.4"},
+      {:ecto_sql, "~> 3.6"},
+      {:postgrex, ">= 0.0.0"},
+      {:phoenix_html, "~> 3.0"},
+      {:phoenix_live_reload, "~> 1.2", only: :dev},
+      {:phoenix_live_view, "~> 0.17.5"},
+      {:floki, ">= 0.30.0", only: :test},
+      {:esbuild, "~> 0.4", runtime: Mix.env() == :dev},
+      {:telemetry_metrics, "~> 0.6"},
+      {:telemetry_poller, "~> 1.0"},
+      {:jason, "~> 1.2"},
+      {:plug_cowboy, "~> 2.5"},
 
+      # Check/get Environment Variables: https://github.com/dwyl/envar
+      {:envar, "~> 1.0.8"},
+      # Auth with ONE Environment Variable™: github.com/dwyl/auth_plug
+      {:auth_plug, "~> 1.4.14"},
       # Easily Encrypt Senstive Data: github.com/dwyl/fields
-      {:fields, "~> 2.7.1"},
-      # Auth with ONE Environment Variable: github.com/dwyl/auth_plug
-      {:auth_plug, "~> 1.2.3"},
-      # Useful functions: https://github.com/dwyl/useful
-      {:useful, "~> 0.1.0"},
+      {:fields, "~> 2.9.1"},
+      # Useful functions: github.com/dwyl/useful
+      {:useful, "~> 1.0.8", override: true},
+      # https://github.com/dwyl/useful/issues/17
+      {:atomic_map, "~> 0.9.3"},
+      # Statuses: github.com/dwyl/statuses
+      {:statuses, "~> 1.1.1"},
 
       # create docs on localhost by running "mix docs"
       {:ex_doc, "~> 0.22.6", only: :dev, runtime: false},
-      # track test coverage
-      {:excoveralls, "~> 0.13.2", only: [:test, :dev]},
+      # Track test coverage
+      {:excoveralls, "~> 0.14.5", only: [:test, :dev]},
       # git pre-commit hook runs tests before allowing commits
       {:pre_commit, "~> 0.3.4"},
-      {:credo, "~> 1.1.0", only: [:dev, :test], runtime: false},
-      # cors #56
-      {:cors_plug, "~> 2.0.2"}
+      {:credo, "~> 1.6.4", only: [:dev, :test], runtime: false},
+
+      # Ref: github.com/dwyl/learn-tailwind
+      {:tailwind, "~> 0.1", runtime: Mix.env() == :dev}
     ]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.
-  # For example, to create, migrate and run the seeds file at once:
+  # For example, to install project dependencies and perform other setup tasks, run:
   #
-  #     $ mix ecto.setup
+  #     $ mix setup
   #
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      "ecto.setup": ["ecto.create --quiet", "ecto.migrate --quiet", "seeds"],
-      "ecto.reset": ["ecto.drop", "ecto.setup"],
       seeds: ["run priv/repo/seeds.exs"],
+      setup: ["deps.get", "ecto.reset", "tailwind.install"],
+      "ecto.setup": [
+        "ecto.create --quiet",
+        "ecto.migrate --quiet",
+        "run priv/repo/seeds.exs"
+      ],
+      "ecto.reset": ["ecto.drop --quiet", "ecto.setup"],
+      "assets.deploy": [
+        "tailwind default --minify",
+        "esbuild default --minify",
+        "phx.digest"
+      ],
       test: ["ecto.reset", "test"],
+      t: ["test"],
       c: ["coveralls.html"],
       s: ["phx.server"]
     ]

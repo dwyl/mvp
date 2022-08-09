@@ -1,69 +1,65 @@
 defmodule App.TimerTest do
   use App.DataCase
-  alias App.Timer
+  alias App.{Item, Timer}
 
   describe "timers" do
-    @valid_attrs %{end: ~N[2010-04-17 14:00:00], start: ~N[2010-04-17 14:00:00]}
-    @update_attrs %{
-      end: ~N[2011-05-18 15:01:01],
-      start: ~N[2011-05-18 15:01:01]
-    }
-    @invalid_attrs %{end: nil, start: nil}
+    @valid_item_attrs %{text: "some text", person_id: 1}
 
-    def timer_fixture(attrs \\ %{}) do
+    test "Timer.start/1 returns timer that has been started" do
+      {:ok, item} = Item.create_item(@valid_item_attrs)
+      assert Item.get_item!(item.id).text == item.text
+
+      started = NaiveDateTime.utc_now()
+
       {:ok, timer} =
-        attrs
-        |> Enum.into(@valid_attrs)
-        |> Timer.create_timer()
+        Timer.start(%{item_id: item.id, person_id: 1, start: started})
 
-      timer
+      assert NaiveDateTime.diff(timer.start, started) == 0
     end
 
-    test "list_timers/0 returns all timers" do
-      timer = timer_fixture()
-      assert Timer.list_timers() == [timer]
+    test "Timer.stop/1 stops the timer that had been started" do
+      {:ok, item} = Item.create_item(@valid_item_attrs)
+      assert Item.get_item!(item.id).text == item.text
+
+      {:ok, started} =
+        NaiveDateTime.new(Date.utc_today, Time.add(Time.utc_now, -1))
+
+      {:ok, timer} =
+        Timer.start(%{item_id: item.id, person_id: 1, start: started})
+
+      assert NaiveDateTime.diff(timer.start, started) == 0
+
+      ended = NaiveDateTime.utc_now()
+      {:ok, timer} = Timer.stop(%{id: timer.id, stop: ended})
+      assert NaiveDateTime.diff(timer.stop, timer.start) == 1
     end
 
-    test "get_timer!/1 returns the timer with given id" do
-      timer = timer_fixture()
-      assert Timer.get_timer!(timer.id) == timer
+    test "stop_timer_for_item_id(item_id) should stop the active timer (happy path)" do
+      {:ok, item} = Item.create_item(@valid_item_attrs)
+      {:ok, seven_seconds_ago} =
+        NaiveDateTime.new(Date.utc_today, Time.add(Time.utc_now, -7))
+      # Start the timer 7 seconds ago:
+      {:ok, timer} =
+        Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
+
+      # stop the timer based on it's item_id
+      Timer.stop_timer_for_item_id(item.id)
+
+      stopped_timer = Timer.get_timer!(timer.id)
+      assert NaiveDateTime.diff(stopped_timer.start, seven_seconds_ago) == 0
+      assert NaiveDateTime.diff(stopped_timer.stop, stopped_timer.start) == 7
     end
 
-    test "create_timer/1 with valid data creates a timer" do
-      assert {:ok, %Timer{} = timer} = Timer.create_timer(@valid_attrs)
-      assert timer.end == ~N[2010-04-17 14:00:00]
-      assert timer.start == ~N[2010-04-17 14:00:00]
+    test "stop_timer_for_item_id(item_id) should not explode if there is no timer (unhappy path)" do
+      zero_item_id = 0 # random int
+      Timer.stop_timer_for_item_id(zero_item_id)
+      assert "Don't stop believing!"
     end
 
-    test "create_timer/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Timer.create_timer(@invalid_attrs)
-    end
-
-    test "update_timer/2 with valid data updates the timer" do
-      timer = timer_fixture()
-      assert {:ok, %Timer{} = timer} = Timer.update_timer(timer, @update_attrs)
-      assert timer.end == ~N[2011-05-18 15:01:01]
-      assert timer.start == ~N[2011-05-18 15:01:01]
-    end
-
-    test "update_timer/2 with invalid data returns error changeset" do
-      timer = timer_fixture()
-
-      assert {:error, %Ecto.Changeset{}} =
-               Timer.update_timer(timer, @invalid_attrs)
-
-      assert timer == Timer.get_timer!(timer.id)
-    end
-
-    test "delete_timer/1 deletes the timer" do
-      timer = timer_fixture()
-      assert {:ok, %Timer{}} = Timer.delete_timer(timer)
-      assert_raise Ecto.NoResultsError, fn -> Timer.get_timer!(timer.id) end
-    end
-
-    test "change_timer/1 returns a timer changeset" do
-      timer = timer_fixture()
-      assert %Ecto.Changeset{} = Timer.change_timer(timer)
+    test "stop_timer_for_item_id(item_id) should not melt down if item_id is nil (sad path)" do
+      nil_item_id = nil # random int
+      Timer.stop_timer_for_item_id(nil_item_id)
+      assert "Keep on truckin'"
     end
   end
 end

@@ -1,0 +1,40 @@
+<h1 class="tc">Initialization</h1>
+
+<h2 class="tc">
+
+<table class="w-80 mw5 mw7-ns center">
+  <thead>
+    <tr class="bb b--silver">
+      <th class="tl pv3 f3">REQUIRED Environment Variable</th>
+      <th class="tl pv3 f3">Defined?</th>
+    </tr>
+  </thead>
+  <tbody>
+    
+<%= for {key, value} <- @env do %>
+  <tr class="bb b--moon-gray">
+    <td class=""><pre class="mono bold"><%= key %></pre></td>
+    <td class="center pl4"><img width="30px" src="https://raw.githubusercontent.com/dwyl/auth/main/assets/static/images/<%=value%>.png"></td>
+  </tr>
+<% end %>
+  </tbody>
+</table>
+
+<table class="w-80 mt3 mw5 mw7-ns center">
+  <thead>
+    <tr class="bb b--silver">
+      <th class="tl pv3 code">
+        <span class="f3">AUTH_API_KEY</span> <br />
+        <small>(AuthPlug.Token.api_key/1)</small>
+      </th>
+      <th class="center pl6">
+        <img width=30px" src="https://raw.githubusercontent.com/dwyl/auth/main/assets/static/images/<%=@api_key_set%>.png" class="center pr3">
+        </th>
+    </tr>
+  </thead>
+</table>
+
+
+<hr />
+
+<p> Feel free to tidy up this layout if you have time! </p>

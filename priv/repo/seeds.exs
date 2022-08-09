@@ -1,2 +1,3 @@
-App.Status.upsert_status(%{text: "verified"})
-App.Status.upsert_status(%{text: "unverified"})
+if not Envar.is_set?("AUTH_API_KEY") do
+  Envar.load(".env")
+end
