@@ -198,7 +198,6 @@ defmodule AppWeb.AppLive do
   # see https://hexdocs.pm/phoenix_live_view/live-navigation.html
   @impl true
   def handle_params(params, _uri, socket) do
-    IO.inspect(params)
     person_id = get_person_id(socket.assigns)
     items = Item.all_items_with_timers(person_id)
 
