@@ -241,7 +241,7 @@
 </div>
 
 <footer>
-  <div class="flex flex-row">
+  <div class="flex flex-row justify-center p-2">
     <div class="px-8"><%= live_patch "All", to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: "all"} ) %></div> 
     <div class="px-8"><%= live_patch "Active", to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: "active"} ) %></div> 
     <div class="px-8"><%= live_patch "Done", to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: "done"} ) %></div> 
