@@ -12,21 +12,21 @@ defmodule AppWeb.AppLiveTest do
   test "connect and create an item", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
 
-    assert render_submit(view, :create,
-      %{text: "Learn Elixir", person_id: 1}) =~ "Learn Elixir"
+    assert render_submit(view, :create, %{text: "Learn Elixir", person_id: 1}) =~
+             "Learn Elixir"
   end
 
   test "toggle an item", %{conn: conn} do
     {:ok, item} =
       Item.create_item(%{text: "Learn Elixir", status: 2, person_id: 0})
+
     {:ok, _item2} =
       Item.create_item(%{text: "Learn Elixir", status: 4, person_id: 0})
 
     assert item.status == 2
 
     started = NaiveDateTime.utc_now()
-    {:ok, _timer} =
-      Timer.start(%{item_id: item.id, start: started})
+    {:ok, _timer} = Timer.start(%{item_id: item.id, start: started})
 
     # See: https://github.com/dwyl/useful/issues/17#issuecomment-1186070198
     # assert Useful.typeof(:timer_id) == "atom"
@@ -34,15 +34,16 @@ defmodule AppWeb.AppLiveTest do
 
     {:ok, view, _html} = live(conn, "/")
 
-    assert render_click(view, :toggle,
-      %{"id" => item.id, "value" => "on"}) =~ "line-through"
+    assert render_click(view, :toggle, %{"id" => item.id, "value" => "on"}) =~
+             "line-through"
 
     updated_item = Item.get_item!(item.id)
     assert updated_item.status == 4
   end
 
   test "(soft) delete an item", %{conn: conn} do
-    {:ok, item} = Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+    {:ok, item} =
+      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
     assert item.status == 2
 
@@ -54,7 +55,8 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "start a timer", %{conn: conn} do
-    {:ok, item} = Item.create_item(%{text: "Get Fancy!", person_id: 0, status: 2})
+    {:ok, item} =
+      Item.create_item(%{text: "Get Fancy!", person_id: 0, status: 2})
 
     assert item.status == 2
 
@@ -63,7 +65,8 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "stop a timer", %{conn: conn} do
-    {:ok, item} = Item.create_item(%{text: "Get Fancy!", person_id: 0, status: 2})
+    {:ok, item} =
+      Item.create_item(%{text: "Get Fancy!", person_id: 0, status: 2})
 
     assert item.status == 2
     started = NaiveDateTime.utc_now()
@@ -71,8 +74,8 @@ defmodule AppWeb.AppLiveTest do
 
     {:ok, view, _html} = live(conn, "/")
 
-    assert render_click(view, :stop,
-      %{"id" => item.id, "timerid" => timer.id}) =~ "done"
+    assert render_click(view, :stop, %{"id" => item.id, "timerid" => timer.id}) =~
+             "done"
   end
 
   # This test is just to ensure coverage of the handle_info/2 function
@@ -81,7 +84,9 @@ defmodule AppWeb.AppLiveTest do
   test "handle_info/2 start|stop", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
 
-    {:ok, item} = Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
+    {:ok, item} =
+      Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
+
     started = NaiveDateTime.utc_now()
     {:ok, _timer} = Timer.start(%{item_id: item.id, start: started})
 
@@ -96,7 +101,8 @@ defmodule AppWeb.AppLiveTest do
   test "handle_info/2 update", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
 
-    {:ok, item} = Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
+    {:ok, item} =
+      Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
 
     send(view.pid, %{
       event: "update",
@@ -109,7 +115,8 @@ defmodule AppWeb.AppLiveTest do
   test "handle_info/2 delete", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
 
-    {:ok, item} = Item.create_item(%{text: "Always Learning", person_id: 0, status: 6})
+    {:ok, item} =
+      Item.create_item(%{text: "Always Learning", person_id: 0, status: 6})
 
     send(view.pid, %{
       event: "delete",
@@ -120,7 +127,8 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "edit-item", %{conn: conn} do
-    {:ok, item} = Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+    {:ok, item} =
+      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
     {:ok, view, _html} = live(conn, "/")
 
@@ -129,11 +137,15 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "update an item", %{conn: conn} do
-    {:ok, item} = Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+    {:ok, item} =
+      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
     {:ok, view, _html} = live(conn, "/")
 
-    assert render_submit(view, "update-item", %{"id" => item.id, "text" => "Learn more Elixir"}) =~
+    assert render_submit(view, "update-item", %{
+             "id" => item.id,
+             "text" => "Learn more Elixir"
+           }) =~
              "Learn more Elixir"
 
     updated_item = Item.get_item!(item.id)
@@ -149,8 +161,46 @@ defmodule AppWeb.AppLiveTest do
     assert AppWeb.AppLive.timer_text(timer) == "04:20:42"
   end
 
+  test "filter items", %{conn: conn} do
+    {:ok, item} =
+      Item.create_item(%{text: "Item to do", person_id: 0, status: 2})
+
+    {:ok, item_done} =
+      Item.create_item(%{text: "Item done", person_id: 0, status: 4})
+
+    {:ok, item_archived} =
+      Item.create_item(%{text: "Item archived", person_id: 0, status: 6})
+
+    {:ok, view, _html} = live(conn, "/?filter_by=all")
+    assert render(view) =~ "Item to do"
+    assert render(view) =~ "Item done"
+    assert render(view) =~ "Item archived"
+
+    {:ok, view, _html} = live(conn, "/?filter_by=active")
+    assert render(view) =~ "Item to do"
+    refute render(view) =~ "Item done"
+    refute render(view) =~ "Item archived"
+
+    {:ok, view, _html} = live(conn, "/?filter_by=done")
+    refute render(view) =~ "Item to do"
+    assert render(view) =~ "Item done"
+    refute render(view) =~ "Item archived"
+
+    {:ok, view, _html} = live(conn, "/?filter_by=archived")
+    refute render(view) =~ "Item to do"
+    refute render(view) =~ "Item done"
+    assert render(view) =~ "Item archived"
+  end
+
   test "get / with valid JWT", %{conn: conn} do
-    data = %{email: "test@dwyl.com", givenName: "Alex", picture: "this", auth_provider: "GitHub", id: 2}
+    data = %{
+      email: "test@dwyl.com",
+      givenName: "Alex",
+      picture: "this",
+      auth_provider: "GitHub",
+      id: 2
+    }
+
     jwt = AuthPlug.Token.generate_jwt!(data)
 
     {:ok, view, _html} = live(conn, "/?jwt=#{jwt}")
@@ -158,7 +208,14 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "Logout link displayed when loggedin", %{conn: conn} do
-    data = %{email: "test@dwyl.com", givenName: "Alex", picture: "this", auth_provider: "GitHub", id: 2}
+    data = %{
+      email: "test@dwyl.com",
+      givenName: "Alex",
+      picture: "this",
+      auth_provider: "GitHub",
+      id: 2
+    }
+
     jwt = AuthPlug.Token.generate_jwt!(data)
 
     conn = get(conn, "/?jwt=#{jwt}")

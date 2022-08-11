@@ -17,7 +17,12 @@ defmodule AppWeb.AppLive do
   # assign default values to socket:
   defp assign_socket(socket) do
     person_id = get_person_id(socket.assigns)
-    assign(socket, items: Item.items_with_timers(person_id), active: %Item{}, editing: nil)
+
+    assign(socket,
+      items: Item.items_with_timers(person_id),
+      active: %Item{},
+      editing: nil
+    )
   end
 
   @impl true
@@ -64,6 +69,7 @@ defmodule AppWeb.AppLive do
   def handle_event("start", data, socket) do
     item = Item.get_item!(Map.get(data, "id"))
     person_id = get_person_id(socket.assigns)
+
     {:ok, _timer} =
       Timer.start(%{
         item_id: item.id,
@@ -120,7 +126,9 @@ defmodule AppWeb.AppLive do
   end
 
   # Check for status 4 (:done)
+  def active?(item), do: item.status == 2
   def done?(item), do: item.status == 4
+  def archived?(item), do: item.status == 6
 
   # Check if an item has an active timer
   def started?(item) do
@@ -142,7 +150,6 @@ defmodule AppWeb.AppLive do
     |> DateTime.to_unix(:millisecond)
   end
 
-
   # Elixir implementation of `timer_text/2`
   def leftPad(val) do
     if val < 10, do: "0#{to_string(val)}", else: val
@@ -155,32 +162,60 @@ defmodule AppWeb.AppLive do
       diff = timestamp(item.stop) - timestamp(item.start)
 
       # seconds
-      s = if diff > 1000 do
-        s = diff / 1000 |> trunc()
-        s = if s > 60, do: Integer.mod(s, 60), else: s
-        leftPad(s)
-      else
-      "00"
-      end
+      s =
+        if diff > 1000 do
+          s = (diff / 1000) |> trunc()
+          s = if s > 60, do: Integer.mod(s, 60), else: s
+          leftPad(s)
+        else
+          "00"
+        end
 
       # minutes
-      m = if diff > 60000 do
-        m = diff / 60000 |> trunc()
-        m = if m > 60, do: Integer.mod(m, 60), else: m
-        leftPad(m)
-      else
-        "00"
-      end
+      m =
+        if diff > 60000 do
+          m = (diff / 60000) |> trunc()
+          m = if m > 60, do: Integer.mod(m, 60), else: m
+          leftPad(m)
+        else
+          "00"
+        end
 
       # hours
-      h = if diff > 3600000 do
-        h = diff / 3600000 |> trunc()
-        leftPad(h)
-      else
-        "00"
-      end
+      h =
+        if diff > 3_600_000 do
+          h = (diff / 3_600_000) |> trunc()
+          leftPad(h)
+        else
+          "00"
+        end
 
       "#{h}:#{m}:#{s}"
+    end
+  end
+
+  # Filter element by status (all, active, archived)
+  # see https://hexdocs.pm/phoenix_live_view/live-navigation.html
+  @impl true
+  def handle_params(params, _uri, socket) do
+    person_id = get_person_id(socket.assigns)
+    items = Item.all_items_with_timers(person_id)
+
+    case params["filter_by"] do
+      "active" ->
+        items = Enum.filter(items, &active?(&1))
+        {:noreply, assign(socket, items: items)}
+
+      "done" ->
+        items = Enum.filter(items, &done?(&1))
+        {:noreply, assign(socket, items: items)}
+
+      "archived" ->
+        items = Enum.filter(items, &archived?(&1))
+        {:noreply, assign(socket, items: items)}
+
+      _ ->
+        {:noreply, assign(socket, items: items)}
     end
   end
 end

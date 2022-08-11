@@ -85,9 +85,10 @@ With that in place, let's get building!
   - [8.1 Update the `root` layout/template](#81-update-the-root-layouttemplate)
   - [8.2 Create the `icons` template](#82-create-the-icons-template)
 - [9. Update the `LiveView` Template](#9-update-the-liveview-template)
-- [10. Run the _Finished_ MVP App!](#10-run-the-finished-mvp-app)
-  - [10.1 Run the Tests](#101-run-the-tests)
-  - [10.2 Run The App](#102-run-the-app)
+- [10. Filter Items](#10-filter-items)
+- [11. Run the _Finished_ MVP App!](#10-run-the-finished-mvp-app)
+  - [11.1 Run the Tests](#101-run-the-tests)
+  - [11.2 Run The App](#102-run-the-app)
 - [Thanks!](#thanks)
 
 
@@ -2081,11 +2082,177 @@ The bulk of the App is containted in this one template file. <br />
 Work your way through it and if anything is unclear,
 let us know!
 
-# 10. Run the _Finished_ MVP App!
+# Filter Items
+
+On this section we want to add LiveView links to filter items by status.
+We first update the template to add the following footer:
+
+
+```html
+<footer>
+  <div class="flex flex-row justify-center p-2">
+    <div class="px-8"><%= live_patch "All", to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: "all"} ) %></div> 
+    <div class="px-8"><%= live_patch "Active", to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: "active"} ) %></div> 
+    <div class="px-8"><%= live_patch "Done", to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: "done"} ) %></div> 
+    <div class="px-8"><%= live_patch "Archived", to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: "archived"} ) %></div> 
+  </div>
+</footer>
+<script>
+...
+```
+
+
+We are creating four `live_patch` links: "All", "Active", "Done" and "Archived".
+When a linked is clicked `LiveView` will search for the `handle_params` function
+in our `AppWeb.AppLive` module. Let's add this function:
+
+```elixir
+  # Filter element by status (all, active, archived)
+  # see https://hexdocs.pm/phoenix_live_view/live-navigation.html
+  @impl true
+  def handle_params(params, _uri, socket) do
+    person_id = get_person_id(socket.assigns)
+    items = Item.all_items_with_timers(person_id)
+
+    case params["filter_by"] do
+      "active" ->
+        items = Enum.filter(items, &active?(&1))
+        {:noreply, assign(socket, items: items)}
+
+      "done" ->
+        items = Enum.filter(items, &done?(&1))
+        {:noreply, assign(socket, items: items)}
+
+      "archived" ->
+        items = Enum.filter(items, &archived?(&1))
+        {:noreply, assign(socket, items: items)}
+
+      _ ->
+        {:noreply, assign(socket, items: items)}
+    end
+  end
+```
+
+For each of the possible filters the function assigns to the socket the filterd
+list of items. Similar to our `done?` function we have created the `active?` and
+`archived?` functions which check the status value of an item:
+
+```elixir
+  def active?(item), do: item.status == 2
+  def done?(item), do: item.status == 4
+  def archived?(item), do: item.status == 6
+```
+
+Finally we have created the `Item.all_items_with_timers(person_id)` function
+which returns all the list of items for a user:
+
+```elixir
+  def all_items_with_timers(person_id \\ 0) do
+    sql = """
+    SELECT i.id, i.text, i.status, i.person_id, t.start, t.stop, t.id as timer_id FROM items i
+    FULL JOIN timers as t ON t.item_id = i.id
+    WHERE i.person_id = $1 AND i.status IS NOT NULL
+    ORDER BY timer_id ASC;
+    """
+
+    Ecto.Adapters.SQL.query!(Repo, sql, [person_id])
+    |> map_columns_to_values()
+    |> accumulate_item_timers()
+  end
+```
+
+Now that we have the new filtered list of items assigned to the socket, we need
+to make sure `archived` items are displayed. Let's update our template with:
+
+```html
+  <!-- List of items with inline buttons and controls -->
+  <ul class="w-full">
+    <%= for item <- @items do %>
+    <li data-id={item.id} class="mt-2 flex w-full border-t border-slate-200 py-2">
+
+      <%= if archived?(item) do %>
+        <input type="checkbox" phx-value-id={item.id} phx-click="toggle"
+          class="flex-none p-4 m-2 form-checkbox text-slate-400 cursor-not-allowed" 
+          checked disabled />
+        <label class="w-full text-slate-400  m-2 line-through">
+          <%= item.text %>
+        </label>
+
+        <div class="flex flex-col">
+        <div class="flex flex-col justify-end mr-1">
+          <button disabled class="cursor-not-allowed inline-flex items-center px-2 py-1 mr-2 h-9
+          bg-gray-200 text-gray-800 rounded-md">
+            <svg xmlns="http://www.w3.org/2000/svg" 
+              class="h-5 w-5 mr-2" fill="none" 
+              viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+            </svg>
+            Archived
+          </button>
+        </div>
+      </div>
+
+
+      <% else %>
+      <!-- if item is "done" (status: 4) strike-through and show "Archive" button -->
+      <%= if done?(item) do %>
+      ...
+```
+
+For each items we first check if the status is `archived`.
+If it is we then displayed the checkbox checked and disabled and we also displayed
+an `arhived` disabled button to make it obvious the item is archived.
+
+
+Finally we can add the following test to make sure our filtering feature is working
+as we expect:
+
+```elixir
+  test "filter items", %{conn: conn} do
+    {:ok, item} =
+      Item.create_item(%{text: "Item to do", person_id: 0, status: 2})
+
+    {:ok, item_done} =
+      Item.create_item(%{text: "Item done", person_id: 0, status: 4})
+
+    {:ok, item_archived} =
+      Item.create_item(%{text: "Item archived", person_id: 0, status: 6})
+
+    {:ok, view, _html} = live(conn, "/?filter_by=all")
+    assert render(view) =~ "Item to do"
+    assert render(view) =~ "Item done"
+    assert render(view) =~ "Item archived"
+
+    {:ok, view, _html} = live(conn, "/?filter_by=active")
+    assert render(view) =~ "Item to do"
+    refute render(view) =~ "Item done"
+    refute render(view) =~ "Item archived"
+
+    {:ok, view, _html} = live(conn, "/?filter_by=done")
+    refute render(view) =~ "Item to do"
+    assert render(view) =~ "Item done"
+    refute render(view) =~ "Item archived"
+
+    {:ok, view, _html} = live(conn, "/?filter_by=archived")
+    refute render(view) =~ "Item to do"
+    refute render(view) =~ "Item done"
+    assert render(view) =~ "Item archived"
+  end
+```
+
+We are creating 3 items and testing depeding on the filter selected that the 
+items are properly displayed and removed from the view.
+
+See also the [Live Navigation](https://hexdocs.pm/phoenix_live_view/live-navigation.html)
+Phoenix documentation for using `live_patch`
+
+
+# 11. Run the _Finished_ MVP App!
 
 With all the code saved, let's run the tests one more time.
 
-## 10.1 Run the Tests
+## 11.1 Run the Tests
 
 In your terminal window, run: 
 
@@ -2114,7 +2281,7 @@ COV    FILE                                        LINES RELEVANT   MISSED
 All tests pass and we have **`100%` Test Coverage**.
 This reminds us just how few _relevant_ lines of code there are in the MVP!
 
-## 10.2 Run The App
+## 11.2 Run The App
 
 In your second terminal tab/window, run:
 
