@@ -245,7 +245,7 @@
     <div class="px-8"><%= live_patch "All", to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: "all"} ) %></div> 
     <div class="px-8"><%= live_patch "Active", to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: "active"} ) %></div> 
     <div class="px-8"><%= live_patch "Done", to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: "done"} ) %></div> 
-    <div class="px-8"><%= live_patch "Archived", to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: "archived"} ) %></div> 
+    <div class="px-8"><%= live_patch "Archived", class: "bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded", to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: "archived"} ) %></div> 
   </div>
 </footer>
 
