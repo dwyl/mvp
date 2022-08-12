@@ -201,4 +201,12 @@ defmodule AppWeb.AppLive do
         items
     end
   end
+
+  def class_footer_link(filter_name, filter_selected) do
+    if filter_name == filter_selected do
+      "px-2 py-2 h-9 mr-1 bg-teal-500 text-white rounded-md"
+    else
+      "bg-transparent hover:bg-teal-500 text-teal-500 font-semibold hover:text-white py-2 px-4 border border-teal-500 hover:border-transparent rounded"
+    end
+  end
 end
