@@ -1,7 +1,13 @@
 <meta charset="utf-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 <meta http-equiv="Content-Security-Policy"
-      content="default-src 'self' cdnjs.cloudflare.com dwyl.com; img-src https://*; child-src 'none';">
+      content="
+        default-src 'self' dwyl.com https://*.cloudflare.com; 
+        img-src *; child-src 'none';
+        script-src 'self' https://cdnjs.cloudflare.com;
+        style-src 'self' css.example.com;
+        form-action 'self';
+      ">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="dwyl is a worldwide community of people using technology to solve real problems.">
 <meta name="robots" content="noarchive">
