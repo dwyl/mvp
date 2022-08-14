@@ -84,7 +84,7 @@ With that in place, let's get building!
 - [8. Implement the `LiveView` UI Template](#8-implement-the-liveview-ui-template)
   - [8.1 Update the `root` layout/template](#81-update-the-root-layouttemplate)
   - [8.2 Create the `icons` template](#82-create-the-icons-template)
-- [9. Update the `LiveView` Tempalte](#9-update-the-liveview-tempalte)
+- [9. Update the `LiveView` Template](#9-update-the-liveview-template)
 - [Filter Items](#filter-items)
 - [11. Run the _Finished_ MVP App!](#11-run-the-finished-mvp-app)
   - [11.1 Run the Tests](#111-run-the-tests)
@@ -1847,7 +1847,7 @@ hence creating a partial to hide it from the root layout.
 Finally ...
 
 
-# 9. Update the `LiveView` Tempalte
+# 9. Update the `LiveView` Template
 
 Open the `app_live.html.heex` 
 file and replace the contents 
