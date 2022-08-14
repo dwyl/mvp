@@ -95,16 +95,13 @@ defmodule AppWeb.AppLive do
   @impl true
   def handle_info(%{event: "update", payload: %{items: _items}}, socket) do
     person_id = get_person_id(socket.assigns)
-
-    items =
-      Item.items_with_timers(person_id)
-      |> filter_items(socket.assigns.filter)
+    items = Item.items_with_timers(person_id)
 
     {:noreply, assign(socket, items: items)}
   end
 
   # only show certain UI elements (buttons) if there are items:
-  def has_items?(items), do: length(items) > 0
+  def has_items?(items), do: length(items) > 1
 
   # 2: uncategorised (when item are created), 3: active
   def active?(item), do: item.status == 2 || item.status == 3
@@ -180,11 +177,8 @@ defmodule AppWeb.AppLive do
   @impl true
   def handle_params(params, _uri, socket) do
     person_id = get_person_id(socket.assigns)
+    items = Item.items_with_timers(person_id)
     filter = params["filter_by"] || socket.assigns.filter
-
-    items =
-      Item.items_with_timers(person_id)
-      |> filter_items(filter)
 
     {:noreply, assign(socket, items: items, filter: filter)}
   end
