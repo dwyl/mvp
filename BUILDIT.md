@@ -1629,7 +1629,7 @@ defmodule AppWeb.AppLive do
     person_id = get_person_id(socket.assigns)
 
     items =
-      Item.all_items_with_timers(person_id)
+      Item.items_with_timers(person_id)
       |> filter_items(socket.assigns.filter)
 
     {:noreply, assign(socket, items: items)}
@@ -1712,7 +1712,7 @@ defmodule AppWeb.AppLive do
     filter = params["filter_by"] || socket.assigns.filter
 
     items =
-      Item.all_items_with_timers(person_id)
+      Item.items_with_timers(person_id)
       |> filter_items(filter)
 
     {:noreply, assign(socket, items: items, filter: filter)}
@@ -2145,7 +2145,7 @@ in our `AppWeb.AppLive` module. Let's add this function:
     filter = params["filter_by"] || socket.assigns.filter
 
     items =
-      Item.all_items_with_timers(person_id)
+      Item.items_with_timers(person_id)
       |> filter_items(filter)
 
     {:noreply, assign(socket, items: items, filter: filter)}
@@ -2176,24 +2176,6 @@ list of items. Similar to our `done?` function we have created the `active?` and
   def active?(item), do: item.status == 2 || items.status == 3
   def done?(item), do: item.status == 4
   def archived?(item), do: item.status == 6
-```
-
-Finally we have created the `Item.all_items_with_timers(person_id)` function
-which returns all the list of items for a user:
-
-```elixir
-  def all_items_with_timers(person_id \\ 0) do
-    sql = """
-    SELECT i.id, i.text, i.status, i.person_id, t.start, t.stop, t.id as timer_id FROM items i
-    FULL JOIN timers as t ON t.item_id = i.id
-    WHERE i.person_id = $1 AND i.status IS NOT NULL
-    ORDER BY timer_id ASC;
-    """
-
-    Ecto.Adapters.SQL.query!(Repo, sql, [person_id])
-    |> map_columns_to_values()
-    |> accumulate_item_timers()
-  end
 ```
 
 Now that we have the new filtered list of items assigned to the socket, we need
