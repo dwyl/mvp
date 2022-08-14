@@ -1,4 +1,4 @@
-<div class="h-90 w-full font-sans">
+<main class="h-90 w-full font-sans">
   <form phx-submit="create" class="w-full lg:w-3/4 lg:max-w-lg text-center mx-auto">
 
     <!-- textarea so that we can have multi-line capturing 
@@ -251,7 +251,7 @@
     </li>
     <% end %><!-- end for item <- @items -->
   </ul>
-</div>
+</main>
 
 <footer class="mt-2">
   <%= if has_items?(@items) do %>
