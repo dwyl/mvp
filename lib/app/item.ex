@@ -114,19 +114,6 @@ defmodule App.Item do
     sql = """
     SELECT i.id, i.text, i.status, i.person_id, t.start, t.stop, t.id as timer_id FROM items i
     FULL JOIN timers as t ON t.item_id = i.id
-    WHERE i.person_id = $1 AND i.status IS NOT NULL AND i.status != 6
-    ORDER BY timer_id ASC;
-    """
-
-    Ecto.Adapters.SQL.query!(Repo, sql, [person_id])
-    |> map_columns_to_values()
-    |> accumulate_item_timers()
-  end
-
-  def all_items_with_timers(person_id \\ 0) do
-    sql = """
-    SELECT i.id, i.text, i.status, i.person_id, t.start, t.stop, t.id as timer_id FROM items i
-    FULL JOIN timers as t ON t.item_id = i.id
     WHERE i.person_id = $1 AND i.status IS NOT NULL
     ORDER BY timer_id ASC;
     """

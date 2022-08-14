@@ -97,11 +97,14 @@ defmodule AppWeb.AppLive do
     person_id = get_person_id(socket.assigns)
 
     items =
-      Item.all_items_with_timers(person_id)
+      Item.items_with_timers(person_id)
       |> filter_items(socket.assigns.filter)
 
     {:noreply, assign(socket, items: items)}
   end
+
+  # only show certain UI elements (buttons) if there are items:
+  def has_items?(items), do: length(items) > 0
 
   # 2: uncategorised (when item are created), 3: active
   def active?(item), do: item.status == 2 || item.status == 3
@@ -172,7 +175,7 @@ defmodule AppWeb.AppLive do
     end
   end
 
-  # Filter element by status (all, active, archived)
+  # Filter element by status (active, archived & done; default: all)
   # see https://hexdocs.pm/phoenix_live_view/live-navigation.html
   @impl true
   def handle_params(params, _uri, socket) do
@@ -180,7 +183,7 @@ defmodule AppWeb.AppLive do
     filter = params["filter_by"] || socket.assigns.filter
 
     items =
-      Item.all_items_with_timers(person_id)
+      Item.items_with_timers(person_id)
       |> filter_items(filter)
 
     {:noreply, assign(socket, items: items, filter: filter)}
@@ -206,7 +209,11 @@ defmodule AppWeb.AppLive do
     if filter_name == filter_selected do
       "px-2 py-2 h-9 mr-1 bg-teal-500 text-white rounded-md"
     else
-      "bg-transparent hover:bg-teal-500 text-teal-500 font-semibold hover:text-white py-2 px-4 border border-teal-500 hover:border-transparent rounded"
+      """
+      py-2 px-4 bg-transparent font-semibold
+      border rounded border-teal-500 text-teal-500
+      hover:text-white hover:bg-teal-500 hover:border-transparent
+      """
     end
   end
 end

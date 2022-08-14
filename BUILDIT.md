@@ -70,7 +70,7 @@ With that in place, let's get building!
 - [4. Create `Timer`](#4-create-timer)
   - [Make `timer` tests pass](#make-timer-tests-pass)
 - [5. `items` with `timers`](#5-items-with-timers)
-  - [5.1 Test for `accummulate_item_timers/1`](#51-test-for-accummulate_item_timers1)
+  - [5.1 Test for `accumulate_item_timers/1`](#51-test-for-accumulate_item_timers1)
   - [5.2 Implement the `accummulate_item_timers/1` function](#52-implement-the-accummulate_item_timers1-function)
   - [5.3 Test for `items_with_timers/1`](#53-test-for-items_with_timers1)
   - [5.4 Implement `items_with_timers/1`](#54-implement-items_with_timers1)
@@ -84,11 +84,11 @@ With that in place, let's get building!
 - [8. Implement the `LiveView` UI Template](#8-implement-the-liveview-ui-template)
   - [8.1 Update the `root` layout/template](#81-update-the-root-layouttemplate)
   - [8.2 Create the `icons` template](#82-create-the-icons-template)
-- [9. Update the `LiveView` Template](#9-update-the-liveview-template)
-- [10. Filter Items](#10-filter-items)
-- [11. Run the _Finished_ MVP App!](#10-run-the-finished-mvp-app)
-  - [11.1 Run the Tests](#101-run-the-tests)
-  - [11.2 Run The App](#102-run-the-app)
+- [9. Update the `LiveView` Tempalte](#9-update-the-liveview-tempalte)
+- [Filter Items](#filter-items)
+- [11. Run the _Finished_ MVP App!](#11-run-the-finished-mvp-app)
+  - [11.1 Run the Tests](#111-run-the-tests)
+  - [11.2 Run The App](#112-run-the-app)
 - [Thanks!](#thanks)
 
 
@@ -2115,6 +2115,7 @@ We first update the template to add the following footer:
 
 
 ```html
+<%= if has_items?(@items) do %>
 <footer>
   <div class="flex flex-row justify-center p-2 border-t">
     <div class="px-8 py-2"><%= live_patch "All", to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: "all"}), class: class_footer_link("all", @filter)  %></div> 
@@ -2123,6 +2124,7 @@ We first update the template to add the following footer:
     <div class="px-8 py-2"><%= live_patch "Archived", to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: "archived"} ), class: class_footer_link("archived", @filter) %></div> 
   </div>
 </footer>
+<% end %>
 <script>
 ...
 ```
@@ -2133,6 +2135,10 @@ When a linked is clicked `LiveView` will search for the `handle_params` function
 in our `AppWeb.AppLive` module. Let's add this function:
 
 ```elixir
+  # only show certain UI elements (buttons) if there are items:
+  def has_items?(items), do: length(items) > 1
+
+
   @impl true
   def handle_params(params, _uri, socket) do
     person_id = get_person_id(socket.assigns)
