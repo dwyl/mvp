@@ -3,10 +3,11 @@
 <meta http-equiv="Content-Security-Policy"
       content="
         default-src 'self' dwyl.com https://*.cloudflare.com; 
+        connect-src 'self';
+        form-action 'self';
         img-src *; child-src 'none';
         script-src 'self' https://cdnjs.cloudflare.com 'unsafe-eval' 'unsafe-inline';
         style-src 'self' css.example.com;
-        form-action 'self';
       ">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="dwyl is a worldwide community of people using technology to solve real problems.">
