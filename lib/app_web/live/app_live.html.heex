@@ -75,9 +75,14 @@
       <% else %>
       <!-- if item is "done" (status: 4) strike-through and show "Archive" button -->
       <%= if done?(item) do %>
-        <input type="checkbox" phx-value-id={item.id} phx-click="toggle"
-          class="flex-none p-4 m-2 form-checkbox text-slate-400" 
-          checked />
+        <label>
+          <div class="invisible">
+          Toggle the checkbox to set an item's status to done.
+          </div>
+          <input type="checkbox" phx-value-id={item.id} phx-click="toggle"
+            class="flex-none p-4 m-2 form-checkbox text-slate-400" 
+            checked />
+        </label>
         <label class="w-full text-slate-400  m-2 line-through">
           <%= item.text %>
         </label>
