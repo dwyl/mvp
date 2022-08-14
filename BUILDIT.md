@@ -1628,9 +1628,7 @@ defmodule AppWeb.AppLive do
   def handle_info(%{event: "update", payload: %{items: _items}}, socket) do
     person_id = get_person_id(socket.assigns)
 
-    items =
-      Item.items_with_timers(person_id)
-      |> filter_items(socket.assigns.filter)
+    items = Item.items_with_timers(person_id)
 
     {:noreply, assign(socket, items: items)}
   end
@@ -1711,9 +1709,7 @@ defmodule AppWeb.AppLive do
     person_id = get_person_id(socket.assigns)
     filter = params["filter_by"] || socket.assigns.filter
 
-    items =
-      Item.items_with_timers(person_id)
-      |> filter_items(filter)
+    items = Item.items_with_timers(person_id)
 
     {:noreply, assign(socket, items: items, filter: filter)}
   end
