@@ -14,32 +14,21 @@ defmodule AppWeb.AppLive do
     end
   end
 
-  # assign default values to socket:
-  defp assign_socket(socket) do
-    person_id = get_person_id(socket.assigns)
-
-    assign(socket,
-      items: Item.items_with_timers(person_id),
-      active: %Item{},
-      editing: nil
-    )
-  end
-
   @impl true
   def mount(_params, _session, socket) do
     # subscribe to the channel
     if connected?(socket), do: AppWeb.Endpoint.subscribe(@topic)
-    {:ok, assign_socket(socket)}
+    # we load the items in the `handle_params` function which is called
+    # after mount is finished
+    {:ok, assign(socket, items: [], editing: nil, filter: "active")}
   end
 
   @impl true
   def handle_event("create", %{"text" => text}, socket) do
     person_id = get_person_id(socket.assigns)
     Item.create_item(%{text: text, person_id: person_id, status: 2})
-    # IO.inspect(socket.assigns, label: "handle_event create socket.assigns")
-    socket = assign_socket(socket)
 
-    AppWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
+    AppWeb.Endpoint.broadcast(@topic, "update", socket.assigns)
     {:noreply, socket}
   end
 
@@ -52,16 +41,15 @@ defmodule AppWeb.AppLive do
     item = Item.get_item!(Map.get(data, "id"))
     Item.update_item(item, %{status: status})
     Timer.stop_timer_for_item_id(item.id)
-    socket = assign_socket(socket)
-    AppWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
+
+    AppWeb.Endpoint.broadcast(@topic, "update", socket.assigns)
     {:noreply, socket}
   end
 
   @impl true
   def handle_event("delete", %{"id" => item_id}, socket) do
     Item.delete_item(item_id)
-    socket = assign_socket(socket)
-    AppWeb.Endpoint.broadcast_from(self(), @topic, "delete", socket.assigns)
+    AppWeb.Endpoint.broadcast(@topic, "update", socket.assigns)
     {:noreply, socket}
   end
 
@@ -77,9 +65,7 @@ defmodule AppWeb.AppLive do
         start: NaiveDateTime.utc_now()
       })
 
-    socket = assign_socket(socket)
-
-    AppWeb.Endpoint.broadcast_from(self(), @topic, "start|stop", socket.assigns)
+    AppWeb.Endpoint.broadcast(@topic, "update", socket.assigns)
     {:noreply, socket}
   end
 
@@ -87,9 +73,8 @@ defmodule AppWeb.AppLive do
   def handle_event("stop", data, socket) do
     timer_id = Map.get(data, "timerid")
     {:ok, _timer} = Timer.stop(%{id: timer_id})
-    socket = assign_socket(socket)
 
-    AppWeb.Endpoint.broadcast_from(self(), @topic, "start|stop", socket.assigns)
+    AppWeb.Endpoint.broadcast(@topic, "update", socket.assigns)
     {:noreply, socket}
   end
 
@@ -102,31 +87,24 @@ defmodule AppWeb.AppLive do
   def handle_event("update-item", %{"id" => item_id, "text" => text}, socket) do
     current_item = Item.get_item!(item_id)
     Item.update_item(current_item, %{text: text})
-    socket = assign_socket(socket)
-    AppWeb.Endpoint.broadcast_from(self(), @topic, "update", socket.assigns)
-    {:noreply, socket}
-  end
 
-  @impl true
-  def handle_info(
-        %{event: "start|stop", payload: %{items: _items}},
-        socket
-      ) do
-    {:noreply, assign_socket(socket)}
+    AppWeb.Endpoint.broadcast(@topic, "update", socket.assigns)
+    {:noreply, assign(socket, editing: nil)}
   end
 
   @impl true
   def handle_info(%{event: "update", payload: %{items: _items}}, socket) do
-    {:noreply, assign_socket(socket)}
+    person_id = get_person_id(socket.assigns)
+    items = Item.items_with_timers(person_id)
+
+    {:noreply, assign(socket, items: items)}
   end
 
-  @impl true
-  def handle_info(%{event: "delete", payload: %{items: _items}}, socket) do
-    {:noreply, assign_socket(socket)}
-  end
+  # only show certain UI elements (buttons) if there are items:
+  def has_items?(items), do: length(items) > 1
 
-  # Check for status 4 (:done)
-  def active?(item), do: item.status == 2
+  # 2: uncategorised (when item are created), 3: active
+  def active?(item), do: item.status == 2 || item.status == 3
   def done?(item), do: item.status == 4
   def archived?(item), do: item.status == 6
 
@@ -194,28 +172,42 @@ defmodule AppWeb.AppLive do
     end
   end
 
-  # Filter element by status (all, active, archived)
+  # Filter element by status (active, archived & done; default: all)
   # see https://hexdocs.pm/phoenix_live_view/live-navigation.html
   @impl true
   def handle_params(params, _uri, socket) do
     person_id = get_person_id(socket.assigns)
-    items = Item.all_items_with_timers(person_id)
+    items = Item.items_with_timers(person_id)
+    filter = params["filter_by"] || socket.assigns.filter
 
-    case params["filter_by"] do
+    {:noreply, assign(socket, items: items, filter: filter)}
+  end
+
+  defp filter_items(items, filter) do
+    case filter do
       "active" ->
-        items = Enum.filter(items, &active?(&1))
-        {:noreply, assign(socket, items: items)}
+        Enum.filter(items, &active?(&1))
 
       "done" ->
-        items = Enum.filter(items, &done?(&1))
-        {:noreply, assign(socket, items: items)}
+        Enum.filter(items, &done?(&1))
 
       "archived" ->
-        items = Enum.filter(items, &archived?(&1))
-        {:noreply, assign(socket, items: items)}
+        Enum.filter(items, &archived?(&1))
 
       _ ->
-        {:noreply, assign(socket, items: items)}
+        items
+    end
+  end
+
+  def class_footer_link(filter_name, filter_selected) do
+    if filter_name == filter_selected do
+      "px-2 py-2 h-9 mr-1 bg-teal-500 text-white rounded-md"
+    else
+      """
+      py-2 px-4 bg-transparent font-semibold
+      border rounded border-teal-500 text-teal-500
+      hover:text-white hover:bg-teal-500 hover:border-transparent
+      """
     end
   end
 end

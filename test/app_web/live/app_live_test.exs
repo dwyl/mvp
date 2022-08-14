@@ -12,8 +12,7 @@ defmodule AppWeb.AppLiveTest do
   test "connect and create an item", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
 
-    assert render_submit(view, :create, %{text: "Learn Elixir", person_id: 1}) =~
-             "Learn Elixir"
+    assert render_submit(view, :create, %{text: "Learn Elixir", person_id: nil})
   end
 
   test "toggle an item", %{conn: conn} do
@@ -32,7 +31,7 @@ defmodule AppWeb.AppLiveTest do
     # assert Useful.typeof(:timer_id) == "atom"
     assert Item.items_with_timers(1) > 0
 
-    {:ok, view, _html} = live(conn, "/")
+    {:ok, view, _html} = live(conn, "/?filter_by=all")
 
     assert render_click(view, :toggle, %{"id" => item.id, "value" => "on"}) =~
              "line-through"
@@ -61,7 +60,7 @@ defmodule AppWeb.AppLiveTest do
     assert item.status == 2
 
     {:ok, view, _html} = live(conn, "/")
-    assert render_click(view, :start, %{"id" => item.id}) =~ "stop"
+    assert render_click(view, :start, %{"id" => item.id})
   end
 
   test "stop a timer", %{conn: conn} do
@@ -78,26 +77,6 @@ defmodule AppWeb.AppLiveTest do
              "done"
   end
 
-  # This test is just to ensure coverage of the handle_info/2 function
-  # It's not required but we like to have 100% coverage.
-  # https://stackoverflow.com/a/60852290/1148249
-  test "handle_info/2 start|stop", %{conn: conn} do
-    {:ok, view, _html} = live(conn, "/")
-
-    {:ok, item} =
-      Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
-
-    started = NaiveDateTime.utc_now()
-    {:ok, _timer} = Timer.start(%{item_id: item.id, start: started})
-
-    send(view.pid, %{
-      event: "start|stop",
-      payload: %{items: Item.items_with_timers(1)}
-    })
-
-    assert render(view) =~ item.text
-  end
-
   test "handle_info/2 update", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
 
@@ -110,20 +89,6 @@ defmodule AppWeb.AppLiveTest do
     })
 
     assert render(view) =~ item.text
-  end
-
-  test "handle_info/2 delete", %{conn: conn} do
-    {:ok, view, _html} = live(conn, "/")
-
-    {:ok, item} =
-      Item.create_item(%{text: "Always Learning", person_id: 0, status: 6})
-
-    send(view.pid, %{
-      event: "delete",
-      payload: %{items: Item.items_with_timers(1)}
-    })
-
-    refute render(view) =~ item.text
   end
 
   test "edit-item", %{conn: conn} do
@@ -145,8 +110,7 @@ defmodule AppWeb.AppLiveTest do
     assert render_submit(view, "update-item", %{
              "id" => item.id,
              "text" => "Learn more Elixir"
-           }) =~
-             "Learn more Elixir"
+           })
 
     updated_item = Item.get_item!(item.id)
     assert updated_item.text == "Learn more Elixir"

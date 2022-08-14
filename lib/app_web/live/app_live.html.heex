@@ -44,7 +44,7 @@
 
   <!-- List of items with inline buttons and controls -->
   <ul class="w-full">
-    <%= for item <- @items do %>
+    <%= for item <- filter_items(@items, @filter) do %>
     <li data-id={item.id} class="mt-2 flex w-full border-t border-slate-200 py-2">
 
       
@@ -241,12 +241,14 @@
 </div>
 
 <footer>
-  <div class="flex flex-row justify-center p-2">
-    <div class="px-8"><%= live_patch "All", to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: "all"} ) %></div> 
-    <div class="px-8"><%= live_patch "Active", to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: "active"} ) %></div> 
-    <div class="px-8"><%= live_patch "Done", to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: "done"} ) %></div> 
-    <div class="px-8"><%= live_patch "Archived", to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: "archived"} ) %></div> 
+  <%= if has_items?(@items) do %>
+  <div class="flex flex-row justify-center p-1 border-t">
+    <div class="px-2 py-2"><%= live_patch "All", to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: "all"}), class: class_footer_link("all", @filter)  %></div> 
+    <div class="px-2 py-2"><%= live_patch "Active", to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: "active"}), class: class_footer_link("active",@filter)  %></div> 
+    <div class="px-2 py-2"><%= live_patch "Done", to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: "done"} ), class: class_footer_link("done", @filter) %></div> 
+    <div class="px-2 py-2"><%= live_patch "Archived", to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: "archived"} ), class: class_footer_link("archived", @filter) %></div> 
   </div>
+  <% end %>
 </footer>
 
 
