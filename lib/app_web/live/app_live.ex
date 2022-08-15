@@ -3,6 +3,7 @@ defmodule AppWeb.AppLive do
   alias App.{Item, Timer}
   # run authentication on mount
   on_mount AppWeb.AuthController
+  alias Phoenix.Socket.Broadcast
 
   @topic "live"
 
@@ -18,9 +19,10 @@ defmodule AppWeb.AppLive do
   def mount(_params, _session, socket) do
     # subscribe to the channel
     if connected?(socket), do: AppWeb.Endpoint.subscribe(@topic)
-    # we load the items in the `handle_params` function which is called
-    # after mount is finished
-    {:ok, assign(socket, items: [], editing: nil, filter: "active")}
+
+    person_id = get_person_id(socket.assigns)
+    items = Item.items_with_timers(person_id)
+    {:ok, assign(socket, items: items, editing: nil, filter: "active")}
   end
 
   @impl true
@@ -28,7 +30,7 @@ defmodule AppWeb.AppLive do
     person_id = get_person_id(socket.assigns)
     Item.create_item(%{text: text, person_id: person_id, status: 2})
 
-    AppWeb.Endpoint.broadcast(@topic, "update", socket.assigns)
+    AppWeb.Endpoint.broadcast(@topic, "update", :create)
     {:noreply, socket}
   end
 
@@ -42,14 +44,14 @@ defmodule AppWeb.AppLive do
     Item.update_item(item, %{status: status})
     Timer.stop_timer_for_item_id(item.id)
 
-    AppWeb.Endpoint.broadcast(@topic, "update", socket.assigns)
+    AppWeb.Endpoint.broadcast(@topic, "update", :toggle)
     {:noreply, socket}
   end
 
   @impl true
   def handle_event("delete", %{"id" => item_id}, socket) do
     Item.delete_item(item_id)
-    AppWeb.Endpoint.broadcast(@topic, "update", socket.assigns)
+    AppWeb.Endpoint.broadcast(@topic, "update", :delete)
     {:noreply, socket}
   end
 
@@ -65,7 +67,7 @@ defmodule AppWeb.AppLive do
         start: NaiveDateTime.utc_now()
       })
 
-    AppWeb.Endpoint.broadcast(@topic, "update", socket.assigns)
+    AppWeb.Endpoint.broadcast(@topic, "update", :start)
     {:noreply, socket}
   end
 
@@ -74,7 +76,7 @@ defmodule AppWeb.AppLive do
     timer_id = Map.get(data, "timerid")
     {:ok, _timer} = Timer.stop(%{id: timer_id})
 
-    AppWeb.Endpoint.broadcast(@topic, "update", socket.assigns)
+    AppWeb.Endpoint.broadcast(@topic, "update", :stop)
     {:noreply, socket}
   end
 
@@ -88,12 +90,12 @@ defmodule AppWeb.AppLive do
     current_item = Item.get_item!(item_id)
     Item.update_item(current_item, %{text: text})
 
-    AppWeb.Endpoint.broadcast(@topic, "update", socket.assigns)
+    AppWeb.Endpoint.broadcast(@topic, "update", :update)
     {:noreply, assign(socket, editing: nil)}
   end
 
   @impl true
-  def handle_info(%{event: "update", payload: %{items: _items}}, socket) do
+  def handle_info(%Broadcast{event: "update", payload: _message}, socket) do
     person_id = get_person_id(socket.assigns)
     items = Item.items_with_timers(person_id)
 
@@ -176,11 +178,9 @@ defmodule AppWeb.AppLive do
   # see https://hexdocs.pm/phoenix_live_view/live-navigation.html
   @impl true
   def handle_params(params, _uri, socket) do
-    person_id = get_person_id(socket.assigns)
-    items = Item.items_with_timers(person_id)
     filter = params["filter_by"] || socket.assigns.filter
 
-    {:noreply, assign(socket, items: items, filter: filter)}
+    {:noreply, assign(socket, filter: filter)}
   end
 
   defp filter_items(items, filter) do
