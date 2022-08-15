@@ -7,13 +7,7 @@ defmodule AppWeb.AppLive do
 
   @topic "live"
 
-  defp get_person_id(assigns) do
-    if Map.has_key?(assigns, :person) do
-      assigns.person.id
-    else
-      0
-    end
-  end
+  defp get_person_id(assigns), do: assigns[:person][:id] || 0
 
   @impl true
   def mount(_params, _session, socket) do
@@ -131,7 +125,7 @@ defmodule AppWeb.AppLive do
   end
 
   # Elixir implementation of `timer_text/2`
-  def leftPad(val) do
+  def left_pad(val) do
     if val < 10, do: "0#{to_string(val)}", else: val
   end
 
@@ -146,17 +140,17 @@ defmodule AppWeb.AppLive do
         if diff > 1000 do
           s = (diff / 1000) |> trunc()
           s = if s > 60, do: Integer.mod(s, 60), else: s
-          leftPad(s)
+          left_pad(s)
         else
           "00"
         end
 
       # minutes
       m =
-        if diff > 60000 do
-          m = (diff / 60000) |> trunc()
+        if diff > 60_000 do
+          m = (diff / 60_000) |> trunc()
           m = if m > 60, do: Integer.mod(m, 60), else: m
-          leftPad(m)
+          left_pad(m)
         else
           "00"
         end
@@ -165,7 +159,7 @@ defmodule AppWeb.AppLive do
       h =
         if diff > 3_600_000 do
           h = (diff / 3_600_000) |> trunc()
-          leftPad(h)
+          left_pad(h)
         else
           "00"
         end
