@@ -1,4 +1,4 @@
-<div class="h-90 w-full font-sans">
+<main class="h-90 w-full font-sans">
   <form phx-submit="create" class="w-full lg:w-3/4 lg:max-w-lg text-center mx-auto">
 
     <!-- textarea so that we can have multi-line capturing 
@@ -28,7 +28,7 @@
     <!-- https://tailwindcss.com/docs/justify-content#end -->
     <div class="flex justify-end mr-1">
       <button class="inline-flex items-center px-2 py-1 mt-1 h-9
-        bg-green-500 hover:bg-green-600 text-white rounded-md">
+        bg-green-700 hover:bg-green-800 text-white rounded-md">
         <svg xmlns="http://www.w3.org/2000/svg" 
           class="h-5 w-5 mr-2" fill="none" 
           viewBox="0 0 24 24" stroke="currentColor">
@@ -49,16 +49,20 @@
 
       
       <%= if archived?(item) do %>
-        <input type="checkbox" phx-value-id={item.id} phx-click="toggle"
-          class="flex-none p-4 m-2 form-checkbox text-slate-400 cursor-not-allowed" 
-          checked disabled />
-        <label class="w-full text-slate-400  m-2 line-through">
+        <label>
+          <div class="hidden">
+          Toggle the checkbox to set an item's status to done.
+          </div>
+          <input type="checkbox" checked phx-value-id={item.id} phx-click="toggle"
+            class="flex-none p-4 m-2 form-checkbox text-slate-400 cursor-not-allowed"/>
+        </label>
+        <label class="w-full text-slate-400 m-1 line-through">
           <%= item.text %>
         </label>
 
         <div class="flex flex-col">
         <div class="flex flex-col justify-end mr-1">
-          <button disabled class="cursor-not-allowed inline-flex items-center px-2 py-1 mr-2 h-9
+          <button disabled class="cursor-not-allowed inline-flex items-center px-2 py-1 h-9
           bg-gray-200 text-gray-800 rounded-md">
             <svg xmlns="http://www.w3.org/2000/svg" 
               class="h-5 w-5 mr-2" fill="none" 
@@ -75,9 +79,14 @@
       <% else %>
       <!-- if item is "done" (status: 4) strike-through and show "Archive" button -->
       <%= if done?(item) do %>
-        <input type="checkbox" phx-value-id={item.id} phx-click="toggle"
-          class="flex-none p-4 m-2 form-checkbox text-slate-400" 
-          checked />
+        <label>
+          <div class="hidden">
+          Toggle the checkbox to set an item's status to done.
+          </div>
+          <input type="checkbox" phx-value-id={item.id} phx-click="toggle"
+            class="flex-none p-4 m-2 form-checkbox text-slate-400" 
+            checked />
+        </label>
         <label class="w-full text-slate-400  m-2 line-through">
           <%= item.text %>
         </label>
@@ -107,9 +116,13 @@
       <!-- else render the buttons for start|stop timer -->
       <% else %>
         <!-- Show checkbox so the item can be marked as "done" -->
-        <input type="checkbox" phx-value-id={item.id} phx-click="toggle"
-          class="flex-none p-4 m-2 form-checkbox hover:text-slate-600" />
-
+        <label>
+          <div class="hidden">
+          Toggle the checkbox to set an item's status to done.
+          </div>
+          <input type="checkbox" phx-value-id={item.id} phx-click="toggle"
+            class="flex-none p-4 m-2 form-checkbox hover:text-slate-600" />
+        </label>
         <!-- Editing renders the textarea and "save" button - near identical (duplicate) code from above
           Help wanted DRY-ing this ... see: https://github.com/dwyl/app-mvp-phoenix/issues/105 -->
         <%= if item.id == @editing do %>
@@ -132,7 +145,7 @@
 
             <div class="flex justify-end mr-1">
               <button class="inline-flex items-center px-2 py-1 mt-1 h-9
-                bg-green-500 hover:bg-green-600 text-white rounded-md">
+                bg-green-700 hover:bg-green-800 text-white rounded-md">
                 <svg xmlns="http://www.w3.org/2000/svg" 
                   class="h-5 w-5 mr-2" fill="none" 
                   viewBox="0 0 24 24" stroke="currentColor">
@@ -160,7 +173,7 @@
               <div class="flex flex-col justify-end mr-1">
                 <!-- render "continue" button -->
                 <button phx-click="start" phx-value-id={item.id}
-                  class="inline-flex items-center px-2 py-2 h-9 mr-1
+                  class="inline-flex items-center px-2 py-2 h-9
                   bg-teal-600 hover:bg-teal-800 text-white rounded-md">
                   <svg xmlns="http://www.w3.org/2000/svg" 
                     class="h-5 w-5 mr-1" fill="none" 
@@ -221,7 +234,7 @@
           <!-- render start button -->
           <button phx-click="start" phx-value-id={item.id}
             class="inline-flex items-center px-2 py-2 h-9 mr-1
-            bg-teal-500 hover:bg-teal-700 text-white rounded-md">
+            bg-teal-700 hover:bg-teal-800 text-white rounded-md">
             <svg xmlns="http://www.w3.org/2000/svg" 
               class="h-5 w-5 mr-1" fill="none" 
               viewBox="0 0 24 24" stroke="currentColor">
@@ -238,9 +251,9 @@
     </li>
     <% end %><!-- end for item <- @items -->
   </ul>
-</div>
+</main>
 
-<footer>
+<footer class="mt-2">
   <%= if has_items?(@items) do %>
   <div class="flex flex-row justify-center p-1 border-t">
     <div class="px-2 py-2"><%= live_patch "All", to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: "all"}), class: class_footer_link("all", @filter)  %></div> 
