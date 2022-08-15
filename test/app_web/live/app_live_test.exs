@@ -2,6 +2,7 @@ defmodule AppWeb.AppLiveTest do
   use AppWeb.ConnCase
   alias App.{Item, Timer}
   import Phoenix.LiveViewTest
+  alias Phoenix.Socket.Broadcast
 
   test "disconnected and connected render", %{conn: conn} do
     {:ok, page_live, disconnected_html} = live(conn, "/")
@@ -83,9 +84,9 @@ defmodule AppWeb.AppLiveTest do
     {:ok, item} =
       Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
 
-    send(view.pid, %{
+    send(view.pid, %Broadcast{
       event: "update",
-      payload: %{items: Item.items_with_timers(1)}
+      payload: :create
     })
 
     assert render(view) =~ item.text
@@ -126,13 +127,13 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "filter items", %{conn: conn} do
-    {:ok, item} =
+    {:ok, _item} =
       Item.create_item(%{text: "Item to do", person_id: 0, status: 2})
 
-    {:ok, item_done} =
+    {:ok, _item_done} =
       Item.create_item(%{text: "Item done", person_id: 0, status: 4})
 
-    {:ok, item_archived} =
+    {:ok, _item_archived} =
       Item.create_item(%{text: "Item archived", person_id: 0, status: 6})
 
     {:ok, view, _html} = live(conn, "/?filter_by=all")
