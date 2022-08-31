@@ -14,8 +14,8 @@ And help us to ...
   <img src="https://user-images.githubusercontent.com/194400/65666966-b28dbd00-e036-11e9-9d11-1f5d3e22258e.png" width="500" alt="MVP Loop">
 </a>
 
-[![Build Status](https://img.shields.io/travis/com/dwyl/app-mvp/master?color=bright-green&style=flat-square)](https://travis-ci.org/dwyl/app-mvp)
-[![codecov.io](https://img.shields.io/codecov/c/github/dwyl/app-mvp/master.svg?style=flat-square)](https://codecov.io/github/dwyl/app-mvp?branch=master)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dwyl/mvp/Elixir%20CI?label=build&style=flat-square)
+[![codecov.io](https://img.shields.io/codecov/c/github/dwyl/mvp/main.svg?style=flat-square)](http://codecov.io/github/dwyl/mvp?branch=main)
 [![Hex.pm](https://img.shields.io/hexpm/v/elixir_auth_google?color=brightgreen&style=flat-square)](https://hex.pm/packages/elixir_auth_google)
 [![contributions welcome](https://img.shields.io/badge/feedback-welcome-brightgreen.svg?style=flat-square)](https://github.com/dwyl/app-mvp/issues)
 [![HitCount](https://hits.dwyl.com/dwyl/app-mvp.svg)](https://hits.dwyl.com/dwyl/app-mvp)
