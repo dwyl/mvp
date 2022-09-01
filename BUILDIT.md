@@ -1,8 +1,7 @@
 <div align="center">
 
 # Build Log 👩‍💻 
-[![Build Status](https://img.shields.io/travis/com/dwyl/app-mvp/master?color=bright-green&style=flat-square)](https://travis-ci.org/dwyl/app-mvp)
-
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dwyl/mvp/Elixir%20CI?label=build&style=flat-square)
 
 
 This is a log 
