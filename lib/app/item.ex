@@ -2,13 +2,15 @@ defmodule App.Item do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
-  alias App.Repo
+  alias App.{Repo, Tag, ItemTag}
   alias __MODULE__
 
   schema "items" do
     field :person_id, :integer
     field :status, :integer
     field :text, :string
+
+    many_to_many(:tags, Tag, join_through: ItemTag)
 
     timestamps()
   end
