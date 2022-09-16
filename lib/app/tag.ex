@@ -15,6 +15,6 @@ defmodule App.Tag do
   def changeset(tag, attrs) do
     tag
     |> cast(attrs, [:person_id, :text])
-    |> validate_required([:text])
+    |> validate_required([:person_id, :text])
   end
 end
