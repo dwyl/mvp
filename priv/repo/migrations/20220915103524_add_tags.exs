@@ -4,10 +4,11 @@ defmodule App.Repo.Migrations.AddTags do
   def change do
     create table(:tags) do
       add(:text, :string)
+      add(:person_id, :integer)
 
       timestamps()
     end
 
-    create(unique_index(:tags, ["lower(text)"]))
+    create(unique_index(:tags, ["lower(text)", :person_id]))
   end
 end
