@@ -16,5 +16,6 @@ defmodule App.Tag do
     tag
     |> cast(attrs, [:person_id, :text])
     |> validate_required([:person_id, :text])
+    |> unique_constraint([:person_id, :text])
   end
 end
