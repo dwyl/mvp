@@ -1,13 +1,13 @@
 defmodule AppWeb.AuthController do
   use AppWeb, :controller
-  import Phoenix.LiveView, only: [assign_new: 3]
+  import Phoenix.Component, only: [assign_new: 3]
 
   def on_mount(:default, _params, %{"jwt" => jwt} = _session, socket) do
-
-    claims = jwt
-    |> AuthPlug.Token.verify_jwt!()
-    |> AuthPlug.Helpers.strip_struct_metadata()
-    |> Useful.atomize_map_keys()
+    claims =
+      jwt
+      |> AuthPlug.Token.verify_jwt!()
+      |> AuthPlug.Helpers.strip_struct_metadata()
+      |> Useful.atomize_map_keys()
 
     socket =
       socket
