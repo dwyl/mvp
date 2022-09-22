@@ -2,13 +2,15 @@ defmodule App.Repo.Migrations.AddTags do
   use Ecto.Migration
 
   def change do
+    execute("CREATE EXTENSION IF NOT EXISTS citext")
+
     create table(:tags) do
-      add(:text, :string)
+      add(:text, :citext)
       add(:person_id, :integer)
 
       timestamps()
     end
 
-    create(unique_index(:tags, ["lower(text)", :person_id]))
+    create(unique_index(:tags, [:text, :person_id]))
   end
 end

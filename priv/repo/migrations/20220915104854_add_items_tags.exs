@@ -3,8 +3,8 @@ defmodule App.Repo.Migrations.AddItemsTags do
 
   def change do
     create table(:items_tags, primary_key: false) do
-      add(:item_id, references(:items, on_delete: :nilify_all))
-      add(:tag_id, references(:tags, on_delete: :nilify_all))
+      add(:item_id, references(:items, on_delete: :delete_all))
+      add(:tag_id, references(:tags, on_delete: :delete_all))
 
       timestamps()
     end

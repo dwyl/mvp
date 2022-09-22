@@ -2274,6 +2274,8 @@ Tags belong to a person (ie different user can create the same tag name).
 A person can't create tag duplicates (case insensitive).
 
 
+## 11.1 Migrations
+
 We first want to create a new `tags` table in our database.
 We can use the `mix ecto.gen.migration add_tags` command to create a new
 migration and then create manually a `App.Tag` schema, or we can directly use
@@ -2331,6 +2333,39 @@ The `"lower(text)"` function also makes sure the tags are case insensitive,
 for example if a tag `UI` has been created, the person then won't be able to create
 the `ui` tag.
 
+
+Another solution for case insensitive with Postgres is to use the
+`citext` extension. Update the migration with:
+
+```elixir
+
+  def change do
+    execute "CREATE EXTENSION IF NOT EXISTS citext"
+
+    create table(:tags) do
+      add(:person_id, :integer)
+      add(:text, :citext)
+
+      timestamps()
+    end
+
+    create(unique_index(:tags, [:text, :person_id]))
+  end
+```
+
+And that's all, Postgres will take care of checking the text value case-sensitivity
+for us.
+
+
+
+see also for some information about `lower` and `citext`:
+- https://hexdocs.pm/ecto/Ecto.Changeset.html#unique_constraint/3-case-sensitivity
+- https://elixirforum.com/t/case-insensitive-column-in-ecto/2062/5
+- https://www.postgresql.org/docs/current/citext.html
+- https://nandovieira.com/using-insensitive-case-columns-in-postgresql-with-citext
+
+
+
 In our `create_items_tags` migration, update the file with:
 
 ```elixir
@@ -2354,6 +2389,15 @@ item or a tag is deleted, we then remove the rows linked to this item/tag
 in the join table `items_tags`. However if for example an item is deleted the
 references in the join table will be removed but the tags linked to the deleted
 item won't be removed.
+
+The [`on_delete` values](https://hexdocs.pm/ecto_sql/Ecto.Migration.html#references/2-options)
+can be 
+- `:nothing` (default), Postgres raises an error if the deleted data is still linked in
+the join table
+- `:delete_all`, delete the data and the references in the join table
+- `:nilify_all`, delete the data and change the id to nil in the join table
+- `:restrict`, similar to `:nothing`, see https://stackoverflow.com/questions/60043008/when-to-use-nothing-or-restrict-for-on-delete-with-ecto
+
 
 - Finally we create a unique index on the `item_id` and `tag_id` fields to make
 sure that a same tag can't be added multiple times to an item.
@@ -2382,10 +2426,181 @@ Generated app app
 10:16:42.316 [info]  == Migrated 20220922091636 in 0.0s
 ```
 
-- [ ] upate tags schema
-- [ ] update itemTag schema attribute @noprimarykey otherwise inserting will failed
-- [ ] Tips: add .iex.exs file to automatically create alias when using `iex -S mix`
-- [ ] Create seeds file and Testing manually association and `on_delete`. ref stackoverflow 
+## 11.2 Schemas
+
+Now that our database is setup for tags, we can update our schemas.
+
+
+In `lib/app/tag.ex`, update the file to:
+
+
+```elixir
+defmodule App.Tag do
+  use Ecto.Schema
+  import Ecto.Changeset
+  alias App.{Item, ItemTag}
+
+  schema "tags" do
+    field :text, :string
+    field :person_id, :integer
+
+    many_to_many(:items, Item, join_through: ItemTag)
+    timestamps()
+  end
+
+  @doc false
+  def changeset(tag, attrs) do
+    tag
+    |> cast(attrs, [:person_id, :text])
+    |> validate_required([:person_id, :text])
+    |> unique_constraint([:person_id, :text])
+  end
+end
+
+```
+
+We have added the [many_to_many](https://hexdocs.pm/ecto/Ecto.Schema.html#many_to_many/3) function.
+We've also added in the `changeset` the [unique_constraint](https://hexdocs.pm/ecto/Ecto.Changeset.html#unique_constraint/3)
+for the `person_id` and `text` values.
+
+
+In `lib/app/item.ex`, add also the `many_to_many` function to the schema
+
+```elixir
+  schema "items" do
+    field :person_id, :integer
+    field :status, :integer
+    field :text, :string
+
+    many_to_many(:tags, Tag, join_through: ItemTag)
+
+    timestamps()
+  end
+```
+
+Finally  in `lib/app/item_tag.ex`:
+
+```elixir
+  @primary_key false
+  schema "items_tags" do
+    belongs_to(:item, Item)
+    belongs_to(:tag, Tag)
+
+    timestamps()
+  end
+```
+
+Because we have define our `items_tags` migration to not use the default `id`
+for the primary we want to reflect this change on the schema by using the
+[primary_key false](https://hexdocs.pm/ecto/Ecto.Schema.html#module-schema-attributes) 
+schema attribute.
+
+If we don't add this attribute if we attempt
+to insert or to get one of the `item_tag` value from the database,
+the query will fail as the schema will try to retreive the non existent `id` column.
+
+
+We also use the `belongs_to` function to define the association with the `Item` and
+`Tag` schemas.
+
+
+## 11.3 Test tags with Iex
+
+Let's use `iex` to create some items and tags and to check our constraints
+are working on the tags
+
+To make our life easier when using `iex` we're going to first create a `.iex.exs`
+file containing any aliases you want to have when starting a session:
+
+
+```elixir
+alias App.{Repo, Item, Tag, ItemTag}
+```
+
+So when running the Phoenix application `iex -S mix` you will have access
+directly to `Repo`, `Item`, `Tag` and `ItemTag`!
+see also: https://alchemist.camp/episodes/iex-exs
+
+
+
+now run `iex -S mix` and let's create a few items and tags:
+
+```sh
+item1 = Repo.insert!(%Item{person_id: 1, text: "item1"})
+item2 = Repo.insert!(%Item{person_id: 1, text: "item2"})
+
+tag1 = Repo.insert!(%Tag{person_id: 1, text: "Tag1"})
+tag2 = Repo.insert!(%Tag{person_id: 1, text: "Tag2"})
+```
+
+We've created two items and two tags, now if we attempt to create "tag1" with the
+same person id:
+
+```sh
+Repo.insert!(%Tag{person_id: 1, text: "tag1"})
+
+** (Ecto.ConstraintError) constraint error when attempting to insert struct:
+
+    * tags_text_person_id_index (unique_constraint)
+```
+
+We can see that the `citext` type is working as "Tag1" and "tag1" can't coexist.
+
+However if we change the person id we can still create the tag:
+
+```sh
+Repo.insert!(%Tag{person_id: 2, text: "tag1"})
+[debug] QUERY OK db=5.8ms queue=0.1ms idle=1767.0ms
+```
+
+We can manually link the tag and the item:
+
+```sh
+Repo.insert!{%ItemTag{item_id: item1.id, tag_id: tag1.id})
+Repo.delete(item1)
+Repo.all(ItemTag)
+```
+
+We are creating a link then we delete the item and finally we verify the list
+of `ItemTag` is empty. However if we check the list of tags we can see the tag
+with id 1 still exist
+
+Finally we can check that we can't add duplicate tags to an item:
+
+```sh
+Repo.insert!{%ItemTag{item_id: item2.id, tag_id: tag2.id})
+Repo.insert!{%ItemTag{item_id: item2.id, tag_id: tag2.id})
+** (Ecto.ConstraintError) constraint error when attempting to insert struct:
+
+    * items_tags_item_id_tag_id_index (unique_constraint)
+```
+
+
+Typing all of this in iex is a slow and if we want to add data to our database
+we can use the `priv/repo/seeds.exs` file:
+
+```elixir
+alias App.{Repo, Item, Tag, ItemTag}
+
+# reset
+Repo.delete_all(Item)
+Repo.delete_all(Tag)
+
+item1 = Repo.insert!(%Item{person_id: 1, text: "task1"})
+item2 = Repo.insert!(%Item{person_id: 1, text: "task2"})
+
+tag1 = Repo.insert!(%Tag{person_id: 1, text: "tag1"})
+tag2 = Repo.insert!(%Tag{person_id: 1, text: "tag2"})
+
+Repo.insert!(%ItemTag{item_id: item1.id, tag_id: tag1.id})
+Repo.insert!(%ItemTag{item_id: item1.id, tag_id: tag2.id})
+Repo.insert!(%ItemTag{item_id: item2.id, tag_id: tag2.id})
+```
+
+Then running `mix run priv/repo/seeds.exs` command will populate our database
+with our items and tags.
+
+## 11.4  Items, Tags association
 
 
 Learn more about Ecto with the guides documenation, especially the How to section: 
