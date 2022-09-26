@@ -48,7 +48,6 @@ defmodule App.Item do
   def create_item_with_tags(attrs) do
     %Item{}
     |> changeset_with_tags(attrs)
-    |> IO.inspect()
     |> Repo.insert()
   end
 

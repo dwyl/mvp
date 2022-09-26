@@ -13,7 +13,11 @@ defmodule AppWeb.AppLiveTest do
   test "connect and create an item", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
 
-    assert render_submit(view, :create, %{text: "Learn Elixir", person_id: nil})
+    assert render_submit(view, :create, %{
+             text: "Learn Elixir",
+             person_id: nil,
+             tags: ""
+           })
   end
 
   test "toggle an item", %{conn: conn} do

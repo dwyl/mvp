@@ -20,9 +20,15 @@ defmodule AppWeb.AppLive do
   end
 
   @impl true
-  def handle_event("create", %{"text" => text}, socket) do
+  def handle_event("create", %{"text" => text, "tags" => tags}, socket) do
     person_id = get_person_id(socket.assigns)
-    Item.create_item(%{text: text, person_id: person_id, status: 2})
+
+    Item.create_item_with_tags(%{
+      text: text,
+      person_id: person_id,
+      status: 2,
+      tags: tags
+    })
 
     AppWeb.Endpoint.broadcast(@topic, "update", :create)
     {:noreply, socket}
