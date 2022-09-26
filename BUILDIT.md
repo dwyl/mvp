@@ -2323,11 +2323,13 @@ In our `create_tags` migration, update the file to:
       timestamps()
     end
 
-    create(unique_index(:tags, ["lower(text)", :person_id]))
+    create(unique_index(:tags, ["lower(text)", :person_id], name: tags_text_person_id_index))
   end
 ```
 
 We have added a unique index on the fields `text` and `person_id`.
+We have specify the name `tags_text_person_id_index` to the index to make
+sure later one to use it in the `Tag` changeset.
 This means a person can't create duplicated tags.
 The `"lower(text)"` function also makes sure the tags are case insensitive,
 for example if a tag `UI` has been created, the person then won't be able to create
@@ -2349,7 +2351,7 @@ Another solution for case insensitive with Postgres is to use the
       timestamps()
     end
 
-    create(unique_index(:tags, [:text, :person_id]))
+    create(unique_index(:tags, [:text, :person_id], name: tags_text_person_id_index))
   end
 ```
 
@@ -2453,7 +2455,7 @@ defmodule App.Tag do
     tag
     |> cast(attrs, [:person_id, :text])
     |> validate_required([:person_id, :text])
-    |> unique_constraint([:person_id, :text])
+    |> unique_constraint([:person_id, :text], name: :tags_text_person_id_index)
   end
 end
 
@@ -2462,6 +2464,8 @@ end
 We have added the [many_to_many](https://hexdocs.pm/ecto/Ecto.Schema.html#many_to_many/3) function.
 We've also added in the `changeset` the [unique_constraint](https://hexdocs.pm/ecto/Ecto.Changeset.html#unique_constraint/3)
 for the `person_id` and `text` values.
+We have define the name of the unique contrtraint to match the one define 
+in our migration.
 
 
 In `lib/app/item.ex`, add also the `many_to_many` function to the schema
@@ -2599,6 +2603,11 @@ Repo.insert!(%ItemTag{item_id: item2.id, tag_id: tag2.id})
 
 Then running `mix run priv/repo/seeds.exs` command will populate our database
 with our items and tags.
+
+## 11.4 Testing Schemas
+
+
+ref: https://hexdocs.pm/phoenix/1.3.2/testing_schemas.html
 
 ## 11.4  Items, Tags association
 

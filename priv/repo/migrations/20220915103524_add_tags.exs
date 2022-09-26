@@ -11,6 +11,8 @@ defmodule App.Repo.Migrations.AddTags do
       timestamps()
     end
 
-    create(unique_index(:tags, [:text, :person_id]))
+    create(
+      unique_index(:tags, [:text, :person_id], name: :tags_text_person_id_index)
+    )
   end
 end
