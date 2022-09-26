@@ -36,5 +36,15 @@ defmodule App.TagTest do
       assert {:ok, _tag} = Tag.create_tag(@valid_attrs)
       assert {:error, _changeset} = Tag.create_tag(@valid_attrs)
     end
+
+    test "insert list of tag names" do
+      assert tags = Tag.create_tags(["tag1", "tag2", "tag3"], 1)
+      assert length(tags) == 3
+    end
+
+    test "returns empty list when attempting to insert empty list of tags" do
+      assert tags = Tag.create_tags([], 1)
+      assert length(tags) == 0
+    end
   end
 end

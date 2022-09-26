@@ -10,7 +10,7 @@ defmodule App.Item do
     field :status, :integer
     field :text, :string
 
-    many_to_many(:tags, Tag, join_through: ItemTag)
+    many_to_many(:tags, Tag, join_through: ItemTag, on_replace: :delete)
 
     timestamps()
   end
@@ -19,7 +19,12 @@ defmodule App.Item do
   def changeset(item, attrs) do
     item
     |> cast(attrs, [:person_id, :status, :text])
-    |> validate_required([:text])
+    |> validate_required([:text, :person_id])
+  end
+
+  def changeset_with_tags(item, attrs) do
+    changeset(item, attrs)
+    |> put_assoc(:tags, Tag.parse_and_create_tags(attrs))
   end
 
   @doc """
@@ -37,6 +42,13 @@ defmodule App.Item do
   def create_item(attrs) do
     %Item{}
     |> changeset(attrs)
+    |> Repo.insert()
+  end
+
+  def create_item_with_tags(attrs) do
+    %Item{}
+    |> changeset_with_tags(attrs)
+    |> IO.inspect()
     |> Repo.insert()
   end
 

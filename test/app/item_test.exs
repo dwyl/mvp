@@ -22,8 +22,7 @@ defmodule App.ItemTest do
     end
 
     test "create_item/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} =
-               Item.create_item(@invalid_attrs)
+      assert {:error, %Ecto.Changeset{}} = Item.create_item(@invalid_attrs)
     end
 
     test "list_items/0 returns a list of items stored in the DB" do
@@ -41,12 +40,26 @@ defmodule App.ItemTest do
     end
   end
 
+  describe "items with tags" do
+    @valid_attrs %{
+      text: "new item",
+      person_id: 1,
+      status: 2,
+      tags: "tag1, tag2, tag3"
+    }
+
+    test "get_item!/1 returns the item with given id" do
+      {:ok, item} = Item.create_item_with_tags(@valid_attrs)
+      assert length(item.tags) == 3
+    end
+  end
+
   describe "accumulate timers for a list of items #103" do
     test "accummulate_item_timers/1 to display cummulative timer" do
       # https://hexdocs.pm/elixir/1.13/NaiveDateTime.html#new/2
       # "Add" -7 seconds: https://hexdocs.pm/elixir/1.13/Time.html#add/3
       {:ok, seven_seconds_ago} =
-        NaiveDateTime.new(Date.utc_today, Time.add(Time.utc_now, -7))
+        NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
 
       items_with_timers = [
         %{
@@ -60,35 +73,40 @@ defmodule App.ItemTest do
           stop: ~N[2022-07-17 11:18:10.000000],
           id: 2,
           start: ~N[2022-07-17 11:18:00.000000],
-          text: "Item #2 has one active (no end) and one complete timer should total 17sec",
+          text:
+            "Item #2 has one active (no end) and one complete timer should total 17sec",
           timer_id: 3
         },
         %{
           stop: nil,
           id: 2,
           start: seven_seconds_ago,
-          text: "Item #2 has one active (no end) and one complete timer should total 17sec",
+          text:
+            "Item #2 has one active (no end) and one complete timer should total 17sec",
           timer_id: 4
         },
         %{
           stop: ~N[2022-07-17 11:18:31.000000],
           id: 1,
           start: ~N[2022-07-17 11:18:26.000000],
-          text: "Item with 3 complete timers that should add up to 42 seconds elapsed",
+          text:
+            "Item with 3 complete timers that should add up to 42 seconds elapsed",
           timer_id: 2
         },
         %{
           stop: ~N[2022-07-17 11:18:24.000000],
           id: 1,
           start: ~N[2022-07-17 11:18:18.000000],
-          text: "Item with 3 complete timers that should add up to 42 seconds elapsed",
+          text:
+            "Item with 3 complete timers that should add up to 42 seconds elapsed",
           timer_id: 1
         },
         %{
           stop: ~N[2022-07-17 11:19:42.000000],
           id: 1,
           start: ~N[2022-07-17 11:19:11.000000],
-          text: "Item with 3 complete timers that should add up to 42 seconds elapsed",
+          text:
+            "Item with 3 complete timers that should add up to 42 seconds elapsed",
           timer_id: 5
         }
       ]
@@ -105,6 +123,7 @@ defmodule App.ItemTest do
       assert NaiveDateTime.diff(item1.stop, item1.start) == 42
       # This is the fun one that we need to be 17 seconds:
       assert NaiveDateTime.diff(NaiveDateTime.utc_now(), item2.start) == 17
+
       # The diff will always be 17 seconds because we control the start in the test data above.
       # But we still get the function to calculate it so we know it works.
 
@@ -121,6 +140,7 @@ defmodule App.ItemTest do
 
       {:ok, timer1} =
         Timer.start(%{item_id: item1.id, person_id: 1, start: started})
+
       {:ok, _timer2} =
         Timer.start(%{item_id: item2.id, person_id: 1, start: started})
 
