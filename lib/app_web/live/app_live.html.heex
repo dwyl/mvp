@@ -45,7 +45,7 @@
 
   <!-- List of items with inline buttons and controls -->
   <ul class="w-full">
-    <%= for item <- filter_items(@items, @filter) do %>
+    <%= for item <- filter_items(@items, @filter, @filter_tag) do %>
     <li data-id={item.id} class="mt-2 flex w-full border-t border-slate-200 py-2">
 
       
@@ -252,7 +252,7 @@
     </li>
     <div class="ml-2">
       <%= for tag <- item.tags do %>
-        <span><%= tag.text %></span>
+        <%= live_patch tag.text, to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: @filter, filter_by_tag: tag.text}), class: "text-teal-600"  %>
       <% end %>
     </div>
     <% end %><!-- end for item <- @items -->

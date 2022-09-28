@@ -16,7 +16,14 @@ defmodule AppWeb.AppLive do
 
     person_id = get_person_id(socket.assigns)
     items = Item.items_with_timers(person_id)
-    {:ok, assign(socket, items: items, editing: nil, filter: "active")}
+
+    {:ok,
+     assign(socket,
+       items: items,
+       editing: nil,
+       filter: "active",
+       filter_tag: nil
+     )}
   end
 
   @impl true
@@ -180,22 +187,34 @@ defmodule AppWeb.AppLive do
   def handle_params(params, _uri, socket) do
     filter = params["filter_by"] || socket.assigns.filter
 
-    {:noreply, assign(socket, filter: filter)}
+    filter_tag = params["filter_by_tag"]
+
+    {:noreply, assign(socket, filter: filter, filter_tag: filter_tag)}
   end
 
-  defp filter_items(items, filter) do
-    case filter do
-      "active" ->
-        Enum.filter(items, &active?(&1))
+  defp filter_items(items, filter, filter_tag) do
+    items =
+      case filter do
+        "active" ->
+          Enum.filter(items, &active?(&1))
 
-      "done" ->
-        Enum.filter(items, &done?(&1))
+        "done" ->
+          Enum.filter(items, &done?(&1))
 
-      "archived" ->
-        Enum.filter(items, &archived?(&1))
+        "archived" ->
+          Enum.filter(items, &archived?(&1))
 
-      _ ->
-        items
+        _ ->
+          items
+      end
+
+    if not is_nil(filter_tag) do
+      items
+      |> Enum.filter(fn item ->
+        Enum.any?(item.tags, fn tag -> tag.text == filter_tag end)
+      end)
+    else
+      items
     end
   end
 
