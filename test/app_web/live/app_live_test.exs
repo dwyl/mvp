@@ -161,6 +161,40 @@ defmodule AppWeb.AppLiveTest do
     assert render(view) =~ "Item archived"
   end
 
+  test "filter items by tag name", %{conn: conn} do
+    {:ok, _item} =
+      Item.create_item_with_tags(%{
+        text: "Item1 to do",
+        person_id: 0,
+        status: 2,
+        tags: "tag1, tag2"
+      })
+
+    {:ok, _item} =
+      Item.create_item_with_tags(%{
+        text: "Item2 to do",
+        person_id: 0,
+        status: 2,
+        tags: "tag1, tag3"
+      })
+
+    {ok, view, _html} = live(conn, "/?filter_by=all")
+    assert render(view) =~ "Item1 to do"
+    assert render(view) =~ "Item2 to do"
+
+    {ok, view, _html} = live(conn, "/?filter_by=all&filter_by_tag=tag2")
+    assert render(view) =~ "Item1 to do"
+    refute render(view) =~ "Item2 to do"
+
+    {ok, view, _html} = live(conn, "/?filter_by=all&filter_by_tag=tag3")
+    refute render(view) =~ "Item1 to do"
+    assert render(view) =~ "Item2 to do"
+
+    {ok, view, _html} = live(conn, "/?filter_by=all&filter_by_tag=tag1")
+    assert render(view) =~ "Item1 to do"
+    assert render(view) =~ "Item2 to do"
+  end
+
   test "get / with valid JWT", %{conn: conn} do
     data = %{
       email: "test@dwyl.com",
