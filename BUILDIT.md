@@ -2270,7 +2270,7 @@ Phoenix documentation for using `live_patch`
 # 11. Tags
 
 In this section we're going to add tags to items.
-Tags belong to a person (ie different user can create the same tag name).
+Tags belong to a person (ie. different users can create the same tag name).
 A person can't create tag duplicates (case insensitive).
 
 
@@ -2328,8 +2328,8 @@ In our `create_tags` migration, update the file to:
 ```
 
 We have added a unique index on the fields `text` and `person_id`.
-We have specify the name `tags_text_person_id_index` to the index to make
-sure later one to use it in the `Tag` changeset.
+We have specified the name `tags_text_person_id_index` to the index to make
+sure later on to use it in the `Tag` changeset.
 This means a person can't create duplicated tags.
 The `"lower(text)"` function also makes sure the tags are case insensitive,
 for example if a tag `UI` has been created, the person then won't be able to create
@@ -2402,7 +2402,7 @@ the join table
 
 
 - Finally we create a unique index on the `item_id` and `tag_id` fields to make
-sure that a same tag can't be added multiple times to an item.
+sure that the same tag can't be added multiple times to an item.
 
 
 We can now run our migrations with `mix ecto.migrate`:
@@ -2464,7 +2464,7 @@ end
 We have added the [many_to_many](https://hexdocs.pm/ecto/Ecto.Schema.html#many_to_many/3) function.
 We've also added in the `changeset` the [unique_constraint](https://hexdocs.pm/ecto/Ecto.Changeset.html#unique_constraint/3)
 for the `person_id` and `text` values.
-We have define the name of the unique contrtraint to match the one define 
+We have defined the name of the unique constraint to match the one defined 
 in our migration.
 
 
@@ -2501,7 +2501,7 @@ schema attribute.
 
 If we don't add this attribute if we attempt
 to insert or to get one of the `item_tag` value from the database,
-the query will fail as the schema will try to retreive the non existent `id` column.
+the query will fail as the schema will try to retrieve the non existent `id` column.
 
 
 We also use the `belongs_to` function to define the association with the `Item` and
@@ -2606,13 +2606,36 @@ with our items and tags.
 
 ## 11.4 Testing Schemas
 
+We have just tested manually our schemas using Iex, we can also write tests,
+for example we can test the changeset for `Tag`:
 
-ref: https://hexdocs.pm/phoenix/1.3.2/testing_schemas.html
+```elixir
+  describe "Test constraints and requirements for Tag schema" do
+    test "valid tag changeset" do
+      changeset = Tag.changeset(%Tag{}, %{person_id: 1, text: "tag1"})
+      assert changeset.valid?
+    end
+
+    test "invalid tag changeset when person_id value missing" do
+      changeset = Tag.changeset(%Tag{}, %{text: "tag1"})
+      refute changeset.valid?
+    end
+
+    test "invalid tag changeset when text value missing" do
+      changeset = Tag.changeset(%Tag{}, %{person_id: 1})
+      refute changeset.valid?
+    end
+  end
+```
+
+
+see https://hexdocs.pm/phoenix/1.3.2/testing_schemas.html for more inforamtion
+about testing schemas.
 
 ## 11.4  Items-Tags association
 
-We want to create the tags at the same time the item is created.
-The tags are represented as string where tag values are seperated by comma:
+We want to create the tags at the same time as the item is created.
+The tags are represented as string where tag values are separated by comma:
 "tag1, tag2, ..."
 
 So we need first to parse the tags string value, create any new tags in Postgres,
@@ -2625,13 +2648,92 @@ We'll first update our `Item` schema to add the `on_replace` option to the
 many_to_many(:tags, Tag, join_through: ItemTag, on_replace: :delete)
 ```
 
-The `:delete` value will remove the association between the item and tags that
+The `:delete` value will remove any associations between the item and the tags that
 have been removed, see https://hexdocs.pm/ecto/Ecto.Schema.html#many_to_many/3.
 
 
+We now create a new changeset:
 
 
-Learn more about Ecto with the guides documenation, especially the How to section: 
+```elixir
+  def changeset_with_tags(item, attrs) do
+    changeset(item, attrs)
+    |> put_assoc(:tags, Tag.parse_and_create_tags(attrs))
+  end
+```
+
+The `put_assoc` creates the association between the item and the list of tags.
+
+The `Tag.parse_and_create_tags` function is defined as:
+
+```elixir
+  def parse_and_create_tags(attrs) do
+    (attrs[:tags] || "")
+    |> String.split(",")
+    |> Enum.map(&String.trim/1)
+    |> Enum.reject(&(&1 == ""))
+    |> create_tags(attrs[:person_id])
+  end
+  
+  def create_tag(attrs) do
+    %Tag{}
+    |> changeset(attrs)
+    |> Repo.insert()
+  end
+```
+
+The function makes to parse the tags properly by removing any unwanted value
+(ex: empty strings) then it called `create_tags`:
+
+```elixir
+  @spec create_tags(tag_name :: list(String.t()), person_id: integer) :: map()
+  def create_tags([], _person_id), do: []
+
+  def create_tags(tag_names, person_id) do
+    timestamp =
+      NaiveDateTime.utc_now()
+      |> NaiveDateTime.truncate(:second)
+
+    placeholders = %{timestamp: timestamp}
+
+    maps =
+      Enum.map(
+        tag_names,
+        &%{
+          text: &1,
+          person_id: person_id,
+          inserted_at: {:placeholder, :timestamp},
+          updated_at: {:placeholder, :timestamp}
+        }
+      )
+
+    Repo.insert_all(
+      Tag,
+      maps,
+      placeholders: placeholders,
+      on_conflict: :nothing
+    )
+
+    Repo.all(
+      from t in Tag, where: t.text in ^tag_names and t.person_id == ^person_id
+    )
+  end
+```
+
+This function uses `Repo.insert_all` to only send one request to insert all the tags.
+We need to "build" the tags timestamp as `insert_all` doesn't do this automatically
+unline `Repo.insert`.
+
+The other important information is the `on_conlict` option defined to `:nothing`
+in `insert_all`. This means that if we attempt to create a tag which already
+exists in the database then we tell Ecto to not raise any error: insert only non
+existing tags.
+
+This function is heavily inspired by: https://hexdocs.pm/ecto/constraints-and-upserts.html
+
+
+
+Learn more about Ecto with the guides documention, especially the How to section: 
 https://hexdocs.pm/ecto/getting-started.html (taken from: https://dashbit.co/ebooks/the-little-ecto-cookbook)
 
 

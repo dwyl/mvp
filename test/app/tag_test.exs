@@ -2,7 +2,7 @@ defmodule App.TagTest do
   use App.DataCase
   alias App.Tag
 
-  describe "Test contraints and requirements for Tag schema" do
+  describe "Test constraints and requirements for Tag schema" do
     test "valid tag changeset" do
       changeset = Tag.changeset(%Tag{}, %{person_id: 1, text: "tag1"})
       assert changeset.valid?
