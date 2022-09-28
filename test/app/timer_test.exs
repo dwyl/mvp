@@ -22,7 +22,7 @@ defmodule App.TimerTest do
       assert Item.get_item!(item.id).text == item.text
 
       {:ok, started} =
-        NaiveDateTime.new(Date.utc_today, Time.add(Time.utc_now, -1))
+        NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -1))
 
       {:ok, timer} =
         Timer.start(%{item_id: item.id, person_id: 1, start: started})
@@ -36,13 +36,15 @@ defmodule App.TimerTest do
 
     test "stop_timer_for_item_id(item_id) should stop the active timer (happy path)" do
       {:ok, item} = Item.create_item(@valid_item_attrs)
+
       {:ok, seven_seconds_ago} =
-        NaiveDateTime.new(Date.utc_today, Time.add(Time.utc_now, -7))
+        NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
+
       # Start the timer 7 seconds ago:
       {:ok, timer} =
         Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
 
-      # stop the timer based on it's item_id
+      #  stop the timer based on it's item_id
       Timer.stop_timer_for_item_id(item.id)
 
       stopped_timer = Timer.get_timer!(timer.id)
@@ -51,13 +53,15 @@ defmodule App.TimerTest do
     end
 
     test "stop_timer_for_item_id(item_id) should not explode if there is no timer (unhappy path)" do
-      zero_item_id = 0 # random int
+      # random int
+      zero_item_id = 0
       Timer.stop_timer_for_item_id(zero_item_id)
       assert "Don't stop believing!"
     end
 
     test "stop_timer_for_item_id(item_id) should not melt down if item_id is nil (sad path)" do
-      nil_item_id = nil # random int
+      # random int
+      nil_item_id = nil
       Timer.stop_timer_for_item_id(nil_item_id)
       assert "Keep on truckin'"
     end

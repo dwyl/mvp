@@ -83,6 +83,13 @@ defmodule App.Item do
     |> Repo.all()
   end
 
+  def list_person_items(person_id) do
+    Item
+    |> where(person_id: ^person_id)
+    |> preload(:tags)
+    |> Repo.all()
+  end
+
   @doc """
   Updates a item.
 
@@ -131,9 +138,18 @@ defmodule App.Item do
     ORDER BY timer_id ASC;
     """
 
-    Ecto.Adapters.SQL.query!(Repo, sql, [person_id])
-    |> map_columns_to_values()
-    |> accumulate_item_timers()
+    values =
+      Ecto.Adapters.SQL.query!(Repo, sql, [person_id])
+      |> map_columns_to_values()
+
+    items_tags =
+      list_person_items(person_id)
+      |> Enum.reduce(%{}, fn i, acc -> Map.put(acc, i.id, i) end)
+
+    accumulate_item_timers(values)
+    |> Enum.map(fn t ->
+      Map.put(t, :tags, items_tags[t.id].tags)
+    end)
   end
 
   @doc """
@@ -146,7 +162,9 @@ defmodule App.Item do
   """
   def map_columns_to_values(res) do
     Enum.map(res.rows, fn row ->
-      Enum.zip(res.columns, row) |> Map.new() |> AtomicMap.convert()
+      Enum.zip(res.columns, row)
+      |> Map.new()
+      |> AtomicMap.convert(safe: false)
     end)
   end
 

@@ -1,6 +1,5 @@
 <main class="h-90 w-full font-sans">
   <form phx-submit="create" class="w-full lg:w-3/4 lg:max-w-lg text-center mx-auto">
-
     <!-- textarea so that we can have multi-line capturing 
       help wanted auto re-sizing: https://github.com/dwyl/learn-alpine.js/issues/3 -->
     <textarea 
@@ -251,6 +250,11 @@
       <% end %>
             
     </li>
+    <div class="ml-2">
+      <%= for tag <- item.tags do %>
+        <span><%= tag.text %></span>
+      <% end %>
+    </div>
     <% end %><!-- end for item <- @items -->
   </ul>
 </main>

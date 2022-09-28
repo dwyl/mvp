@@ -2609,7 +2609,26 @@ with our items and tags.
 
 ref: https://hexdocs.pm/phoenix/1.3.2/testing_schemas.html
 
-## 11.4  Items, Tags association
+## 11.4  Items-Tags association
+
+We want to create the tags at the same time the item is created.
+The tags are represented as string where tag values are seperated by comma:
+"tag1, tag2, ..."
+
+So we need first to parse the tags string value, create any new tags in Postgres,
+then associate the list of tags to the item.
+
+We'll first update our `Item` schema to add the `on_replace` option to the 
+`many_to_many` function:
+
+```elixir
+many_to_many(:tags, Tag, join_through: ItemTag, on_replace: :delete)
+```
+
+The `:delete` value will remove the association between the item and tags that
+have been removed, see https://hexdocs.pm/ecto/Ecto.Schema.html#many_to_many/3.
+
+
 
 
 Learn more about Ecto with the guides documenation, especially the How to section: 
