@@ -10,7 +10,7 @@ defmodule AppWeb.InitController do
     conn
     |> assign(:loggedin, true)
     |> assign(:person, %{picture: "https://dwyl.com/img/favicon-32x32.png"})
-    |> render(:index, 
+    |> render(:index,
       env: check_env(@env_required),
       api_key_set: api_key_set?()
     )
@@ -25,11 +25,12 @@ defmodule AppWeb.InitController do
   defp api_key_set?() do
     case AuthPlug.Token.api_key() do
       # coveralls-ignore-start
-      nil -> 
+      nil ->
         # IO.puts("AuthPlug.Token.api_key() #{AuthPlug.Token.api_key()}")
         false
+
       # coveralls-ignore-stop
-        
+
       key ->
         String.length(key) > 1
     end

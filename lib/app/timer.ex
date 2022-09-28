@@ -33,7 +33,6 @@ defmodule App.Timer do
   """
   def get_timer!(id), do: Repo.get!(Timer, id)
 
-
   @doc """
   `start/1` starts a timer.
 
@@ -60,7 +59,7 @@ defmodule App.Timer do
   """
   def stop(attrs \\ %{}) do
     get_timer!(attrs.id)
-    |> changeset(%{stop: NaiveDateTime.utc_now})
+    |> changeset(%{stop: NaiveDateTime.utc_now()})
     |> Repo.update()
   end
 
@@ -75,7 +74,9 @@ defmodule App.Timer do
 
   """
   def stop_timer_for_item_id(item_id) when is_nil(item_id) do
-    Logger.debug("stop_timer_for_item_id/1 called without item_id: #{item_id} fail.")
+    Logger.debug(
+      "stop_timer_for_item_id/1 called without item_id: #{item_id} fail."
+    )
   end
 
   def stop_timer_for_item_id(item_id) do
@@ -83,12 +84,17 @@ defmodule App.Timer do
     sql = """
     SELECT t.id FROM timers t WHERE t.item_id = $1 AND t.stop IS NULL ORDER BY t.id DESC LIMIT 1;
     """
+
     res = Ecto.Adapters.SQL.query!(Repo, sql, [item_id])
-    
+
     if res.num_rows > 0 do
       # IO.inspect(res.rows)
       timer_id = res.rows |> List.first() |> List.first()
-      Logger.debug("Found timer.id: #{timer_id} for item: #{item_id}, attempting to stop.")
+
+      Logger.debug(
+        "Found timer.id: #{timer_id} for item: #{item_id}, attempting to stop."
+      )
+
       stop(%{id: timer_id})
     else
       Logger.debug("No active timers found for item: #{item_id}")

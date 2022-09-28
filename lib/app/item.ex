@@ -2,13 +2,15 @@ defmodule App.Item do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
-  alias App.Repo
+  alias App.{Repo, Tag, ItemTag}
   alias __MODULE__
 
   schema "items" do
     field :person_id, :integer
     field :status, :integer
     field :text, :string
+
+    many_to_many(:tags, Tag, join_through: ItemTag, on_replace: :delete)
 
     timestamps()
   end
@@ -17,7 +19,12 @@ defmodule App.Item do
   def changeset(item, attrs) do
     item
     |> cast(attrs, [:person_id, :status, :text])
-    |> validate_required([:text])
+    |> validate_required([:text, :person_id])
+  end
+
+  def changeset_with_tags(item, attrs) do
+    changeset(item, attrs)
+    |> put_assoc(:tags, Tag.parse_and_create_tags(attrs))
   end
 
   @doc """
@@ -35,6 +42,12 @@ defmodule App.Item do
   def create_item(attrs) do
     %Item{}
     |> changeset(attrs)
+    |> Repo.insert()
+  end
+
+  def create_item_with_tags(attrs) do
+    %Item{}
+    |> changeset_with_tags(attrs)
     |> Repo.insert()
   end
 
@@ -67,6 +80,13 @@ defmodule App.Item do
     Item
     |> order_by(desc: :inserted_at)
     |> where([i], is_nil(i.status) or i.status != 6)
+    |> Repo.all()
+  end
+
+  def list_person_items(person_id) do
+    Item
+    |> where(person_id: ^person_id)
+    |> preload(:tags)
     |> Repo.all()
   end
 
@@ -118,9 +138,18 @@ defmodule App.Item do
     ORDER BY timer_id ASC;
     """
 
-    Ecto.Adapters.SQL.query!(Repo, sql, [person_id])
-    |> map_columns_to_values()
-    |> accumulate_item_timers()
+    values =
+      Ecto.Adapters.SQL.query!(Repo, sql, [person_id])
+      |> map_columns_to_values()
+
+    items_tags =
+      list_person_items(person_id)
+      |> Enum.reduce(%{}, fn i, acc -> Map.put(acc, i.id, i) end)
+
+    accumulate_item_timers(values)
+    |> Enum.map(fn t ->
+      Map.put(t, :tags, items_tags[t.id].tags)
+    end)
   end
 
   @doc """
@@ -133,7 +162,9 @@ defmodule App.Item do
   """
   def map_columns_to_values(res) do
     Enum.map(res.rows, fn row ->
-      Enum.zip(res.columns, row) |> Map.new() |> AtomicMap.convert()
+      Enum.zip(res.columns, row)
+      |> Map.new()
+      |> AtomicMap.convert(safe: false)
     end)
   end
 
