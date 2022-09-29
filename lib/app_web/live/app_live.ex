@@ -93,9 +93,19 @@ defmodule AppWeb.AppLive do
   end
 
   @impl true
-  def handle_event("update-item", %{"id" => item_id, "text" => text}, socket) do
+  def handle_event(
+        "update-item",
+        %{"id" => item_id, "text" => text, "tags" => tags},
+        socket
+      ) do
+    person_id = get_person_id(socket.assigns)
     current_item = Item.get_item!(item_id)
-    Item.update_item(current_item, %{text: text})
+
+    Item.update_item_with_tags(current_item, %{
+      text: text,
+      tags: tags,
+      person_id: person_id
+    })
 
     AppWeb.Endpoint.broadcast(@topic, "update", :update)
     {:noreply, assign(socket, editing: nil)}
@@ -228,5 +238,21 @@ defmodule AppWeb.AppLive do
       hover:text-white hover:bg-teal-800 hover:border-transparent
       """
     end
+  end
+
+  @doc """
+  Convert a list of tags to a string where
+  the tag names are seperated by commas
+
+  ## Examples
+    
+    tags_to_string([%Tag{text: "Learn"}, %Tag{text: "Elixir"}])
+    "Learn, Elixir"
+
+  """
+  def tags_to_string(tags) do
+    tags
+    |> Enum.map(& &1.text)
+    |> Enum.join(", ")
   end
 end

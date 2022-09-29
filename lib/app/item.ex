@@ -65,7 +65,7 @@ defmodule App.Item do
       ** (Ecto.NoResultsError)
 
   """
-  def get_item!(id), do: Repo.get!(Item, id)
+  def get_item!(id), do: Repo.get!(Item, id) |> Repo.preload([:tags])
 
   @doc """
   Returns the list of items where the status is different to "deleted"
@@ -105,6 +105,15 @@ defmodule App.Item do
   def update_item(%Item{} = item, attrs) do
     item
     |> Item.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Update an item and its associated tags
+  """
+  def update_item_with_tags(%Item{} = item, attrs) do
+    item
+    |> Item.changeset_with_tags(attrs)
     |> Repo.update()
   end
 

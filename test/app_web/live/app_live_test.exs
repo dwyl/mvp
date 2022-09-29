@@ -1,6 +1,6 @@
 defmodule AppWeb.AppLiveTest do
   use AppWeb.ConnCase
-  alias App.{Item, Timer}
+  alias App.{Item, Timer, Tag}
   import Phoenix.LiveViewTest
   alias Phoenix.Socket.Broadcast
 
@@ -114,11 +114,13 @@ defmodule AppWeb.AppLiveTest do
 
     assert render_submit(view, "update-item", %{
              "id" => item.id,
-             "text" => "Learn more Elixir"
+             "text" => "Learn more Elixir",
+             "tags" => "Learn, Elixir"
            })
 
     updated_item = Item.get_item!(item.id)
     assert updated_item.text == "Learn more Elixir"
+    assert length(updated_item.tags) == 2
   end
 
   test "timer_text(start, stop)" do
@@ -248,5 +250,12 @@ defmodule AppWeb.AppLiveTest do
   test "test login link redirect to auth.dwyl.com", %{conn: conn} do
     conn = get(conn, "/login")
     assert redirected_to(conn, 302) =~ "auth.dwyl.com"
+  end
+
+  test "tags_to_string/1" do
+    assert AppWeb.AppLive.tags_to_string([
+             %Tag{text: "Learn"},
+             %Tag{text: "Elixir"}
+           ]) == "Learn, Elixir"
   end
 end
