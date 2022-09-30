@@ -1,5 +1,24 @@
-<h1 class="text-center">Tags</h1>
+<h1 class="text-center">Listing Tags</h1>
 
+<table class="grid content-center">
+  <thead>
+    <tr>
+      <th>Name</th>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
 <%= for tag <- @tags do %>
-  <p><%= tag.text %></p>
+    <tr>
+      <td><%= tag.text %></td>
+
+      <td>
+        <span><%= link "Edit", to: Routes.tag_path(@conn, :edit, tag) %></span>
+        <span><%= link "Delete", to: Routes.tag_path(@conn, :delete, tag), method: :delete, data: [confirm: "Are you sure?"] %></span>
+      </td>
+    </tr>
 <% end %>
+  </tbody>
+</table>
+

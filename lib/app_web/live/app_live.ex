@@ -250,9 +250,5 @@ defmodule AppWeb.AppLive do
     "Learn, Elixir"
 
   """
-  def tags_to_string(tags) do
-    tags
-    |> Enum.map(& &1.text)
-    |> Enum.join(", ")
-  end
+  def tags_to_string(tags), do: Enum.map_join(tags, ", ", & &1.text)
 end

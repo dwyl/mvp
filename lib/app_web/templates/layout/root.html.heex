@@ -2,7 +2,9 @@
 <html lang="en">
   <head>
     <meta name="csrf-token" content={csrf_token_value()}>
-    <%= live_title_tag assigns[:page_title] || "dwyl mvp"%>
+    <.live_title prefix="dwyl – ">
+      <%= assigns[:page_title] || "mvp" %>
+    </.live_title>
     <%= render "icons.html" %>
     <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/assets/app.css")}/> 
     <script defer phx-track-static src={Routes.static_path(@conn, "/assets/app.js")}></script>

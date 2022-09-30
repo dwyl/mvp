@@ -14,7 +14,7 @@ defmodule App.Tag do
   end
 
   @doc false
-  def changeset(tag, attrs) do
+  def changeset(tag, attrs \\ %{}) do
     tag
     |> cast(attrs, [:person_id, :text])
     |> validate_required([:person_id, :text])
@@ -79,5 +79,15 @@ defmodule App.Tag do
     Tag
     |> where(person_id: ^person_id)
     |> Repo.all()
+  end
+
+  def update_tag(%Tag{} = tag, attrs) do
+    tag
+    |> Tag.changeset(attrs)
+    |> Repo.update()
+  end
+
+  def delete_tag(%Tag{} = tag) do
+    Repo.delete(tag)
   end
 end

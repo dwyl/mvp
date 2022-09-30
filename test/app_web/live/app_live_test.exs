@@ -180,19 +180,19 @@ defmodule AppWeb.AppLiveTest do
         tags: "tag1, tag3"
       })
 
-    {ok, view, _html} = live(conn, "/?filter_by=all")
+    {:ok, view, _html} = live(conn, "/?filter_by=all")
     assert render(view) =~ "Item1 to do"
     assert render(view) =~ "Item2 to do"
 
-    {ok, view, _html} = live(conn, "/?filter_by=all&filter_by_tag=tag2")
+    {:ok, view, _html} = live(conn, "/?filter_by=all&filter_by_tag=tag2")
     assert render(view) =~ "Item1 to do"
     refute render(view) =~ "Item2 to do"
 
-    {ok, view, _html} = live(conn, "/?filter_by=all&filter_by_tag=tag3")
+    {:ok, view, _html} = live(conn, "/?filter_by=all&filter_by_tag=tag3")
     refute render(view) =~ "Item1 to do"
     assert render(view) =~ "Item2 to do"
 
-    {ok, view, _html} = live(conn, "/?filter_by=all&filter_by_tag=tag1")
+    {:ok, view, _html} = live(conn, "/?filter_by=all&filter_by_tag=tag1")
     assert render(view) =~ "Item1 to do"
     assert render(view) =~ "Item2 to do"
   end
