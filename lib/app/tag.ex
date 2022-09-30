@@ -5,9 +5,13 @@ defmodule App.Tag do
   alias App.{Item, ItemTag, Repo}
   alias __MODULE__
 
+  @tag_color_names ~w(red orange amber yellow lime green emerald teal cyan sky blue)
+  @tag_color_saturations ~w(300 400 500 600 700 800 900)
+
   schema "tags" do
     field :text, :string
     field :person_id, :integer
+    field :color, :string
 
     many_to_many(:items, Item, join_through: ItemTag)
     timestamps()
@@ -16,8 +20,8 @@ defmodule App.Tag do
   @doc false
   def changeset(tag, attrs \\ %{}) do
     tag
-    |> cast(attrs, [:person_id, :text])
-    |> validate_required([:person_id, :text])
+    |> cast(attrs, [:person_id, :text, :color])
+    |> validate_required([:person_id, :text, :color])
     |> unique_constraint([:text, :person_id], name: :tags_text_person_id_index)
   end
 
@@ -56,6 +60,9 @@ defmodule App.Tag do
         &%{
           text: &1,
           person_id: person_id,
+          color:
+            Enum.random(@tag_color_names) <>
+              "-" <> Enum.random(@tag_color_saturations),
           inserted_at: {:placeholder, :timestamp},
           updated_at: {:placeholder, :timestamp}
         }
