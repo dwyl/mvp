@@ -74,4 +74,10 @@ defmodule App.Tag do
   end
 
   def get_tag!(id), do: Repo.get!(Tag, id)
+
+  def list_person_tags(person_id) do
+    Tag
+    |> where(person_id: ^person_id)
+    |> Repo.all()
+  end
 end

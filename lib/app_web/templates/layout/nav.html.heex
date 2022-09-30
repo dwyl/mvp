@@ -18,6 +18,11 @@
     <%= if @loggedin do %>
       <button
         class="bg-teal-600 text-white rounded-md px-3 py-1 text-sm align-middle float-right">
+        <%= link "tags", to: "/logout" %>
+      </button>
+     
+     <button
+        class="bg-teal-600 text-white rounded-md px-3 py-1 text-sm align-middle float-right">
         <%= link "logout", to: "/logout" %>
       </button>
 
