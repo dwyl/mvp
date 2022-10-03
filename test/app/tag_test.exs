@@ -4,7 +4,9 @@ defmodule App.TagTest do
 
   describe "Test constraints and requirements for Tag schema" do
     test "valid tag changeset" do
-      changeset = Tag.changeset(%Tag{}, %{person_id: 1, text: "tag1"})
+      changeset =
+        Tag.changeset(%Tag{}, %{person_id: 1, text: "tag1", color: "red-300"})
+
       assert changeset.valid?
     end
 
@@ -17,10 +19,15 @@ defmodule App.TagTest do
       changeset = Tag.changeset(%Tag{}, %{person_id: 1})
       refute changeset.valid?
     end
+
+    test "invalid tag changeset when color value missing" do
+      changeset = Tag.changeset(%Tag{}, %{person_id: 1, text: "tag1"})
+      refute changeset.valid?
+    end
   end
 
   describe "Save tags in Postgres" do
-    @valid_attrs %{text: "tag1", person_id: 1}
+    @valid_attrs %{text: "tag1", person_id: 1, color: "red-300"}
     @invalid_attrs %{text: nil}
 
     test "get_tag!/1 returns the tag with given id" do

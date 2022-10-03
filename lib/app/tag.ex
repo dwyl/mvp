@@ -5,9 +5,6 @@ defmodule App.Tag do
   alias App.{Item, ItemTag, Repo}
   alias __MODULE__
 
-  @tag_color_names ~w(red orange amber yellow lime green emerald teal cyan sky blue)
-  @tag_color_saturations ~w(300 400 500 600 700 800 900)
-
   schema "tags" do
     field :text, :string
     field :person_id, :integer
@@ -60,9 +57,7 @@ defmodule App.Tag do
         &%{
           text: &1,
           person_id: person_id,
-          color:
-            Enum.random(@tag_color_names) <>
-              "-" <> Enum.random(@tag_color_saturations),
+          color: App.Color.random(),
           inserted_at: {:placeholder, :timestamp},
           updated_at: {:placeholder, :timestamp}
         }
@@ -96,5 +91,9 @@ defmodule App.Tag do
 
   def delete_tag(%Tag{} = tag) do
     Repo.delete(tag)
+  end
+
+  def tag_color(tag) do
+    App.Color.hex_code(tag.color)
   end
 end

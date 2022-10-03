@@ -255,7 +255,7 @@
     <%= if item.id != @editing do %>
       <div class="ml-2">
         <%= for tag <- item.tags do %>
-          <%= live_patch tag.text, to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: @filter, filter_by_tag: tag.text}), class: "bg-#{tag.color} text-white font-bold py-1 px-2 rounded-full"  %>
+          <%= live_patch tag.text, to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: @filter, filter_by_tag: tag.text}), style: "background-color:#{tag_color(tag)}", class: " text-white font-bold py-1 px-2 rounded-full"  %>
         <% end %>
       </div>
     <% end %>
