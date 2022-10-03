@@ -1,24 +1,25 @@
-<h1 class="text-center">Listing Tags</h1>
+<.h2 class="text-center mt-3">Listing Tags</.h2>
+<.container>
+<.table>
+    <.tr>
+      <.th>Name</.th>
 
-<table class="grid content-center">
-  <thead>
-    <tr>
-      <th>Name</th>
-
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
+      <.th></.th>
+      <.th></.th>
+    </.tr>
 <%= for tag <- @tags do %>
-    <tr>
-      <td><%= tag.text %></td>
+    <.tr>
+      <.td>
+        <span style={"background-color:#{tag.color}"} class="text-white font-bold py-1 px-2 rounded-full"><%= tag.text %></span>
+      </.td>
 
-      <td>
+      <.td>
         <span><%= link "Edit", to: Routes.tag_path(@conn, :edit, tag) %></span>
+      </.td>
+      <.td>
         <span><%= link "Delete", to: Routes.tag_path(@conn, :delete, tag), method: :delete, data: [confirm: "Are you sure?"] %></span>
-      </td>
-    </tr>
+      </.td>
+    </.tr>
 <% end %>
-  </tbody>
-</table>
-
+</.table>
+</.container>

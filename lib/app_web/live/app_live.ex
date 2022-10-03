@@ -251,8 +251,4 @@ defmodule AppWeb.AppLive do
 
   """
   def tags_to_string(tags), do: Enum.map_join(tags, ", ", & &1.text)
-
-  def tag_color(tag) do
-    App.Color.hex_code(tag.color)
-  end
 end

@@ -65,7 +65,11 @@ defmodule App.Item do
       ** (Ecto.NoResultsError)
 
   """
-  def get_item!(id), do: Repo.get!(Item, id) |> Repo.preload([:tags])
+  def get_item!(id) do
+    Item
+    |> Repo.get!(id)
+    |> Repo.preload(tags: from(t in Tag, order_by: t.text))
+  end
 
   @doc """
   Returns the list of items where the status is different to "deleted"
@@ -86,8 +90,8 @@ defmodule App.Item do
   def list_person_items(person_id) do
     Item
     |> where(person_id: ^person_id)
-    |> preload(:tags)
     |> Repo.all()
+    |> Repo.preload(tags: from(t in Tag, order_by: t.text))
   end
 
   @doc """

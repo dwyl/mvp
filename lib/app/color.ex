@@ -95,6 +95,6 @@ defmodule App.Color do
   def random() do
     @hex_colors
     |> Enum.random()
-    |> elem(0)
+    |> elem(1)
   end
 end

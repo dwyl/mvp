@@ -80,6 +80,7 @@ defmodule App.Tag do
   def list_person_tags(person_id) do
     Tag
     |> where(person_id: ^person_id)
+    |> order_by(:text)
     |> Repo.all()
   end
 
@@ -91,9 +92,5 @@ defmodule App.Tag do
 
   def delete_tag(%Tag{} = tag) do
     Repo.delete(tag)
-  end
-
-  def tag_color(tag) do
-    App.Color.hex_code(tag.color)
   end
 end

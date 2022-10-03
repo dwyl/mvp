@@ -3,7 +3,7 @@ defmodule App.Repo.Migrations.AddColorToTag do
 
   def change do
     alter table(:tags) do
-      add(:color, :text)
+      add(:color, :text, default: "#FCA5A5")
     end
   end
 end
