@@ -80,18 +80,8 @@ defmodule App.Color do
   }
 
   @doc """
-  Return the Tailwind baground color in hex code
-
-    ## Examples
-    
-      background_color("red-300")
-      "#FCA5A5"
-     
+  Return a random hex color
   """
-  def hex_code(color) do
-    @hex_colors[color]
-  end
-
   def random() do
     @hex_colors
     |> Enum.random()
