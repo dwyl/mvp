@@ -2,9 +2,11 @@ defmodule App.Repo.Migrations.AddPerson do
   use Ecto.Migration
 
   def change do
+    execute("CREATE EXTENSION IF NOT EXISTS citext")
+
     create table(:people, primary_key: false) do
       add(:person_id, :integer, primary_key: true)
-      add(:name, :string)
+      add(:name, :citext)
 
       timestamps()
     end
