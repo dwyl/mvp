@@ -1,0 +1,25 @@
+<.h2 class="text-center mt-3">Listing Tags</.h2>
+<.container>
+<.table>
+    <.tr>
+      <.th>Name</.th>
+
+      <.th class="w-3"></.th>
+      <.th class="w-3"></.th>
+    </.tr>
+<%= for tag <- @tags do %>
+    <.tr>
+      <.td>
+        <span style={"background-color:#{tag.color}"} class="text-white font-bold py-1 px-2 rounded-full"><%= tag.text %></span>
+      </.td>
+
+      <.td>
+        <%= link "Edit", to: Routes.tag_path(@conn, :edit, tag) %>
+      </.td>
+      <.td class="!text-red-500">
+        <%= link "Delete", to: Routes.tag_path(@conn, :delete, tag), method: :delete, data: [confirm: "Are you sure you want to delete this tag?"] %>
+      </.td>
+    </.tr>
+<% end %>
+</.table>
+</.container>

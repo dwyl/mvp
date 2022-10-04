@@ -22,6 +22,7 @@ defmodule AppWeb.Router do
     pipe_through [:browser, :authOptional]
 
     live "/", AppLive
+    resources "/tags", TagController
     get "/login", AuthController, :login
     get "/logout", AuthController, :logout
   end

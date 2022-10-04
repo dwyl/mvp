@@ -8,16 +8,17 @@ defmodule App.Tag do
   schema "tags" do
     field :text, :string
     field :person_id, :integer
+    field :color, :string
 
     many_to_many(:items, Item, join_through: ItemTag)
     timestamps()
   end
 
   @doc false
-  def changeset(tag, attrs) do
+  def changeset(tag, attrs \\ %{}) do
     tag
-    |> cast(attrs, [:person_id, :text])
-    |> validate_required([:person_id, :text])
+    |> cast(attrs, [:person_id, :text, :color])
+    |> validate_required([:person_id, :text, :color])
     |> unique_constraint([:text, :person_id], name: :tags_text_person_id_index)
   end
 
@@ -56,6 +57,7 @@ defmodule App.Tag do
         &%{
           text: &1,
           person_id: person_id,
+          color: App.Color.random(),
           inserted_at: {:placeholder, :timestamp},
           updated_at: {:placeholder, :timestamp}
         }
@@ -74,4 +76,21 @@ defmodule App.Tag do
   end
 
   def get_tag!(id), do: Repo.get!(Tag, id)
+
+  def list_person_tags(person_id) do
+    Tag
+    |> where(person_id: ^person_id)
+    |> order_by(:text)
+    |> Repo.all()
+  end
+
+  def update_tag(%Tag{} = tag, attrs) do
+    tag
+    |> Tag.changeset(attrs)
+    |> Repo.update()
+  end
+
+  def delete_tag(%Tag{} = tag) do
+    Repo.delete(tag)
+  end
 end

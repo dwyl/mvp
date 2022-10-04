@@ -88,13 +88,15 @@ defmodule AppWeb do
       use Phoenix.HTML
 
       # Import LiveView and .heex helpers (live_render, live_patch, <.form>, etc)
-      import Phoenix.LiveView.Helpers
+      # import Phoenix.LiveView.Helpers is deprecated: see https://github.com/phoenixframework/phoenix_live_view/blob/master/CHANGELOG.md
+      import Phoenix.Component
 
       # Import basic rendering functionality (render, render_layout, etc)
       import Phoenix.View
 
       import AppWeb.ErrorHelpers
       alias AppWeb.Router.Helpers, as: Routes
+      use PetalComponents
     end
   end
 

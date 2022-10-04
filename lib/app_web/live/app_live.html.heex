@@ -141,6 +141,7 @@
               required="required" 
               value={item.text}
             ><%= item.text %></textarea>
+            <input type="text" name="tags" value={tags_to_string(item.tags)} placeholder="tag1, tag2...">
 
             <input type="hidden" name="id" value={item.id}/>
 
@@ -250,11 +251,14 @@
       <% end %>
             
     </li>
-    <div class="ml-2">
-      <%= for tag <- item.tags do %>
-        <%= live_patch tag.text, to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: @filter, filter_by_tag: tag.text}), class: "text-teal-600"  %>
-      <% end %>
-    </div>
+
+    <%= if item.id != @editing do %>
+      <div class="ml-2">
+        <%= for tag <- item.tags do %>
+          <%= live_patch tag.text, to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: @filter, filter_by_tag: tag.text}), style: "background-color:#{tag.color}", class: " text-white font-bold py-1 px-2 rounded-full"  %>
+        <% end %>
+      </div>
+    <% end %>
     <% end %><!-- end for item <- @items -->
   </ul>
 </main>
