@@ -3,6 +3,8 @@ defmodule App.Person do
   import Ecto.Changeset
   alias App.{Item, Repo, Tag}
   alias __MODULE__
+  # https://hexdocs.pm/phoenix/Phoenix.Param.html
+  @derive {Phoenix.Param, key: :person_id}
 
   @primary_key {:person_id, :id, autogenerate: false}
   schema "people" do
