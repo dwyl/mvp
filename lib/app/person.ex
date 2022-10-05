@@ -31,6 +31,12 @@ defmodule App.Person do
 
   def get_person!(person_id), do: Repo.get!(Person, person_id)
 
+  def update_person(%Person{} = person, attrs) do
+    person
+    |> Person.changeset(attrs)
+    |> Repo.update()
+  end
+
   def delete_person(%Person{} = person) do
     Repo.delete(person)
   end

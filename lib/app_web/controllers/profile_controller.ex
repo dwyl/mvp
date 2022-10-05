@@ -15,6 +15,23 @@ defmodule AppWeb.ProfileController do
     render(conn, "edit.html", profile: profile, changeset: changeset)
   end
 
+  def update(
+        conn,
+        %{"person_id" => person_id, "person" => person_params}
+      ) do
+    profile = Person.get_person!(person_id)
+
+    case Person.update_person(profile, person_params) do
+      {:ok, _person} ->
+        conn
+        |> put_flash(:info, "Person updated successfully.")
+        |> redirect(to: "/")
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, "edit.html", profile: profile, changeset: changeset)
+    end
+  end
+
   defp permission_profile(conn, _opts) do
     person_id = conn.assigns[:person][:id] || 0
 
