@@ -33,10 +33,6 @@ defmodule AppWeb.Router do
     resources "/tags", TagController, except: [:show]
     get "/login", AuthController, :login
     get "/logout", AuthController, :logout
-
-    resources "/profile", ProfileController,
-      except: [:index, :delete],
-      param: "person_id"
   end
 
   # assign to conn the loggedin value used in templates
