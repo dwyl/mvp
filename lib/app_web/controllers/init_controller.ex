@@ -9,7 +9,10 @@ defmodule AppWeb.InitController do
 
     conn
     |> assign(:loggedin, true)
-    |> assign(:person, %{picture: "https://dwyl.com/img/favicon-32x32.png"})
+    |> assign(:person, %{
+      picture: "https://dwyl.com/img/favicon-32x32.png",
+      id: 0
+    })
     |> render(:index,
       env: check_env(@env_required),
       api_key_set: api_key_set?()

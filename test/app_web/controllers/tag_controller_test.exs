@@ -1,7 +1,9 @@
 defmodule AppWeb.TagControllerTest do
   use AppWeb.ConnCase
 
-  alias App.Tag
+  alias App.{Tag, Person}
+
+  setup [:create_person]
 
   @create_attrs %{text: "tag1", person_id: 1, color: "#FCA5A5"}
   @update_attrs %{text: "tag1 updated", color: "#F87171"}
@@ -89,5 +91,11 @@ defmodule AppWeb.TagControllerTest do
   defp create_tag(_) do
     tag = fixture(:tag)
     %{tag: tag}
+  end
+
+  defp create_person(_) do
+    person = Person.create_person(%{"person_id" => 0, "name" => "guest"})
+    person = Person.create_person(%{"person_id" => 1, "name" => "Person1"})
+    %{person: person}
   end
 end

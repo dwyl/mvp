@@ -1,8 +1,10 @@
 defmodule AppWeb.AppLiveTest do
   use AppWeb.ConnCase
-  alias App.{Item, Timer, Tag}
+  alias App.{Item, Person, Timer, Tag}
   import Phoenix.LiveViewTest
   alias Phoenix.Socket.Broadcast
+
+  setup [:create_person]
 
   test "disconnected and connected render", %{conn: conn} do
     {:ok, page_live, disconnected_html} = live(conn, "/")
@@ -203,7 +205,7 @@ defmodule AppWeb.AppLiveTest do
       givenName: "Alex",
       picture: "this",
       auth_provider: "GitHub",
-      id: 2
+      id: 0
     }
 
     jwt = AuthPlug.Token.generate_jwt!(data)
@@ -218,7 +220,7 @@ defmodule AppWeb.AppLiveTest do
       givenName: "Alex",
       picture: "this",
       auth_provider: "GitHub",
-      id: 2
+      id: 0
     }
 
     jwt = AuthPlug.Token.generate_jwt!(data)
@@ -234,7 +236,7 @@ defmodule AppWeb.AppLiveTest do
       picture: "this",
       auth_provider: "GitHub",
       sid: 1,
-      id: 2
+      id: 0
     }
 
     jwt = AuthPlug.Token.generate_jwt!(data)
@@ -257,5 +259,10 @@ defmodule AppWeb.AppLiveTest do
              %Tag{text: "Learn"},
              %Tag{text: "Elixir"}
            ]) == "Learn, Elixir"
+  end
+
+  defp create_person(_) do
+    person = Person.create_person(%{"person_id" => 0, "name" => "guest"})
+    %{person: person}
   end
 end
