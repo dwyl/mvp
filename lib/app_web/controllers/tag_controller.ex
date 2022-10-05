@@ -1,7 +1,6 @@
 defmodule AppWeb.TagController do
   use AppWeb, :controller
   alias App.Tag
-  plug :loggedin
   plug :permission_tag when action in [:edit, :update, :delete]
 
   def index(conn, _params) do
@@ -39,14 +38,6 @@ defmodule AppWeb.TagController do
     conn
     |> put_flash(:info, "Tick deleted successfully.")
     |> redirect(to: Routes.tag_path(conn, :index))
-  end
-
-  defp loggedin(conn, _opts) do
-    if not is_nil(conn.assigns[:jwt]) do
-      assign(conn, :loggedin, true)
-    else
-      assign(conn, :loggedin, false)
-    end
   end
 
   defp permission_tag(conn, _opts) do

@@ -19,7 +19,6 @@
           <a href={Routes.profile_path(@conn, :edit, @person.id)}>
           <img src={@person.picture} class="mr-3 h-6 sm:h-9 rounded-full" alt="avatar image">
           </a>
-          <%= Routes.profile_path(@conn, :show, @person.id) %>
         <% else %>
           <h1 class="text-white">Hi Friend!</h1>
         <% end %>

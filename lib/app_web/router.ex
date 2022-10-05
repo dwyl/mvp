@@ -17,9 +17,10 @@ defmodule AppWeb.Router do
   end
 
   pipeline :authOptional, do: plug(AuthPlugOptional)
+  pipeline :verify_loggedin, do: plug(:loggedin)
 
   scope "/", AppWeb do
-    pipe_through [:browser, :authOptional]
+    pipe_through [:browser, :authOptional, :verify_loggedin]
 
     live "/", AppLive
     resources "/tags", TagController, except: [:show]
@@ -29,5 +30,13 @@ defmodule AppWeb.Router do
     resources "/profile", ProfileController,
       except: [:index, :delete],
       param: "person_id"
+  end
+
+  defp loggedin(conn, _opts) do
+    if not is_nil(conn.assigns[:jwt]) do
+      assign(conn, :loggedin, true)
+    else
+      assign(conn, :loggedin, false)
+    end
   end
 end
