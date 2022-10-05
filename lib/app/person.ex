@@ -20,7 +20,7 @@ defmodule App.Person do
     person
     |> cast(attrs, [:person_id, :name])
     |> validate_required([:person_id, :name])
-    |> unique_constraint([:name], name: :people_name_index)
+    |> unique_constraint(:name, name: :people_name_index)
   end
 
   def create_person(attrs) do
@@ -35,9 +35,5 @@ defmodule App.Person do
     person
     |> Person.changeset(attrs)
     |> Repo.update()
-  end
-
-  def delete_person(%Person{} = person) do
-    Repo.delete(person)
   end
 end

@@ -1,6 +1,6 @@
 defmodule AppWeb.TagController do
   use AppWeb, :controller
-  alias App.{Person, Tag}
+  alias App.Tag
   plug :permission_tag when action in [:edit, :update, :delete]
 
   def index(conn, _params) do
@@ -53,10 +53,5 @@ defmodule AppWeb.TagController do
       |> redirect(to: "/tags")
       |> halt()
     end
-  end
-
-  defp create_person(_) do
-    person = Person.create_person(%{"person_id" => 1, "name" => "guest"})
-    %{person: person}
   end
 end

@@ -25,7 +25,7 @@ defmodule AppWeb.Router do
     pipe_through [:browser, :authOptional, :verify_loggedin]
 
     resources "/profile", ProfileController,
-      except: [:index, :delete],
+      only: [:edit, :update],
       param: "person_id"
 
     pipe_through [:check_profile_name]

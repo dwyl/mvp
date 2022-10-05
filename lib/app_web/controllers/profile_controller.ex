@@ -1,13 +1,7 @@
 defmodule AppWeb.ProfileController do
   use AppWeb, :controller
   alias App.Person
-  plug :permission_profile when action in [:show, :edit, :update]
-
-  def show(conn, %{"personid" => person_id}) do
-    profile = Person.get_person!(person_id)
-
-    render(conn, "show.html", profile: profile)
-  end
+  plug :permission_profile when action in [:edit, :update]
 
   def edit(conn, %{"person_id" => person_id}) do
     profile = Person.get_person!(person_id)
