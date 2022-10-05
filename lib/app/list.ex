@@ -1,6 +1,7 @@
 defmodule App.List do
   use Ecto.Schema
   import Ecto.Changeset
+  import Ecto.Query
   alias App.{Item, Person, Repo}
   alias __MODULE__
 
@@ -29,9 +30,20 @@ defmodule App.List do
 
   def get_list!(id), do: Repo.get!(List, id)
 
+  def list_person_lists(person_id) do
+    List
+    |> where(person_id: ^person_id)
+    |> order_by(:name)
+    |> Repo.all()
+  end
+
   def update_list(%List{} = list, attrs) do
     list
     |> List.changeset(attrs)
     |> Repo.update()
+  end
+
+  def delete_list(%List{} = list) do
+    Repo.delete(list)
   end
 end
