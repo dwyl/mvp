@@ -3,6 +3,7 @@ defmodule App.Item do
   import Ecto.Changeset
   import Ecto.Query
   alias App.{Repo, Tag, ItemTag, Person}
+  alias App.List, as: L
   alias __MODULE__
 
   schema "items" do
@@ -11,12 +12,13 @@ defmodule App.Item do
 
     belongs_to :people, Person, references: :person_id, foreign_key: :person_id
     many_to_many(:tags, Tag, join_through: ItemTag, on_replace: :delete)
+    many_to_many(:lists, L, join_through: "items_lists", on_replace: :delete)
 
     timestamps()
   end
 
   @doc false
-  def changeset(item, attrs) do
+  def changeset(item, attrs \\ %{}) do
     item
     |> cast(attrs, [:person_id, :status, :text])
     |> validate_required([:text, :person_id])
@@ -69,6 +71,7 @@ defmodule App.Item do
     Item
     |> Repo.get!(id)
     |> Repo.preload(tags: from(t in Tag, order_by: t.text))
+    |> Repo.preload(lists: from(l in L, order_by: l.name))
   end
 
   @doc """

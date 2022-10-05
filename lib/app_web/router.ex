@@ -34,6 +34,9 @@ defmodule AppWeb.Router do
     resources "/lists", ListController, except: [:show]
     get "/login", AuthController, :login
     get "/logout", AuthController, :logout
+
+    # edit item lists
+    resources "/items", ItemController, only: [:edit, :update]
   end
 
   # assign to conn the loggedin value used in templates
