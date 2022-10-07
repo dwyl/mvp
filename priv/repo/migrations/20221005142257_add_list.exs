@@ -17,7 +17,7 @@ defmodule App.Repo.Migrations.AddList do
       )
     )
 
-    create table(:items_lists, primary_key: false) do
+    create table(:lists_items, primary_key: false) do
       add(:item_id, references(:items, on_delete: :delete_all))
       add(:list_id, references(:tags, on_delete: :delete_all))
 
@@ -26,6 +26,6 @@ defmodule App.Repo.Migrations.AddList do
 
     # create a unique index on item_id and list_id to avoid
     # adding an item multiple time to the same list
-    create(unique_index(:items_lists, [:item_id, :list_id]))
+    create(unique_index(:lists_items, [:item_id, :list_id]))
   end
 end

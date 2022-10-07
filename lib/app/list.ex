@@ -2,14 +2,14 @@ defmodule App.List do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
-  alias App.{Item, Person, Repo}
+  alias App.{Item, ListItem, Person, Repo}
   alias __MODULE__
 
   schema "lists" do
     field :name, :string
 
     belongs_to :people, Person, references: :person_id, foreign_key: :person_id
-    many_to_many(:items, Item, join_through: "items_lists")
+    many_to_many(:items, Item, join_through: ListItem)
 
     timestamps()
   end

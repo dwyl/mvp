@@ -2,7 +2,7 @@ defmodule App.Item do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
-  alias App.{Repo, Tag, ItemList, ItemTag, Person}
+  alias App.{Repo, Tag, ListItem, ItemTag, Person}
   alias App.List, as: L
   alias __MODULE__
 
@@ -13,7 +13,7 @@ defmodule App.Item do
 
     belongs_to :people, Person, references: :person_id, foreign_key: :person_id
     many_to_many(:tags, Tag, join_through: ItemTag, on_replace: :delete)
-    many_to_many(:lists, L, join_through: ItemList, on_replace: :delete)
+    many_to_many(:lists, L, join_through: ListItem, on_replace: :delete)
 
     timestamps()
   end
