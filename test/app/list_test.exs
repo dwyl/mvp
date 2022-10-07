@@ -1,5 +1,5 @@
 defmodule App.ListTest do
-  use App.DataCase
+  use App.DataCase, async: false
   alias App.{Person, List}
 
   setup [:create_person]
@@ -40,6 +40,18 @@ defmodule App.ListTest do
 
       assert {:error, _changeset} = List.create_list(@valid_attrs)
     end
+
+    test "get lists from ids" do
+      {:ok, _list} = List.create_list(@valid_attrs)
+      assert lists = List.get_lists_from_ids([1, 2, 3])
+      assert length(lists) == 1
+    end
+
+    test "get the lists for a person" do
+      {:ok, _list} = List.create_list(@valid_attrs)
+      assert lists = List.list_person_lists(1)
+      assert length(lists) == 1
+    end
   end
 
   describe "Update list in Postgres" do
@@ -52,6 +64,15 @@ defmodule App.ListTest do
       assert {:ok, list_updated} = List.update_list(list, @valid_update_attrs)
 
       assert list_updated.name == "list 1 updated"
+    end
+  end
+
+  describe "Delete list in Postgres" do
+    @valid_attrs %{person_id: 1, name: "list 1"}
+
+    test "delet the list" do
+      assert {:ok, list} = List.create_list(@valid_attrs)
+      assert {:ok, _} = List.delete_list(list)
     end
   end
 

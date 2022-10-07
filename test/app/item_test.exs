@@ -1,6 +1,7 @@
 defmodule App.ItemTest do
-  use App.DataCase
+  use App.DataCase, async: false
   alias App.{Item, Person, Timer}
+  alias App.List, as: L
 
   setup [:create_person]
 

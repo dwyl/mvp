@@ -39,6 +39,15 @@ defmodule App.PersonTest do
       assert {:error, _changeset} =
                Person.create_person(%{person_id: 2, name: "person 1"})
     end
+
+    test "get_or_insert preson" do
+      assert person = Person.get_or_insert(0)
+      assert person.person_id == 0
+
+      {:ok, person} = Person.create_person(@valid_attrs)
+      assert get_person = Person.get_or_insert(1)
+      assert get_person.name == person.name
+    end
   end
 
   describe "Update person in Postgres" do
