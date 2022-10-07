@@ -1,11 +1,22 @@
-edit item
+<.container>
+<.h2 class="text-center mt-3">Edit Item's lists</.h2>
 
-<.form let={f} for={@changeset} action="" method="patch" class="py-3">
+<.form let={f} for={@changeset} action={Routes.item_path(@conn, :update, @item)} method="patch" class="py-3">
     <%= if @changeset.action do %>
       <div class="alert alert-danger">
         <p>Oops, something went wrong! Please check the errors below.</p>
       </div>
     <% end %>
-
+     
+      <.form_field
+        type="checkbox_group"
+        form={f}
+        field={:item_lists}
+        label="Lists"
+        options={@lists}
+        />
     <.button type="submit" label="Save" />
 </.form>
+
+<.a to={Routes.list_path(@conn, :new)} class="mt-2" label="Create a list" />
+</.container>

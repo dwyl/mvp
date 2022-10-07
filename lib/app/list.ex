@@ -30,6 +30,10 @@ defmodule App.List do
 
   def get_list!(id), do: Repo.get!(List, id)
 
+  def get_lists_from_ids(ids) do
+    Repo.all(from l in List, where: l.id in ^ids)
+  end
+
   def list_person_lists(person_id) do
     List
     |> where(person_id: ^person_id)
