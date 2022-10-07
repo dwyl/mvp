@@ -68,7 +68,7 @@ defmodule AppWeb.ListController do
     else
       conn
       |> put_flash(:info, "You can't access that page")
-      |> redirect(to: "/tags")
+      |> redirect(to: "/lists")
       |> halt()
     end
   end
