@@ -1,6 +1,6 @@
 defmodule AppWeb.Router do
   use AppWeb, :router
-  alias App.{Person, Repo}
+  alias App.Person
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -52,7 +52,6 @@ defmodule AppWeb.Router do
   # add name to their profile for sharing items feature
   defp profile_name(conn, _opts) do
     person_id = conn.assigns[:person][:id] || 0
-    # person = Person.get_person!(person_id)
 
     person = Person.get_or_insert(person_id)
 

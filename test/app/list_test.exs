@@ -42,8 +42,8 @@ defmodule App.ListTest do
     end
 
     test "get lists from ids" do
-      {:ok, _list} = List.create_list(@valid_attrs)
-      assert lists = List.get_lists_from_ids([1, 2, 3])
+      {:ok, list} = List.create_list(@valid_attrs)
+      assert lists = List.get_lists_from_ids([list.id])
       assert length(lists) == 1
     end
 

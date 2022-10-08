@@ -31,7 +31,6 @@ defmodule App.Item do
   end
 
   def changeset_with_lists(item, list_ids) do
-    # get list based on ids 
     lists = Repo.all(from l in L, where: l.id in ^list_ids)
 
     item
@@ -182,10 +181,8 @@ defmodule App.Item do
     accumulate_item_timers(values)
     |> Enum.map(fn t ->
       Map.put(t, :tags, items_tags[t.id].tags)
-      # Map.put(t, :lists, items_tags[t.id].lists)
     end)
     |> Enum.map(fn t ->
-      # Map.put(t, :tags, items_tags[t.id].tags)
       Map.put(t, :lists, items_tags[t.id].lists)
     end)
   end

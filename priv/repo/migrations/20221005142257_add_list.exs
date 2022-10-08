@@ -19,7 +19,7 @@ defmodule App.Repo.Migrations.AddList do
 
     create table(:lists_items, primary_key: false) do
       add(:item_id, references(:items, on_delete: :delete_all))
-      add(:list_id, references(:tags, on_delete: :delete_all))
+      add(:list_id, references(:lists, on_delete: :delete_all))
 
       timestamps()
     end
