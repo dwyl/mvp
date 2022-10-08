@@ -20,7 +20,6 @@ defmodule AppWeb.ItemController do
   end
 
   def update(conn, %{"id" => id} = params) do
-    person_id = conn.assigns[:person][:id] || 0
     item = Item.get_item!(id)
 
     list_ids =
@@ -29,16 +28,10 @@ defmodule AppWeb.ItemController do
         ids -> ids
       end
 
-    case Item.update_item_with_lists(item, list_ids) do
-      {:ok, _item} ->
-        conn
-        |> put_flash(:info, "Item's list updated successfully.")
-        |> redirect(to: "/")
+    {:ok, _item} = Item.update_item_with_lists(item, list_ids)
 
-      {:error, %Ecto.Changeset{} = changeset} ->
-        lists = List.list_person_lists(person_id) |> Enum.map(&{&1.name, &1.id})
-
-        render(conn, "edit.html", item: item, lists: lists, changeset: changeset)
-    end
+    conn
+    |> put_flash(:info, "Item's list updated successfully.")
+    |> redirect(to: "/")
   end
 end

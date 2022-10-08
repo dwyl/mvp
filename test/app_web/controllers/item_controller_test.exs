@@ -18,12 +18,11 @@ defmodule AppWeb.ItemControllerTest do
     item
   end
 
-  describe "edit item" do
+  describe "edit item's list" do
     setup [:create_item, :create_list]
 
-    test "renders form for editing chosen item's lists", %{
+    test "renders form for editing item's lists", %{
       conn: conn,
-      list: list,
       item: item
     } do
       conn =
@@ -31,22 +30,46 @@ defmodule AppWeb.ItemControllerTest do
         |> assign(:person, %{id: 1})
         |> get(Routes.item_path(conn, :edit, item))
 
-      assert html_response(conn, 200) =~ "Edit Item's lists"
+      assert html_response(conn, 200) =~ "Edit Item"
     end
   end
 
-  #  describe "update item's list" do
-  #    setup [:create_item, :create_list]
-  #
-  #    test "redirects to index when data is valid", %{conn: conn, list: list} do
-  #      conn =
-  #        conn
-  #        |> assign(:person, %{id: 1})
-  #        |> put(Routes.list_path(conn, :update, list), list: @update_attrs)
-  #
-  #      assert redirected_to(conn) == Routes.list_path(conn, :index)
-  #    end
-  #  end
+  describe "update item's list" do
+    setup [:create_item, :create_list]
+
+    test "Add a list to an item", %{
+      conn: conn,
+      list: list,
+      item: item
+    } do
+      update_params = %{item_lists: [list.id]}
+
+      conn =
+        conn
+        |> assign(:person, %{id: 1})
+        |> put(Routes.item_path(conn, :update, item), item: update_params)
+
+      assert length(Item.get_item!(item.id).lists) == 1
+
+      assert redirected_to(conn) == "/"
+    end
+
+    test "Remove list from item", %{
+      conn: conn,
+      item: item
+    } do
+      update_params = %{item_lists: ""}
+
+      conn =
+        conn
+        |> assign(:person, %{id: 1})
+        |> put(Routes.item_path(conn, :update, item), item: update_params)
+
+      assert length(Item.get_item!(item.id).lists) == 0
+
+      assert redirected_to(conn) == "/"
+    end
+  end
 
   defp create_list(_) do
     list = fixture(:list)
