@@ -1,0 +1,14 @@
+  <.form :let={f} for={@changeset} action={@action} method={@method} class="py-3">
+    <%= if @changeset.action do %>
+      <div class="alert alert-danger">
+        <p>Oops, something went wrong! Please check the errors below.</p>
+      </div>
+    <% end %>
+    <.form_field
+      type="text_input"
+      form={f}
+      field={:name}
+    />
+
+    <.button type="submit" label="Save" />
+  </.form>

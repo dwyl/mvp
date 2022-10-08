@@ -1,0 +1,27 @@
+<.container>
+<.h2 class="text-center mt-3">Listing Groups</.h2>
+<.table>
+    <.tr>
+      <.th>Name</.th>
+
+      <.th class="w-3"></.th>
+      <.th class="w-3"></.th>
+    </.tr>
+<%= for group <- @groups do %>
+    <.tr>
+      <.td>
+        <%= group.name %>
+      </.td>
+
+      <.td>
+        <%= link "Edit", to: Routes.group_path(@conn, :edit, group) %>
+      </.td>
+      <.td class="!text-red-500">
+        <%= link "Delete", to: Routes.group_path(@conn, :delete, group), method: :delete, data: [confirm: "Are you sure you want to delete this group?"] %>
+      </.td>
+    </.tr>
+<% end %>
+</.table>
+<.button link_type="a" to={Routes.group_path(@conn, :new)} label="New group"  class="my-3"/>
+</.container>
+
