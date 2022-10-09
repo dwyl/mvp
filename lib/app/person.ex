@@ -1,7 +1,7 @@
 defmodule App.Person do
   use Ecto.Schema
-  import Ecto.Changeset
-  alias App.{Item, Repo, Tag}
+  import Ecto.{Changeset, Query}
+  alias App.{Item, Group, GroupPerson, Repo, Tag}
   alias __MODULE__
   # https://hexdocs.pm/phoenix/Phoenix.Param.html
   @derive {Phoenix.Param, key: :person_id}
@@ -12,6 +12,12 @@ defmodule App.Person do
 
     has_many :items, Item, foreign_key: :person_id
     has_many :tags, Tag, foreign_key: :person_id
+
+    many_to_many(:groups, Group,
+      join_through: GroupPerson,
+      join_keys: [person_id: :person_id, group_id: :id]
+    )
+
     timestamps()
   end
 
@@ -30,6 +36,12 @@ defmodule App.Person do
   end
 
   def get_person!(person_id), do: Repo.get!(Person, person_id)
+
+  def get_person_with_groups!(person_id) do
+    Person
+    |> Repo.get!(person_id)
+    |> Repo.preload(groups: from(g in Group, order_by: g.name))
+  end
 
   def update_person(%Person{} = person, attrs) do
     person

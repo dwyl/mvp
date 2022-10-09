@@ -1,6 +1,6 @@
 defmodule AppWeb.GroupController do
   use AppWeb, :controller
-  alias App.Group
+  alias App.{Group, Person}
   # plug :permission_tag when action in [:edit, :update, :delete]
 
   # Only member of the group can have persmission on the group updates
@@ -13,9 +13,9 @@ defmodule AppWeb.GroupController do
 
   def index(conn, _params) do
     person_id = conn.assigns[:person][:id] || 0
-    groups = Group.list_person_groups(person_id)
+    person = Person.get_person_with_groups!(person_id)
 
-    render(conn, "index.html", groups: groups)
+    render(conn, "index.html", groups: person.groups)
   end
 
   def new(conn, _params) do

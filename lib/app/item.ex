@@ -1,7 +1,6 @@
 defmodule App.Item do
   use Ecto.Schema
-  import Ecto.Changeset
-  import Ecto.Query
+  import Ecto.{Changeset, Query}
   alias App.{Repo, Tag, ListItem, ItemTag, Person}
   alias App.List, as: L
   alias __MODULE__

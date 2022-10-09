@@ -7,8 +7,13 @@ defmodule App.Group do
   schema "groups" do
     field :name, :string
 
-    many_to_many(:people, Person, join_through: GroupPerson)
-    many_to_many(:lists, List, join_through: GroupList)
+    many_to_many(:people, Person,
+      join_through: GroupPerson,
+      on_replace: :delete,
+      join_keys: [group_id: :id, person_id: :person_id]
+    )
+
+    many_to_many(:lists, List, join_through: GroupList, on_replace: :delete)
 
     timestamps()
   end
@@ -20,13 +25,12 @@ defmodule App.Group do
     |> validate_required([:name])
   end
 
-  def list_person_groups(_person_id) do
-    []
-  end
+  def create_group(person_id, attrs) do
+    person = Person.get_person!(person_id)
 
-  def create_group(_person_id, attrs) do
     %Group{}
     |> changeset(attrs)
+    |> put_assoc(:people, [person])
     |> Repo.insert()
   end
 end
