@@ -1,6 +1,6 @@
 defmodule App.Group do
   use Ecto.Schema
-  import Ecto.Changeset
+  import Ecto.{Changeset, Query}
   alias App.{List, GroupList, Person, GroupPerson, Repo}
   alias __MODULE__
 
@@ -32,5 +32,11 @@ defmodule App.Group do
     |> changeset(attrs)
     |> put_assoc(:people, [person])
     |> Repo.insert()
+  end
+
+  def get_group!(id) do
+    Group
+    |> Repo.get!(id)
+    |> Repo.preload(people: from(p in Person, order_by: p.name))
   end
 end

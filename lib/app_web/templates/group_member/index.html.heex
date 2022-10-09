@@ -1,0 +1,34 @@
+<.container>
+<.h2 class="text-center mt-3">Listing Group Members</.h2>
+
+<.form :let={f} for={@changeset} action={Routes.group_group_member_path(@conn, :create, @group)} class="py-3">
+  <%= if @changeset.action do %>
+    <div class="alert alert-danger">
+       <p>Oops, something went wrong! Please check the errors below.</p>
+     </div>
+  <% end %>
+  <.form_field
+    type="text_input"
+    form={f}
+    field={:name}
+    placeholder="Person's name"
+  />
+
+  <.button type="submit" label="Add" />
+</.form>
+
+<.table>
+    <.tr>
+      <.th>Name</.th>
+
+      <.th class="w-3"></.th>
+    </.tr>
+<%= for member <- @group.people do %>
+    <.tr>
+      <.td>
+        <%= member.name %>
+      </.td>
+    </.tr>
+<% end %>
+</.table>
+</.container>

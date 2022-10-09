@@ -32,12 +32,24 @@ defmodule AppWeb.Router do
     live "/", AppLive
     resources "/tags", TagController, except: [:show]
     resources "/lists", ListController, except: [:show]
-    resources "/groups", GroupController, except: [:show]
     get "/login", AuthController, :login
     get "/logout", AuthController, :logout
 
     # edit item lists
     resources "/items", ItemController, only: [:edit, :update]
+
+    # manage groups
+    resources "/groups", GroupController, except: [:show]
+
+    # edit and update list to group
+    resources "/groups", GroupController, only: [:show] do
+      resources "/lists", GroupListController, only: [:edit, :update]
+    end
+
+    # edit and update group members
+    resources "/groups", GroupController, only: [:show] do
+      resources "/members", GroupMemberController, only: [:index, :create]
+    end
   end
 
   # assign to conn the loggedin value used in templates
