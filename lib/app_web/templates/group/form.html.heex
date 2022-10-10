@@ -1,4 +1,4 @@
-<.form let={f} for={@changeset} action={@action} method="patch" class="py-3">
+  <.form :let={f} for={@changeset} action={@action} method={@method} class="py-3">
     <%= if @changeset.action do %>
       <div class="alert alert-danger">
         <p>Oops, something went wrong! Please check the errors below.</p>
@@ -7,9 +7,8 @@
     <.form_field
       type="text_input"
       form={f}
-      field={:text}
+      field={:name}
     />
-    <.form_field type="color_input" form={f} field={:color}/>
 
     <.button type="submit" label="Save" />
-</.form>
+  </.form>

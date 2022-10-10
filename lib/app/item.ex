@@ -1,30 +1,40 @@
 defmodule App.Item do
   use Ecto.Schema
-  import Ecto.Changeset
-  import Ecto.Query
-  alias App.{Repo, Tag, ItemTag, Person}
+  import Ecto.{Changeset, Query}
+  alias App.{Repo, Tag, ListItem, ItemTag, Person}
+  alias App.List, as: L
   alias __MODULE__
 
   schema "items" do
     field :status, :integer
     field :text, :string
+    field :item_lists, {:array, :string}, virtual: true
 
     belongs_to :people, Person, references: :person_id, foreign_key: :person_id
     many_to_many(:tags, Tag, join_through: ItemTag, on_replace: :delete)
+    many_to_many(:lists, L, join_through: ListItem, on_replace: :delete)
 
     timestamps()
   end
 
   @doc false
-  def changeset(item, attrs) do
+  def changeset(item, attrs \\ %{}) do
     item
-    |> cast(attrs, [:person_id, :status, :text])
+    |> cast(attrs, [:person_id, :status, :text, :item_lists])
     |> validate_required([:text, :person_id])
   end
 
   def changeset_with_tags(item, attrs) do
     changeset(item, attrs)
     |> put_assoc(:tags, Tag.parse_and_create_tags(attrs))
+  end
+
+  def changeset_with_lists(item, list_ids) do
+    lists = Repo.all(from l in L, where: l.id in ^list_ids)
+
+    item
+    |> change()
+    |> put_assoc(:lists, lists)
   end
 
   @doc """
@@ -69,6 +79,7 @@ defmodule App.Item do
     Item
     |> Repo.get!(id)
     |> Repo.preload(tags: from(t in Tag, order_by: t.text))
+    |> Repo.preload(lists: from(l in L, order_by: l.name))
   end
 
   @doc """
@@ -92,6 +103,7 @@ defmodule App.Item do
     |> where(person_id: ^person_id)
     |> Repo.all()
     |> Repo.preload(tags: from(t in Tag, order_by: t.text))
+    |> Repo.preload(lists: from(l in L, order_by: l.name))
   end
 
   @doc """
@@ -118,6 +130,12 @@ defmodule App.Item do
   def update_item_with_tags(%Item{} = item, attrs) do
     item
     |> Item.changeset_with_tags(attrs)
+    |> Repo.update()
+  end
+
+  def update_item_with_lists(%Item{} = item, list_ids) do
+    item
+    |> Item.changeset_with_lists(list_ids)
     |> Repo.update()
   end
 
@@ -162,6 +180,9 @@ defmodule App.Item do
     accumulate_item_timers(values)
     |> Enum.map(fn t ->
       Map.put(t, :tags, items_tags[t.id].tags)
+    end)
+    |> Enum.map(fn t ->
+      Map.put(t, :lists, items_tags[t.id].lists)
     end)
   end
 

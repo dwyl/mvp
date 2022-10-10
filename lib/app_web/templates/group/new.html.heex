@@ -1,0 +1,8 @@
+<.container>
+<.h2 class="text-center mt-3">New group</.h2>
+
+<%= render "form.html", Map.put(assigns, :action, Routes.group_path(@conn, :create)) |> Map.put(:method, "post") %>
+
+<.a to={Routes.group_path(@conn, :index)} label="Back to groups" />
+
+</.container>

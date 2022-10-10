@@ -31,8 +31,21 @@ defmodule AppWeb.Router do
     pipe_through [:check_profile_name]
     live "/", AppLive
     resources "/tags", TagController, except: [:show]
+    resources "/lists", ListController, except: [:show]
     get "/login", AuthController, :login
     get "/logout", AuthController, :logout
+
+    # edit item lists
+    resources "/items", ItemController, only: [:edit, :update]
+
+    # manage groups
+    resources "/groups", GroupController, except: [:show]
+
+    # edit and update group members
+    resources "/groups", GroupController, only: [:show] do
+      resources "/members", GroupMemberController, only: [:index, :create]
+      resources "/lists", GroupListController, only: [:index, :create]
+    end
   end
 
   # assign to conn the loggedin value used in templates
@@ -48,7 +61,8 @@ defmodule AppWeb.Router do
   # add name to their profile for sharing items feature
   defp profile_name(conn, _opts) do
     person_id = conn.assigns[:person][:id] || 0
-    person = Person.get_person!(person_id)
+
+    person = Person.get_or_insert(person_id)
 
     if is_nil(person.name) do
       conn
