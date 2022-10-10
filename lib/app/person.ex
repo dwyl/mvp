@@ -36,6 +36,7 @@ defmodule App.Person do
   end
 
   def get_person!(person_id), do: Repo.get!(Person, person_id)
+  def get_person_by_name(name), do: Repo.get_by(Person, name: name)
 
   def get_person_with_groups!(person_id) do
     Person
