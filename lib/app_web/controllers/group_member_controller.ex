@@ -1,15 +1,11 @@
 defmodule AppWeb.GroupMemberController do
   use AppWeb, :controller
-  alias App.{Group, Person}
+  alias App.{Group, Person, Repo}
   import Ecto.Changeset
-
-  # plug :permission_tag when action in [:edit, :update, :delete]
 
   def index(conn, %{"group_id" => group_id}) do
     group = Group.get_group!(group_id)
     changeset = Person.changeset(%Person{})
-    # person_id = conn.assigns[:person][:id] || 0
-    # tags = Tag.list_person_tags(person_id)
 
     render(conn, "index.html", changeset: changeset, group: group)
   end
@@ -22,12 +18,17 @@ defmodule AppWeb.GroupMemberController do
         changeset =
           %Person{name: name}
           |> change()
-          |> add_error(:name, "This name doesn't seem to exist")
+          |> add_error(:name, "Person's name not found")
           |> Map.put(:action, :insert)
 
         render(conn, "index.html", changeset: changeset, group: group)
 
       person ->
+        group
+        |> change()
+        |> put_assoc(:people, [person | group.people])
+        |> Repo.update()
+
         redirect(conn,
           to: Routes.group_group_member_path(conn, :index, group_id)
         )

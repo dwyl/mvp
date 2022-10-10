@@ -41,14 +41,10 @@ defmodule AppWeb.Router do
     # manage groups
     resources "/groups", GroupController, except: [:show]
 
-    # edit and update list to group
-    resources "/groups", GroupController, only: [:show] do
-      resources "/lists", GroupListController, only: [:edit, :update]
-    end
-
     # edit and update group members
     resources "/groups", GroupController, only: [:show] do
       resources "/members", GroupMemberController, only: [:index, :create]
+      resources "/lists", GroupListController, only: [:index, :create]
     end
   end
 

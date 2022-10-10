@@ -25,6 +25,14 @@ defmodule App.Group do
     |> validate_required([:name])
   end
 
+  def changeset_with_lists(group, list_ids) do
+    lists = Repo.all(from l in List, where: l.id in ^list_ids)
+
+    group
+    |> change()
+    |> put_assoc(:lists, lists)
+  end
+
   def create_group(person_id, attrs) do
     person = Person.get_person!(person_id)
 
@@ -38,5 +46,12 @@ defmodule App.Group do
     Group
     |> Repo.get!(id)
     |> Repo.preload(people: from(p in Person, order_by: p.name))
+    |> Repo.preload(lists: from(l in List, order_by: l.name))
+  end
+
+  def update_group_with_lists(%Group{} = group, list_ids) do
+    group
+    |> Group.changeset_with_lists(list_ids)
+    |> Repo.update()
   end
 end

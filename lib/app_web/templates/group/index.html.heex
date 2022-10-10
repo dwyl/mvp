@@ -19,7 +19,7 @@
         <%= link "Members", to: Routes.group_group_member_path(@conn, :index, group) %>
       </.td>
       <.td>
-        <%= link "Lists", to: Routes.group_path(@conn, :edit, group) %>
+        <%= link "Lists", to: Routes.group_group_list_path(@conn, :index, group) %>
       </.td>
       <.td>
         <%= link "Edit", to: Routes.group_path(@conn, :edit, group) %>
