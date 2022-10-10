@@ -38,48 +38,32 @@ defmodule AppWeb.GroupController do
     end
   end
 
-  #  def edit(conn, %{"id" => id}) do
-  #    tag = Tag.get_tag!(id)
-  #    changeset = Tag.changeset(tag)
-  #    render(conn, "edit.html", tag: tag, changeset: changeset)
-  #  end
+  def edit(conn, %{"id" => id}) do
+    group = Group.get_group!(id)
+    changeset = Group.changeset(group)
+    render(conn, "edit.html", group: group, changeset: changeset)
+  end
 
-  #  def update(conn, %{"id" => id, "tag" => tag_params}) do
-  #    tag = Tag.get_tag!(id)
+  def update(conn, %{"id" => id, "group" => group_params}) do
+    group = Group.get_group!(id)
 
-  #    case Tag.update_tag(tag, tag_params) do
-  #      {:ok, _tag} ->
-  #        conn
-  #        |> put_flash(:info, "Tag updated successfully.")
-  #        |> redirect(to: Routes.tag_path(conn, :index))
+    case Group.update_group(group, group_params) do
+      {:ok, _group} ->
+        conn
+        |> put_flash(:info, "Group updated successfully.")
+        |> redirect(to: Routes.group_path(conn, :index))
 
-  #      {:error, %Ecto.Changeset{} = changeset} ->
-  #        render(conn, "edit.html", tag: tag, changeset: changeset)
-  #    end
-  #  end
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, "edit.html", group: group, changeset: changeset)
+    end
+  end
 
-  #  def delete(conn, %{"id" => id}) do
-  #    tag = Tag.get_tag!(id)
+  def delete(conn, %{"id" => id}) do
+    group = Group.get_group!(id)
+    {:ok, _group} = Group.delete_group(group)
 
-  #    {:ok, _tag} = Tag.delete_tag(tag)
-
-  #    conn
-  #    |> put_flash(:info, "Tick deleted successfully.")
-  #    |> redirect(to: Routes.tag_path(conn, :index))
-  #  end
-
-  # defp permission_tag(conn, _opts) do
-  #   tag = Tag.get_tag!(conn.params["id"])
-
-  #   person_id = conn.assigns[:person][:id] || 0
-
-  #   if tag.person_id == person_id do
-  #     conn
-  #   else
-  #     conn
-  #     |> put_flash(:info, "You can't access that page")
-  #     |> redirect(to: "/tags")
-  #     |> halt()
-  #   end
-  # end
+    conn
+    |> put_flash(:info, "Group deleted successfully.")
+    |> redirect(to: Routes.group_path(conn, :index))
+  end
 end

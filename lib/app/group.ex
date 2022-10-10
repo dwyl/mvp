@@ -49,9 +49,19 @@ defmodule App.Group do
     |> Repo.preload(lists: from(l in List, order_by: l.name))
   end
 
+  def update_group(%Group{} = group, attrs) do
+    group
+    |> Group.changeset(attrs)
+    |> Repo.update()
+  end
+
   def update_group_with_lists(%Group{} = group, list_ids) do
     group
     |> Group.changeset_with_lists(list_ids)
     |> Repo.update()
+  end
+
+  def delete_group(%Group{} = group) do
+    Repo.delete(group)
   end
 end
