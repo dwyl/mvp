@@ -71,7 +71,7 @@ defmodule App.MixProject do
       # create docs on localhost by running "mix docs"
       {:ex_doc, "~> 0.28.4", only: :dev, runtime: false},
       # Track test coverage
-      {:excoveralls, "~> 0.14.5", only: [:test, :dev]},
+      {:excoveralls, "~> 0.15", only: [:test, :dev]},
       # git pre-commit hook runs tests before allowing commits
       {:pre_commit, "~> 0.3.4"},
       {:credo, "~> 1.6.4", only: [:dev, :test], runtime: false},
