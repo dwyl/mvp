@@ -57,19 +57,6 @@ defmodule AppWeb.ProfileControllerTest do
     end
   end
 
-  describe "redirect to edit profile when profile name not define" do
-    setup :create_profile_with_no_name
-
-    test "redirect to edit profile", %{conn: conn, person: person} do
-      conn =
-        conn
-        |> assign(:person, %{id: person.person_id})
-        |> get("/")
-
-      assert redirected_to(conn) == "/profile/#{person.person_id}/edit"
-    end
-  end
-
   def fixture(:person) do
     {:ok, person} = Person.create_person(@create_attrs)
     person

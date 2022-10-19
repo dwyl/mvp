@@ -48,15 +48,16 @@ defmodule AppWeb.Router do
   # add name to their profile for sharing items feature
   defp profile_name(conn, _opts) do
     person_id = conn.assigns[:person][:id] || 0
-    person = Person.get_person!(person_id)
-
-    if is_nil(person.name) do
-      conn
-      |> put_flash(:info, "Add a name to your profile to allow sharing items")
-      |> redirect(to: "/profile/#{person.person_id}/edit")
-      |> halt()
-    else
-      conn
-    end
+    _person = Person.get_or_insert(person_id)
+    conn
+    
+    # if is_nil(person.name) do
+    #   conn
+    #   |> put_flash(:info, "Add a name to your profile to allow sharing items")
+    #   |> redirect(to: "/profile/#{person.person_id}/edit")
+    #   |> halt()
+    # else
+    #   conn
+    # end
   end
 end
