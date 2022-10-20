@@ -50,7 +50,7 @@ defmodule AppWeb.Router do
     person_id = conn.assigns[:person][:id] || 0
     _person = Person.get_or_insert(person_id)
     conn
-    
+
     # if is_nil(person.name) do
     #   conn
     #   |> put_flash(:info, "Add a name to your profile to allow sharing items")
