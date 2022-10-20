@@ -1,31 +1,36 @@
 <!-- need to figure out how to render the partial passing in @loggedin and @person ... 
   ref: https://github.com/dwyl/app-mvp-phoenix/issues/105 -->
-<%= render "nav.html", conn: @conn %>
+<%= render("nav.html", conn: @conn) %>
 <header class="bg-slate-800 w-full min-h-[12%]">
-<nav class="bg-white border-gray-200 px-2 sm:px-4 py-2 dark:bg-gray-900">
-  <div class="container flex flex-wrap justify-between items-center mx-auto">
+  <nav class="bg-white border-gray-200 px-2 sm:px-4 py-2 dark:bg-gray-900">
+    <div class="container flex flex-wrap justify-between items-center mx-auto">
+      <%= if @loggedin do %>
+        <img
+          src={@person.picture}
+          class="mr-3 h-6 sm:h-9 rounded-full"
+          alt="avatar image"
+        />
+      <% else %>
+        <h1 class="text-white">Hi Friend!</h1>
+      <% end %>
 
-    <%= if @loggedin do %>
-      <img src={@person.picture} class="mr-3 h-6 sm:h-9 rounded-full" alt="avatar image">
-    <% else %>
-      <h1 class="text-white">Hi Friend!</h1>
-    <% end %>
+      <a href="/" class="flex items-center">
+        <img
+          src="https://dwyl.com/img/favicon-32x32.png"
+          class="mr-3 h-6 sm:h-9"
+          alt="dwyl logo"
+        />
+      </a>
 
-    <a href="/" class="flex items-center">
-        <img src="https://dwyl.com/img/favicon-32x32.png" class="mr-3 h-6 sm:h-9" alt="dwyl logo">
-    </a>
-
-    <%= if @loggedin do %>
-     <button
-        class="bg-teal-600 text-white rounded-md px-3 py-1 text-sm align-middle float-right">
-        <%= link "logout", to: "/logout" %>
-      </button>
-
-    <% else %>
-    <button class="bg-teal-500 text-white rounded-md -pt-1 px-3 py-1 text-sm align-middle float-right">
-      <%= link "Login", to: "/login" %>
-    </button>
-    <% end %>
-  </div>
-</nav>
+      <%= if @loggedin do %>
+        <button class="bg-teal-600 text-white rounded-md px-3 py-1 text-sm align-middle float-right">
+          <%= link("logout", to: "/logout") %>
+        </button>
+      <% else %>
+        <button class="bg-teal-500 text-white rounded-md -pt-1 px-3 py-1 text-sm align-middle float-right">
+          <%= link("Login", to: "/login") %>
+        </button>
+      <% end %>
+    </div>
+  </nav>
 </header>

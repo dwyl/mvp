@@ -1,67 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta name="csrf-token" content={csrf_token_value()}>
+    <meta name="csrf-token" content={csrf_token_value()} />
     <.live_title prefix="dwyl – ">
       <%= assigns[:page_title] || "mvp" %>
     </.live_title>
-    <%= render "icons.html" %>
-    <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/assets/app.css")}/> 
-    <script defer phx-track-static src={Routes.static_path(@conn, "/assets/app.js")}></script>
+    <%= render("icons.html") %>
+    <link
+      phx-track-static
+      rel="stylesheet"
+      href={Routes.static_path(@conn, "/assets/app.css")}
+    />
+    <script
+      defer
+      phx-track-static
+      src={Routes.static_path(@conn, "/assets/app.js")}
+    >
+    </script>
     <!-- see: https://github.com/dwyl/learn-alpine.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.10.2/cdn.js" defer></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.10.2/cdn.js"
+      defer
+    >
+    </script>
   </head>
   <body>
     <nav class="px-2 sm:px-4 py-2 bg-gray-900 w-full min-h-[12%]">
       <div class="container flex flex-wrap justify-between items-center mx-auto">
-
         <%= if @loggedin do %>
           <a href={Routes.profile_path(@conn, :edit, @person.id)}>
-          <img src={@person.picture} class="mr-3 h-6 sm:h-9 rounded-full" alt="avatar image">
+            <img
+              src={@person.picture}
+              class="mr-3 h-6 sm:h-9 rounded-full"
+              alt="avatar image"
+            />
           </a>
         <% else %>
           <h1 class="text-white">Hi Friend!</h1>
         <% end %>
-
         <!-- always display logo -->
         <a href="/" class="flex items-center">
-            <img src="https://dwyl.com/img/favicon-32x32.png" 
-              height="32" width="32" alt="dwyl logo">
+          <img
+            src="https://dwyl.com/img/favicon-32x32.png"
+            height="32"
+            width="32"
+            alt="dwyl logo"
+          />
         </a>
 
         <%= if @loggedin do %>
-        <div class="flex justify-between items-center">
-          <div class="mr-1 inline-flex items-center pt-1 px-3 py-1 text-sm">
+          <div class="flex justify-between items-center">
+            <div class="mr-1 inline-flex items-center pt-1 px-3 py-1 text-sm">
+              <%= link("tags", to: "/tags", class: "text-white font-bold") %>
+            </div>
 
-            <%= link "tags", to: "/tags", class: "text-white font-bold" %>
-          </div>
-           
-           <div class="mr-1 inline-flex items-center -pt-1 px-3 py-1 text-sm
+            <div class="mr-1 inline-flex items-center -pt-1 px-3 py-1 text-sm
                 bg-red-600 hover:bg-red-700 text-white rounded-md">
-                <svg xmlns="http://www.w3.org/2000/svg" 
-                  class="h-4 w-4 mr-2" fill="white" 
-                  viewBox="0 0 24 24" stroke="currentColor">
-  <path d="M22.763,10.232l-4.95-4.95L16.4,6.7,20.7,11H6.617v2H20.7l-4.3,4.3,1.414,1.414,4.95-4.95a2.5,2.5,0,0,0,0-3.536Z"/>
-  <path d="M10.476,21a1,1,0,0,1-1,1H3a1,1,0,0,1-1-1V3A1,1,0,0,1,3,2H9.476a1,1,0,0,1,1,1V8.333h2V3a3,3,0,0,0-3-3H3A3,3,0,0,0,0,3V21a3,3,0,0,0,3,3H9.476a3,3,0,0,0,3-3V15.667h-2Z"/>
-                </svg>
-                <%= link "logout", to: "/logout", class: "flex-1" %>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4 mr-2"
+                fill="white"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path d="M22.763,10.232l-4.95-4.95L16.4,6.7,20.7,11H6.617v2H20.7l-4.3,4.3,1.414,1.414,4.95-4.95a2.5,2.5,0,0,0,0-3.536Z" />
+                <path d="M10.476,21a1,1,0,0,1-1,1H3a1,1,0,0,1-1-1V3A1,1,0,0,1,3,2H9.476a1,1,0,0,1,1,1V8.333h2V3a3,3,0,0,0-3-3H3A3,3,0,0,0,0,3V21a3,3,0,0,0,3,3H9.476a3,3,0,0,0,3-3V15.667h-2Z" />
+              </svg>
+              <%= link("logout", to: "/logout", class: "flex-1") %>
             </div>
           </div>
-
         <% else %>
           <div class="flex justify-end mr-1 inline-flex items-center -pt-1 px-3 py-1 text-sm
             bg-teal-700 hover:bg-teal-800 text-white rounded-md">
-            <svg xmlns="http://www.w3.org/2000/svg" 
-              class="h-4 w-4 mr-2" fill="white" 
-              viewBox="0 0 24 24" stroke="currentColor">
-<path d="M16.043,14H7.957A4.963,4.963,0,0,0,3,18.957V24H21V18.957A4.963,4.963,0,0,0,16.043,14Z"/><circle cx="11" cy="5" r="5"/>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4 mr-2"
+              fill="white"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path d="M16.043,14H7.957A4.963,4.963,0,0,0,3,18.957V24H21V18.957A4.963,4.963,0,0,0,16.043,14Z" /><circle
+                cx="11"
+                cy="5"
+                r="5"
+              />
             </svg>
-            <%= link "login", to: "/login", class: "flex-1" %>
+            <%= link("login", to: "/login", class: "flex-1") %>
           </div>
-        <% end  %>
+        <% end %>
       </div>
     </nav>
     <%= @inner_content %>
   </body>
 </html>
-
