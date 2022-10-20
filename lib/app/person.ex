@@ -36,4 +36,9 @@ defmodule App.Person do
     |> Person.changeset(attrs)
     |> Repo.update()
   end
+
+  def get_or_insert(person_id) do
+    Repo.get_by(Person, person_id: person_id) ||
+      Repo.insert!(%Person{person_id: person_id})
+  end
 end
