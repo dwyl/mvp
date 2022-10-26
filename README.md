@@ -266,8 +266,10 @@ and perform some actions to test the App:
 20. ***Edit*** the remaining `item` text for the timer that is already running.
 21. ***Mark*** the (`private`) `item` as `done` and see the time it took.
 22. ***`Archive`*** the `item`
-23. ***Logout*** of the app
-24. ***View*** the (`public`) `item` you created earlier with the `timer` still running.
+24. ***Click*** on the `tags` label on the navbar to check the `tag`s created.
+25. ***Go back***
+26. ***Logout*** of the app
+27. ***View*** the (`public`) `item` you created earlier with the `timer` still running.
 
 That's it. 
 The MVP in a nutshell. 
