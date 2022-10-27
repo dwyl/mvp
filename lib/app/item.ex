@@ -166,7 +166,8 @@ defmodule App.Item do
 
     accumulate_item_timers(values)
     |> Enum.map(fn t ->
-      Map.put(t, :tags, items_tags[t.id].tags) |> Map.put(:timers, items_timers[t.id])
+      Map.put(t, :tags, items_tags[t.id].tags)
+      |> Map.put(:timers, Enum.reject(items_timers[t.id], fn %{start: start, stop: stop} -> start == nil and stop == nil end ))
     end)
   end
 
