@@ -3,7 +3,7 @@
     phx-submit="create"
     class="w-full lg:w-3/4 lg:max-w-lg text-center mx-auto"
   >
-    <!-- textarea so that we can have multi-line capturing 
+    <!-- textarea so that we can have multi-line capturing
       help wanted auto re-sizing: https://github.com/dwyl/learn-alpine.js/issues/3 -->
     <textarea
       class="w-full py-1 px-1 text-slate-800 text-3xl
@@ -232,33 +232,36 @@
                   <h1 class="text-4xl font-bold">Timers</h1>
 
                   <div class="flex flex-col w-full mt-2">
-                    <div class="flex flex-row w-full justify-between">
-                      <div class="flex flex-row items-center">
-                        <h3 class="mr-3">Start:</h3>
-                        <input
-                          type="text"
-                          value="2022-10-27 13:37"
-                        />
-                      </div>
-                      <div class="flex flex-row items-center">
-                        <h3 class="mr-3">Start:</h3>
-                        <input
-                          type="text"
-                          value="2022-10-27 14:42"
-                        />
-                      </div>
+                    <%= for timer <- item.timers do %>
+                      <div class="flex flex-row w-full justify-between">
+                        <div class="flex flex-row items-center">
+                          <h3 class="mr-3">Start:</h3>
+                          <input
+                            type="text"
+                            value={timer.start}
+                          />
+                        </div>
+                        <div class="flex flex-row items-center">
+                          <h3 class="mr-3">Stop:</h3>
+                          <input
+                            type="text"
+                            value={timer.stop}
+                          />
+                        </div>
 
-                      <button type="button"
-                        class="text-white bg-blue-700
-                        hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300
-                        font-medium rounded-full text-sm px-5 py-2.5 text-center
-                        mr-2 mb-2
-                          dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                          Update
-                      </button>
+                        <button type="button"
+                          class="text-white bg-blue-700
+                          hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300
+                          font-medium rounded-full text-sm px-5 py-2.5 text-center
+                          mr-2 mb-2
+                            dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                            Update
+                        </button>
 
-                    </div>
+                      </div>
+                    <%= end %>
                   </div>
+
                 </div>
               </div>
 
@@ -325,8 +328,8 @@
                     class="flex flex-col"
                     x-data="{
                   start: parseInt($refs.timer_start.innerHTML, 10),
-                  current: null, 
-                  stop: null, 
+                  current: null,
+                  stop: null,
                   interval: null
                 }"
                     x-init="

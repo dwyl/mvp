@@ -159,9 +159,14 @@ defmodule App.Item do
       list_person_items(person_id)
       |> Enum.reduce(%{}, fn i, acc -> Map.put(acc, i.id, i) end)
 
+    items_timers =
+      Enum.group_by(values,
+                    fn row -> row.id end,
+                    fn obj -> %{start: obj.start, stop: obj.stop} end)
+
     accumulate_item_timers(values)
     |> Enum.map(fn t ->
-      Map.put(t, :tags, items_tags[t.id].tags)
+      Map.put(t, :tags, items_tags[t.id].tags) |> Map.put(:timers, items_timers[t.id])
     end)
   end
 

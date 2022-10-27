@@ -47,3 +47,4 @@ npm-debug.log
 
 #elm
 elm-stuff/
+.vscode/
