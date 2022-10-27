@@ -4,6 +4,7 @@ defmodule App.Item do
   import Ecto.Query
   alias App.{Repo, Tag, ItemTag, Person}
   alias __MODULE__
+  require Logger
 
   schema "items" do
     field :status, :integer
@@ -162,7 +163,11 @@ defmodule App.Item do
     items_timers =
       Enum.group_by(values,
                     fn row -> row.id end,
-                    fn obj -> %{start: obj.start, stop: obj.stop} end)
+                    fn obj ->
+                      start = if obj.start != nil, do: NaiveDateTime.truncate(obj.start, :second) |> NaiveDateTime.to_string(), else: nil
+                      stop = if obj.stop != nil, do: NaiveDateTime.truncate(obj.stop, :second) |> NaiveDateTime.to_string(), else: nil
+                      %{start: start, stop: stop}
+                   end)
 
     accumulate_item_timers(values)
     |> Enum.map(fn t ->
