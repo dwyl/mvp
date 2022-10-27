@@ -173,7 +173,7 @@ file. You need to do two things:
 *add a [`coveralls.json`](https://github.com/dwyl/app-mvp/blob/main/coveralls.json) 
 file (copy the contents)* 
 and _change `mix.exs` file according to 
-[**`this commit`**](https://github.com/dwyl/app-mvp/pull/90/commits/d6ab5ef7c2be5dcad7d060e782393ae29c94a526)
+[**`commit #d6ab5ef7c`**](https://github.com/dwyl/app-mvp/pull/90/commits/d6ab5ef7c2be5dcad7d060e782393ae29c94a526)
 (add alias in `defp aliases do` list with the `mix c` command)_. 
 
 This is just standard `Phoenix` project setup for us, 
