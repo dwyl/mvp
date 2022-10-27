@@ -56,7 +56,7 @@ Fly:
 [mvp.fly.dev](https://mvp.fly.dev/)
 and _use/test_ it (_internally_). <br />
 After collecting initial feedback,
-we integrated it into the main
+we will integrate it into the main
 [dwyl/**app**](https://github.com/dwyl/app) 
 repo.<br />
 We maintain this repo
@@ -248,32 +248,41 @@ and perform some actions to test the App:
 2. ***Start*** a `timer` for the (`public`) `item`
 3. ***Stop*** the `timer` for the `item` (press **`start`**)
 4. ***Mark*** the `item` as `done` (press/tap the `checkbox` to the left of the `item.text`)
-5. ***`Archive`*** the `item` (it will disappear)
-6. ***Create*** a new (`public`) `item`
-7. ***Start*** a `timer` for the (`public`) `item` and leave it running.
-8. ***Login*** using your **`GitHub`** or **`Google`** account.
-9.  ***Create*** a todo list `item` while logged-in
-10. ***Start*** a `timer` for the `item`
-11. ***Stop*** the `timer`
-12. ***Resume*** the `timer` that was previously stopped.
-13. ***Create*** a `new` (`private`) todo list `item` while logged-in
-14. ***Start*** a `timer` for the `item`
-15. ***Open*** a second web browser and watch the ***realtime sync***!
-16. ***Edit*** the `item.text` for the timer that is already running.
-17. ***Mark*** the (`private`) `item` as `done` and see the time it took.
-18. ***`Archive`*** the `item`
-19. ***Logout*** of the app
-20. ***View*** the (`public`) `item` you created earlier with the `timer` still running.
+5. ***Click*** on the `done` tab and **`archive`** the `item` (it will disappear)
+6. ***Click*** on the `archived` tab and you will see your archived item
+7. ***Create*** a new (`public`) `item`.
+8. ***Start*** a `timer` for the (`public`) `item` and leave it running
+9. ***Login*** using your **`GitHub`** or **`Google`** account.
+10. ***Create*** a todo list `item` while logged-in with a `tag`.
+11. ***Start*** a `timer` for the `item`
+12. ***Stop*** the `timer`
+13. ***Resume*** the `timer` that you just stopped.
+14. ***Create*** a new (`private`) todo list `item` while logged-in with a different `tag`
+15. ***Start*** a `timer` for the `item` 
+16. ***Open*** a second web browser and watch the ***realtime sync***!
+17. ***Click*** on the first private `item` `tag` and see the filtered list of `items` with that `tag`
+18. ***Click*** on the `active` tab or go back in the browser
+19. ***Mark*** the first `item` you created as `done`
+20. ***Edit*** the remaining `item` text for the timer that is already running.
+21. ***Mark*** the (`private`) `item` as `done` and see the time it took.
+22. ***`Archive`*** the `item`
+24. ***Click*** on the `tags` label on the navbar to check the `tag`s created.
+25. ***Go back***
+26. ***Logout*** of the app
+27. ***View*** the (`public`) `item` you created earlier with the `timer` still running.
 
 That's it. 
 The MVP in a nutshell. 
 Here's a **`GIF`** 
 if you're low on time:
 
-![mvp-fly-auth](https://user-images.githubusercontent.com/194400/180079997-b43a24c2-7a50-4755-aef9-ef3f2aa28816.gif)
+![speedrun](https://user-images.githubusercontent.com/17494745/198015908-40b08f1a-4f5c-4058-9ec8-dd90c4140edc.gif)
 
-The **`GIF`** showcases the (todo list) `items` and `timers`
-being synched across 3 browsers/devices in realtime.
+The **`GIF`** showcases the (todo list) `items`, 
+`tag` filtering and `timers`
+being synched across 2 browsers
+(one desktop and another mimicking mobile)
+in realtime.
 
 
 <br />
@@ -330,8 +339,9 @@ git clone git@github.com:dwyl/app-mvp.git && cd app-mvp
 source .env_sample
 mix setup
 ```
-That will download the **`code`**, 
-install dependencies
+That will load up the necessary env variables to run the app, 
+download the **`code`**, 
+install dependencies,
 and create the necessary database + tables.
 
 The line 

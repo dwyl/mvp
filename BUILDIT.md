@@ -121,6 +121,7 @@ to reduce complexity/dependencies.
 Run the `Phoenix` app with the command:
 
 ```sh
+cd app
 mix phx.server
 ```
 
@@ -168,14 +169,12 @@ That tells us everything is working as expected. 🚀
 If you prefer to see **test coverage** - we certainly do -
 then you will need to add a few lines to the 
 [`mix.exs`](https://github.com/dwyl/app-mvp/blob/main/mix.exs)
-file and
-create a 
-[`coveralls.json`](https://github.com/dwyl/app-mvp/blob/main/coveralls.json)
-file to exclude `Phoenix` files from `excoveralls` checking.
-Add alias (shortcuts) in `mix.exs` `defp aliases do` list. 
-
-e.g: `mix c` runs `mix coveralls.html` 
-see: [**`commits/d6ab5ef`**](https://github.com/dwyl/app-mvp/pull/90/commits/d6ab5ef7c2be5dcad7d060e782393ae29c94a526) ...
+file. You need to do two things: 
+*add a [`coveralls.json`](https://github.com/dwyl/app-mvp/blob/main/coveralls.json) 
+file (copy the contents)* 
+and _change `mix.exs` file according to 
+[**`commit #d6ab5ef7c`**](https://github.com/dwyl/app-mvp/pull/90/commits/d6ab5ef7c2be5dcad7d060e782393ae29c94a526)
+(add alias in `defp aliases do` list with the `mix c` command)_. 
 
 This is just standard `Phoenix` project setup for us, 
 so we don't duplicate any of the steps here. <br />
@@ -295,7 +294,7 @@ end
 Now if you refresh the page 
 you should see the following:
 
-![liveveiw-page-with-tailwind-style](https://user-images.githubusercontent.com/194400/176137805-34467c88-add2-487f-9593-931d0314df62.png)
+<img width="1077" alt="liveveiw-page-with-tailwind-style" src="https://user-images.githubusercontent.com/17494745/198072436-71ab8739-e4c7-4cdb-84f0-3803cc2f1fcc.png">
 
 ## 1.6 Update Tests
 
@@ -346,7 +345,9 @@ defmodule AppWeb.AppLiveTest do
 end
 ```
 
-Save the file 
+Save the file, 
+delete the `test/app_web/controllers/page_controller_test.exs`
+(it has the failing test on an unused component)
 and re-run the tests: `mix test`
 
 You should see output similar to the following:
@@ -371,7 +372,6 @@ we can delete the default files created by `Phoenix`:
 lib/app_web/views/page_view.ex
 lib/app_web/controllers/page_controller.ex
 lib/app_web/templates/page/index.html.heex
-test/app_web/controllers/page_controller_test.exs
 ```
 
 With those files deleted,
@@ -2114,7 +2114,8 @@ let us know!
 # 10. Filter Items
 
 On this section we want to add LiveView links to filter items by status.
-We first update the template to add the following footer:
+We first update the template to add the following footer
+in the `lib/app_web/live/app_live.html.heex` file:
 
 
 ```html
@@ -2135,7 +2136,9 @@ We first update the template to add the following footer:
 
 We are creating four `live_patch` links: "All", "Active", "Done" and "Archived".
 When a linked is clicked `LiveView` will search for the `handle_params` function
-in our `AppWeb.AppLive` module. Let's add this function:
+in our `AppWeb.AppLive` module. If we check the 
+`app_live.ex` file, we will notice these functions
+(**don't copy this code, it's already inside the file**):
 
 ```elixir
   # only show certain UI elements (buttons) if there are items:
@@ -2173,16 +2176,18 @@ in our `AppWeb.AppLive` module. Let's add this function:
 
 For each of the possible filters the function assigns to the socket the filterd
 list of items. Similar to our `done?` function we have created the `active?` and
-`archived?` functions which check the status value of an item:
+`archived?` functions which check the status value of an item
+(**don't copy this code, it's already inside the file**):
 
 ```elixir
-  def active?(item), do: item.status == 2 || items.status == 3
+  def active?(item), do: item.status == 2 || item.status == 3
   def done?(item), do: item.status == 4
   def archived?(item), do: item.status == 6
 ```
 
 Now that we have the new filtered list of items assigned to the socket, we need
-to make sure `archived` items are displayed. Let's update our template with:
+to make sure `archived` items are displayed. Let's update our template
+`app_live.html.heex` with:
 
 ```html
   <!-- List of items with inline buttons and controls -->
@@ -2199,25 +2204,32 @@ to make sure `archived` items are displayed. Let's update our template with:
         </label>
 
         <div class="flex flex-col">
-        <div class="flex flex-col justify-end mr-1">
-          <button disabled class="cursor-not-allowed inline-flex items-center px-2 py-1 mr-2 h-9
-          bg-gray-200 text-gray-800 rounded-md">
-            <svg xmlns="http://www.w3.org/2000/svg" 
-              class="h-5 w-5 mr-2" fill="none" 
-              viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-            </svg>
-            Archived
-          </button>
+          <div class="flex flex-col justify-end mr-1">
+            <button disabled class="cursor-not-allowed inline-flex items-center px-2 py-1 mr-2 h-9
+            bg-gray-200 text-gray-800 rounded-md">
+              <svg xmlns="http://www.w3.org/2000/svg" 
+                class="h-5 w-5 mr-2" fill="none" 
+                viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+              </svg>
+              Archived
+            </button>
+          </div>
         </div>
-      </div>
 
 
       <% else %>
       <!-- if item is "done" (status: 4) strike-through and show "Archive" button -->
       <%= if done?(item) do %>
+
+
       ...
+
+
+        <% end %>   <!-- don't forget to add this one!!! -->
+      </li>
+      <% end %><!-- end for item <- @items -->
 ```
 
 For each items we first check if the status is `archived`.
@@ -2309,10 +2321,17 @@ mix phx.gen.schema ItemTag items_tags item_id:references:items tag_id:references
 We are using the [references](https://hexdocs.pm/phoenix/Mix.Tasks.Phx.Gen.Schema.html#module-attributes)
 attribute to link the `item_id` field to the `items` table and `tag_id` to `tags`.
 
+Here's how the ER diagram should look so far.
+
+<img width="335" alt="full_diagram" src="https://user-images.githubusercontent.com/17494745/198112185-345e3720-5b62-49c3-ab5f-607b5b7f23c2.png">
+
+
 Before running our migrations file, we need to add a few changes to them.
 
 
-In our `create_tags` migration, update the file to:
+In our `create_tags` migration, update the file
+`priv/repo/migrations/XXXXXXXXX_create_tags.exs`
+ to:
 
 ```elixir
   def change do
