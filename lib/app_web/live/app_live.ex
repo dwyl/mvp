@@ -1,4 +1,6 @@
 defmodule AppWeb.AppLive do
+  require Logger
+
   use AppWeb, :live_view
   alias App.{Item, Timer}
   # run authentication on mount
@@ -109,6 +111,16 @@ defmodule AppWeb.AppLive do
 
     AppWeb.Endpoint.broadcast(@topic, "update", :update)
     {:noreply, assign(socket, editing: nil)}
+  end
+
+  @impl true
+  def handle_event("update-item-timer",
+                  %{"id" => id, "timer_start" => timer_start, "timer_stop" => timer_stop},
+                  socket) do
+
+    Logger.debug "FDS #{inspect(id)} #{inspect(timer_start)} #{inspect(timer_stop)}"
+
+    {:noreply, socket}
   end
 
   @impl true
@@ -245,7 +257,7 @@ defmodule AppWeb.AppLive do
   the tag names are seperated by commas
 
   ## Examples
-    
+
     tags_to_string([%Tag{text: "Learn"}, %Tag{text: "Elixir"}])
     "Learn, Elixir"
 
