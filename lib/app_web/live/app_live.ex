@@ -7,6 +7,8 @@ defmodule AppWeb.AppLive do
   on_mount AppWeb.AuthController
   alias Phoenix.Socket.Broadcast
 
+
+
   @topic "live"
 
   defp get_person_id(assigns), do: assigns[:person][:id] || 0
@@ -118,8 +120,24 @@ defmodule AppWeb.AppLive do
                   %{"id" => id, "timer_start" => timer_start, "timer_stop" => timer_stop},
                   socket) do
 
-    Logger.debug "FDS #{inspect(id)} #{inspect(timer_start)} #{inspect(timer_stop)}"
+    try do
+      start = DateTimeParser.parse!(timer_start, "%Y-%m-%d %H:%M:%S")
+      stop = DateTimeParser.parse!(timer_stop, "%Y-%m-%d %H:%M:%S")
 
+      Logger.debug("start #{start}")
+      Logger.debug("stop #{stop}")
+
+      Timer.update_timer(%{
+        id: id,
+        start: start,
+        stop: stop
+      })
+
+    rescue
+      e -> Logger.debug("NO UPDATE, ERROR")
+    end
+
+    #AppWeb.Endpoint.broadcast(@topic, "update", :update)
     {:noreply, socket}
   end
 

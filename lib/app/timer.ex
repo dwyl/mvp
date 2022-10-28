@@ -64,6 +64,22 @@ defmodule App.Timer do
   end
 
   @doc """
+  Updates a timer object.
+
+  ## Examples
+
+      iex> update_timer(%{id: 1, start: ~N[2022-07-11 05:15:31], stop: ~N[2022-07-11 05:15:37]})
+      {:ok, %Timer{id: 1, start: ~N[2022-07-11 05:15:31], stop: ~N[2022-07-11 05:15:37}}
+
+  """
+  def update_timer(attrs \\ %{}) do
+    get_timer!(attrs.id)
+    |> changeset(attrs)
+    |> Repo.update()
+  end
+
+
+  @doc """
   `stop_timer_for_item_id/1` stops a timer for the given item_id if there is one.
   Fails silently if there is no timer for the given item_id.
 

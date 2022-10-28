@@ -166,7 +166,7 @@ defmodule App.Item do
                     fn obj ->
                       start = if obj.start != nil, do: NaiveDateTime.truncate(obj.start, :second) |> NaiveDateTime.to_string(), else: nil
                       stop = if obj.stop != nil, do: NaiveDateTime.truncate(obj.stop, :second) |> NaiveDateTime.to_string(), else: nil
-                      %{start: start, stop: stop, id: obj.id}
+                      %{start: start, stop: stop, id: obj.timer_id}
                    end)
 
     accumulate_item_timers(values)
