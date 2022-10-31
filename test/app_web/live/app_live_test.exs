@@ -284,7 +284,8 @@ defmodule AppWeb.AppLiveTest do
 
   test "test login link redirect to auth.dwyl.com", %{conn: conn} do
     conn = get(conn, "/login")
-    assert redirected_to(conn, 302) =~ "https://dwylauth.herokuapp.com?referer=https://www.example.com/&auth_client_id=88SwQGzxQEvo6S9Pu7FZGp9btNo52rVkwtrhyub9i6K6UxVqho9A"
+
+    assert redirected_to(conn, 302) =~ "auth.dwyl.com"
   end
 
   test "tags_to_string/1" do
