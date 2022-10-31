@@ -120,10 +120,8 @@ defmodule AppWeb.AppLive do
         socket
       ) do
     try do
-      start = DateTimeParser.parse!(timer_start, "%Y-%m-%d %H:%M:%S")
-      stop = DateTimeParser.parse!(timer_stop, "%Y-%m-%d %H:%M:%S")
-
-      bruh = DateTime.compare(start, stop)
+      start = App.DateTimeParser.parse!(timer_start, "%Y-%m-%d %H:%M:%S")
+      stop = App.DateTimeParser.parse!(timer_stop, "%Y-%m-%d %H:%M:%S")
 
       case DateTime.compare(start, stop) do
         :lt -> Timer.update_timer(%{id: id, start: start, stop: stop})

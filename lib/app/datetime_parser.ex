@@ -1,6 +1,6 @@
 # Full credit of this module goes to https://dev.to/onpointvn/build-your-own-date-time-parser-in-elixir-50be
 # Do check the gist -> https://gist.github.com/bluzky/62a20cdb57b17f47c67261c10aa3da8b
-defmodule DateTimeParser do
+defmodule App.DateTimeParser do
   @mapping %{
     "H" => "(?<hour>\\d{2})",
     "I" => "(?<hour12>\\d{2})",
@@ -47,6 +47,9 @@ defmodule DateTimeParser do
     end
   end
 
+  @doc """
+  Parses the string according to the format. Pipes through regex compilation, casts each part of the string to a named regex capture and tries to convert to datetime.
+  """
   def parse(dt_string, format \\ "%Y-%m-%dT%H:%M:%SZ") do
     format
     |> build_regex
@@ -83,15 +86,10 @@ defmodule DateTimeParser do
   def cast_data(captures) do
     captures
     |> Enum.reduce_while([], fn {part, value}, acc ->
-      case cast(part, value) do
-        {:ok, data} -> {:cont, [data | acc]}
-        {:error, _} = error -> {:halt, error}
-      end
+      {:ok, data} = cast(part, value)
+      {:cont, [data | acc]}
     end)
-    |> case do
-      {:error, _} = error -> error
-      data -> Enum.into(data, @default_value)
-    end
+    |> Enum.into(@default_value)
   end
 
   @value_rages %{
@@ -119,8 +117,6 @@ defmodule DateTimeParser do
          {:ok, {_, minute}} <- cast("offset_m", minute) do
       sign = div(hour, abs(hour))
       {:ok, {:utc_offset, sign * (abs(hour) * 3600 + minute * 60)}}
-    else
-      _ -> {:error, "#{value} is invalid timezone offset"}
     end
   end
 
@@ -142,8 +138,6 @@ defmodule DateTimeParser do
 
     if valid do
       {:ok, {String.to_atom(part), value}}
-    else
-      {:error, "#{value} is not a valid #{part}"}
     end
   end
 
@@ -186,7 +180,7 @@ defmodule DateTimeParser do
       datetime = DateTime.add(datetime, -data.utc_offset, :second)
 
       if data.tz_name != "UTC" do
-        DateTime.shift_zone(datetime, data.tz_name)
+        {:error, "Only UTC timezone is available"}
       else
         {:ok, datetime}
       end
