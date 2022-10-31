@@ -229,9 +229,9 @@
                 <div>
                   <%= if (length item.timers) > 0 do %>
                     <h1 class="text-4xl font-bold">Timers</h1>
-                  <%= else %>
+                  <% else %>
                     <h1 class="text-2xl text-center font-semibold text-slate-400">No timers associated with this item.</h1>
-                  <%= end %>
+                  <% end %>
 
                   <div class="flex flex-col w-full mt-2">
                     <%= for timer <- item.timers do %>

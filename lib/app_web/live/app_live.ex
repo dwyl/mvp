@@ -124,17 +124,16 @@ defmodule AppWeb.AppLive do
       start = DateTimeParser.parse!(timer_start, "%Y-%m-%d %H:%M:%S")
       stop = DateTimeParser.parse!(timer_stop, "%Y-%m-%d %H:%M:%S")
 
-      Logger.debug("start #{start}")
-      Logger.debug("stop #{stop}")
+      bruh = DateTime.compare(start, stop)
 
-      Timer.update_timer(%{
-        id: id,
-        start: start,
-        stop: stop
-      })
+      case DateTime.compare(start, stop) do
+        :lt -> Timer.update_timer(%{ id: id, start: start, stop: stop })
+        :eq -> Logger.debug("dates are the same")
+        :gt -> Logger.debug("Start is newer that stop")
+      end
 
     rescue
-      e -> Logger.debug("NO UPDATE, ERROR")
+      e -> Logger.debug("Date format invalid on either start or stop, #{inspect(e)}")
     end
 
     #AppWeb.Endpoint.broadcast(@topic, "update", :update)
