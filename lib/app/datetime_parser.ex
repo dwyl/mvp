@@ -39,8 +39,11 @@ defmodule DateTimeParser do
   """
   def parse!(dt_string, format \\ "%Y-%m-%dT%H:%M:%SZ") do
     case parse(dt_string, format) do
-      {:ok, dt} -> dt
-      {:error, message} -> raise "Parse string #{dt_string} with error: #{message}"
+      {:ok, dt} ->
+        dt
+
+      {:error, message} ->
+        raise "Parse string #{dt_string} with error: #{message}"
     end
   end
 

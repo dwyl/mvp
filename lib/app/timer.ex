@@ -78,7 +78,6 @@ defmodule App.Timer do
     |> Repo.update()
   end
 
-
   @doc """
   `stop_timer_for_item_id/1` stops a timer for the given item_id if there is one.
   Fails silently if there is no timer for the given item_id.

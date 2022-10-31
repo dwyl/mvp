@@ -7,8 +7,6 @@ defmodule AppWeb.AppLive do
   on_mount AppWeb.AuthController
   alias Phoenix.Socket.Broadcast
 
-
-
   @topic "live"
 
   defp get_person_id(assigns), do: assigns[:person][:id] || 0
@@ -116,10 +114,11 @@ defmodule AppWeb.AppLive do
   end
 
   @impl true
-  def handle_event("update-item-timer",
-                  %{"id" => id, "timer_start" => timer_start, "timer_stop" => timer_stop},
-                  socket) do
-
+  def handle_event(
+        "update-item-timer",
+        %{"id" => id, "timer_start" => timer_start, "timer_stop" => timer_stop},
+        socket
+      ) do
     try do
       start = DateTimeParser.parse!(timer_start, "%Y-%m-%d %H:%M:%S")
       stop = DateTimeParser.parse!(timer_stop, "%Y-%m-%d %H:%M:%S")
@@ -127,16 +126,18 @@ defmodule AppWeb.AppLive do
       bruh = DateTime.compare(start, stop)
 
       case DateTime.compare(start, stop) do
-        :lt -> Timer.update_timer(%{ id: id, start: start, stop: stop })
+        :lt -> Timer.update_timer(%{id: id, start: start, stop: stop})
         :eq -> Logger.debug("dates are the same")
         :gt -> Logger.debug("Start is newer that stop")
       end
-
     rescue
-      e -> Logger.debug("Date format invalid on either start or stop, #{inspect(e)}")
+      e ->
+        Logger.debug(
+          "Date format invalid on either start or stop, #{inspect(e)}"
+        )
     end
 
-    #AppWeb.Endpoint.broadcast(@topic, "update", :update)
+    # AppWeb.Endpoint.broadcast(@topic, "update", :update)
     {:noreply, socket}
   end
 
