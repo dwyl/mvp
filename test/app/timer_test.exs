@@ -87,13 +87,11 @@ defmodule App.TimerTest do
       # Update timer to specific datetimes
       Timer.update_timer(%{id: timer.id, start: start, stop: stop})
 
-
       updated_timer = Timer.get_timer!(timer.id)
 
       assert updated_timer.start == start
       assert updated_timer.stop == stop
     end
-
   end
 
   defp create_person(_) do
