@@ -147,7 +147,7 @@ defmodule AppWeb.AppLiveTest do
     {:ok, view, _html} = live(conn, "/")
 
     assert render_submit(view, "update-item-timer", %{
-             "id" => item.id,
+             "id" => timer.id,
              "timer_start" => start,
              "timer_stop" => stop
            })
@@ -284,7 +284,7 @@ defmodule AppWeb.AppLiveTest do
 
   test "test login link redirect to auth.dwyl.com", %{conn: conn} do
     conn = get(conn, "/login")
-    assert redirected_to(conn, 302) =~ "auth.dwyl.com"
+    assert redirected_to(conn, 302) =~ "https://dwylauth.herokuapp.com?referer=https://www.example.com/&auth_client_id=88SwQGzxQEvo6S9Pu7FZGp9btNo52rVkwtrhyub9i6K6UxVqho9A"
   end
 
   test "tags_to_string/1" do
