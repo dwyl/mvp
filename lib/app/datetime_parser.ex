@@ -58,6 +58,10 @@ defmodule App.DateTimeParser do
     |> to_datetime
   end
 
+  @doc """
+  Builds the regex expression to later be captured (have named key-value captures).any()
+  This uses the @mapping structure to name specific parts of the entered string to convert to datetime.
+  """
   def build_regex(format) do
     keys = Map.keys(@mapping) |> Enum.join("")
 
@@ -83,6 +87,9 @@ defmodule App.DateTimeParser do
   }
   def cast_data(nil), do: {:error, "invalid datetime"}
 
+  @doc """
+  Casts each capture of the regex to appropriated format (compatible with DateTime struct)
+  """
   def cast_data(captures) do
     captures
     |> Enum.reduce_while([], fn {part, value}, acc ->
