@@ -141,7 +141,7 @@ defmodule App.ItemTest do
       started = NaiveDateTime.utc_now()
 
       {:ok, timer1} =
-        Timer.start(%{item_id: item1.id, person_id: 1, start: started})
+        Timer.start(%{item_id: item1.id, person_id: 1, start: started, stop: started})
 
       {:ok, _timer2} =
         Timer.start(%{item_id: item2.id, person_id: 1, start: started})

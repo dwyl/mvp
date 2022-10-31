@@ -125,6 +125,39 @@ defmodule AppWeb.AppLiveTest do
     assert length(updated_item.tags) == 2
   end
 
+  test "update an item's timer", %{conn: conn} do
+    start = "2022-10-27 00:00:00"
+    stop = "2022-10-27 05:00:00"
+    start_datetime = ~N[2022-10-27 00:00:00]
+    stop_datetime = ~N[2022-10-27 05:00:00]
+
+    {:ok, item} =
+      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+
+    {:ok, seven_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
+
+    # Start the timer 7 seconds ago:
+    {:ok, timer} =
+      Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
+
+    # Stop the timer based on its item_id
+    Timer.stop_timer_for_item_id(item.id)
+
+    {:ok, view, _html} = live(conn, "/")
+
+    assert render_submit(view, "update-item-timer", %{
+             "id" => item.id,
+             "timer_start" => start,
+             "timer_stop" => stop
+           })
+
+    updated_timer = Timer.get_timer!(timer.id)
+
+    assert updated_timer.start == start_datetime
+    assert updated_timer.stop == stop_datetime
+  end
+
   test "timer_text(start, stop)" do
     timer = %{
       start: ~N[2022-07-17 09:01:42.000000],
