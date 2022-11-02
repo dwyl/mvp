@@ -135,7 +135,7 @@ defmodule AppWeb.AppLive do
         )
     end
 
-    # AppWeb.Endpoint.broadcast(@topic, "update", :update)
+    AppWeb.Endpoint.broadcast(@topic, "update", :update)
     {:noreply, socket}
   end
 
