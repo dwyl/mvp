@@ -170,8 +170,8 @@
             <%= if item.id == @editing do %>
               <div class="flex flex-col grow">
                 <form
-                  phx-submit={"update-item-#{item.id}"}
-                  id="form-update"
+                  phx-submit={"update-item"}
+                  id={"form-update-item-#{item.id}"}
                   class="w-full pr-2"
                 >
                   <textarea
