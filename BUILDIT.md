@@ -2756,6 +2756,569 @@ Learn more about Ecto with the guides documention, especially the How to section
 https://hexdocs.pm/ecto/getting-started.html (taken from: https://dashbit.co/ebooks/the-little-ecto-cookbook)
 
 
+# 12. Editing timers
+In this section we are going to add the ability to edit timers
+when editing items. The timer has to follow a specific format 
+(`%Y-%m-%d %H:%M:%S`) to be persisted. 
+
+## 12.1 Parsing DateTime strings
+As you might have noticed, we are using [NaiveDateTime](https://hexdocs.pm/elixir/1.12/NaiveDateTime.html)
+when persisting the timer's datetime.
+One would be inclined to use [`from_iso8601/2`](https://hexdocs.pm/elixir/1.14.1/NaiveDateTime.html#from_iso8601/2) 
+to parse the input string and convert it to a datetime object. 
+However, if we were to think on a long-term perspective,
+we would want to be able to parse any string format,
+not just `ISO6601`.
+
+Currently, Elixir doesn't have a way to create a datetime object
+from any string format. For this, we are going use 
+[`Bluzky's datetime parser`](https://gist.github.com/bluzky/62a20cdb57b17f47c67261c10aa3da8b). 
+
+Create a file in `lib/app/datetime_parser.ex` and 
+use the following code:
+
+```elixir
+# Full credit of this module goes to https://dev.to/onpointvn/build-your-own-date-time-parser-in-elixir-50be
+# Do check the gist -> https://gist.github.com/bluzky/62a20cdb57b17f47c67261c10aa3da8b
+defmodule App.DateTimeParser do
+  @mapping %{
+    "H" => "(?<hour>\\d{2})",
+    "I" => "(?<hour12>\\d{2})",
+    "M" => "(?<minute>\\d{2})",
+    "S" => "(?<second>\\d{2})",
+    "d" => "(?<day>\\d{2})",
+    "m" => "(?<month>\\d{2})",
+    "y" => "(?<year2>\\d{2})",
+    "Y" => "(?<year>-?\\d{4})",
+    "z" => "(?<tz>[+-]?\\d{4})",
+    "Z" => "(?<tz_name>[a-zA-Z_\/]+)",
+    "p" => "(?<p>PM|AM)",
+    "P" => "(?<P>pm|am)",
+    "%" => "%"
+  }
+
+  @doc """
+  Parse string to datetime struct
+  **Example**
+      parse("2021-20-10", "%Y-%M-%d")
+  Support format
+  | format | description| value example |
+  | -- | -- | -- |
+  | H | 24 hour | 00 - 23 |
+  | I | 12 hour | 00 - 12 |
+  | M | minute| 00 - 59 |
+  | S | second | 00 - 59 |
+  | d | day | 01 - 31 |
+  | m | month | 01 -12 |
+  | y | 2 digits year | 00 - 99 |
+  | Y | 4 digits year | |
+  | z | timezone offset | +0100, -0330 |
+  | Z | timezone name | UTC+7, Asia/Ho_Chi_Minh |
+  | p | PM or AM | |
+  | P | pm or am | |
+  """
+  def parse!(dt_string, format \\ "%Y-%m-%dT%H:%M:%SZ") do
+    case parse(dt_string, format) do
+      {:ok, dt} ->
+        dt
+
+      {:error, message} ->
+        raise "Parse string #{dt_string} with error: #{message}"
+    end
+  end
+
+  @doc """
+  Parses the string according to the format. Pipes through regex compilation, casts each part of the string to a named regex capture and tries to convert to datetime.
+  """
+  def parse(dt_string, format \\ "%Y-%m-%dT%H:%M:%SZ") do
+    format
+    |> build_regex
+    |> Regex.named_captures(dt_string)
+    |> cast_data
+    |> to_datetime
+  end
+
+  @doc """
+  Builds the regex expression to later be captured (have named key-value captures).any()
+  This uses the @mapping structure to name specific parts of the entered string to convert to datetime.
+  """
+  def build_regex(format) do
+    keys = Map.keys(@mapping) |> Enum.join("")
+
+    Regex.compile!("([^%]*)%([#{keys}])([^%]*)")
+    |> Regex.scan(format)
+    |> Enum.map(fn [_, s1, key, s2] ->
+      [s1, Map.get(@mapping, key), s2]
+    end)
+    |> to_string()
+    |> Regex.compile!()
+  end
+
+  @default_value %{
+    day: 1,
+    month: 1,
+    year: 0,
+    hour: 0,
+    minute: 0,
+    second: 0,
+    utc_offset: 0,
+    tz_name: "UTC",
+    shift: "AM"
+  }
+  def cast_data(nil), do: {:error, "invalid datetime"}
+
+  @doc """
+  Casts each capture of the regex to appropriated format (compatible with DateTime struct)
+  """
+  def cast_data(captures) do
+    captures
+    |> Enum.reduce_while([], fn {part, value}, acc ->
+      {:ok, data} = cast(part, value)
+      {:cont, [data | acc]}
+    end)
+    |> Enum.into(@default_value)
+  end
+
+  @value_rages %{
+    "hour" => [0, 23],
+    "hour12" => [0, 12],
+    "minute" => [0, 59],
+    "second" => [0, 59],
+    "day" => [0, 31],
+    "month" => [1, 12],
+    "year2" => [0, 99]
+  }
+
+  defp cast("P", value) do
+    cast("p", String.upcase(value))
+  end
+
+  defp cast("p", value) do
+    {:ok, {:shift, value}}
+  end
+
+  defp cast("tz", value) do
+    {hour, minute} = String.split_at(value, 3)
+
+    with {:ok, {_, hour}} <- cast("offset_h", hour),
+         {:ok, {_, minute}} <- cast("offset_m", minute) do
+      sign = div(hour, abs(hour))
+      {:ok, {:utc_offset, sign * (abs(hour) * 3600 + minute * 60)}}
+    end
+  end
+
+  defp cast("tz_name", value) do
+    {:ok, {:tz_name, value}}
+  end
+
+  defp cast(part, value) do
+    value = String.to_integer(value)
+
+    valid =
+      case Map.get(@value_rages, part) do
+        [min, max] ->
+          value >= min and value <= max
+
+        _ ->
+          true
+      end
+
+    if valid do
+      {:ok, {String.to_atom(part), value}}
+    end
+  end
+
+  defp to_datetime({:error, _} = error), do: error
+
+  defp to_datetime(%{year2: value} = data) do
+    current_year = DateTime.utc_now() |> Map.get(:year)
+    year = div(current_year, 100) * 100 + value
+
+    data
+    |> Map.put(:year, year)
+    |> Map.delete(:year2)
+    |> to_datetime()
+  end
+
+  defp to_datetime(%{hour12: hour} = data) do
+    # 12AM is not valid
+
+    if hour == 12 and data.shift == "AM" do
+      {:error, "12AM is invalid value"}
+    else
+      hour =
+        cond do
+          hour == 12 and data.shift == "PM" -> hour
+          data.shift == "AM" -> hour
+          data.shift == "PM" -> hour + 12
+        end
+
+      data
+      |> Map.put(:hour, hour)
+      |> Map.delete(:hour12)
+      |> to_datetime()
+    end
+  end
+
+  defp to_datetime(data) do
+    with {:ok, date} <- Date.new(data.year, data.month, data.day),
+         {:ok, time} <- Time.new(data.hour, data.minute, data.second),
+         {:ok, datetime} <- DateTime.new(date, time) do
+      datetime = DateTime.add(datetime, -data.utc_offset, :second)
+
+      if data.tz_name != "UTC" do
+        {:error, "Only UTC timezone is available"}
+      else
+        {:ok, datetime}
+      end
+    end
+  end
+end
+```
+
+With this parser, we have access to `parse/2` where we can
+create a DateTime object from a string according to 
+a given format. We are going to be using this later on.
+
+For now, let's add some tests to this module. 
+Create a new test file in 
+`test/app/datetime_parser_test.exs`
+and add the following tests.
+
+```elixir
+defmodule App.DateTimeParserTest do
+  use App.DataCase
+  alias App.DateTimeParser
+
+  test "valid parse of valid datetime" do
+    parsed_time =
+      DateTimeParser.parse!("2022-10-27 14:47:56", "%Y-%m-%d %H:%M:%S")
+
+    {:ok, expected_datetime, 0} = DateTime.from_iso8601("2022-10-27T14:47:56Z")
+
+    assert parsed_time == expected_datetime
+  end
+
+  test "valid parse of valid date with %Y-%m-%d format" do
+    parsed_time = DateTimeParser.parse!("2022-10-27", "%Y-%m-%d")
+    {:ok, expected_datetime, 0} = DateTime.from_iso8601("2022-10-27T00:00:00Z")
+
+    assert parsed_time == expected_datetime
+  end
+
+  test "non-compatible regex when parsing" do
+    assert_raise Regex.CompileError, fn ->
+      DateTimeParser.parse!("2022-10-27 14:47:56", "%Y-%Y-%Y")
+    end
+  end
+
+  test "invalid datetime format" do
+    assert_raise RuntimeError, fn ->
+      DateTimeParser.parse!("2022-102-2752 1423:4127:56", "%Y-%m-%d %H:%M:%S")
+    end
+  end
+
+  test "valid timezone offset (with tz)" do
+    parsed_date =
+      DateTimeParser.parse!("2022-10-27T00:00:00Z+0230", "%Y-%m-%dT%H:%M:%SZ%z")
+
+    {:ok, expected_datetime, 9000} =
+      DateTime.from_iso8601("2022-10-27T00:00:00+02:30")
+
+    assert parsed_date == expected_datetime
+  end
+
+  test "valid timezone offset (with UTC)" do
+    parsed_date =
+      DateTimeParser.parse!(
+        "2022-10-27T00:00:00ZUTC+0230",
+        "%Y-%m-%dT%H:%M:%SZ%Z"
+      )
+
+    assert parsed_date == ~U[2022-10-27 00:00:00Z]
+  end
+
+  test "invalid timezone name" do
+    assert_raise RuntimeError, fn ->
+      DateTimeParser.parse!(
+        "2022-10-27T00:00:00ZEtc+0230",
+        "%Y-%m-%dT%H:%M:%SZ%Z"
+      )
+    end
+  end
+
+  test "valid datetime with PM/AM" do
+    date_under = DateTimeParser.parse!("2022-10-27 06:02pm", "%Y-%m-%d %H:%M%P")
+    date_sup = DateTimeParser.parse!("2022-10-27 06:02PM", "%Y-%m-%d %H:%M%p")
+
+    assert date_under == date_sup
+  end
+
+  test "valid datetime with PM/AM with two digits" do
+    parsed_datetime =
+      DateTimeParser.parse!("2022-10-27 06:02pm", "%Y-%m-%d %I:%M%P")
+
+    assert parsed_datetime == ~U[2022-10-27 18:02:00Z]
+  end
+
+  test "valid datetime with two-digit year" do
+    parsed_date = DateTimeParser.parse!("10-10-27", "%y-%m-%d")
+
+    assert parsed_date == ~U[2010-10-27 00:00:00Z]
+  end
+end
+```
+
+## 12.2 Persisting update in database
+So far we can only start, stop and fetch timers. 
+We need a way to directly update a specific timer through their `id`.
+With this in mind, let's add the update method to 
+`lib/app/timer.ex`.
+
+```elixir
+  def update_timer(attrs \\ %{}) do
+    get_timer!(attrs.id)
+    |> changeset(attrs)
+    |> Repo.update()
+  end
+```
+
+## 12.3 Showing timers in UI
+We need a way to show the timers related to an `item` in the UI.
+Currently, in `lib/app/item.ex`, the `items_with_timers/1` function
+is used on page mount to retrieve every item to show to the user.
+
+We want to add a `timer` array to each `item` so we can edit them.
+Change the method to the following piece of code: 
+
+```elixir
+def items_with_timers(person_id \\ 0) do
+    sql = """
+    SELECT i.id, i.text, i.status, i.person_id, t.start, t.stop, t.id as timer_id FROM items i
+    FULL JOIN timers as t ON t.item_id = i.id
+    WHERE i.person_id = $1 AND i.status IS NOT NULL
+    ORDER BY timer_id ASC;
+    """
+
+    values =
+      Ecto.Adapters.SQL.query!(Repo, sql, [person_id])
+      |> map_columns_to_values()
+
+    items_tags =
+      list_person_items(person_id)
+      |> Enum.reduce(%{}, fn i, acc -> Map.put(acc, i.id, i) end)
+
+    items_timers =
+      Enum.group_by(
+        values,
+        fn row -> row.id end,
+        fn obj ->
+          start =
+            if obj.start != nil,
+              do:
+                NaiveDateTime.truncate(obj.start, :second)
+                |> NaiveDateTime.to_string(),
+              else: nil
+
+          stop =
+            if obj.stop != nil,
+              do:
+                NaiveDateTime.truncate(obj.stop, :second)
+                |> NaiveDateTime.to_string(),
+              else: nil
+
+          %{start: start, stop: stop, id: obj.timer_id}
+        end
+      )
+
+    accumulate_item_timers(values)
+    |> Enum.map(fn t ->
+      Map.put(t, :tags, items_tags[t.id].tags)
+      |> Map.put(
+        :timers,
+        Enum.reject(items_timers[t.id], fn %{start: start, stop: stop} ->
+          start == nil and stop == nil
+        end)
+      )
+    end)
+  end
+```
+
+Now, for each `item`, we retrieve every timer associated with
+the item `id` and add them to each `item` object.
+
+Now let's focus on showing the timers in the UI. Head over to
+`lib/app_web/live/app_live.html.heex` and make the following changes.
+We are showing each timer whenever an `item` is being edited.
+
+```html
+<%= if item.id == @editing do %>
+
+<!-- Replace starts here -->
+
+<div class="flex flex-col grow">
+  <form
+    phx-submit={"update-item"}
+    id={"form-update-item-#{item.id}"}
+    class="w-full pr-2"
+  >
+    <textarea
+      id={"textarea-editing-of-item-#{item.id}"}
+      class="w-full flex-auto text-slate-800
+    bg-white bg-clip-padding
+    transition ease-in-out
+    border border-b border-slate-200
+    focus:border-none focus:outline-none"
+      name="text"
+      placeholder="What is on your mind?"
+      autofocus
+      required="required"
+      value={item.text}
+    ><%= item.text %></textarea>
+    <input
+      id={"tag-of-item-#{item.id}"}
+      type="text"
+      name="tags"
+      value={tags_to_string(item.tags)}
+      placeholder="tag1, tag2..."
+    />
+
+    <input type="hidden" name="id" value={item.id} />
+
+    <div class="flex justify-end mr-1" id={"save-button-item-#{item.id}"}>
+      <button class="inline-flex items-center px-2 py-1 mt-1 h-9
+    bg-green-700 hover:bg-green-800 text-white rounded-md">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5 mr-2"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 13l-3 3m0 0l-3-3m3 3V8m0 13a9 9 0 110-18 9 9 0 010 18z"
+          />
+        </svg>
+        Save
+      </button>
+    </div>
+  </form>
+
+  <div>
+    <%= if (length item.timers) > 0 do %>
+      <h1 class="text-4xl font-bold">Timers</h1>
+    <% else %>
+      <h1 class="text-2xl text-center font-semibold text-slate-400">
+        No timers associated with this item.
+      </h1>
+    <% end %>
+
+    <div class="flex flex-col w-full mt-2">
+      <%= for timer <- item.timers do %>
+        <form
+          phx-submit="update-item-timer"
+          id={"form-update-timer-#{timer.id}"}
+          class="w-full pr-2"
+        >
+          <div class="flex flex-row w-full justify-between">
+            <div class="flex flex-row items-center">
+              <h3 class="mr-3">Start:</h3>
+              <input
+                type="text"
+                required="required"
+                name="timer_start"
+                id={"#{timer.id}_start"}
+                value={timer.start}
+              />
+            </div>
+            <div class="flex flex-row items-center">
+              <h3 class="mr-3">Stop:</h3>
+              <input
+                type="text"
+                name="timer_stop"
+                required="required"
+                id={"#{timer.id}_stop"}
+                value={timer.stop}
+              />
+            </div>
+            <input type="hidden" name="id" value={timer.id} />
+
+            <button
+              type="submit"
+              id={"button_timer-update-#{timer.id}"}
+              class="text-white bg-blue-700
+                hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300
+                font-medium rounded-full text-sm px-5 py-2.5 text-center
+                mr-2 mb-2
+                  dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            >
+              Update
+            </button>
+          </div>
+        </form>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- Replace ends here -->
+
+<% else %>
+<!-- Render item.text as click-able label -->
+
+```
+
+As you can see from the snippet above, 
+when the changes from the form are submitted, a 
+`update-item-timer` event is created. Now we need to handle this event 
+in `lib/app_web/live/app_live.ex`. 
+Let's add the following method to the file.
+
+```elixir
+  def handle_event(
+        "update-item-timer",
+        %{"id" => id, "timer_start" => timer_start, "timer_stop" => timer_stop},
+        socket
+      ) do
+    try do
+      start = App.DateTimeParser.parse!(timer_start, "%Y-%m-%d %H:%M:%S")
+      stop = App.DateTimeParser.parse!(timer_stop, "%Y-%m-%d %H:%M:%S")
+
+      case DateTime.compare(start, stop) do
+        :lt -> Timer.update_timer(%{id: id, start: start, stop: stop})
+        :eq -> Logger.debug("dates are the same")
+        :gt -> Logger.debug("Start is newer that stop")
+      end
+    rescue
+      e ->
+        Logger.debug(
+          "Date format invalid on either start or stop, #{inspect(e)}"
+        )
+    end
+
+    AppWeb.Endpoint.broadcast(@topic, "update", :update)
+    {:noreply, socket}
+  end
+```
+
+In the piece of code above, we try to parse the input strings
+and validate them. If it fails, we log the error. If they're 
+parseable, we compare the dates and make sure the `stop` time
+is **greater** than `start`. If not, we log the errors.
+
+If everything is correct, the timer is updated and the 
+new `item` list is broadcasted to everyone on the
+same channel so they have the updated `item` list, making
+interaction *feel* real-time.
+
+## 12.4 Form feedback
+//TODO
+
+
+
 # 12. Run the _Finished_ MVP App!
 
 With all the code saved, let's run the tests one more time.
