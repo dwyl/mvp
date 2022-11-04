@@ -137,7 +137,7 @@ defmodule AppWeb.AppLive do
       case DateTime.compare(start, stop) do
         :lt ->
           Timer.update_timer(%{id: id, start: start, stop: stop})
-          {:noreply, socket}
+          {:noreply, assign(socket, editing: nil, editing_timers: [])}
         :eq ->
 
           # Adding error to changeset
