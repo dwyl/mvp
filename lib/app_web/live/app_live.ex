@@ -22,6 +22,7 @@ defmodule AppWeb.AppLive do
     {:ok,
      assign(socket,
        items: items,
+       editing_timers: [],
        editing: nil,
        filter: "active",
        filter_tag: nil
@@ -91,7 +92,12 @@ defmodule AppWeb.AppLive do
 
   @impl true
   def handle_event("edit-item", data, socket) do
-    {:noreply, assign(socket, editing: String.to_integer(data["id"]))}
+    item_id = String.to_integer(data["id"])
+
+    timers_list = Timer.list_timers(item_id)
+    timers_list_changeset = Enum.map(timers_list, fn t -> Timer.changeset(t, %{id: t.id, start: t.start, stop: t.stop, item_id: t.item_id}) end)
+
+    {:noreply, assign(socket, editing: item_id, editing_timers: timers_list_changeset)}
   end
 
   @impl true
@@ -110,23 +116,46 @@ defmodule AppWeb.AppLive do
     })
 
     AppWeb.Endpoint.broadcast(@topic, "update", :update)
-    {:noreply, assign(socket, editing: nil)}
+    {:noreply, assign(socket, editing: nil, editing_timers: [])}
   end
 
   @impl true
   def handle_event(
         "update-item-timer",
-        %{"id" => id, "timer_start" => timer_start, "timer_stop" => timer_stop},
+        %{"id" => id, "index" => index,"timer_start" => timer_start, "timer_stop" => timer_stop},
         socket
       ) do
+
+    timers_changelest_list = socket.assigns.editing_timers
+    index = String.to_integer(index)
+    changeset_obj = Enum.at(timers_changelest_list, index)
+
     try do
-      start = App.DateTimeParser.parse!(timer_start, "%Y-%m-%d %H:%M:%S")
-      stop = App.DateTimeParser.parse!(timer_stop, "%Y-%m-%d %H:%M:%S")
+      start = App.DateTimeParser.parse!(timer_start, "%Y-%m-%dT%H:%M:%S")
+      stop = App.DateTimeParser.parse!(timer_stop, "%Y-%m-%dT%H:%M:%S")
 
       case DateTime.compare(start, stop) do
-        :lt -> Timer.update_timer(%{id: id, start: start, stop: stop})
-        :eq -> Logger.debug("dates are the same")
-        :gt -> Logger.debug("Start is newer that stop")
+        :lt ->
+          Timer.update_timer(%{id: id, start: start, stop: stop})
+          {:noreply, socket}
+        :eq ->
+
+          # Adding error to changeset
+          errored_changeset = Ecto.Changeset.add_error(changeset_obj, :id, "Start or stop are equal.")
+          {_reply, errored_changeset} = Ecto.Changeset.apply_action(errored_changeset, :update)
+
+          # Updating socket assign
+          updated_changeset_timers_list = List.replace_at(timers_changelest_list, index, errored_changeset)
+          {:noreply, assign(socket, editing_timers: updated_changeset_timers_list)}
+
+        :gt ->
+          # Adding error to changeset
+          errored_changeset = Ecto.Changeset.add_error(changeset_obj, :id, "Start is newer that stop.")
+          {_reply, errored_changeset} = Ecto.Changeset.apply_action(errored_changeset, :update)
+
+          # Updating socket assign
+          updated_changeset_timers_list = List.replace_at(timers_changelest_list, index, errored_changeset)
+          {:noreply, assign(socket, editing_timers: updated_changeset_timers_list)}
       end
     rescue
       e ->
@@ -135,8 +164,6 @@ defmodule AppWeb.AppLive do
         )
     end
 
-    AppWeb.Endpoint.broadcast(@topic, "update", :update)
-    {:noreply, socket}
   end
 
   @impl true

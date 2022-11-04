@@ -1,15 +1,17 @@
 defmodule App.Timer do
   use Ecto.Schema
   import Ecto.Changeset
+  alias App.Item
+  import Ecto.Query
   # import Ecto.Query
   alias App.Repo
   alias __MODULE__
   require Logger
 
   schema "timers" do
-    field :item_id, :id
     field :start, :naive_datetime
     field :stop, :naive_datetime
+    belongs_to :item, Item, references: :id, foreign_key: :item_id
 
     timestamps()
   end
@@ -76,6 +78,11 @@ defmodule App.Timer do
     get_timer!(attrs.id)
     |> changeset(attrs)
     |> Repo.update()
+  end
+
+  def list_timers(item_id) do
+    from(v in Timer, where: [item_id: ^item_id], order_by: [asc: :id])
+    |> Repo.all()
   end
 
   @doc """
