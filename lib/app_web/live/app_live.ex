@@ -122,7 +122,7 @@ defmodule AppWeb.AppLive do
   @impl true
   def handle_event(
         "update-item-timer",
-        %{"id" => id, "index" => index,"timer_start" => timer_start, "timer_stop" => timer_stop},
+        %{"timer_id" => id, "index" => index,"timer_start" => timer_start, "timer_stop" => timer_stop},
         socket
       ) do
 
