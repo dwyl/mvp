@@ -150,6 +150,7 @@ defmodule AppWeb.AppLiveTest do
     {:ok, view, _html} = live(conn, "/")
 
 
+    # Update successful
     render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
     assert render_submit(view, "update-item-timer", %{
              "timer_id" => timer.id,
@@ -162,6 +163,33 @@ defmodule AppWeb.AppLiveTest do
 
     assert updated_timer.start == start_datetime
     assert updated_timer.stop == stop_datetime
+
+    # Trying to update with equal values on start and stop
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer.id,
+             "index" => 0,
+             "timer_start" => start,
+             "timer_stop" => start
+           }) =~ "Start or stop are equal."
+
+    # Trying to update with equal start greater than stop
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+    assert render_submit(view, "update-item-timer", %{
+              "timer_id" => timer.id,
+              "index" => 0,
+              "timer_start" => stop,
+              "timer_stop" => start
+            }) =~ "Start is newer that stop."
+
+    # Trying to update with equal start greater than stop
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+    assert render_submit(view, "update-item-timer", %{
+              "timer_id" => timer.id,
+              "index" => 0,
+              "timer_start" => "invalid",
+              "timer_stop" => "invalid"
+            }) =~ "Date format invalid on either start or stop."
   end
 
   test "timer_text(start, stop)" do
