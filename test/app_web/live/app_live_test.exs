@@ -137,8 +137,7 @@ defmodule AppWeb.AppLiveTest do
     {:ok, seven_seconds_ago} =
       NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
 
-    {:ok, now} =
-      NaiveDateTime.new(Date.utc_today(), Time.utc_now())
+    {:ok, now} = NaiveDateTime.new(Date.utc_today(), Time.utc_now())
 
     # Start the timer 7 seconds ago:
     {:ok, timer} =
@@ -149,9 +148,9 @@ defmodule AppWeb.AppLiveTest do
 
     {:ok, view, _html} = live(conn, "/")
 
-
     # Update successful
     render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
     assert render_submit(view, "update-item-timer", %{
              "timer_id" => timer.id,
              "index" => 0,
@@ -166,6 +165,7 @@ defmodule AppWeb.AppLiveTest do
 
     # Trying to update with equal values on start and stop
     render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
     assert render_submit(view, "update-item-timer", %{
              "timer_id" => timer.id,
              "index" => 0,
@@ -175,21 +175,23 @@ defmodule AppWeb.AppLiveTest do
 
     # Trying to update with equal start greater than stop
     render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
     assert render_submit(view, "update-item-timer", %{
-              "timer_id" => timer.id,
-              "index" => 0,
-              "timer_start" => stop,
-              "timer_stop" => start
-            }) =~ "Start is newer that stop."
+             "timer_id" => timer.id,
+             "index" => 0,
+             "timer_start" => stop,
+             "timer_stop" => start
+           }) =~ "Start is newer that stop."
 
     # Trying to update with equal start greater than stop
     render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
     assert render_submit(view, "update-item-timer", %{
-              "timer_id" => timer.id,
-              "index" => 0,
-              "timer_start" => "invalid",
-              "timer_stop" => "invalid"
-            }) =~ "Date format invalid on either start or stop."
+             "timer_id" => timer.id,
+             "index" => 0,
+             "timer_start" => "invalid",
+             "timer_stop" => "invalid"
+           }) =~ "Date format invalid on either start or stop."
   end
 
   test "timer_text(start, stop)" do

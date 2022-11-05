@@ -170,7 +170,7 @@
             <%= if item.id == @editing do %>
               <div class="flex flex-col grow">
                 <form
-                  phx-submit={"update-item"}
+                  phx-submit="update-item"
                   id={"form-update-item-#{item.id}"}
                   class="w-full pr-2"
                 >
@@ -197,7 +197,10 @@
 
                   <input type="hidden" name="id" value={item.id} />
 
-                  <div class="flex justify-end mr-1" id={"save-button-item-#{item.id}"}>
+                  <div
+                    class="flex justify-end mr-1"
+                    id={"save-button-item-#{item.id}"}
+                  >
                     <button class="inline-flex items-center px-2 py-1 mt-1 h-9
                   bg-green-700 hover:bg-green-800 text-white rounded-md">
                       <svg
@@ -231,7 +234,7 @@
                   <div class="flex flex-col w-full mt-2">
                     <%= @editing_timers |> Enum.with_index |> Enum.map(fn({changeset, index}) -> %>
                       <.form
-                        let={f}
+                        :let={f}
                         for={changeset}
                         phx-submit="update-item-timer"
                         id={"form-update-timer-#{changeset.data.id}"}
@@ -258,7 +261,11 @@
                               value={changeset.data.stop}
                             />
                           </div>
-                          <input type="hidden" name="timer_id" value={changeset.data.id} />
+                          <input
+                            type="hidden"
+                            name="timer_id"
+                            value={changeset.data.id}
+                          />
                           <input type="hidden" name="index" value={index} />
 
                           <button
@@ -274,7 +281,7 @@
                           </button>
                         </div>
                         <span class="text-red-700">
-                          <%= error_tag f, :id %>
+                          <%= error_tag(f, :id) %>
                         </span>
                       </.form>
                     <% end) %>
