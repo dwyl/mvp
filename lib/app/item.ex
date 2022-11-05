@@ -2,7 +2,7 @@ defmodule App.Item do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
-  alias App.{Repo, Tag, ItemTag, Person}
+  alias App.{Repo, Tag, ItemTag, Person, Timer}
   alias __MODULE__
   require Logger
 
@@ -10,6 +10,7 @@ defmodule App.Item do
     field :status, :integer
     field :text, :string
 
+    has_many :timer, Timer
     belongs_to :people, Person, references: :person_id, foreign_key: :person_id
     many_to_many(:tags, Tag, join_through: ItemTag, on_replace: :delete)
 
@@ -160,38 +161,9 @@ defmodule App.Item do
       list_person_items(person_id)
       |> Enum.reduce(%{}, fn i, acc -> Map.put(acc, i.id, i) end)
 
-    items_timers =
-      Enum.group_by(
-        values,
-        fn row -> row.id end,
-        fn obj ->
-          start =
-            if obj.start != nil,
-              do:
-                NaiveDateTime.truncate(obj.start, :second)
-                |> NaiveDateTime.to_string(),
-              else: nil
-
-          stop =
-            if obj.stop != nil,
-              do:
-                NaiveDateTime.truncate(obj.stop, :second)
-                |> NaiveDateTime.to_string(),
-              else: nil
-
-          %{start: start, stop: stop, id: obj.timer_id}
-        end
-      )
-
     accumulate_item_timers(values)
     |> Enum.map(fn t ->
       Map.put(t, :tags, items_tags[t.id].tags)
-      |> Map.put(
-        :timers,
-        Enum.reject(items_timers[t.id], fn %{start: start, stop: stop} ->
-          start == nil and stop == nil
-        end)
-      )
     end)
   end
 

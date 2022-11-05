@@ -22,6 +22,7 @@ defmodule AppWeb.AppLive do
     {:ok,
      assign(socket,
        items: items,
+       editing_timers: [],
        editing: nil,
        filter: "active",
        filter_tag: nil
@@ -91,7 +92,12 @@ defmodule AppWeb.AppLive do
 
   @impl true
   def handle_event("edit-item", data, socket) do
-    {:noreply, assign(socket, editing: String.to_integer(data["id"]))}
+    item_id = String.to_integer(data["id"])
+
+    timers_list = Timer.list_timers(item_id)
+    timers_list_changeset = Enum.map(timers_list, fn t -> Timer.changeset(t, %{id: t.id, start: t.start, stop: t.stop, item_id: t.item_id}) end)
+
+    {:noreply, assign(socket, editing: item_id, editing_timers: timers_list_changeset)}
   end
 
   @impl true
@@ -110,33 +116,61 @@ defmodule AppWeb.AppLive do
     })
 
     AppWeb.Endpoint.broadcast(@topic, "update", :update)
-    {:noreply, assign(socket, editing: nil)}
+    {:noreply, assign(socket, editing: nil, editing_timers: [])}
+  end
+
+  @nodoc """
+   Errors a specific changeset from a list of changesets and returns the updated list of changesets.
+   You should pass a:
+   - `timer_changeset_list: list of timer changesets to be updated
+   - `changeset_to_error`: changeset object that you want to error out
+   - `changeset_index`: changeset object index inside the list of timer changesets
+   - `changeset_error_key`: atom key of the changeset object you want to associate the error message
+   - `changeset_error_message`: the string message to error the changeset key with.
+  """
+  defp error_timer_changeset(timer_changeset_list, changeset_to_error, changeset_index, changeset_error_key, changeset_error_message) do
+
+    # Adding error to changeset
+    errored_changeset = Ecto.Changeset.add_error(changeset_to_error, changeset_error_key, changeset_error_message)
+    {_reply, errored_changeset} = Ecto.Changeset.apply_action(errored_changeset, :update)
+
+    #  Updated list with errored changeset
+    List.replace_at(timer_changeset_list, changeset_index, errored_changeset)
   end
 
   @impl true
   def handle_event(
         "update-item-timer",
-        %{"id" => id, "timer_start" => timer_start, "timer_stop" => timer_stop},
+        %{"timer_id" => id, "index" => index,"timer_start" => timer_start, "timer_stop" => timer_stop},
         socket
       ) do
+
+    timer_changeset_list = socket.assigns.editing_timers
+    index = String.to_integer(index)
+    changeset_obj = Enum.at(timer_changeset_list, index)
+
     try do
-      start = App.DateTimeParser.parse!(timer_start, "%Y-%m-%d %H:%M:%S")
-      stop = App.DateTimeParser.parse!(timer_stop, "%Y-%m-%d %H:%M:%S")
+      start = App.DateTimeParser.parse!(timer_start, "%Y-%m-%dT%H:%M:%S")
+      stop = App.DateTimeParser.parse!(timer_stop, "%Y-%m-%dT%H:%M:%S")
 
       case DateTime.compare(start, stop) do
-        :lt -> Timer.update_timer(%{id: id, start: start, stop: stop})
-        :eq -> Logger.debug("dates are the same")
-        :gt -> Logger.debug("Start is newer that stop")
+        :lt ->
+          Timer.update_timer(%{id: id, start: start, stop: stop})
+          {:noreply, assign(socket, editing: nil, editing_timers: [])}
+        :eq ->
+          updated_changeset_timers_list = error_timer_changeset(timer_changeset_list, changeset_obj, index, :id, "Start or stop are equal.")
+          {:noreply, assign(socket, editing_timers: updated_changeset_timers_list)}
+
+        :gt ->
+          updated_changeset_timers_list = error_timer_changeset(timer_changeset_list, changeset_obj, index, :id, "Start is newer that stop.")
+          {:noreply, assign(socket, editing_timers: updated_changeset_timers_list)}
       end
     rescue
       e ->
-        Logger.debug(
-          "Date format invalid on either start or stop, #{inspect(e)}"
-        )
+        updated_changeset_timers_list = error_timer_changeset(timer_changeset_list, changeset_obj, index, :id, "Date format invalid on either start or stop.")
+        {:noreply, assign(socket, editing_timers: updated_changeset_timers_list)}
     end
 
-    AppWeb.Endpoint.broadcast(@topic, "update", :update)
-    {:noreply, socket}
   end
 
   @impl true
