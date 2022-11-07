@@ -80,6 +80,14 @@ defmodule App.Timer do
     |> Repo.update()
   end
 
+  @doc """
+  Lists all the timer from a given item.id.
+
+  ## Examples
+
+    iex> list_timers(1)
+    [%Timer{id: 1, start: ~N[2022-07-11 05:15:31], stop: ~N[2022-07-11 05:15:37}]
+  """
   def list_timers(item_id) do
     from(v in Timer, where: [item_id: ^item_id], order_by: [asc: :id])
     |> Repo.all()

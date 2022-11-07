@@ -3083,69 +3083,208 @@ With this in mind, let's add the update method to
   end
 ```
 
-## 12.3 Showing timers in UI
-We need a way to show the timers related to an `item` in the UI.
-Currently, in `lib/app/item.ex`, the `items_with_timers/1` function
-is used on page mount to retrieve every item to show to the user.
+In addition to this, we also need a function to fetch
+all the timers associated with a specific timer `id`. 
+Firstly, let's specify the associations between `Timer` and `Item`.
 
-We want to add a `timer` array to each `item` so we can edit them.
-Change the method to the following piece of code: 
+In `lib/app/timer.ex`, add:
 
 ```elixir
-def items_with_timers(person_id \\ 0) do
-    sql = """
-    SELECT i.id, i.text, i.status, i.person_id, t.start, t.stop, t.id as timer_id FROM items i
-    FULL JOIN timers as t ON t.item_id = i.id
-    WHERE i.person_id = $1 AND i.status IS NOT NULL
-    ORDER BY timer_id ASC;
-    """
+  alias App.Item
+  import Ecto.Query
+```
 
-    values =
-      Ecto.Adapters.SQL.query!(Repo, sql, [person_id])
-      |> map_columns_to_values()
+and inside the `Timers` schema, change the scema to the following.
+This will properly reference `Timer` to the `Item` object.
 
-    items_tags =
-      list_person_items(person_id)
-      |> Enum.reduce(%{}, fn i, acc -> Map.put(acc, i.id, i) end)
+```elixir
+  schema "timers" do
+    field :start, :naive_datetime
+    field :stop, :naive_datetime
+    belongs_to :item, Item, references: :id, foreign_key: :item_id
 
-    items_timers =
-      Enum.group_by(
-        values,
-        fn row -> row.id end,
-        fn obj ->
-          start =
-            if obj.start != nil,
-              do:
-                NaiveDateTime.truncate(obj.start, :second)
-                |> NaiveDateTime.to_string(),
-              else: nil
-
-          stop =
-            if obj.stop != nil,
-              do:
-                NaiveDateTime.truncate(obj.stop, :second)
-                |> NaiveDateTime.to_string(),
-              else: nil
-
-          %{start: start, stop: stop, id: obj.timer_id}
-        end
-      )
-
-    accumulate_item_timers(values)
-    |> Enum.map(fn t ->
-      Map.put(t, :tags, items_tags[t.id].tags)
-      |> Map.put(
-        :timers,
-        Enum.reject(items_timers[t.id], fn %{start: start, stop: stop} ->
-          start == nil and stop == nil
-        end)
-      )
-    end)
+    timestamps()
   end
 ```
 
-Now, for each `item`, we retrieve every timer associated with
-the item `id` and add them to each `item` object.
+In the same file, let us add a way to list all the timers associated
+with a certain `item` id. Paste the following.
+
+```elixir
+ def list_timers(item_id) do
+    from(v in Timer, where: [item_id: ^item_id], order_by: [asc: :id])
+    |> Repo.all()
+ end
+```
+
+## 12.3 Showing timers in UI
+We need a way to show the timers related to an `item` in the UI.
+Currently, in `lib/app_web/live/app_live.ex`, every time the user
+edits an item, an `edit-timer` event is propped up, setting the 
+socket assigns accordingly.
+
+We want to fetch the timers of an item *ad-hoc*. Instead of loading
+all the timers on mount, it's best to dynamically fetch the timers
+whenever we want to edit a timer. For this, we are going to add an
+**array of timer changesets** to the docket assigns and show these
+when editing a timer. Let's do that.
+
+In `lib/app_web/live/app_live.ex`, in the `mount` function, add
+`editing_timers: []` to the list of changesets.
+
+```elixir
+     assign(socket,
+       items: items,
+       editing_timers: [],
+       editing: nil,
+       filter: "active",
+       filter_tag: nil
+       ...
+```
+
+Let's change the `handle_event` handler for the `edit-item` event
+to fetch the timers when editing an item. Change the function 
+to the following:
+
+```elixir
+  def handle_event("edit-item", data, socket) do
+    item_id = String.to_integer(data["id"])
+
+    timers_list = Timer.list_timers(item_id)
+
+    timers_list_changeset =
+      Enum.map(timers_list, fn t ->
+        Timer.changeset(t, %{
+          id: t.id,
+          start: t.start,
+          stop: t.stop,
+          item_id: t.item_id
+        })
+      end)
+
+    {:noreply,
+     assign(socket, editing: item_id, editing_timers: timers_list_changeset)}
+  end
+```
+
+Likewise, inside the `handle_event` handler for the `update-item` event,
+change the **last line** to reset the `editing_timers` array to empty. This
+is after a successful item edit.
+
+```elixir
+{:noreply, assign(socket, editing: nil, editing_timers: [])}
+```
+
+Now we need to have an handler for an event that will be created
+when editing a timer. For this, create the following function 
+in the same file.
+
+```elixir
+  @impl true
+  def handle_event(
+        "update-item-timer",
+        %{
+          "timer_id" => id,
+          "index" => index,
+          "timer_start" => timer_start,
+          "timer_stop" => timer_stop
+        },
+        socket
+      ) do
+    timer_changeset_list = socket.assigns.editing_timers
+    index = String.to_integer(index)
+    changeset_obj = Enum.at(timer_changeset_list, index)
+
+    try do
+      start = App.DateTimeParser.parse!(timer_start, "%Y-%m-%dT%H:%M:%S")
+      stop = App.DateTimeParser.parse!(timer_stop, "%Y-%m-%dT%H:%M:%S")
+
+      case DateTime.compare(start, stop) do
+        :lt ->
+          Timer.update_timer(%{id: id, start: start, stop: stop})
+          {:noreply, assign(socket, editing: nil, editing_timers: [])}
+
+        :eq ->
+          updated_changeset_timers_list =
+            error_timer_changeset(
+              timer_changeset_list,
+              changeset_obj,
+              index,
+              :id,
+              "Start or stop are equal."
+            )
+
+          {:noreply,
+           assign(socket, editing_timers: updated_changeset_timers_list)}
+
+        :gt ->
+          updated_changeset_timers_list =
+            error_timer_changeset(
+              timer_changeset_list,
+              changeset_obj,
+              index,
+              :id,
+              "Start is newer that stop."
+            )
+
+          {:noreply,
+           assign(socket, editing_timers: updated_changeset_timers_list)}
+      end
+    rescue
+      e ->
+        updated_changeset_timers_list =
+          error_timer_changeset(
+            timer_changeset_list,
+            changeset_obj,
+            index,
+            :id,
+            "Date format invalid on either start or stop."
+          )
+
+        {:noreply,
+         assign(socket, editing_timers: updated_changeset_timers_list)}
+    end
+  end
+```
+
+Let's do a rundown of what we just created. 
+From the form, we receive an `index` of the timer inside the `editing_timers`
+socket assign array. We use this `index` to replace the changeset in case
+there's an error with the string format or the dates. 
+
+We try to parse the files using the specified format. If this succeeds, we compare
+the `start` and `stop` parameters and check if `start` does not start after `stop`. 
+If everything is correct, the `Timer` is updated corretly.
+If not, the timer changeset is updated with the error and replaced in the array.
+We use the `error_timer_changeset/4` function to do that. Let's create it.
+
+```elixir
+  defp error_timer_changeset(
+         timer_changeset_list,
+         changeset_to_error,
+         changeset_index,
+         changeset_error_key,
+         changeset_error_message
+       ) do
+    # Adding error to changeset
+    errored_changeset =
+      Ecto.Changeset.add_error(
+        changeset_to_error,
+        changeset_error_key,
+        changeset_error_message
+      )
+
+    {_reply, errored_changeset} =
+      Ecto.Changeset.apply_action(errored_changeset, :update)
+
+    #  Updated list with errored changeset
+    List.replace_at(timer_changeset_list, changeset_index, errored_changeset)
+  end
+```
+
+This function simply adds the specified error and updates the 
+socket assign `editing_timer` array with the errored changeset object.
+
 
 Now let's focus on showing the timers in the UI. Head over to
 `lib/app_web/live/app_live.html.heex` and make the following changes.
@@ -3156,113 +3295,126 @@ We are showing each timer whenever an `item` is being edited.
 
 <!-- Replace starts here -->
 
-<div class="flex flex-col grow">
-  <form
-    phx-submit={"update-item"}
-    id={"form-update-item-#{item.id}"}
-    class="w-full pr-2"
-  >
-    <textarea
-      id={"textarea-editing-of-item-#{item.id}"}
-      class="w-full flex-auto text-slate-800
-    bg-white bg-clip-padding
-    transition ease-in-out
-    border border-b border-slate-200
-    focus:border-none focus:outline-none"
-      name="text"
-      placeholder="What is on your mind?"
-      autofocus
-      required="required"
-      value={item.text}
-    ><%= item.text %></textarea>
-    <input
-      id={"tag-of-item-#{item.id}"}
-      type="text"
-      name="tags"
-      value={tags_to_string(item.tags)}
-      placeholder="tag1, tag2..."
-    />
+  <div class="flex flex-col grow">
+    <form
+      phx-submit="update-item"
+      id={"form-update-item-#{item.id}"}
+      class="w-full pr-2"
+    >
+      <textarea
+        id={"textarea-editing-of-item-#{item.id}"}
+        class="w-full flex-auto text-slate-800
+      bg-white bg-clip-padding
+      transition ease-in-out
+      border border-b border-slate-200
+      focus:border-none focus:outline-none"
+        name="text"
+        placeholder="What is on your mind?"
+        autofocus
+        required="required"
+        value={item.text}
+      ><%= item.text %></textarea>
+      <input
+        id={"tag-of-item-#{item.id}"}
+        type="text"
+        name="tags"
+        value={tags_to_string(item.tags)}
+        placeholder="tag1, tag2..."
+      />
 
-    <input type="hidden" name="id" value={item.id} />
+      <input type="hidden" name="id" value={item.id} />
 
-    <div class="flex justify-end mr-1" id={"save-button-item-#{item.id}"}>
-      <button class="inline-flex items-center px-2 py-1 mt-1 h-9
-    bg-green-700 hover:bg-green-800 text-white rounded-md">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-5 w-5 mr-2"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M15 13l-3 3m0 0l-3-3m3 3V8m0 13a9 9 0 110-18 9 9 0 010 18z"
-          />
-        </svg>
-        Save
-      </button>
-    </div>
-  </form>
+      <div
+        class="flex justify-end mr-1"
+        id={"save-button-item-#{item.id}"}
+      >
+        <button class="inline-flex items-center px-2 py-1 mt-1 h-9
+      bg-green-700 hover:bg-green-800 text-white rounded-md">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5 mr-2"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 13l-3 3m0 0l-3-3m3 3V8m0 13a9 9 0 110-18 9 9 0 010 18z"
+            />
+          </svg>
+          Save
+        </button>
+      </div>
+    </form>
 
-  <div>
-    <%= if (length item.timers) > 0 do %>
-      <h1 class="text-4xl font-bold">Timers</h1>
-    <% else %>
-      <h1 class="text-2xl text-center font-semibold text-slate-400">
-        No timers associated with this item.
-      </h1>
-    <% end %>
-
-    <div class="flex flex-col w-full mt-2">
-      <%= for timer <- item.timers do %>
-        <form
-          phx-submit="update-item-timer"
-          id={"form-update-timer-#{timer.id}"}
-          class="w-full pr-2"
-        >
-          <div class="flex flex-row w-full justify-between">
-            <div class="flex flex-row items-center">
-              <h3 class="mr-3">Start:</h3>
-              <input
-                type="text"
-                required="required"
-                name="timer_start"
-                id={"#{timer.id}_start"}
-                value={timer.start}
-              />
-            </div>
-            <div class="flex flex-row items-center">
-              <h3 class="mr-3">Stop:</h3>
-              <input
-                type="text"
-                name="timer_stop"
-                required="required"
-                id={"#{timer.id}_stop"}
-                value={timer.stop}
-              />
-            </div>
-            <input type="hidden" name="id" value={timer.id} />
-
-            <button
-              type="submit"
-              id={"button_timer-update-#{timer.id}"}
-              class="text-white bg-blue-700
-                hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300
-                font-medium rounded-full text-sm px-5 py-2.5 text-center
-                mr-2 mb-2
-                  dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-            >
-              Update
-            </button>
-          </div>
-        </form>
+    <div>
+      <%= if (length @editing_timers) > 0 do %>
+        <h1 class="text-4xl font-bold">Timers</h1>
+      <% else %>
+        <h1 class="text-2xl text-center font-semibold text-slate-400">
+          No timers associated with this item.
+        </h1>
       <% end %>
+
+      <div class="flex flex-col w-full mt-2">
+        <%= @editing_timers |> Enum.with_index |> Enum.map(fn({changeset, index}) -> %>
+          <.form
+            :let={f}
+            for={changeset}
+            phx-submit="update-item-timer"
+            id={"form-update-timer-#{changeset.data.id}"}
+            class="w-full pr-2"
+          >
+            <div class="flex flex-row w-full justify-between">
+              <div class="flex flex-row items-center">
+                <h3 class="mr-3">Start:</h3>
+                <input
+                  type="text"
+                  required="required"
+                  name="timer_start"
+                  id={"#{changeset.data.id}_start"}
+                  value={changeset.data.start}
+                />
+              </div>
+              <div class="flex flex-row items-center">
+                <h3 class="mr-3">Stop:</h3>
+                <input
+                  type="text"
+                  name="timer_stop"
+                  required="required"
+                  id={"#{changeset.data.id}_stop"}
+                  value={changeset.data.stop}
+                />
+              </div>
+              <input
+                type="hidden"
+                name="timer_id"
+                value={changeset.data.id}
+              />
+              <input type="hidden" name="index" value={index} />
+
+              <button
+                type="submit"
+                id={"button_timer-update-#{changeset.data.id}"}
+                class="text-white bg-blue-700
+                  hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300
+                  font-medium rounded-full text-sm px-5 py-2.5 text-center
+                  mr-2 mb-2
+                    dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              >
+                Update
+              </button>
+            </div>
+            <span class="text-red-700">
+              <%= error_tag(f, :id) %>
+            </span>
+          </.form>
+        <% end) %>
+      </div>
     </div>
   </div>
-</div>
 
 <!-- Replace ends here -->
 
@@ -3273,51 +3425,134 @@ We are showing each timer whenever an `item` is being edited.
 
 As you can see from the snippet above, 
 when the changes from the form are submitted, a 
-`update-item-timer` event is created. Now we need to handle this event 
-in `lib/app_web/live/app_live.ex`. 
-Let's add the following method to the file.
+`update-item-timer` event is created. 
+
+## 12.4 Updating the tests and going back to 100% coverage
+If we run `source .env_sample` and
+`MIX_ENV=test mix coveralls.html ; open cover/excoveralls.html`
+we will see how coverage dropped. 
+We need to test the new handler we created when updating a timer,
+as well as the `update_timer` function added inside `timer.ex`.
+
+Paste the following test in `test/app/timer_test.exs`.
 
 ```elixir
-  def handle_event(
-        "update-item-timer",
-        %{"id" => id, "timer_start" => timer_start, "timer_stop" => timer_stop},
-        socket
-      ) do
-    try do
-      start = App.DateTimeParser.parse!(timer_start, "%Y-%m-%d %H:%M:%S")
-      stop = App.DateTimeParser.parse!(timer_stop, "%Y-%m-%d %H:%M:%S")
+    test "update_timer(%{id: id, start: start, stop: stop}) should update the timer" do
+      start = ~N[2022-10-27 00:00:00]
+      stop = ~N[2022-10-27 05:00:00]
 
-      case DateTime.compare(start, stop) do
-        :lt -> Timer.update_timer(%{id: id, start: start, stop: stop})
-        :eq -> Logger.debug("dates are the same")
-        :gt -> Logger.debug("Start is newer that stop")
-      end
-    rescue
-      e ->
-        Logger.debug(
-          "Date format invalid on either start or stop, #{inspect(e)}"
-        )
+      {:ok, item} = Item.create_item(@valid_item_attrs)
+
+      {:ok, seven_seconds_ago} =
+        NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
+
+      # Start the timer 7 seconds ago:
+      {:ok, timer} =
+        Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
+
+      # Stop the timer based on its item_id
+      Timer.stop_timer_for_item_id(item.id)
+
+      # Update timer to specific datetimes
+      Timer.update_timer(%{id: timer.id, start: start, stop: stop})
+
+      updated_timer = Timer.get_timer!(timer.id)
+
+      assert updated_timer.start == start
+      assert updated_timer.stop == stop
     end
+```
 
-    AppWeb.Endpoint.broadcast(@topic, "update", :update)
-    {:noreply, socket}
+We now test the newly created `update-item-timer` event. 
+In `test/app_web/live/app_live_test.exs`, add the following test.
+
+```elixir
+test "update an item's timer", %{conn: conn} do
+    start = "2022-10-27T00:00:00"
+    stop = "2022-10-27T05:00:00"
+    start_datetime = ~N[2022-10-27 00:00:00]
+    stop_datetime = ~N[2022-10-27 05:00:00]
+
+    {:ok, item} =
+      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+
+    {:ok, seven_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
+
+    {:ok, now} = NaiveDateTime.new(Date.utc_today(), Time.utc_now())
+
+    # Start the timer 7 seconds ago:
+    {:ok, timer} =
+      Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
+
+    # Stop the timer based on its item_id
+    Timer.stop_timer_for_item_id(item.id)
+
+    {:ok, view, _html} = live(conn, "/")
+
+    # Update successful
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer.id,
+             "index" => 0,
+             "timer_start" => start,
+             "timer_stop" => stop
+           })
+
+    updated_timer = Timer.get_timer!(timer.id)
+
+    assert updated_timer.start == start_datetime
+    assert updated_timer.stop == stop_datetime
+
+    # Trying to update with equal values on start and stop
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer.id,
+             "index" => 0,
+             "timer_start" => start,
+             "timer_stop" => start
+           }) =~ "Start or stop are equal."
+
+    # Trying to update with equal start greater than stop
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer.id,
+             "index" => 0,
+             "timer_start" => stop,
+             "timer_stop" => start
+           }) =~ "Start is newer that stop."
+
+    # Trying to update with equal start greater than stop
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer.id,
+             "index" => 0,
+             "timer_start" => "invalid",
+             "timer_stop" => "invalid"
+           }) =~ "Date format invalid on either start or stop."
   end
 ```
 
-In the piece of code above, we try to parse the input strings
-and validate them. If it fails, we log the error. If they're 
-parseable, we compare the dates and make sure the `stop` time
-is **greater** than `start`. If not, we log the errors.
+We also need to change the `test "edit-timer"` test because it's failing.
+We have changed the id of the form when changing the `.heex` template.
+Change the test to the following.
 
-If everything is correct, the timer is updated and the 
-new `item` list is broadcasted to everyone on the
-same channel so they have the updated `item` list, making
-interaction *feel* real-time.
+```elixir
+  test "edit-item", %{conn: conn} do
+    {:ok, item} =
+      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+    {:ok, view, _html} = live(conn, "/")
 
-## 12.4 Form feedback
-//TODO
+    assert render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)}) =~
+             "<form phx-submit=\"update-item\" id=\"form-update"
+  end
+```
 
-
+You should now have a function way to change the timers! :wink:
 
 # 12. Run the _Finished_ MVP App!
 
