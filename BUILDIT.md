@@ -28,11 +28,11 @@ and _then_ built the UI. <br />
 We were able to do this because we had a good idea
 of which functions we were going to need. <br />
 If you are reading through this
-and scratching your head 
+<!-- and scratching your head  -->
 wondering where a particular function will be used,
 simply scroll down to the UI section
 where (_hopefully_) it will all be clear. 
-
+mii
 At the end of each step,
 remember to run the tests:
 
@@ -86,6 +86,11 @@ With that in place, let's get building!
 - [9. Update the `LiveView` Template](#9-update-the-liveview-template)
 - [10. Filter Items](#10-filter-items)
 - [11. Tags](#11-tags)
+  - [11.1 Migrations](#111-migrations)
+  - [11.2 Schemas](#112-schemas)
+  - [11.3 Test tags with Iex](#113-test-tags-with-iex)
+  - [11.4 Testing Schemas](#114-testing-schemas)
+  - [11.4  Items-Tags association](#114--items-tags-association)
 - [12. Run the _Finished_ MVP App!](#12-run-the-finished-mvp-app)
   - [12.1 Run the Tests](#121-run-the-tests)
   - [12.2 Run The App](#122-run-the-app)
@@ -482,7 +487,7 @@ A `timer` is associated with an `item`
 to track how long it takes to ***complete***.
 
   + `id`: `Int`
-  + `item_id` (Foreign Key `item.id`)
+  + `item_id` (Foreign Key `item.id`)mvvvvyvyvy
   + `start`: `NaiveDateTime` - start time for the timer
   + `stop`: `NaiveDateTime` - stop time for the timer
   + `inserted_at`: `NaiveDateTime` - record insertion time
