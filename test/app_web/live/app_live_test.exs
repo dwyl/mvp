@@ -137,8 +137,6 @@ defmodule AppWeb.AppLiveTest do
     {:ok, seven_seconds_ago} =
       NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
 
-    {:ok, now} = NaiveDateTime.new(Date.utc_today(), Time.utc_now())
-
     # Start the timer 7 seconds ago:
     {:ok, timer} =
       Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})

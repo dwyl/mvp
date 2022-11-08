@@ -94,7 +94,7 @@ defmodule AppWeb.TagControllerTest do
   end
 
   defp create_person(_) do
-    person = Person.create_person(%{"person_id" => 0, "name" => "guest"})
+    _person = Person.create_person(%{"person_id" => 0, "name" => "guest"})
     person = Person.create_person(%{"person_id" => 1, "name" => "Person1"})
     %{person: person}
   end

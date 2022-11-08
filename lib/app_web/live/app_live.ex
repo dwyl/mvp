@@ -129,37 +129,6 @@ defmodule AppWeb.AppLive do
     {:noreply, assign(socket, editing: nil, editing_timers: [])}
   end
 
-  @nodoc """
-   Errors a specific changeset from a list of changesets and returns the updated list of changesets.
-   You should pass a:
-   - `timer_changeset_list: list of timer changesets to be updated
-   - `changeset_to_error`: changeset object that you want to error out
-   - `changeset_index`: changeset object index inside the list of timer changesets
-   - `changeset_error_key`: atom key of the changeset object you want to associate the error message
-   - `changeset_error_message`: the string message to error the changeset key with.
-  """
-  defp error_timer_changeset(
-         timer_changeset_list,
-         changeset_to_error,
-         changeset_index,
-         changeset_error_key,
-         changeset_error_message
-       ) do
-    # Adding error to changeset
-    errored_changeset =
-      Ecto.Changeset.add_error(
-        changeset_to_error,
-        changeset_error_key,
-        changeset_error_message
-      )
-
-    {_reply, errored_changeset} =
-      Ecto.Changeset.apply_action(errored_changeset, :update)
-
-    #  Updated list with errored changeset
-    List.replace_at(timer_changeset_list, changeset_index, errored_changeset)
-  end
-
   @impl true
   def handle_event(
         "update-item-timer",
@@ -211,7 +180,7 @@ defmodule AppWeb.AppLive do
            assign(socket, editing_timers: updated_changeset_timers_list)}
       end
     rescue
-      e ->
+      _e ->
         updated_changeset_timers_list =
           error_timer_changeset(
             timer_changeset_list,
@@ -225,6 +194,37 @@ defmodule AppWeb.AppLive do
          assign(socket, editing_timers: updated_changeset_timers_list)}
     end
   end
+
+
+  # Errors a specific changeset from a list of changesets and returns the updated list of changesets.
+  # You should pass a:
+  # - `timer_changeset_list: list of timer changesets to be updated
+  # - `changeset_to_error`: changeset object that you want to error out
+  # - `changeset_index`: changeset object index inside the list of timer changesets
+  # - `changeset_error_key`: atom key of the changeset object you want to associate the error message
+  # - `changeset_error_message`: the string message to error the changeset key with.
+ @doc false
+ defp error_timer_changeset(
+        timer_changeset_list,
+        changeset_to_error,
+        changeset_index,
+        changeset_error_key,
+        changeset_error_message
+      ) do
+   # Adding error to changeset
+   errored_changeset =
+     Ecto.Changeset.add_error(
+       changeset_to_error,
+       changeset_error_key,
+       changeset_error_message
+     )
+
+   {_reply, errored_changeset} =
+     Ecto.Changeset.apply_action(errored_changeset, :update)
+
+   #  Updated list with errored changeset
+   List.replace_at(timer_changeset_list, changeset_index, errored_changeset)
+ end
 
   @impl true
   def handle_info(%Broadcast{event: "update", payload: _message}, socket) do

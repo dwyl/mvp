@@ -43,8 +43,7 @@ npm-debug.log
 # VS code elixir_ls folder see https://github.com/JakeBecker/vscode-elixir-ls
 .elixir_ls
 
-.env
-
-#elm
-elm-stuff/
+# VS code personal run config folder
 .vscode/
+
+.env
