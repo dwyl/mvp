@@ -86,9 +86,19 @@ With that in place, let's get building!
 - [9. Update the `LiveView` Template](#9-update-the-liveview-template)
 - [10. Filter Items](#10-filter-items)
 - [11. Tags](#11-tags)
-- [12. Run the _Finished_ MVP App!](#12-run-the-finished-mvp-app)
-  - [12.1 Run the Tests](#121-run-the-tests)
-  - [12.2 Run The App](#122-run-the-app)
+  - [11.1 Migrations](#111-migrations)
+  - [11.2 Schemas](#112-schemas)
+  - [11.3 Test tags with Iex](#113-test-tags-with-iex)
+  - [11.4 Testing Schemas](#114-testing-schemas)
+  - [11.4  Items-Tags association](#114--items-tags-association)
+- [12. Editing timers](#12-editing-timers)
+  - [12.1 Parsing DateTime strings](#121-parsing-datetime-strings)
+  - [12.2 Persisting update in database](#122-persisting-update-in-database)
+  - [12.3 Showing timers in UI](#123-showing-timers-in-ui)
+  - [12.4 Updating the tests and going back to 100% coverage](#124-updating-the-tests-and-going-back-to-100-coverage)
+- [13. Run the _Finished_ MVP App!](#13-run-the-finished-mvp-app)
+  - [13.1 Run the Tests](#131-run-the-tests)
+  - [13.2 Run The App](#132-run-the-app)
 - [Thanks!](#thanks)
 
 
@@ -3554,11 +3564,11 @@ Change the test to the following.
 
 You should now have a function way to change the timers! :wink:
 
-# 12. Run the _Finished_ MVP App!
+# 13. Run the _Finished_ MVP App!
 
 With all the code saved, let's run the tests one more time.
 
-## 12.1 Run the Tests
+## 13.1 Run the Tests
 
 In your terminal window, run: 
 
@@ -3587,7 +3597,7 @@ COV    FILE                                        LINES RELEVANT   MISSED
 All tests pass and we have **`100%` Test Coverage**.
 This reminds us just how few _relevant_ lines of code there are in the MVP!
 
-## 12.2 Run The App
+## 13.2 Run The App
 
 In your second terminal tab/window, run:
 
