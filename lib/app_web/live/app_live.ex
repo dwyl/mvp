@@ -178,7 +178,7 @@ defmodule AppWeb.AppLive do
               end
             end
 
-            # Timer.update_timer(%{id: id, start: start, stop: stop})
+            Timer.update_timer(%{id: id, start: start, stop: stop})
             {:noreply, assign(socket, editing: nil, editing_timers: [])}
           catch
             :overlap ->
