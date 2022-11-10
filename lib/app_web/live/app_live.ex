@@ -210,10 +210,12 @@ defmodule AppWeb.AppLive do
          changeset_error_key,
          changeset_error_message
        ) do
-    # Adding error to changeset
+
+    # Clearing and adding error to changeset
+    cleared_changeset = Map.put(changeset_to_error, :errors, [])
     errored_changeset =
       Ecto.Changeset.add_error(
-        changeset_to_error,
+        cleared_changeset,
         changeset_error_key,
         changeset_error_message
       )
