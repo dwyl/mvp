@@ -145,13 +145,55 @@ defmodule AppWeb.AppLive do
     changeset_obj = Enum.at(timer_changeset_list, index)
 
     try do
-      start = App.DateTimeParser.parse!(timer_start, "%Y-%m-%dT%H:%M:%S")
-      stop = App.DateTimeParser.parse!(timer_stop, "%Y-%m-%dT%H:%M:%S")
+      start =
+        App.DateTimeParser.parse!(timer_start, "%Y-%m-%dT%H:%M:%S")
+        |> DateTime.to_naive()
 
-      case DateTime.compare(start, stop) do
+      stop =
+        App.DateTimeParser.parse!(timer_stop, "%Y-%m-%dT%H:%M:%S")
+        |> DateTime.to_naive()
+
+      case NaiveDateTime.compare(start, stop) do
         :lt ->
-          Timer.update_timer(%{id: id, start: start, stop: stop})
-          {:noreply, assign(socket, editing: nil, editing_timers: [])}
+          # Creates a list of all other timers to check for overlap
+          other_timers_list =
+            List.delete_at(socket.assigns.editing_timers, index)
+
+          # Timer overlap verification
+          try do
+            for chs <- other_timers_list do
+              chs_start = chs.data.start
+              chs_stop = chs.data.stop
+
+              # The condition needs to FAIL (StartA <= EndB) and (EndA >= StartB)
+              # so no timer overlaps one another
+              compareStartAEndB = NaiveDateTime.compare(start, chs_stop)
+              compareEndAStartB = NaiveDateTime.compare(stop, chs_start)
+
+              if(
+                (compareStartAEndB == :lt || compareStartAEndB == :eq) &&
+                  (compareEndAStartB == :gt || compareEndAStartB == :eq)
+              ) do
+                throw(:overlap)
+              end
+            end
+
+            # Timer.update_timer(%{id: id, start: start, stop: stop})
+            {:noreply, assign(socket, editing: nil, editing_timers: [])}
+          catch
+            :overlap ->
+              updated_changeset_timers_list =
+                error_timer_changeset(
+                  timer_changeset_list,
+                  changeset_obj,
+                  index,
+                  :id,
+                  "This timer interval overlaps with other timers. Make sure all the timers are correct and don't overlap with each other"
+                )
+
+              {:noreply,
+               assign(socket, editing_timers: updated_changeset_timers_list)}
+          end
 
         :eq ->
           updated_changeset_timers_list =
@@ -210,9 +252,9 @@ defmodule AppWeb.AppLive do
          changeset_error_key,
          changeset_error_message
        ) do
-
     # Clearing and adding error to changeset
     cleared_changeset = Map.put(changeset_to_error, :errors, [])
+
     errored_changeset =
       Ecto.Changeset.add_error(
         cleared_changeset,
