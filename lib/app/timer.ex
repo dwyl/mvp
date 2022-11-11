@@ -98,7 +98,8 @@ defmodule App.Timer do
         start: t.start,
         stop: t.stop,
         item_id: t.item_id
-      }) end)
+      })
+    end)
   end
 
   @doc """

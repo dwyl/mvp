@@ -121,16 +121,16 @@ defmodule AppWeb.AppLive do
 
   @impl true
   def handle_event(
-    "update-item-timer",
-    %{
-      "timer_id" => id,
-      "index" => index,
-      "timer_start" => timer_start,
-      "timer_stop" => timer_stop
-    },
-    socket
-  ) when timer_stop == "" do
-
+        "update-item-timer",
+        %{
+          "timer_id" => id,
+          "index" => index,
+          "timer_start" => timer_start,
+          "timer_stop" => timer_stop
+        },
+        socket
+      )
+      when timer_stop == "" do
     timer_changeset_list = socket.assigns.editing_timers
     index = String.to_integer(index)
     changeset_obj = Enum.at(timer_changeset_list, index)
@@ -140,15 +140,16 @@ defmodule AppWeb.AppLive do
         App.DateTimeParser.parse!(timer_start, "%Y-%m-%dT%H:%M:%S")
         |> DateTime.to_naive()
 
-      other_timers_list =
-        List.delete_at(socket.assigns.editing_timers, index)
+      other_timers_list = List.delete_at(socket.assigns.editing_timers, index)
 
-      max_end = other_timers_list |> Enum.map(fn chs -> chs.data.stop end) |> Enum.max()
+      max_end =
+        other_timers_list |> Enum.map(fn chs -> chs.data.stop end) |> Enum.max()
 
       case NaiveDateTime.compare(start, max_end) do
         :gt ->
           Timer.update_timer(%{id: id, start: start, stop: nil})
           {:noreply, assign(socket, editing: nil, editing_timers: [])}
+
         _ ->
           updated_changeset_timers_list =
             error_timer_changeset(
@@ -161,22 +162,20 @@ defmodule AppWeb.AppLive do
 
           {:noreply,
            assign(socket, editing_timers: updated_changeset_timers_list)}
-
       end
-
     rescue
-        _e ->
-          updated_changeset_timers_list =
-            error_timer_changeset(
-              timer_changeset_list,
-              changeset_obj,
-              index,
-              :id,
-              "Date format invalid on either start or stop."
-            )
+      _e ->
+        updated_changeset_timers_list =
+          error_timer_changeset(
+            timer_changeset_list,
+            changeset_obj,
+            index,
+            :id,
+            "Date format invalid on either start or stop."
+          )
 
-          {:noreply,
-           assign(socket, editing_timers: updated_changeset_timers_list)}
+        {:noreply,
+         assign(socket, editing_timers: updated_changeset_timers_list)}
     end
   end
 
@@ -321,7 +320,6 @@ defmodule AppWeb.AppLive do
 
   @impl true
   def handle_info(%Broadcast{event: "update", payload: payload}, socket) do
-
     person_id = get_person_id(socket.assigns)
     items = Item.items_with_timers(person_id)
 
@@ -332,18 +330,29 @@ defmodule AppWeb.AppLive do
       case payload do
         {:start, item_id} ->
           timers_list_changeset = Timer.list_timers_changesets(item_id)
-          {:noreply, assign(socket, items: items, editing: item_id, editing_timers: timers_list_changeset)}
 
+          {:noreply,
+           assign(socket,
+             items: items,
+             editing: item_id,
+             editing_timers: timers_list_changeset
+           )}
 
         {:stop, item_id} ->
           timers_list_changeset = Timer.list_timers_changesets(item_id)
-          {:noreply, assign(socket, items: items, editing: item_id, editing_timers: timers_list_changeset)}
+
+          {:noreply,
+           assign(socket,
+             items: items,
+             editing: item_id,
+             editing_timers: timers_list_changeset
+           )}
 
         _ ->
           {:noreply, assign(socket, items: items)}
       end
 
-    # If not, just update the item list.
+      # If not, just update the item list.
     else
       {:noreply, assign(socket, items: items)}
     end
