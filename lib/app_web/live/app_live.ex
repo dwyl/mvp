@@ -77,7 +77,7 @@ defmodule AppWeb.AppLive do
         start: NaiveDateTime.utc_now()
       })
 
-    AppWeb.Endpoint.broadcast(@topic, "update", :start)
+    AppWeb.Endpoint.broadcast(@topic, "update", {:start, item.id})
     {:noreply, socket}
   end
 
@@ -86,7 +86,7 @@ defmodule AppWeb.AppLive do
     timer_id = Map.get(data, "timerid")
     {:ok, _timer} = Timer.stop(%{id: timer_id})
 
-    AppWeb.Endpoint.broadcast(@topic, "update", :stop)
+    AppWeb.Endpoint.broadcast(@topic, "update", {:stop, Map.get(data, "id")})
     {:noreply, socket}
   end
 
@@ -94,17 +94,7 @@ defmodule AppWeb.AppLive do
   def handle_event("edit-item", data, socket) do
     item_id = String.to_integer(data["id"])
 
-    timers_list = Timer.list_timers(item_id)
-
-    timers_list_changeset =
-      Enum.map(timers_list, fn t ->
-        Timer.changeset(t, %{
-          id: t.id,
-          start: t.start,
-          stop: t.stop,
-          item_id: t.item_id
-        })
-      end)
+    timers_list_changeset = Timer.list_timers_changesets(item_id)
 
     {:noreply,
      assign(socket, editing: item_id, editing_timers: timers_list_changeset)}
@@ -130,6 +120,66 @@ defmodule AppWeb.AppLive do
   end
 
   @impl true
+  def handle_event(
+    "update-item-timer",
+    %{
+      "timer_id" => id,
+      "index" => index,
+      "timer_start" => timer_start,
+      "timer_stop" => timer_stop
+    },
+    socket
+  ) when timer_stop == "" do
+
+    timer_changeset_list = socket.assigns.editing_timers
+    index = String.to_integer(index)
+    changeset_obj = Enum.at(timer_changeset_list, index)
+
+    try do
+      start =
+        App.DateTimeParser.parse!(timer_start, "%Y-%m-%dT%H:%M:%S")
+        |> DateTime.to_naive()
+
+      other_timers_list =
+        List.delete_at(socket.assigns.editing_timers, index)
+
+      max_end = other_timers_list |> Enum.map(fn chs -> chs.data.stop end) |> Enum.max()
+
+      case NaiveDateTime.compare(start, max_end) do
+        :gt ->
+          Timer.update_timer(%{id: id, start: start, stop: nil})
+          {:noreply, assign(socket, editing: nil, editing_timers: [])}
+        _ ->
+          updated_changeset_timers_list =
+            error_timer_changeset(
+              timer_changeset_list,
+              changeset_obj,
+              index,
+              :id,
+              "When editing an ongoing timer, make sure it's after all the others."
+            )
+
+          {:noreply,
+           assign(socket, editing_timers: updated_changeset_timers_list)}
+
+      end
+
+    rescue
+        _e ->
+          updated_changeset_timers_list =
+            error_timer_changeset(
+              timer_changeset_list,
+              changeset_obj,
+              index,
+              :id,
+              "Date format invalid on either start or stop."
+            )
+
+          {:noreply,
+           assign(socket, editing_timers: updated_changeset_timers_list)}
+    end
+  end
+
   def handle_event(
         "update-item-timer",
         %{
@@ -270,11 +320,33 @@ defmodule AppWeb.AppLive do
   end
 
   @impl true
-  def handle_info(%Broadcast{event: "update", payload: _message}, socket) do
+  def handle_info(%Broadcast{event: "update", payload: payload}, socket) do
+
     person_id = get_person_id(socket.assigns)
     items = Item.items_with_timers(person_id)
 
-    {:noreply, assign(socket, items: items)}
+    isEditingItem = socket.assigns.editing
+
+    # If the item is being edited, we update the timer list of the item being edited.
+    if isEditingItem do
+      case payload do
+        {:start, item_id} ->
+          timers_list_changeset = Timer.list_timers_changesets(item_id)
+          {:noreply, assign(socket, items: items, editing: item_id, editing_timers: timers_list_changeset)}
+
+
+        {:stop, item_id} ->
+          timers_list_changeset = Timer.list_timers_changesets(item_id)
+          {:noreply, assign(socket, items: items, editing: item_id, editing_timers: timers_list_changeset)}
+
+        _ ->
+          {:noreply, assign(socket, items: items)}
+      end
+
+    # If not, just update the item list.
+    else
+      {:noreply, assign(socket, items: items)}
+    end
   end
 
   # only show certain UI elements (buttons) if there are items:
