@@ -81,25 +81,12 @@ defmodule App.Timer do
   end
 
   @doc """
-  Lists all the timers from a given item.id.
-
-  ## Examples
-
-    iex> list_timers(1)
-    [%Timer{id: 1, start: ~N[2022-07-11 05:15:31], stop: ~N[2022-07-11 05:15:37}]
-  """
-  def list_timers(item_id) do
-    from(v in Timer, where: [item_id: ^item_id], order_by: [asc: :id])
-    |> Repo.all()
-  end
-
-  @doc """
   Lists all the timers changesets from a given item.id.
   This is useful for form validation, as it returns the timers in a changeset form, in which you can add errors.
 
   ## Examples
 
-    iex> list_timers(1)
+    iex> list_timers_changesets(1)
     [ #Ecto.Changeset<action: nil, changes: %{}, errors: [], data: #App.Timer<>, valid?: true> ]
   """
   def list_timers_changesets(item_id) do
