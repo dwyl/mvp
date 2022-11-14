@@ -1,10 +1,5 @@
-<main class="h-90 w-full font-sans">
-  <form
-    phx-submit="create"
-    class="w-full lg:w-3/4 lg:max-w-lg text-center mx-auto"
-  >
-    <!-- textarea so that we can have multi-line capturing
-      help wanted auto re-sizing: https://github.com/dwyl/learn-alpine.js/issues/3 -->
+<main class="font-sans">
+  <form phx-submit="create" class="w-full lg:w-3/4 lg:max-w-lg mx-auto">
     <textarea
       class="w-full py-1 px-1 text-slate-800 text-3xl
         bg-white bg-clip-padding
@@ -12,10 +7,11 @@
         max-h-80
         transition ease-in-out
         border border-b border-slate-200
-        focus:border-none focus:outline-none"
+        focus:border-none focus:outline-none
+        my-2"
       name="text"
       placeholder="What needs to be done?"
-      autofocus=""
+      autofocus="true"
       required="required"
       x-data="{resize() {
            $el.style.height = '80px';
@@ -24,10 +20,37 @@
       }"
       x-init="resize"
       x-on:input="resize"
+    ></textarea>
+    <!-- Select Inpu -->
+    <div
+      class="lg:w-1/2 "
+      x-data="{open: true}"
+      x-on:click.away="open = false"
+      x-on:keydown.escape="open = false"
     >
-    </textarea>
+      <input
+        type="text"
+        name="tags"
+        class="my-2 w-auto"
+        x-on:focus="open = true"
+        autocomplete="off"
+      />
+      <div
+        class="relative z-10 drop-shadow-lg w-auto"
+        x-show="open"
+        x-transition
+      >
+        <ul class="absolute border bg-white max-h-12 overflow-auto w-full">
+          <%= for tag <- @tags do %>
+            <li>
+              <%= tag.text %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+    <!-- End Select Inpu -->
 
-    <input type="text" name="tags" placeholder="tag1, tag2,..." />
     <!-- Want to help "DRY" this? see: https://github.com/dwyl/app-mvp-phoenix/issues/105 -->
     <!-- https://tailwindcss.com/docs/justify-content#end -->
     <div class="flex justify-end mr-1">

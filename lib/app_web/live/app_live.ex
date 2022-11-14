@@ -1,9 +1,8 @@
 defmodule AppWeb.AppLive do
   require Logger
-
   use AppWeb, :live_view
   use Timex
-  alias App.{Item, Timer}
+  alias App.{Item, Tag, Timer}
   # run authentication on mount
   on_mount AppWeb.AuthController
   alias Phoenix.Socket.Broadcast
@@ -19,6 +18,7 @@ defmodule AppWeb.AppLive do
 
     person_id = get_person_id(socket.assigns)
     items = Item.items_with_timers(person_id)
+    tags = Tag.list_person_tags(person_id)
 
     {:ok,
      assign(socket,
@@ -26,7 +26,8 @@ defmodule AppWeb.AppLive do
        editing_timers: [],
        editing: nil,
        filter: "active",
-       filter_tag: nil
+       filter_tag: nil,
+       tags: tags
      )}
   end
 
