@@ -137,13 +137,7 @@ defmodule AppWeb.AppLive do
 
     case Timer.update_timer_inside_changeset_list(id, timer_start, timer_stop, index, timer_changeset_list) do
       {:ok, _list} -> {:noreply, assign(socket, editing: nil, editing_timers: [])}
-
-      {:error_invalid_start, updated_list} -> {:noreply, assign(socket, editing_timers: updated_list)}
-      {:error_invalid_stop, updated_list} -> {:noreply, assign(socket, editing_timers: updated_list)}
-      {:error_start_greater_than_stop, updated_list} -> {:noreply, assign(socket, editing_timers: updated_list)}
-      {:error_start_equal_stop, updated_list} -> {:noreply, assign(socket, editing_timers: updated_list)}
-      {:error_overlap, updated_list} -> {:noreply, assign(socket, editing_timers: updated_list)}
-      {:error_not_after_others, updated_list} -> {:noreply, assign(socket, editing_timers: updated_list)}
+      {:error, updated_errored_list} -> {:noreply, assign(socket, editing_timers: updated_errored_list)}
     end
   end
 

@@ -80,6 +80,14 @@ defmodule App.Timer do
     |> Repo.update()
   end
 
+  @doc """
+  Updates a timer object inside a list with timer changesets.
+  This function is only useful for form validations, since it replaces the errored changeset
+  according to the index that is passed, alongside the list and the fields to update the timer.
+
+  It returns {:ok, []} in case the update is successful.
+  Otherwise, it returns {:error, updated_list}, where `error_term` is the error that occurred and `updated_list` being the updated item changeset list with the error.
+  """
   def update_timer_inside_changeset_list(
     timer_id,
     timer_start,
@@ -128,7 +136,7 @@ defmodule App.Timer do
             :update
           )
 
-        {:error_invalid_start, updated_changeset_timers_list}
+        {:error, updated_changeset_timers_list}
 
       :error_not_after_others ->
         updated_changeset_timers_list =
@@ -141,7 +149,7 @@ defmodule App.Timer do
             :update
           )
 
-        {:error_not_after_others, updated_changeset_timers_list}
+        {:error, updated_changeset_timers_list}
     end
   end
   def update_timer_inside_changeset_list(
@@ -217,7 +225,7 @@ defmodule App.Timer do
             :update
           )
 
-        {:error_invalid_start, updated_changeset_timers_list}
+        {:error, updated_changeset_timers_list}
 
       :error_invalid_stop ->
         updated_changeset_timers_list =
@@ -230,7 +238,7 @@ defmodule App.Timer do
             :update
           )
 
-        {:error_invalid_stop, updated_changeset_timers_list}
+        {:error, updated_changeset_timers_list}
 
       :error_overlap ->
         updated_changeset_timers_list =
@@ -243,7 +251,7 @@ defmodule App.Timer do
             :update
           )
 
-        {:error_overlap, updated_changeset_timers_list}
+        {:error, updated_changeset_timers_list}
 
       :error_start_equal_stop ->
         updated_changeset_timers_list =
@@ -256,7 +264,7 @@ defmodule App.Timer do
             :update
           )
 
-        {:error_start_equal_stop, updated_changeset_timers_list}
+        {:error, updated_changeset_timers_list}
 
       :error_start_greater_than_stop ->
         updated_changeset_timers_list =
@@ -269,7 +277,7 @@ defmodule App.Timer do
             :update
           )
 
-        {:error_start_greater_than_stop, updated_changeset_timers_list}
+        {:error, updated_changeset_timers_list}
     end
   end
 
