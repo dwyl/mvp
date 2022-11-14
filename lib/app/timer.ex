@@ -80,6 +80,109 @@ defmodule App.Timer do
     |> Repo.update()
   end
 
+  def update_timer_inside_changeset_list(
+        timer_id,
+        timer_start,
+        timer_stop,
+        index,
+        timer_changeset_list
+      ) do
+
+
+    changeset_obj = Enum.at(timer_changeset_list, index)
+
+    try do
+      start = Timex.parse!(timer_start, "%Y-%m-%dT%H:%M:%S", :strftime)
+      stop = Timex.parse!(timer_stop, "%Y-%m-%dT%H:%M:%S", :strftime)
+
+      case NaiveDateTime.compare(start, stop) do
+        :lt ->
+          # Creates a list of all other timers to check for overlap
+          other_timers_list = List.delete_at(timer_changeset_list, index)
+
+          # Timer overlap verification
+          try do
+            for chs <- other_timers_list do
+              chs_start = chs.data.start
+              chs_stop = chs.data.stop
+
+              # The condition needs to FAIL (StartA <= EndB) and (EndA >= StartB)
+              # so no timer overlaps one another
+              compareStartAEndB = NaiveDateTime.compare(start, chs_stop)
+              compareEndAStartB = NaiveDateTime.compare(stop, chs_start)
+
+              if(
+                (compareStartAEndB == :lt || compareStartAEndB == :eq) &&
+                  (compareEndAStartB == :gt || compareEndAStartB == :eq)
+              ) do
+                throw(:overlap)
+              end
+            end
+
+            update_timer(%{id: timer_id, start: start, stop: stop})
+            {:ok, []}
+            # {:noreply, assign(socket, editing: nil, editing_timers: [])}
+          catch
+            :overlap ->
+              updated_changeset_timers_list =
+                Timer.error_timer_changeset(
+                  timer_changeset_list,
+                  changeset_obj,
+                  index,
+                  :id,
+                  "This timer interval overlaps with other timers. Make sure all the timers are correct and don't overlap with each other",
+                  :update
+                )
+
+              {:overlap, updated_changeset_timers_list}
+              # {:noreply, assign(socket, editing_timers: updated_changeset_timers_list)}
+          end
+
+        :eq ->
+          updated_changeset_timers_list =
+            Timer.error_timer_changeset(
+              timer_changeset_list,
+              changeset_obj,
+              index,
+              :id,
+              "Start or stop are equal.",
+              :update
+            )
+
+          {:start_equal_stop, updated_changeset_timers_list}
+          # {:noreply, assign(socket, editing_timers: updated_changeset_timers_list)}
+
+        :gt ->
+          updated_changeset_timers_list =
+            Timer.error_timer_changeset(
+              timer_changeset_list,
+              changeset_obj,
+              index,
+              :id,
+              "Start is newer that stop.",
+              :update
+            )
+
+          {:start_greater_than_stop, updated_changeset_timers_list}
+          # {:noreply, assign(socket, editing_timers: updated_changeset_timers_list)}
+      end
+    rescue
+      _e ->
+        updated_changeset_timers_list =
+          Timer.error_timer_changeset(
+            timer_changeset_list,
+            changeset_obj,
+            index,
+            :id,
+            "Date format invalid on either start or stop.",
+            :update
+          )
+
+        {:invalid_format, updated_changeset_timers_list}
+        # {:noreply, assign(socket, editing_timers: updated_changeset_timers_list)}
+    end
+  end
+
   @doc """
   Lists all the timers changesets from a given item.id.
   This is useful for form validation, as it returns the timers in a changeset form, in which you can add errors.
@@ -104,6 +207,7 @@ defmodule App.Timer do
 
   @doc """
    Errors a specific changeset from a list of changesets and returns the updated list of changesets.
+   Should only be called for form validation purposes
    You should pass a:
    - `timer_changeset_list: list of timer changesets to be updated
    - `changeset_to_error`: changeset object that you want to error out
@@ -113,14 +217,13 @@ defmodule App.Timer do
    - `action`: action atom to apply to errored changeset.
   """
   def error_timer_changeset(
-         timer_changeset_list,
-         changeset_to_error,
-         changeset_index,
-         error_key,
-         error_message,
-         action
-       ) do
-
+        timer_changeset_list,
+        changeset_to_error,
+        changeset_index,
+        error_key,
+        error_message,
+        action
+      ) do
     # Clearing and adding error to changeset
     cleared_changeset = Map.put(changeset_to_error, :errors, [])
 

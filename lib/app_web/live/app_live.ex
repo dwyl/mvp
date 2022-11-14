@@ -191,102 +191,16 @@ defmodule AppWeb.AppLive do
         },
         socket
       ) do
+
     timer_changeset_list = socket.assigns.editing_timers
     index = String.to_integer(index)
-    changeset_obj = Enum.at(timer_changeset_list, index)
 
-    try do
-      start =
-        Timex.parse!(timer_start, "%Y-%m-%dT%H:%M:%S", :strftime)
-
-      stop =
-        Timex.parse!(timer_stop, "%Y-%m-%dT%H:%M:%S", :strftime)
-
-      case NaiveDateTime.compare(start, stop) do
-        :lt ->
-          # Creates a list of all other timers to check for overlap
-          other_timers_list =
-            List.delete_at(socket.assigns.editing_timers, index)
-
-          # Timer overlap verification
-          try do
-            for chs <- other_timers_list do
-              chs_start = chs.data.start
-              chs_stop = chs.data.stop
-
-              # The condition needs to FAIL (StartA <= EndB) and (EndA >= StartB)
-              # so no timer overlaps one another
-              compareStartAEndB = NaiveDateTime.compare(start, chs_stop)
-              compareEndAStartB = NaiveDateTime.compare(stop, chs_start)
-
-              if(
-                (compareStartAEndB == :lt || compareStartAEndB == :eq) &&
-                  (compareEndAStartB == :gt || compareEndAStartB == :eq)
-              ) do
-                throw(:overlap)
-              end
-            end
-
-            Timer.update_timer(%{id: id, start: start, stop: stop})
-            {:noreply, assign(socket, editing: nil, editing_timers: [])}
-          catch
-            :overlap ->
-              updated_changeset_timers_list =
-                Timer.error_timer_changeset(
-                  timer_changeset_list,
-                  changeset_obj,
-                  index,
-                  :id,
-                  "This timer interval overlaps with other timers. Make sure all the timers are correct and don't overlap with each other",
-                  :update
-                )
-
-              {:noreply,
-               assign(socket, editing_timers: updated_changeset_timers_list)}
-          end
-
-        :eq ->
-          updated_changeset_timers_list =
-            Timer.error_timer_changeset(
-              timer_changeset_list,
-              changeset_obj,
-              index,
-              :id,
-              "Start or stop are equal.",
-              :update
-            )
-
-          {:noreply,
-           assign(socket, editing_timers: updated_changeset_timers_list)}
-
-        :gt ->
-          updated_changeset_timers_list =
-            Timer.error_timer_changeset(
-              timer_changeset_list,
-              changeset_obj,
-              index,
-              :id,
-              "Start is newer that stop.",
-              :update
-            )
-
-          {:noreply,
-           assign(socket, editing_timers: updated_changeset_timers_list)}
-      end
-    rescue
-      _e ->
-        updated_changeset_timers_list =
-          Timer.error_timer_changeset(
-            timer_changeset_list,
-            changeset_obj,
-            index,
-            :id,
-            "Date format invalid on either start or stop.",
-            :update
-          )
-
-        {:noreply,
-         assign(socket, editing_timers: updated_changeset_timers_list)}
+    case Timer.update_timer_inside_changeset_list(id, timer_start, timer_stop, index, timer_changeset_list) do
+      {:invalid_format, updated_list} -> {:noreply, assign(socket, editing_timers: updated_list)}
+      {:start_greater_than_stop, updated_list} -> {:noreply, assign(socket, editing_timers: updated_list)}
+      {:start_equal_stop, updated_list} -> {:noreply, assign(socket, editing_timers: updated_list)}
+      {:overlap, updated_list} -> {:noreply, assign(socket, editing_timers: updated_list)}
+      {:ok, _list} -> {:noreply, assign(socket, editing: nil, editing_timers: [])}
     end
   end
 
