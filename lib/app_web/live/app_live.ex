@@ -2,6 +2,7 @@ defmodule AppWeb.AppLive do
   require Logger
 
   use AppWeb, :live_view
+  use Timex
   alias App.{Item, Timer}
   # run authentication on mount
   on_mount AppWeb.AuthController
@@ -137,8 +138,7 @@ defmodule AppWeb.AppLive do
 
     try do
       start =
-        App.DateTimeParser.parse!(timer_start, "%Y-%m-%dT%H:%M:%S")
-        |> DateTime.to_naive()
+        Timex.parse!(timer_start, "%Y-%m-%dT%H:%M:%S", :strftime)
 
       other_timers_list = List.delete_at(socket.assigns.editing_timers, index)
 
@@ -195,12 +195,10 @@ defmodule AppWeb.AppLive do
 
     try do
       start =
-        App.DateTimeParser.parse!(timer_start, "%Y-%m-%dT%H:%M:%S")
-        |> DateTime.to_naive()
+        Timex.parse!(timer_start, "%Y-%m-%dT%H:%M:%S", :strftime)
 
       stop =
-        App.DateTimeParser.parse!(timer_stop, "%Y-%m-%dT%H:%M:%S")
-        |> DateTime.to_naive()
+        Timex.parse!(timer_stop, "%Y-%m-%dT%H:%M:%S", :strftime)
 
       case NaiveDateTime.compare(start, stop) do
         :lt ->
