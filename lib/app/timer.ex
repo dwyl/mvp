@@ -89,18 +89,17 @@ defmodule App.Timer do
   Otherwise, it returns {:error, updated_list}, where `error_term` is the error that occurred and `updated_list` being the updated item changeset list with the error.
   """
   def update_timer_inside_changeset_list(
-    timer_id,
-    timer_start,
-    timer_stop,
-    index,
-    timer_changeset_list
-  ) when timer_stop == "" or timer_stop == nil do
-
+        timer_id,
+        timer_start,
+        timer_stop,
+        index,
+        timer_changeset_list
+      )
+      when timer_stop == "" or timer_stop == nil do
     # Getting the changeset to change in case there's an error
     changeset_obj = Enum.at(timer_changeset_list, index)
 
     try do
-
       # Parsing the dates
       {start_op, start} =
         Timex.parse(timer_start, "%Y-%m-%dT%H:%M:%S", :strftime)
@@ -122,7 +121,8 @@ defmodule App.Timer do
           update_timer(%{id: timer_id, start: start, stop: nil})
           {:ok, []}
 
-        _ -> throw(:error_not_after_others)
+        _ ->
+          throw(:error_not_after_others)
       end
     catch
       :error_invalid_start ->
@@ -152,6 +152,7 @@ defmodule App.Timer do
         {:error, updated_changeset_timers_list}
     end
   end
+
   def update_timer_inside_changeset_list(
         timer_id,
         timer_start,
@@ -159,12 +160,10 @@ defmodule App.Timer do
         index,
         timer_changeset_list
       ) do
-
     # Getting the changeset to change in case there's an error
     changeset_obj = Enum.at(timer_changeset_list, index)
 
     try do
-
       # Parsing the dates
       {start_op, start} =
         Timex.parse(timer_start, "%Y-%m-%dT%H:%M:%S", :strftime)
@@ -182,7 +181,6 @@ defmodule App.Timer do
 
       case NaiveDateTime.compare(start, stop) do
         :lt ->
-
           # Creates a list of all other timers to check for overlap
           other_timers_list = List.delete_at(timer_changeset_list, index)
 

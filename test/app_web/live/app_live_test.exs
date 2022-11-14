@@ -267,11 +267,11 @@ defmodule AppWeb.AppLiveTest do
     render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
 
     assert render_submit(view, "update-item-timer", %{
-              "timer_id" => timer.id,
-              "index" => 0,
-              "timer_start" => start,
-              "timer_stop" => "invalid"
-            }) =~ "Stop field has an invalid date format."
+             "timer_id" => timer.id,
+             "index" => 0,
+             "timer_start" => start,
+             "timer_stop" => "invalid"
+           }) =~ "Stop field has an invalid date format."
   end
 
   test "update timer timer with ongoing timer ", %{conn: conn} do

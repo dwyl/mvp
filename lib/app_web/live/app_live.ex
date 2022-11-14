@@ -131,17 +131,23 @@ defmodule AppWeb.AppLive do
         },
         socket
       ) do
-
     timer_changeset_list = socket.assigns.editing_timers
     index = String.to_integer(index)
 
-    case Timer.update_timer_inside_changeset_list(id, timer_start, timer_stop, index, timer_changeset_list) do
-      {:ok, _list} -> {:noreply, assign(socket, editing: nil, editing_timers: [])}
-      {:error, updated_errored_list} -> {:noreply, assign(socket, editing_timers: updated_errored_list)}
+    case Timer.update_timer_inside_changeset_list(
+           id,
+           timer_start,
+           timer_stop,
+           index,
+           timer_changeset_list
+         ) do
+      {:ok, _list} ->
+        {:noreply, assign(socket, editing: nil, editing_timers: [])}
+
+      {:error, updated_errored_list} ->
+        {:noreply, assign(socket, editing_timers: updated_errored_list)}
     end
   end
-
-
 
   @impl true
   def handle_info(%Broadcast{event: "update", payload: payload}, socket) do
