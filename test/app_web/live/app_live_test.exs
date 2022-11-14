@@ -253,15 +253,25 @@ defmodule AppWeb.AppLiveTest do
              "timer_stop" => start
            }) =~ "Start is newer that stop."
 
-    # Trying to update with equal start greater than stop
+    # Trying to update with start as invalid format
     render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
 
     assert render_submit(view, "update-item-timer", %{
              "timer_id" => timer.id,
              "index" => 0,
              "timer_start" => "invalid",
-             "timer_stop" => "invalid"
-           }) =~ "Date format invalid on either start or stop."
+             "timer_stop" => stop
+           }) =~ "Start field has an invalid date format."
+
+    # Trying to update with stop as invalid format
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    assert render_submit(view, "update-item-timer", %{
+              "timer_id" => timer.id,
+              "index" => 0,
+              "timer_start" => start,
+              "timer_stop" => "invalid"
+            }) =~ "Stop field has an invalid date format."
   end
 
   test "update timer timer with ongoing timer ", %{conn: conn} do

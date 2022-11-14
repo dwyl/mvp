@@ -88,98 +88,124 @@ defmodule App.Timer do
         timer_changeset_list
       ) do
 
-
+    # Getting the changeset to change in case there's an error
     changeset_obj = Enum.at(timer_changeset_list, index)
 
     try do
-      start = Timex.parse!(timer_start, "%Y-%m-%dT%H:%M:%S", :strftime)
-      stop = Timex.parse!(timer_stop, "%Y-%m-%dT%H:%M:%S", :strftime)
+
+      # Parsing the dates
+      {start_op, start} =
+        Timex.parse(timer_start, "%Y-%m-%dT%H:%M:%S", :strftime)
+
+      {stop_op, stop} = Timex.parse(timer_stop, "%Y-%m-%dT%H:%M:%S", :strftime)
+
+      # Error guards when parsing the dates
+      if start_op === :error do
+        throw(:error_invalid_start)
+      end
+
+      if stop_op === :error do
+        throw(:error_invalid_stop)
+      end
 
       case NaiveDateTime.compare(start, stop) do
         :lt ->
+
           # Creates a list of all other timers to check for overlap
           other_timers_list = List.delete_at(timer_changeset_list, index)
 
           # Timer overlap verification
-          try do
-            for chs <- other_timers_list do
-              chs_start = chs.data.start
-              chs_stop = chs.data.stop
+          for chs <- other_timers_list do
+            chs_start = chs.data.start
+            chs_stop = chs.data.stop
 
-              # The condition needs to FAIL (StartA <= EndB) and (EndA >= StartB)
-              # so no timer overlaps one another
-              compareStartAEndB = NaiveDateTime.compare(start, chs_stop)
-              compareEndAStartB = NaiveDateTime.compare(stop, chs_start)
+            # The condition needs to FAIL (StartA <= EndB) and (EndA >= StartB)
+            # so no timer overlaps one another
+            compareStartAEndB = NaiveDateTime.compare(start, chs_stop)
+            compareEndAStartB = NaiveDateTime.compare(stop, chs_start)
 
-              if(
-                (compareStartAEndB == :lt || compareStartAEndB == :eq) &&
-                  (compareEndAStartB == :gt || compareEndAStartB == :eq)
-              ) do
-                throw(:overlap)
-              end
+            if(
+              (compareStartAEndB == :lt || compareStartAEndB == :eq) &&
+                (compareEndAStartB == :gt || compareEndAStartB == :eq)
+            ) do
+              throw(:error_overlap)
             end
-
-            update_timer(%{id: timer_id, start: start, stop: stop})
-            {:ok, []}
-            # {:noreply, assign(socket, editing: nil, editing_timers: [])}
-          catch
-            :overlap ->
-              updated_changeset_timers_list =
-                Timer.error_timer_changeset(
-                  timer_changeset_list,
-                  changeset_obj,
-                  index,
-                  :id,
-                  "This timer interval overlaps with other timers. Make sure all the timers are correct and don't overlap with each other",
-                  :update
-                )
-
-              {:overlap, updated_changeset_timers_list}
-              # {:noreply, assign(socket, editing_timers: updated_changeset_timers_list)}
           end
 
-        :eq ->
-          updated_changeset_timers_list =
-            Timer.error_timer_changeset(
-              timer_changeset_list,
-              changeset_obj,
-              index,
-              :id,
-              "Start or stop are equal.",
-              :update
-            )
+          update_timer(%{id: timer_id, start: start, stop: stop})
+          {:ok, []}
 
-          {:start_equal_stop, updated_changeset_timers_list}
-          # {:noreply, assign(socket, editing_timers: updated_changeset_timers_list)}
+        :eq ->
+          throw(:error_start_equal_stop)
 
         :gt ->
-          updated_changeset_timers_list =
-            Timer.error_timer_changeset(
-              timer_changeset_list,
-              changeset_obj,
-              index,
-              :id,
-              "Start is newer that stop.",
-              :update
-            )
-
-          {:start_greater_than_stop, updated_changeset_timers_list}
-          # {:noreply, assign(socket, editing_timers: updated_changeset_timers_list)}
+          throw(:error_start_greater_than_stop)
       end
-    rescue
-      _e ->
+    catch
+      :error_invalid_start ->
         updated_changeset_timers_list =
           Timer.error_timer_changeset(
             timer_changeset_list,
             changeset_obj,
             index,
             :id,
-            "Date format invalid on either start or stop.",
+            "Start field has an invalid date format.",
             :update
           )
 
-        {:invalid_format, updated_changeset_timers_list}
-        # {:noreply, assign(socket, editing_timers: updated_changeset_timers_list)}
+        {:error_invalid_start, updated_changeset_timers_list}
+
+      :error_invalid_stop ->
+        updated_changeset_timers_list =
+          Timer.error_timer_changeset(
+            timer_changeset_list,
+            changeset_obj,
+            index,
+            :id,
+            "Stop field has an invalid date format.",
+            :update
+          )
+
+        {:error_invalid_stop, updated_changeset_timers_list}
+
+      :error_overlap ->
+        updated_changeset_timers_list =
+          Timer.error_timer_changeset(
+            timer_changeset_list,
+            changeset_obj,
+            index,
+            :id,
+            "This timer interval overlaps with other timers. Make sure all the timers are correct and don't overlap with each other",
+            :update
+          )
+
+        {:error_overlap, updated_changeset_timers_list}
+
+      :error_start_equal_stop ->
+        updated_changeset_timers_list =
+          Timer.error_timer_changeset(
+            timer_changeset_list,
+            changeset_obj,
+            index,
+            :id,
+            "Start or stop are equal.",
+            :update
+          )
+
+        {:error_start_equal_stop, updated_changeset_timers_list}
+
+      :error_start_greater_than_stop ->
+        updated_changeset_timers_list =
+          Timer.error_timer_changeset(
+            timer_changeset_list,
+            changeset_obj,
+            index,
+            :id,
+            "Start is newer that stop.",
+            :update
+          )
+
+        {:error_start_greater_than_stop, updated_changeset_timers_list}
     end
   end
 
