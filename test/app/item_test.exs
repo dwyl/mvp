@@ -23,6 +23,24 @@ defmodule App.ItemTest do
       assert inserted_item.text == @valid_attrs.text
     end
 
+    test "create_item/1 with long text" do
+      attrs = %{
+        text: "This is a long text, This is a long text,
+                This is a long text,This is a long text,This is a long text,
+                This is a long text,This is a long text,This is a long text,
+                This is a long text,This is a long text,This is a long text,
+                This is a long text,This is a long text,This is a long text,
+                This is a long text,This is a long text,This is a long text,
+            ",
+        person_id: 1,
+        status: 2
+      }
+
+      assert {:ok, %Item{} = item} = Item.create_item(attrs)
+
+      assert item.text == attrs.text
+    end
+
     test "create_item/1 with invalid data returns error changeset" do
       assert {:error, %Ecto.Changeset{}} = Item.create_item(@invalid_attrs)
     end
