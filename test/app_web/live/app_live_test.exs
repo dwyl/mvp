@@ -356,7 +356,7 @@ defmodule AppWeb.AppLiveTest do
         "timer_stop" => ""
       })
 
-    assert error_format_view =~ "Date format invalid on either start or stop."
+    assert error_format_view =~ "Start field has an invalid date format."
 
     # Update successful -----------
     ten_seconds_after_string =

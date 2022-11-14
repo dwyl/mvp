@@ -130,66 +130,6 @@ defmodule AppWeb.AppLive do
           "timer_stop" => timer_stop
         },
         socket
-      )
-      when timer_stop == "" do
-    timer_changeset_list = socket.assigns.editing_timers
-    index = String.to_integer(index)
-    changeset_obj = Enum.at(timer_changeset_list, index)
-
-    try do
-      start =
-        Timex.parse!(timer_start, "%Y-%m-%dT%H:%M:%S", :strftime)
-
-      other_timers_list = List.delete_at(socket.assigns.editing_timers, index)
-
-      max_end =
-        other_timers_list |> Enum.map(fn chs -> chs.data.stop end) |> Enum.max()
-
-      case NaiveDateTime.compare(start, max_end) do
-        :gt ->
-          Timer.update_timer(%{id: id, start: start, stop: nil})
-          {:noreply, assign(socket, editing: nil, editing_timers: [])}
-
-        _ ->
-          updated_changeset_timers_list =
-            Timer.error_timer_changeset(
-              timer_changeset_list,
-              changeset_obj,
-              index,
-              :id,
-              "When editing an ongoing timer, make sure it's after all the others.",
-              :update
-            )
-
-          {:noreply,
-           assign(socket, editing_timers: updated_changeset_timers_list)}
-      end
-    rescue
-      _e ->
-        updated_changeset_timers_list =
-          Timer.error_timer_changeset(
-            timer_changeset_list,
-            changeset_obj,
-            index,
-            :id,
-            "Date format invalid on either start or stop.",
-            :update
-          )
-
-        {:noreply,
-         assign(socket, editing_timers: updated_changeset_timers_list)}
-    end
-  end
-
-  def handle_event(
-        "update-item-timer",
-        %{
-          "timer_id" => id,
-          "index" => index,
-          "timer_start" => timer_start,
-          "timer_stop" => timer_stop
-        },
-        socket
       ) do
 
     timer_changeset_list = socket.assigns.editing_timers
@@ -203,6 +143,7 @@ defmodule AppWeb.AppLive do
       {:error_start_greater_than_stop, updated_list} -> {:noreply, assign(socket, editing_timers: updated_list)}
       {:error_start_equal_stop, updated_list} -> {:noreply, assign(socket, editing_timers: updated_list)}
       {:error_overlap, updated_list} -> {:noreply, assign(socket, editing_timers: updated_list)}
+      {:error_not_after_others, updated_list} -> {:noreply, assign(socket, editing_timers: updated_list)}
     end
   end
 

@@ -81,6 +81,70 @@ defmodule App.Timer do
   end
 
   def update_timer_inside_changeset_list(
+    timer_id,
+    timer_start,
+    timer_stop,
+    index,
+    timer_changeset_list
+  ) when timer_stop == "" or timer_stop == nil do
+
+    # Getting the changeset to change in case there's an error
+    changeset_obj = Enum.at(timer_changeset_list, index)
+
+    try do
+
+      # Parsing the dates
+      {start_op, start} =
+        Timex.parse(timer_start, "%Y-%m-%dT%H:%M:%S", :strftime)
+
+      # Error guards when parsing the date
+      if start_op === :error do
+        throw(:error_invalid_start)
+      end
+
+      # Getting a list of the other timers (the rest we aren't updating)
+      other_timers_list = List.delete_at(timer_changeset_list, index)
+
+      # Latest timer end
+      max_end =
+        other_timers_list |> Enum.map(fn chs -> chs.data.stop end) |> Enum.max()
+
+      case NaiveDateTime.compare(start, max_end) do
+        :gt ->
+          update_timer(%{id: timer_id, start: start, stop: nil})
+          {:ok, []}
+
+        _ -> throw(:error_not_after_others)
+      end
+    catch
+      :error_invalid_start ->
+        updated_changeset_timers_list =
+          Timer.error_timer_changeset(
+            timer_changeset_list,
+            changeset_obj,
+            index,
+            :id,
+            "Start field has an invalid date format.",
+            :update
+          )
+
+        {:error_invalid_start, updated_changeset_timers_list}
+
+      :error_not_after_others ->
+        updated_changeset_timers_list =
+          Timer.error_timer_changeset(
+            timer_changeset_list,
+            changeset_obj,
+            index,
+            :id,
+            "When editing an ongoing timer, make sure it's after all the others.",
+            :update
+          )
+
+        {:error_not_after_others, updated_changeset_timers_list}
+    end
+  end
+  def update_timer_inside_changeset_list(
         timer_id,
         timer_start,
         timer_stop,
