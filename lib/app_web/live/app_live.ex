@@ -152,12 +152,13 @@ defmodule AppWeb.AppLive do
 
         _ ->
           updated_changeset_timers_list =
-            error_timer_changeset(
+            Timer.error_timer_changeset(
               timer_changeset_list,
               changeset_obj,
               index,
               :id,
-              "When editing an ongoing timer, make sure it's after all the others."
+              "When editing an ongoing timer, make sure it's after all the others.",
+              :update
             )
 
           {:noreply,
@@ -166,12 +167,13 @@ defmodule AppWeb.AppLive do
     rescue
       _e ->
         updated_changeset_timers_list =
-          error_timer_changeset(
+          Timer.error_timer_changeset(
             timer_changeset_list,
             changeset_obj,
             index,
             :id,
-            "Date format invalid on either start or stop."
+            "Date format invalid on either start or stop.",
+            :update
           )
 
         {:noreply,
@@ -230,12 +232,13 @@ defmodule AppWeb.AppLive do
           catch
             :overlap ->
               updated_changeset_timers_list =
-                error_timer_changeset(
+                Timer.error_timer_changeset(
                   timer_changeset_list,
                   changeset_obj,
                   index,
                   :id,
-                  "This timer interval overlaps with other timers. Make sure all the timers are correct and don't overlap with each other"
+                  "This timer interval overlaps with other timers. Make sure all the timers are correct and don't overlap with each other",
+                  :update
                 )
 
               {:noreply,
@@ -244,12 +247,13 @@ defmodule AppWeb.AppLive do
 
         :eq ->
           updated_changeset_timers_list =
-            error_timer_changeset(
+            Timer.error_timer_changeset(
               timer_changeset_list,
               changeset_obj,
               index,
               :id,
-              "Start or stop are equal."
+              "Start or stop are equal.",
+              :update
             )
 
           {:noreply,
@@ -257,12 +261,13 @@ defmodule AppWeb.AppLive do
 
         :gt ->
           updated_changeset_timers_list =
-            error_timer_changeset(
+            Timer.error_timer_changeset(
               timer_changeset_list,
               changeset_obj,
               index,
               :id,
-              "Start is newer that stop."
+              "Start is newer that stop.",
+              :update
             )
 
           {:noreply,
@@ -271,12 +276,13 @@ defmodule AppWeb.AppLive do
     rescue
       _e ->
         updated_changeset_timers_list =
-          error_timer_changeset(
+          Timer.error_timer_changeset(
             timer_changeset_list,
             changeset_obj,
             index,
             :id,
-            "Date format invalid on either start or stop."
+            "Date format invalid on either start or stop.",
+            :update
           )
 
         {:noreply,
@@ -284,37 +290,7 @@ defmodule AppWeb.AppLive do
     end
   end
 
-  # Errors a specific changeset from a list of changesets and returns the updated list of changesets.
-  # You should pass a:
-  # - `timer_changeset_list: list of timer changesets to be updated
-  # - `changeset_to_error`: changeset object that you want to error out
-  # - `changeset_index`: changeset object index inside the list of timer changesets
-  # - `changeset_error_key`: atom key of the changeset object you want to associate the error message
-  # - `changeset_error_message`: the string message to error the changeset key with.
-  @doc false
-  defp error_timer_changeset(
-         timer_changeset_list,
-         changeset_to_error,
-         changeset_index,
-         changeset_error_key,
-         changeset_error_message
-       ) do
-    # Clearing and adding error to changeset
-    cleared_changeset = Map.put(changeset_to_error, :errors, [])
 
-    errored_changeset =
-      Ecto.Changeset.add_error(
-        cleared_changeset,
-        changeset_error_key,
-        changeset_error_message
-      )
-
-    {_reply, errored_changeset} =
-      Ecto.Changeset.apply_action(errored_changeset, :update)
-
-    #  Updated list with errored changeset
-    List.replace_at(timer_changeset_list, changeset_index, errored_changeset)
-  end
 
   @impl true
   def handle_info(%Broadcast{event: "update", payload: payload}, socket) do

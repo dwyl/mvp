@@ -103,6 +103,42 @@ defmodule App.Timer do
   end
 
   @doc """
+   Errors a specific changeset from a list of changesets and returns the updated list of changesets.
+   You should pass a:
+   - `timer_changeset_list: list of timer changesets to be updated
+   - `changeset_to_error`: changeset object that you want to error out
+   - `changeset_index`: changeset object index inside the list of timer changesets (faster lookup)
+   - `error_key`: atom key of the changeset object you want to associate the error message to
+   - `error_message`: the string message to error the changeset key with.
+   - `action`: action atom to apply to errored changeset.
+  """
+  def error_timer_changeset(
+         timer_changeset_list,
+         changeset_to_error,
+         changeset_index,
+         error_key,
+         error_message,
+         action
+       ) do
+
+    # Clearing and adding error to changeset
+    cleared_changeset = Map.put(changeset_to_error, :errors, [])
+
+    errored_changeset =
+      Ecto.Changeset.add_error(
+        cleared_changeset,
+        error_key,
+        error_message
+      )
+
+    {_reply, errored_changeset} =
+      Ecto.Changeset.apply_action(errored_changeset, action)
+
+    #  Updated list with errored changeset
+    List.replace_at(timer_changeset_list, changeset_index, errored_changeset)
+  end
+
+  @doc """
   `stop_timer_for_item_id/1` stops a timer for the given item_id if there is one.
   Fails silently if there is no timer for the given item_id.
 
