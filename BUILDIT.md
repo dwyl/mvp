@@ -2925,7 +2925,13 @@ in the same file.
     timer_changeset_list = socket.assigns.editing_timers
     index = String.to_integer(index)
 
-    case Timer.update_timer_inside_changeset_list(id, timer_start, timer_stop, index, timer_changeset_list) do
+    timer = %{
+      id: id,
+      start: timer_start,
+      stop: timer_stop
+    }
+
+    case Timer.update_timer_inside_changeset_list( timer, index, timer_changeset_list) do
       {:ok, _list} -> {:noreply, assign(socket, editing: nil, editing_timers: [])}
       {:error, updated_errored_list} -> {:noreply, assign(socket, editing_timers: updated_errored_list)}
     end
@@ -3041,9 +3047,11 @@ In the `timer.ex` file, add the following.
 
 ```elixir
 def update_timer_inside_changeset_list(
-    timer_id,
-    timer_start,
-    timer_stop,
+    %{
+      id: timer_id,
+      start: timer_start,
+      stop: timer_stop
+    },
     index,
     timer_changeset_list
   ) when timer_stop == "" or timer_stop == nil do
@@ -3105,9 +3113,11 @@ def update_timer_inside_changeset_list(
     end
   end
   def update_timer_inside_changeset_list(
-        timer_id,
-        timer_start,
-        timer_stop,
+        %{
+          id: timer_id,
+          start: timer_start,
+          stop: timer_stop
+        },
         index,
         timer_changeset_list
       ) do

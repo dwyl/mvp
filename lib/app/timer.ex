@@ -89,9 +89,11 @@ defmodule App.Timer do
   Otherwise, it returns {:error, updated_list}, where `error_term` is the error that occurred and `updated_list` being the updated item changeset list with the error.
   """
   def update_timer_inside_changeset_list(
-        timer_id,
-        timer_start,
-        timer_stop,
+        %{
+          id: timer_id,
+          start: timer_start,
+          stop: timer_stop
+        },
         index,
         timer_changeset_list
       )
@@ -154,9 +156,11 @@ defmodule App.Timer do
   end
 
   def update_timer_inside_changeset_list(
-        timer_id,
-        timer_start,
-        timer_stop,
+        %{
+          id: timer_id,
+          start: timer_start,
+          stop: timer_stop
+        },
         index,
         timer_changeset_list
       ) do

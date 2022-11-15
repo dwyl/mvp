@@ -134,10 +134,14 @@ defmodule AppWeb.AppLive do
     timer_changeset_list = socket.assigns.editing_timers
     index = String.to_integer(index)
 
+    timer = %{
+      id: id,
+      start: timer_start,
+      stop: timer_stop
+    }
+
     case Timer.update_timer_inside_changeset_list(
-           id,
-           timer_start,
-           timer_stop,
+           timer,
            index,
            timer_changeset_list
          ) do
