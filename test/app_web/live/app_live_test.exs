@@ -151,7 +151,7 @@ defmodule AppWeb.AppLiveTest do
       (render(view) |> String.split("Update") |> length()) - 1
 
     # Checking if two timers were rendered
-    assert num_timers_rendered = 2
+    assert num_timers_rendered == 2
   end
 
   test "handle_info/2 update with editing open (delete)", %{conn: conn} do
