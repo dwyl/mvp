@@ -3148,21 +3148,34 @@ def update_timer_inside_changeset_list(
           # Creates a list of all other timers to check for overlap
           other_timers_list = List.delete_at(timer_changeset_list, index)
 
-          # Timer overlap verification
+          # Timer overlap verification ---------
           for chs <- other_timers_list do
             chs_start = chs.data.start
             chs_stop = chs.data.stop
 
-            # The condition needs to FAIL (StartA <= EndB) and (EndA >= StartB)
-            # so no timer overlaps one another
-            compareStartAEndB = NaiveDateTime.compare(start, chs_stop)
-            compareEndAStartB = NaiveDateTime.compare(stop, chs_start)
+            # If the timer being compared is ongoing
+            if chs_stop == nil do
+              compareStart = NaiveDateTime.compare(start, chs_start)
+              compareEnd = NaiveDateTime.compare(stop, chs_start)
 
-            if(
-              (compareStartAEndB == :lt || compareStartAEndB == :eq) &&
-                (compareEndAStartB == :gt || compareEndAStartB == :eq)
-            ) do
-              throw(:error_overlap)
+              # The condition needs to FAIL so the timer doesn't overlap
+              if compareStart == :lt && compareEnd == :gt do
+                throw(:error_overlap)
+              end
+
+              # Else the timer being compared is historical
+            else
+              # The condition needs to FAIL (StartA <= EndB) and (EndA >= StartB)
+              # so no timer overlaps one another
+              compareStartAEndB = NaiveDateTime.compare(start, chs_stop)
+              compareEndAStartB = NaiveDateTime.compare(stop, chs_start)
+
+              if(
+                (compareStartAEndB == :lt || compareStartAEndB == :eq) &&
+                  (compareEndAStartB == :gt || compareEndAStartB == :eq)
+              ) do
+                throw(:error_overlap)
+              end
             end
           end
 
@@ -3777,6 +3790,70 @@ test "update timer timer with ongoing timer ", %{conn: conn} do
              "index" => 0,
              "timer_start" => four_seconds_ago_string,
              "timer_stop" => now_string
+           }) =~ "This timer interval overlaps with other timers."
+  end
+
+  test "timer overlap error when updating historical timer with ongoing timer",
+       %{conn: conn} do
+    {:ok, item} =
+      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+
+    {:ok, seven_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
+
+    {:ok, now} = NaiveDateTime.new(Date.utc_today(), Time.utc_now())
+
+    {:ok, twenty_seconds_future} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), 20))
+
+    # Start the timer 7 seconds ago:
+    {:ok, timer} =
+      Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
+
+    # Stop the timer based on its item_id
+    Timer.stop_timer_for_item_id(item.id)
+
+    # Start a second timer
+    {:ok, timer2} = Timer.start(%{item_id: item.id, person_id: 1, start: now})
+
+    {:ok, view, _html} = live(conn, "/")
+
+    # Update fails because of overlap -----------
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    seven_seconds_ago_string =
+      NaiveDateTime.truncate(seven_seconds_ago, :second)
+      |> NaiveDateTime.to_string()
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.map(fn {value, index} ->
+        if index == 10 do
+          "T"
+        else
+          value
+        end
+      end)
+      |> List.to_string()
+
+    twenty_seconds_string =
+      NaiveDateTime.truncate(twenty_seconds_future, :second)
+      |> NaiveDateTime.to_string()
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.map(fn {value, index} ->
+        if index == 10 do
+          "T"
+        else
+          value
+        end
+      end)
+      |> List.to_string()
+
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer.id,
+             "index" => 0,
+             "timer_start" => seven_seconds_ago_string,
+             "timer_stop" => twenty_seconds_string
            }) =~ "This timer interval overlaps with other timers."
   end
 ```
