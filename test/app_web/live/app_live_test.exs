@@ -457,6 +457,69 @@ defmodule AppWeb.AppLiveTest do
            }) =~ "This timer interval overlaps with other timers."
   end
 
+  test "timer overlap error when updating historical timer with ongoing timer", %{conn: conn} do
+    {:ok, item} =
+      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+
+    {:ok, seven_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
+
+    {:ok, now} = NaiveDateTime.new(Date.utc_today(), Time.utc_now())
+
+    {:ok, twenty_seconds_future} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), 20))
+
+    # Start the timer 7 seconds ago:
+    {:ok, timer} =
+      Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
+
+    # Stop the timer based on its item_id
+    Timer.stop_timer_for_item_id(item.id)
+
+    # Start a second timer
+    {:ok, timer2} = Timer.start(%{item_id: item.id, person_id: 1, start: now})
+
+    {:ok, view, _html} = live(conn, "/")
+
+    # Update fails because of overlap -----------
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    seven_seconds_ago_string =
+      NaiveDateTime.truncate(seven_seconds_ago, :second)
+      |> NaiveDateTime.to_string()
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.map(fn {value, index} ->
+        if index == 10 do
+          "T"
+        else
+          value
+        end
+      end)
+      |> List.to_string()
+
+    twenty_seconds_string =
+      NaiveDateTime.truncate(twenty_seconds_future, :second)
+      |> NaiveDateTime.to_string()
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.map(fn {value, index} ->
+        if index == 10 do
+          "T"
+        else
+          value
+        end
+      end)
+      |> List.to_string()
+
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer.id,
+             "index" => 0,
+             "timer_start" => seven_seconds_ago_string,
+             "timer_stop" => twenty_seconds_string
+           }) =~ "This timer interval overlaps with other timers."
+  end
+
   test "timer_text(start, stop)" do
     timer = %{
       start: ~N[2022-07-17 09:01:42.000000],

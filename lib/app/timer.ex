@@ -188,21 +188,35 @@ defmodule App.Timer do
           # Creates a list of all other timers to check for overlap
           other_timers_list = List.delete_at(timer_changeset_list, index)
 
-          # Timer overlap verification
+          # Timer overlap verification ---------
           for chs <- other_timers_list do
             chs_start = chs.data.start
             chs_stop = chs.data.stop
 
-            # The condition needs to FAIL (StartA <= EndB) and (EndA >= StartB)
-            # so no timer overlaps one another
-            compareStartAEndB = NaiveDateTime.compare(start, chs_stop)
-            compareEndAStartB = NaiveDateTime.compare(stop, chs_start)
+            # If the timer being compared is ongoing
+            if (chs_stop == nil) do
+              compareStart = NaiveDateTime.compare(start, chs_start)
+              compareEnd = NaiveDateTime.compare(stop, chs_start)
 
-            if(
-              (compareStartAEndB == :lt || compareStartAEndB == :eq) &&
-                (compareEndAStartB == :gt || compareEndAStartB == :eq)
-            ) do
-              throw(:error_overlap)
+              # The condition needs to FAIL so the timer doesn't overlap
+              if (compareStart == :lt && compareEnd == :gt) do
+                throw(:error_overlap)
+              end
+
+            # Else the timer being compared is historical
+            else
+
+              # The condition needs to FAIL (StartA <= EndB) and (EndA >= StartB)
+              # so no timer overlaps one another
+              compareStartAEndB = NaiveDateTime.compare(start, chs_stop)
+              compareEndAStartB = NaiveDateTime.compare(stop, chs_start)
+
+              if(
+                (compareStartAEndB == :lt || compareStartAEndB == :eq) &&
+                  (compareEndAStartB == :gt || compareEndAStartB == :eq)
+              ) do
+                throw(:error_overlap)
+              end
             end
           end
 
