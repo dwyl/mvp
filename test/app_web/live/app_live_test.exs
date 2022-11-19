@@ -457,7 +457,8 @@ defmodule AppWeb.AppLiveTest do
            }) =~ "This timer interval overlaps with other timers."
   end
 
-  test "timer overlap error when updating historical timer with ongoing timer", %{conn: conn} do
+  test "timer overlap error when updating historical timer with ongoing timer",
+       %{conn: conn} do
     {:ok, item} =
       Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 

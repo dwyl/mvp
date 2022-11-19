@@ -194,18 +194,17 @@ defmodule App.Timer do
             chs_stop = chs.data.stop
 
             # If the timer being compared is ongoing
-            if (chs_stop == nil) do
+            if chs_stop == nil do
               compareStart = NaiveDateTime.compare(start, chs_start)
               compareEnd = NaiveDateTime.compare(stop, chs_start)
 
               # The condition needs to FAIL so the timer doesn't overlap
-              if (compareStart == :lt && compareEnd == :gt) do
+              if compareStart == :lt && compareEnd == :gt do
                 throw(:error_overlap)
               end
 
-            # Else the timer being compared is historical
+              # Else the timer being compared is historical
             else
-
               # The condition needs to FAIL (StartA <= EndB) and (EndA >= StartB)
               # so no timer overlaps one another
               compareStartAEndB = NaiveDateTime.compare(start, chs_stop)
