@@ -1,5 +1,5 @@
 <main class="font-sans container mx-auto">
-  <form phx-submit="create" class="w-full lg:w-1/2  mx-auto mx-2">
+  <form phx-submit="create" class="w-full lg:w-1/2  m-auto">
     <textarea
       class="w-full py-1 px-1 text-slate-800 text-3xl
         bg-white bg-clip-padding
@@ -20,8 +20,9 @@
       }"
       x-init="resize"
       x-on:input="resize"
+      phx-no-format
     ></textarea>
-    <!-- Select Inpu -->
+    <!-- Select Input -->
     <div
       class="lg:w-1/2 "
       x-data="{open: false}"
