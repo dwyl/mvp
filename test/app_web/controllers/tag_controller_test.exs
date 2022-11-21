@@ -31,6 +31,39 @@ defmodule AppWeb.TagControllerTest do
     end
   end
 
+  describe "new tag" do
+    test "renders form for creating a tag", %{conn: conn} do
+      conn =
+        conn
+        |> assign(:person, %{id: 1})
+        |> get(Routes.tag_path(conn, :new))
+
+      assert html_response(conn, 200) =~ "New Tag"
+    end
+  end
+
+  describe "create tag" do
+    test "redirects to show when data is valid", %{conn: conn} do
+      conn =
+        conn
+        |> assign(:person, %{id: 1})
+        |> post(Routes.tag_path(conn, :create),
+          tag: %{text: "new tag", color: "#FCA5A5"}
+        )
+
+      assert redirected_to(conn) == Routes.tag_path(conn, :index)
+    end
+
+    test "renders errors when data is invalid", %{conn: conn} do
+      conn =
+        conn
+        |> assign(:person, %{id: 1})
+        |> post(Routes.tag_path(conn, :create), tag: @invalid_attrs)
+
+      assert html_response(conn, 200) =~ "New Tag"
+    end
+  end
+
   describe "edit tag" do
     setup [:create_tag]
 
