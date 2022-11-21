@@ -84,3 +84,4 @@ input[type=radio].has-error:not(.phx-no-feedback) {
   100% { opacity: 1; }
 }
 
+[x-cloak] { display: none !important; }

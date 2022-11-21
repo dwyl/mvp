@@ -1,5 +1,5 @@
-<main class="font-sans">
-  <form phx-submit="create" class="w-full lg:w-3/4 lg:max-w-lg mx-auto">
+<main class="font-sans container mx-auto">
+  <form phx-submit="create" class="w-full lg:w-1/2  mx-auto mx-2">
     <textarea
       class="w-full py-1 px-1 text-slate-800 text-3xl
         bg-white bg-clip-padding
@@ -24,21 +24,23 @@
     <!-- Select Inpu -->
     <div
       class="lg:w-1/2 "
-      x-data="{open: true}"
+      x-data="{open: false}"
       x-on:click.away="open = false"
       x-on:keydown.escape="open = false"
     >
       <input
         type="text"
         name="tags"
-        class="my-2 w-auto"
+        class="w-full my-2"
         x-on:focus="open = true"
         autocomplete="off"
+        placeholder="tags"
       />
       <div
         class="relative z-10 drop-shadow-lg w-auto"
         x-show="open"
         x-transition
+        x-cloak
       >
         <ul class="absolute border bg-white max-h-12 overflow-auto w-full">
           <%= for tag <- @tags do %>
@@ -466,9 +468,9 @@
   </ul>
 </main>
 
-<footer class="mt-2">
+<footer class="mt-5 container mx-auto">
   <%= if has_items?(@items) do %>
-    <div class="flex flex-row justify-center p-1 border-t">
+    <div class="flex flex-row justify-center p-1">
       <div class="px-2 py-2">
         <%= live_patch("All",
           to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: "all"}),
