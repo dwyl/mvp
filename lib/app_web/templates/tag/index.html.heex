@@ -1,6 +1,7 @@
 <.h2 class="text-center mt-3">Listing Tags</.h2>
+
 <.container>
-  <.table>
+  <.table class="my-4">
     <.tr>
       <.th>Name</.th>
 
@@ -31,4 +32,10 @@
       </.tr>
     <% end %>
   </.table>
+  <.button
+    link_type="a"
+    to={Routes.tag_path(@conn, :new)}
+    label="Create Tag"
+    class="my-2"
+  />
 </.container>
