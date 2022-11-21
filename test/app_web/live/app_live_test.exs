@@ -530,6 +530,15 @@ defmodule AppWeb.AppLiveTest do
     assert AppWeb.AppLive.timer_text(timer) == "04:20:42"
   end
 
+  test "timer_text(start, stop) over 1000 secs" do
+    timer = %{
+      start: ~N[2022-07-17 09:01:42.000000],
+      stop: ~N[2022-07-17 09:19:24.000000]
+    }
+
+    assert AppWeb.AppLive.timer_text(timer) == "00:17:42"
+  end
+
   test "filter items", %{conn: conn} do
     {:ok, _item} =
       Item.create_item(%{text: "Item to do", person_id: 0, status: 2})
