@@ -43,10 +43,38 @@
         x-transition
         x-cloak
       >
-        <ul class="absolute border bg-white max-h-12 overflow-auto w-full">
+        <ul class="absolute border bg-white max-h-64 overflow-auto w-full">
           <%= for tag <- @tags do %>
-            <li>
-              <%= tag.text %>
+            <li
+              class="border-b p-2 cursor-pointer hover:bg-slate-200"
+              x-on:click={"$dispatch('toggle-item', {id: #{tag.id}})"}
+            >
+              <div class="relative h-10">
+                <div class="inline-flex items-center w-3/4">
+                  <span
+                    class="w-5 h-5 bg-red-500 rounded-full mx-2 shrink-0"
+                    style={"background-color:#{tag.color}"}
+                  >
+                  </span>
+                  <span class="overflow-hidden text-ellipsis whitespace-nowrap">
+                    <%= tag.text %>
+                  </span>
+                </div>
+                <%= if true do %>
+                  <svg
+                    class="absolute font-bold w-4 top-0 bottom-0 m-auto right-0 text-green-500"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                <% end %>
+              </div>
             </li>
           <% end %>
         </ul>
