@@ -10,6 +10,26 @@ defmodule AppWeb.TagController do
     render(conn, "index.html", tags: tags)
   end
 
+  def new(conn, _params) do
+    changeset = Tag.changeset(%Tag{})
+    render(conn, "new.html", changeset: changeset)
+  end
+
+  def create(conn, %{"tag" => tag_params}) do
+    person_id = conn.assigns[:person][:id] || 0
+    tag_params = Map.put(tag_params, "person_id", person_id)
+
+    case Tag.create_tag(tag_params) do
+      {:ok, _tag} ->
+        conn
+        |> put_flash(:info, "Tag created successfully.")
+        |> redirect(to: Routes.tag_path(conn, :index))
+
+      {:error, changeset} ->
+        render(conn, "new.html", changeset: changeset)
+    end
+  end
+
   def edit(conn, %{"id" => id}) do
     tag = Tag.get_tag!(id)
     changeset = Tag.changeset(tag)

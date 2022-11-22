@@ -1,11 +1,11 @@
 <.container>
-  <.h2 class="text-center mt-3">Edit Tag</.h2>
+  <.h2 class="text-center mt-3">New Tag</.h2>
 
   <%= render(
     "form.html",
     assigns
-    |> Map.put(:action, Routes.tag_path(@conn, :update, @tag))
-    |> Map.put(:method, "patch")
+    |> Map.put(:action, Routes.tag_path(@conn, :create))
+    |> Map.put(:method, "post")
   ) %>
 
   <.a to={Routes.tag_path(@conn, :index)} class="" label="Back to tags" />
