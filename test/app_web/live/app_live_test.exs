@@ -98,6 +98,78 @@ defmodule AppWeb.AppLiveTest do
     assert render(view) =~ item.text
   end
 
+  test "handle_info/2 update with editing open (start)", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+
+    {:ok, item} =
+      Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
+
+    {:ok, now} = NaiveDateTime.new(Date.utc_today(), Time.utc_now())
+
+    now_string =
+      NaiveDateTime.truncate(now, :second)
+      |> NaiveDateTime.to_string()
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.map(fn {value, index} ->
+        if index == 10 do
+          "T"
+        else
+          value
+        end
+      end)
+      |> List.to_string()
+
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+    render_click(view, "start", %{"id" => Integer.to_string(item.id)})
+
+    # The editing panel is open and showing the newly created timer on the 'Start' text input field
+    assert render(view) =~ now_string
+  end
+
+  test "handle_info/2 update with editing open (stop)", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+
+    {:ok, item} =
+      Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
+
+    {:ok, seven_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
+
+    # Start the timer 7 seconds ago:
+    {:ok, timer} =
+      Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
+
+    # Stop the timer based on its item_id
+    Timer.stop_timer_for_item_id(item.id)
+
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+    render_click(view, "start", %{"id" => Integer.to_string(item.id)})
+    render_click(view, "stop", %{"timerid" => timer.id, "id" => item.id})
+
+    num_timers_rendered =
+      (render(view) |> String.split("Update") |> length()) - 1
+
+    # Checking if two timers were rendered
+    assert num_timers_rendered == 2
+  end
+
+  test "handle_info/2 update with editing open (delete)", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+
+    {:ok, item} =
+      Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
+
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    send(view.pid, %Broadcast{
+      event: "update",
+      payload: :delete
+    })
+
+    assert render(view) =~ item.text
+  end
+
   test "edit-item", %{conn: conn} do
     {:ok, item} =
       Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
@@ -105,7 +177,7 @@ defmodule AppWeb.AppLiveTest do
     {:ok, view, _html} = live(conn, "/")
 
     assert render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)}) =~
-             "<form phx-submit=\"update-item\" id=\"form-update\""
+             "<form phx-submit=\"update-item\" id=\"form-update"
   end
 
   test "update an item", %{conn: conn} do
@@ -125,6 +197,330 @@ defmodule AppWeb.AppLiveTest do
     assert length(updated_item.tags) == 2
   end
 
+  test "update an item's timer", %{conn: conn} do
+    start = "2022-10-27T00:00:00"
+    stop = "2022-10-27T05:00:00"
+    start_datetime = ~N[2022-10-27 00:00:00]
+    stop_datetime = ~N[2022-10-27 05:00:00]
+
+    {:ok, item} =
+      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+
+    {:ok, seven_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
+
+    # Start the timer 7 seconds ago:
+    {:ok, timer} =
+      Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
+
+    # Stop the timer based on its item_id
+    Timer.stop_timer_for_item_id(item.id)
+
+    {:ok, view, _html} = live(conn, "/")
+
+    # Update successful
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer.id,
+             "index" => 0,
+             "timer_start" => start,
+             "timer_stop" => stop
+           })
+
+    updated_timer = Timer.get_timer!(timer.id)
+
+    assert updated_timer.start == start_datetime
+    assert updated_timer.stop == stop_datetime
+
+    # Trying to update with equal values on start and stop
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer.id,
+             "index" => 0,
+             "timer_start" => start,
+             "timer_stop" => start
+           }) =~ "Start or stop are equal."
+
+    # Trying to update with equal start greater than stop
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer.id,
+             "index" => 0,
+             "timer_start" => stop,
+             "timer_stop" => start
+           }) =~ "Start is newer that stop."
+
+    # Trying to update with start as invalid format
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer.id,
+             "index" => 0,
+             "timer_start" => "invalid",
+             "timer_stop" => stop
+           }) =~ "Start field has an invalid date format."
+
+    # Trying to update with stop as invalid format
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer.id,
+             "index" => 0,
+             "timer_start" => start,
+             "timer_stop" => "invalid"
+           }) =~ "Stop field has an invalid date format."
+  end
+
+  test "update timer timer with ongoing timer ", %{conn: conn} do
+    {:ok, item} =
+      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+
+    {:ok, seven_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
+
+    {:ok, now} = NaiveDateTime.new(Date.utc_today(), Time.utc_now())
+
+    {:ok, four_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -4))
+
+    {:ok, ten_seconds_after} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), 10))
+
+    # Start the timer 7 seconds ago:
+    {:ok, timer} =
+      Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
+
+    # Stop the timer based on its item_id
+    Timer.stop_timer_for_item_id(item.id)
+
+    # Start a second timer
+    {:ok, timer2} = Timer.start(%{item_id: item.id, person_id: 1, start: now})
+
+    # Stop the timer based on its item_id
+    Timer.stop_timer_for_item_id(item.id)
+
+    {:ok, view, _html} = live(conn, "/")
+
+    # Update fails because of overlap timer -----------
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    four_seconds_ago_string =
+      NaiveDateTime.truncate(four_seconds_ago, :second)
+      |> NaiveDateTime.to_string()
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.map(fn {value, index} ->
+        if index == 10 do
+          "T"
+        else
+          value
+        end
+      end)
+      |> List.to_string()
+
+    now_string =
+      NaiveDateTime.truncate(now, :second)
+      |> NaiveDateTime.to_string()
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.map(fn {value, index} ->
+        if index == 10 do
+          "T"
+        else
+          value
+        end
+      end)
+      |> List.to_string()
+
+    error_view =
+      render_submit(view, "update-item-timer", %{
+        "timer_id" => timer2.id,
+        "index" => 1,
+        "timer_start" => four_seconds_ago_string,
+        "timer_stop" => ""
+      })
+
+    assert error_view =~ "When editing an ongoing timer"
+
+    # Update fails because of format -----------
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    error_format_view =
+      render_submit(view, "update-item-timer", %{
+        "timer_id" => timer2.id,
+        "index" => 1,
+        "timer_start" => "invalidformat",
+        "timer_stop" => ""
+      })
+
+    assert error_format_view =~ "Start field has an invalid date format."
+
+    # Update successful -----------
+    ten_seconds_after_string =
+      NaiveDateTime.truncate(ten_seconds_after, :second)
+      |> NaiveDateTime.to_string()
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.map(fn {value, index} ->
+        if index == 10 do
+          "T"
+        else
+          value
+        end
+      end)
+      |> List.to_string()
+
+    ten_seconds_after_datetime =
+      NaiveDateTime.truncate(ten_seconds_after, :second)
+
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    view =
+      assert render_submit(view, "update-item-timer", %{
+               "timer_id" => timer2.id,
+               "index" => 1,
+               "timer_start" => ten_seconds_after_string,
+               "timer_stop" => ""
+             })
+
+    updated_timer2 = Timer.get_timer!(timer2.id)
+
+    assert updated_timer2.start == ten_seconds_after_datetime
+  end
+
+  test "timer overlap error when updating timer", %{conn: conn} do
+    {:ok, item} =
+      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+
+    {:ok, seven_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
+
+    {:ok, now} = NaiveDateTime.new(Date.utc_today(), Time.utc_now())
+
+    {:ok, four_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -4))
+
+    # Start the timer 7 seconds ago:
+    {:ok, timer} =
+      Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
+
+    # Stop the timer based on its item_id
+    Timer.stop_timer_for_item_id(item.id)
+
+    # Start a second timer
+    {:ok, timer2} = Timer.start(%{item_id: item.id, person_id: 1, start: now})
+
+    # Stop the timer based on its item_id
+    Timer.stop_timer_for_item_id(item.id)
+
+    {:ok, view, _html} = live(conn, "/")
+
+    # Update fails because of overlap -----------
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    four_seconds_ago_string =
+      NaiveDateTime.truncate(four_seconds_ago, :second)
+      |> NaiveDateTime.to_string()
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.map(fn {value, index} ->
+        if index == 10 do
+          "T"
+        else
+          value
+        end
+      end)
+      |> List.to_string()
+
+    now_string =
+      NaiveDateTime.truncate(now, :second)
+      |> NaiveDateTime.to_string()
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.map(fn {value, index} ->
+        if index == 10 do
+          "T"
+        else
+          value
+        end
+      end)
+      |> List.to_string()
+
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer2.id,
+             "index" => 0,
+             "timer_start" => four_seconds_ago_string,
+             "timer_stop" => now_string
+           }) =~ "This timer interval overlaps with other timers."
+  end
+
+  test "timer overlap error when updating historical timer with ongoing timer",
+       %{conn: conn} do
+    {:ok, item} =
+      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+
+    {:ok, seven_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
+
+    {:ok, now} = NaiveDateTime.new(Date.utc_today(), Time.utc_now())
+
+    {:ok, twenty_seconds_future} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), 20))
+
+    # Start the timer 7 seconds ago:
+    {:ok, timer} =
+      Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
+
+    # Stop the timer based on its item_id
+    Timer.stop_timer_for_item_id(item.id)
+
+    # Start a second timer
+    {:ok, timer2} = Timer.start(%{item_id: item.id, person_id: 1, start: now})
+
+    {:ok, view, _html} = live(conn, "/")
+
+    # Update fails because of overlap -----------
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    seven_seconds_ago_string =
+      NaiveDateTime.truncate(seven_seconds_ago, :second)
+      |> NaiveDateTime.to_string()
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.map(fn {value, index} ->
+        if index == 10 do
+          "T"
+        else
+          value
+        end
+      end)
+      |> List.to_string()
+
+    twenty_seconds_string =
+      NaiveDateTime.truncate(twenty_seconds_future, :second)
+      |> NaiveDateTime.to_string()
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.map(fn {value, index} ->
+        if index == 10 do
+          "T"
+        else
+          value
+        end
+      end)
+      |> List.to_string()
+
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer.id,
+             "index" => 0,
+             "timer_start" => seven_seconds_ago_string,
+             "timer_stop" => twenty_seconds_string
+           }) =~ "This timer interval overlaps with other timers."
+  end
+
   test "timer_text(start, stop)" do
     timer = %{
       start: ~N[2022-07-17 09:01:42.000000],
@@ -132,6 +528,15 @@ defmodule AppWeb.AppLiveTest do
     }
 
     assert AppWeb.AppLive.timer_text(timer) == "04:20:42"
+  end
+
+  test "timer_text(start, stop) over 1000 secs" do
+    timer = %{
+      start: ~N[2022-07-17 09:01:42.000000],
+      stop: ~N[2022-07-17 09:19:24.000000]
+    }
+
+    assert AppWeb.AppLive.timer_text(timer) == "00:17:42"
   end
 
   test "filter items", %{conn: conn} do
@@ -251,6 +656,7 @@ defmodule AppWeb.AppLiveTest do
 
   test "test login link redirect to auth.dwyl.com", %{conn: conn} do
     conn = get(conn, "/login")
+
     assert redirected_to(conn, 302) =~ "auth.dwyl.com"
   end
 

@@ -54,6 +54,8 @@ defmodule App.MixProject do
       {:telemetry_poller, "~> 1.0"},
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
+      # Time string parsing: github.com/bitwalker/timex
+      {:timex, "~> 3.7"},
 
       # Check/get Environment Variables: https://github.com/dwyl/envar
       {:envar, "~> 1.0.8"},

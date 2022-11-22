@@ -67,6 +67,31 @@ defmodule App.TimerTest do
       Timer.stop_timer_for_item_id(nil_item_id)
       assert "Keep on truckin'"
     end
+
+    test "update_timer(%{id: id, start: start, stop: stop}) should update the timer" do
+      start = ~N[2022-10-27 00:00:00]
+      stop = ~N[2022-10-27 05:00:00]
+
+      {:ok, item} = Item.create_item(@valid_item_attrs)
+
+      {:ok, seven_seconds_ago} =
+        NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
+
+      # Start the timer 7 seconds ago:
+      {:ok, timer} =
+        Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
+
+      # Stop the timer based on its item_id
+      Timer.stop_timer_for_item_id(item.id)
+
+      # Update timer to specific datetimes
+      Timer.update_timer(%{id: timer.id, start: start, stop: stop})
+
+      updated_timer = Timer.get_timer!(timer.id)
+
+      assert updated_timer.start == start
+      assert updated_timer.stop == stop
+    end
   end
 
   defp create_person(_) do

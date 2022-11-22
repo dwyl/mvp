@@ -86,9 +86,19 @@ With that in place, let's get building!
 - [9. Update the `LiveView` Template](#9-update-the-liveview-template)
 - [10. Filter Items](#10-filter-items)
 - [11. Tags](#11-tags)
-- [12. Run the _Finished_ MVP App!](#12-run-the-finished-mvp-app)
-  - [12.1 Run the Tests](#121-run-the-tests)
-  - [12.2 Run The App](#122-run-the-app)
+  - [11.1 Migrations](#111-migrations)
+  - [11.2 Schemas](#112-schemas)
+  - [11.3 Test tags with Iex](#113-test-tags-with-iex)
+  - [11.4 Testing Schemas](#114-testing-schemas)
+  - [11.4  Items-Tags association](#114--items-tags-association)
+- [12. Editing timers](#12-editing-timers)
+  - [12.1 Parsing DateTime strings](#121-parsing-datetime-strings)
+  - [12.2 Persisting update in database](#122-persisting-update-in-database)
+  - [12.3 Showing timers in UI](#123-showing-timers-in-ui)
+  - [12.4 Updating the tests and going back to 100% coverage](#124-updating-the-tests-and-going-back-to-100-coverage)
+- [13. Run the _Finished_ MVP App!](#13-run-the-finished-mvp-app)
+  - [13.1 Run the Tests](#131-run-the-tests)
+  - [13.2 Run The App](#132-run-the-app)
 - [Thanks!](#thanks)
 
 
@@ -2756,11 +2766,1183 @@ Learn more about Ecto with the guides documention, especially the How to section
 https://hexdocs.pm/ecto/getting-started.html (taken from: https://dashbit.co/ebooks/the-little-ecto-cookbook)
 
 
-# 12. Run the _Finished_ MVP App!
+# 12. Editing timers
+In this section we are going to add the ability to edit timers
+when editing items. The timer has to follow a specific format 
+(`%Y-%m-%d %H:%M:%S`) to be persisted. 
+
+## 12.1 Parsing DateTime strings
+As you might have noticed, we are using [NaiveDateTime](https://hexdocs.pm/elixir/1.12/NaiveDateTime.html)
+when persisting the timer's datetime.
+One would be inclined to use [`from_iso8601/2`](https://hexdocs.pm/elixir/1.14.1/NaiveDateTime.html#from_iso8601/2) 
+to parse the input string and convert it to a datetime object. 
+However, if we were to think on a long-term perspective,
+we would want to be able to parse any string format,
+not just `ISO6601`.
+
+Currently, Elixir doesn't have a way to create a datetime object
+from any string format. For this, we are going use 
+[`Timex`](https://github.com/bitwalker/timex). 
+In `mix.exs`, add the following piece of code in the `deps` section.
+
+```elixir
+{:timex, "~> 3.7"},
+```
+
+and run `mix deps.get`.
+This will download and install the package so we can use it.
+
+With this library, we have access to `parse/3` where we can
+create a DateTime object from a string according to 
+a given format. We are going to be using this later on.
+
+## 12.2 Persisting update in database
+So far we can only start, stop and fetch timers. 
+We need a way to directly update a specific timer through their `id`.
+With this in mind, let's add the update method to 
+`lib/app/timer.ex`.
+
+```elixir
+  def update_timer(attrs \\ %{}) do
+    get_timer!(attrs.id)
+    |> changeset(attrs)
+    |> Repo.update()
+  end
+```
+
+In addition to this, we also need a function to fetch
+all the timers associated with a specific timer `id`. 
+Firstly, let's specify the associations between `Timer` and `Item`.
+
+In `lib/app/timer.ex`, add:
+
+```elixir
+  alias App.Item
+  import Ecto.Query
+```
+
+and inside the `Timers` schema, change the scema to the following.
+This will properly reference `Timer` to the `Item` object.
+
+```elixir
+  schema "timers" do
+    field :start, :naive_datetime
+    field :stop, :naive_datetime
+    belongs_to :item, Item, references: :id, foreign_key: :item_id
+
+    timestamps()
+  end
+```
+
+In the same file, let us add a way to list all the timer changesets associated
+with a certain `item` id.
+We are returning changesets because of form validation.
+In case an error occurs, we want to provide feedback to the user.
+To do this, we use these changesets and add errors to them, 
+which will later be displayed on the UI.
+Paste the following.
+
+```elixir
+  def list_timers_changesets(item_id) do
+    from(v in Timer, where: [item_id: ^item_id], order_by: [asc: :id])
+    |> Repo.all()
+    |> Enum.map(fn t ->
+      Timer.changeset(t, %{
+        id: t.id,
+        start: t.start,
+        stop: t.stop,
+        item_id: t.item_id
+      })
+    end)
+  end
+```
+
+## 12.3 Adding event handler in `app_live.ex`
+We need a way to show the timers related to an `item` in the UI.
+Currently, in `lib/app_web/live/app_live.ex`, every time the user
+edits an item, an `edit-timer` event is propped up, setting the 
+socket assigns accordingly.
+
+We want to fetch the timers of an item *ad-hoc*. Instead of loading
+all the timers on mount, it's best to dynamically fetch the timers
+whenever we want to edit a timer. For this, we are going to add an
+**array of timer changesets** to the socket assigns and show these
+when editing a timer. Let's do that.
+
+In `lib/app_web/live/app_live.ex`, in the `mount` function, add
+`editing_timers: []` to the list of changesets.
+
+```elixir
+     assign(socket,
+       items: items,
+       editing_timers: [],
+       editing: nil,
+       filter: "active",
+       filter_tag: nil
+       ...
+```
+
+Let's change the `handle_event` handler for the `edit-item` event
+to fetch the timer changesets when editing an item. Change the function 
+to the following:
+
+```elixir
+  def handle_event("edit-item", data, socket) do
+    item_id = String.to_integer(data["id"])
+
+    timers_list_changeset = Timer.list_timers_changesets(item_id)
+
+    {:noreply,
+     assign(socket, editing: item_id, editing_timers: timers_list_changeset)}
+  end
+```
+
+Likewise, inside the `handle_event` handler for the `update-item` event,
+change the **last line** to reset the `editing_timers` array to empty. This
+is after a successful item edit.
+
+```elixir
+{:noreply, assign(socket, editing: nil, editing_timers: [])}
+```
+
+Now we need to have an handler for an event that will be created
+when editing a timer. For this, create the following function 
+in the same file.
+
+```elixir
+  @impl true
+  def handle_event(
+        "update-item-timer",
+        %{
+          "timer_id" => id,
+          "index" => index,
+          "timer_start" => timer_start,
+          "timer_stop" => timer_stop
+        },
+        socket
+      ) do
+
+    timer_changeset_list = socket.assigns.editing_timers
+    index = String.to_integer(index)
+
+    timer = %{
+      id: id,
+      start: timer_start,
+      stop: timer_stop
+    }
+
+    case Timer.update_timer_inside_changeset_list( timer, index, timer_changeset_list) do
+      {:ok, _list} -> {:noreply, assign(socket, editing: nil, editing_timers: [])}
+      {:error, updated_errored_list} -> {:noreply, assign(socket, editing_timers: updated_errored_list)}
+    end
+  end
+```
+
+Let's do a rundown of what we just added. 
+From the form, we receive an `index` of the timer inside the `editing_timers`
+socket assign array. We use this `index` to replace the changeset being edited
+in case there's an error with the string format or the dates. 
+
+We are calling a function `update_timer_inside_changeset_list/5`
+that we will implement shortly, This function will either
+update the timer successfully or return an error, 
+with an updated list of timer changesets to display the error on the UI.
+
+We want the users to be able to update timers even when 
+there's an ongoing timer and have the users still 
+see the list of timers.
+For this, we ought to update the events that are created
+when clicking `Resume` or `Stop`. 
+Therefore, we need to these handlers and the broadcast
+`update` event that is sent to all users.
+
+Let's check the `start` and `stop` event handlers inside `app_live.ex`.
+Let's add information to the event with the `item.id` that is being edited.
+Change these event handlers so they look like this.
+
+```elixir
+  @impl true
+  def handle_event("start", data, socket) do
+    item = Item.get_item!(Map.get(data, "id"))
+    person_id = get_person_id(socket.assigns)
+
+    {:ok, _timer} =
+      Timer.start(%{
+        item_id: item.id,
+        person_id: person_id,
+        start: NaiveDateTime.utc_now()
+      })
+
+    AppWeb.Endpoint.broadcast(@topic, "update", {:start, item.id})
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("stop", data, socket) do
+    timer_id = Map.get(data, "timerid")
+    {:ok, _timer} = Timer.stop(%{id: timer_id})
+
+    AppWeb.Endpoint.broadcast(@topic, "update", {:stop, Map.get(data, "id")})
+    {:noreply, socket}
+  end
+```
+
+Now we need to update the `handle_info/2` event handler
+that deals with this broadcasting event that is used 
+everytime `Start/Resume` or `Stop` is called.
+
+```elixir
+  @impl true
+  def handle_info(%Broadcast{event: "update", payload: payload}, socket) do
+    person_id = get_person_id(socket.assigns)
+    items = Item.items_with_timers(person_id)
+
+    isEditingItem = socket.assigns.editing
+
+    # If the item is being edited, we update the timer list of the item being edited.
+    if isEditingItem do
+      case payload do
+        {:start, item_id} ->
+          timers_list_changeset = Timer.list_timers_changesets(item_id)
+
+          {:noreply,
+           assign(socket,
+             items: items,
+             editing: item_id,
+             editing_timers: timers_list_changeset
+           )}
+
+        {:stop, item_id} ->
+          timers_list_changeset = Timer.list_timers_changesets(item_id)
+
+          {:noreply,
+           assign(socket,
+             items: items,
+             editing: item_id,
+             editing_timers: timers_list_changeset
+           )}
+
+        _ ->
+          {:noreply, assign(socket, items: items)}
+      end
+
+      # If not, just update the item list.
+    else
+      {:noreply, assign(socket, items: items)}
+    end
+  end
+```
+
+Now, everytime the `update` event is broadcasted,
+we update the timer list if the item is being edited.
+If not, we update the timer list, as normally.
+What this does is that every user will have the `socket.assigns`
+properly updated everytime a timer is edited.
+
+
+## 12.4 Updating timer changeset list on `timer.ex`
+Let's create the unimplemented function that we 
+previously added. 
+In the `timer.ex` file, add the following.
+
+```elixir
+def update_timer_inside_changeset_list(
+    %{
+      id: timer_id,
+      start: timer_start,
+      stop: timer_stop
+    },
+    index,
+    timer_changeset_list
+  ) when timer_stop == "" or timer_stop == nil do
+
+    # Getting the changeset to change in case there's an error
+    changeset_obj = Enum.at(timer_changeset_list, index)
+
+    try do
+
+      # Parsing the dates
+      {start_op, start} =
+        Timex.parse(timer_start, "%Y-%m-%dT%H:%M:%S", :strftime)
+
+      # Error guards when parsing the date
+      if start_op === :error do
+        throw(:error_invalid_start)
+      end
+
+      # Getting a list of the other timers (the rest we aren't updating)
+      other_timers_list = List.delete_at(timer_changeset_list, index)
+
+      # Latest timer end
+      max_end =
+        other_timers_list |> Enum.map(fn chs -> chs.data.stop end) |> Enum.max()
+
+      case NaiveDateTime.compare(start, max_end) do
+        :gt ->
+          update_timer(%{id: timer_id, start: start, stop: nil})
+          {:ok, []}
+
+        _ -> throw(:error_not_after_others)
+      end
+    catch
+      :error_invalid_start ->
+        updated_changeset_timers_list =
+          Timer.error_timer_changeset(
+            timer_changeset_list,
+            changeset_obj,
+            index,
+            :id,
+            "Start field has an invalid date format.",
+            :update
+          )
+
+        {:error, updated_changeset_timers_list}
+
+      :error_not_after_others ->
+        updated_changeset_timers_list =
+          Timer.error_timer_changeset(
+            timer_changeset_list,
+            changeset_obj,
+            index,
+            :id,
+            "When editing an ongoing timer, make sure it's after all the others.",
+            :update
+          )
+
+        {:error, updated_changeset_timers_list}
+    end
+  end
+  def update_timer_inside_changeset_list(
+        %{
+          id: timer_id,
+          start: timer_start,
+          stop: timer_stop
+        },
+        index,
+        timer_changeset_list
+      ) do
+
+    # Getting the changeset to change in case there's an error
+    changeset_obj = Enum.at(timer_changeset_list, index)
+
+    try do
+
+      # Parsing the dates
+      {start_op, start} =
+        Timex.parse(timer_start, "%Y-%m-%dT%H:%M:%S", :strftime)
+
+      {stop_op, stop} = Timex.parse(timer_stop, "%Y-%m-%dT%H:%M:%S", :strftime)
+
+      # Error guards when parsing the dates
+      if start_op === :error do
+        throw(:error_invalid_start)
+      end
+
+      if stop_op === :error do
+        throw(:error_invalid_stop)
+      end
+
+      case NaiveDateTime.compare(start, stop) do
+        :lt ->
+
+          # Creates a list of all other timers to check for overlap
+          other_timers_list = List.delete_at(timer_changeset_list, index)
+
+          # Timer overlap verification ---------
+          for chs <- other_timers_list do
+            chs_start = chs.data.start
+            chs_stop = chs.data.stop
+
+            # If the timer being compared is ongoing
+            if chs_stop == nil do
+              compareStart = NaiveDateTime.compare(start, chs_start)
+              compareEnd = NaiveDateTime.compare(stop, chs_start)
+
+              # The condition needs to FAIL so the timer doesn't overlap
+              if compareStart == :lt && compareEnd == :gt do
+                throw(:error_overlap)
+              end
+
+              # Else the timer being compared is historical
+            else
+              # The condition needs to FAIL (StartA <= EndB) and (EndA >= StartB)
+              # so no timer overlaps one another
+              compareStartAEndB = NaiveDateTime.compare(start, chs_stop)
+              compareEndAStartB = NaiveDateTime.compare(stop, chs_start)
+
+              if(
+                (compareStartAEndB == :lt || compareStartAEndB == :eq) &&
+                  (compareEndAStartB == :gt || compareEndAStartB == :eq)
+              ) do
+                throw(:error_overlap)
+              end
+            end
+          end
+
+          update_timer(%{id: timer_id, start: start, stop: stop})
+          {:ok, []}
+
+        :eq ->
+          throw(:error_start_equal_stop)
+
+        :gt ->
+          throw(:error_start_greater_than_stop)
+      end
+    catch
+      :error_invalid_start ->
+        updated_changeset_timers_list =
+          Timer.error_timer_changeset(
+            timer_changeset_list,
+            changeset_obj,
+            index,
+            :id,
+            "Start field has an invalid date format.",
+            :update
+          )
+
+        {:error, updated_changeset_timers_list}
+
+      :error_invalid_stop ->
+        updated_changeset_timers_list =
+          Timer.error_timer_changeset(
+            timer_changeset_list,
+            changeset_obj,
+            index,
+            :id,
+            "Stop field has an invalid date format.",
+            :update
+          )
+
+        {:error, updated_changeset_timers_list}
+
+      :error_overlap ->
+        updated_changeset_timers_list =
+          Timer.error_timer_changeset(
+            timer_changeset_list,
+            changeset_obj,
+            index,
+            :id,
+            "This timer interval overlaps with other timers. Make sure all the timers are correct and don't overlap with each other",
+            :update
+          )
+
+        {:error, updated_changeset_timers_list}
+
+      :error_start_equal_stop ->
+        updated_changeset_timers_list =
+          Timer.error_timer_changeset(
+            timer_changeset_list,
+            changeset_obj,
+            index,
+            :id,
+            "Start or stop are equal.",
+            :update
+          )
+
+        {:error, updated_changeset_timers_list}
+
+      :error_start_greater_than_stop ->
+        updated_changeset_timers_list =
+          Timer.error_timer_changeset(
+            timer_changeset_list,
+            changeset_obj,
+            index,
+            :id,
+            "Start is newer that stop.",
+            :update
+          )
+
+        {:error, updated_changeset_timers_list}
+    end
+  end
+```
+
+That is a lot of code! But it's fairly simple.
+Firstly, these two functions are called according to 
+pattern matching of the `timer_stop` field. 
+If `timer_stop` field is empty, we assume it's an 
+ongoing timer being edited. 
+If both `timer_start` and `timer_stop` is being edited,
+it's because the user is changing an old timer. 
+
+Inside both functions, the flow is the same.
+We first get the *timer changeset* being edited
+by using the `index` parameter and the passed changeset list.
+After this, we try to parse the field using `Timex`.
+If this doesn't work, we **throw an error**. 
+All of errors thrown are later catched.
+
+If the parse is successful, we compare the
+`start` and `stop` fields and check if the `start`
+is newer than `stop` or if they're equal. 
+This is not allowed, so we throw an error if this is the case.
+
+If these verifications are passed, in the case of
+*ongoing timers*, we check if the timer `start` being edited
+is **after all the timers**. 
+In the case of *old timer being updated*, 
+we check if there is an overlap with the rest of the timers.
+
+If all of these validations are successful,
+the timer is updated. 
+If not, the error that was thrown is caught 
+using `catch`. 
+Depending on the error, we add a different error text 
+to be displayed on the form and then return the error.
+
+In each error, we make use of the `error_timer_changeset/6`
+function, which just replaces the timer inside the list
+with a custom error to be displayed on the form.
+Let's add this function.
+
+```elixir
+  def error_timer_changeset(
+        timer_changeset_list,
+        changeset_to_error,
+        changeset_index,
+        error_key,
+        error_message,
+        action
+      ) do
+    # Clearing and adding error to changeset
+    cleared_changeset = Map.put(changeset_to_error, :errors, [])
+
+    errored_changeset =
+      Ecto.Changeset.add_error(
+        cleared_changeset,
+        error_key,
+        error_message
+      )
+
+    {_reply, errored_changeset} =
+      Ecto.Changeset.apply_action(errored_changeset, action)
+
+    #  Updated list with errored changeset
+    List.replace_at(timer_changeset_list, changeset_index, errored_changeset)
+  end
+```
+
+And now all that's left is to change the UI! Let's do that.
+
+## 12.5 Updating the UI
+Now let's focus on showing the timers in the UI. Head over to
+`lib/app_web/live/app_live.html.heex` and make the following changes.
+We are showing each timer whenever an `item` is being edited.
+
+```html
+<%= if item.id == @editing do %>
+
+<!-- Replace starts here -->
+
+  <div class="flex flex-col grow">
+    <form
+      phx-submit="update-item"
+      id={"form-update-item-#{item.id}"}
+      class="w-full pr-2"
+    >
+      <textarea
+        id={"textarea-editing-of-item-#{item.id}"}
+        class="w-full flex-auto text-slate-800
+      bg-white bg-clip-padding
+      transition ease-in-out
+      border border-b border-slate-200
+      focus:border-none focus:outline-none"
+        name="text"
+        placeholder="What is on your mind?"
+        autofocus
+        required="required"
+        value={item.text}
+      ><%= item.text %></textarea>
+      <input
+        id={"tag-of-item-#{item.id}"}
+        type="text"
+        name="tags"
+        value={tags_to_string(item.tags)}
+        placeholder="tag1, tag2..."
+      />
+
+      <input type="hidden" name="id" value={item.id} />
+
+      <div
+        class="flex justify-end mr-1"
+        id={"save-button-item-#{item.id}"}
+      >
+        <button class="inline-flex items-center px-2 py-1 mt-1 h-9
+      bg-green-700 hover:bg-green-800 text-white rounded-md">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5 mr-2"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 13l-3 3m0 0l-3-3m3 3V8m0 13a9 9 0 110-18 9 9 0 010 18z"
+            />
+          </svg>
+          Save
+        </button>
+      </div>
+    </form>
+
+    <div>
+      <%= if (length @editing_timers) > 0 do %>
+        <h1 class="text-4xl font-bold">Timers</h1>
+      <% else %>
+        <h1 class="text-2xl text-center font-semibold text-slate-400">
+          No timers associated with this item.
+        </h1>
+      <% end %>
+
+      <div class="flex flex-col w-full mt-2">
+        <%= @editing_timers |> Enum.with_index |> Enum.map(fn({changeset, index}) -> %>
+          <.form
+            :let={f}
+            for={changeset}
+            phx-submit="update-item-timer"
+            id={"form-update-timer-#{changeset.data.id}"}
+            class="w-full pr-2"
+          >
+            <div class="flex flex-row w-full justify-between">
+              <div class="flex flex-row items-center">
+                <h3 class="mr-3">Start:</h3>
+                <input
+                  type="text"
+                  required="required"
+                  name="timer_start"
+                  id={"#{changeset.data.id}_start"}
+                  value={changeset.data.start}
+                />
+              </div>
+              <div class="flex flex-row items-center">
+                <h3 class="mr-3">Stop:</h3>
+                <input
+                  type="text"
+                  name="timer_stop"
+                  id={"#{changeset.data.id}_stop"}
+                  value={changeset.data.stop}
+                />
+              </div>
+              <input
+                type="hidden"
+                name="timer_id"
+                value={changeset.data.id}
+              />
+              <input type="hidden" name="index" value={index} />
+
+              <button
+                type="submit"
+                id={"button_timer-update-#{changeset.data.id}"}
+                class="text-white bg-blue-700
+                  hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300
+                  font-medium rounded-full text-sm px-5 py-2.5 text-center
+                  mr-2 mb-2
+                    dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              >
+                Update
+              </button>
+            </div>
+            <span class="text-red-700">
+              <%= error_tag(f, :id) %>
+            </span>
+          </.form>
+        <% end) %>
+      </div>
+    </div>
+  </div>
+
+<!-- Replace ends here -->
+
+<% else %>
+<!-- Render item.text as click-able label -->
+
+```
+
+As you can see from the snippet above, 
+for each timer related to an `item`, 
+we are creating a form.
+When the changes from the form are submitted, a 
+`update-item-timer` event is created. 
+With this event, all the fields added inside
+the form is passed on (the timer `id`,
+`index` inside the timer changesetlist,
+`timer_start` and `timer_stop`)
+
+## 12.6 Updating the tests and going back to 100% coverage
+If we run `source .env_sample` and
+`MIX_ENV=test mix coveralls.html ; open cover/excoveralls.html`
+we will see how coverage dropped. 
+We need to test the new handler we created when updating a timer,
+as well as the `update_timer` function added inside `timer.ex`.
+
+Paste the following test in `test/app/timer_test.exs`.
+
+```elixir
+    test "update_timer(%{id: id, start: start, stop: stop}) should update the timer" do
+      start = ~N[2022-10-27 00:00:00]
+      stop = ~N[2022-10-27 05:00:00]
+
+      {:ok, item} = Item.create_item(@valid_item_attrs)
+
+      {:ok, seven_seconds_ago} =
+        NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
+
+      # Start the timer 7 seconds ago:
+      {:ok, timer} =
+        Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
+
+      # Stop the timer based on its item_id
+      Timer.stop_timer_for_item_id(item.id)
+
+      # Update timer to specific datetimes
+      Timer.update_timer(%{id: timer.id, start: start, stop: stop})
+
+      updated_timer = Timer.get_timer!(timer.id)
+
+      assert updated_timer.start == start
+      assert updated_timer.stop == stop
+    end
+```
+
+We now test the newly created `update-item-timer` event. 
+In `test/app_web/live/app_live_test.exs`, add the following test.
+
+```elixir
+test "update an item's timer", %{conn: conn} do
+    start = "2022-10-27T00:00:00"
+    stop = "2022-10-27T05:00:00"
+    start_datetime = ~N[2022-10-27 00:00:00]
+    stop_datetime = ~N[2022-10-27 05:00:00]
+
+    {:ok, item} =
+      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+
+    {:ok, seven_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
+
+    # Start the timer 7 seconds ago:
+    {:ok, timer} =
+      Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
+
+    # Stop the timer based on its item_id
+    Timer.stop_timer_for_item_id(item.id)
+
+    {:ok, view, _html} = live(conn, "/")
+
+    # Update successful
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer.id,
+             "index" => 0,
+             "timer_start" => start,
+             "timer_stop" => stop
+           })
+
+    updated_timer = Timer.get_timer!(timer.id)
+
+    assert updated_timer.start == start_datetime
+    assert updated_timer.stop == stop_datetime
+
+    # Trying to update with equal values on start and stop
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer.id,
+             "index" => 0,
+             "timer_start" => start,
+             "timer_stop" => start
+           }) =~ "Start or stop are equal."
+
+    # Trying to update with equal start greater than stop
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer.id,
+             "index" => 0,
+             "timer_start" => stop,
+             "timer_stop" => start
+           }) =~ "Start is newer that stop."
+
+    # Trying to update with start as invalid format
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer.id,
+             "index" => 0,
+             "timer_start" => "invalid",
+             "timer_stop" => stop
+           }) =~ "Start field has an invalid date format."
+
+    # Trying to update with stop as invalid format
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    assert render_submit(view, "update-item-timer", %{
+              "timer_id" => timer.id,
+              "index" => 0,
+              "timer_start" => start,
+              "timer_stop" => "invalid"
+            }) =~ "Stop field has an invalid date format."
+  end
+```
+
+We also need to change the `test "edit-timer"` test because it's failing.
+We have changed the id of the form when changing the `.heex` template.
+Change the test to the following.
+
+```elixir
+  test "edit-item", %{conn: conn} do
+    {:ok, item} =
+      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+    {:ok, view, _html} = live(conn, "/")
+
+    assert render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)}) =~
+             "<form phx-submit=\"update-item\" id=\"form-update"
+  end
+```
+
+Let's add more tests for the edge cases. 
+Let's test ongoing timers and overlapping :smile:
+In the same `test_live_test.exs` file, 
+add the following tests.
+
+```elixir
+test "update timer timer with ongoing timer ", %{conn: conn} do
+    {:ok, item} =
+      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+
+    {:ok, seven_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
+
+    {:ok, now} = NaiveDateTime.new(Date.utc_today(), Time.utc_now())
+
+    {:ok, four_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -4))
+
+    {:ok, ten_seconds_after} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), 10))
+
+    # Start the timer 7 seconds ago:
+    {:ok, timer} =
+      Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
+
+    # Stop the timer based on its item_id
+    Timer.stop_timer_for_item_id(item.id)
+
+    # Start a second timer
+    {:ok, timer2} = Timer.start(%{item_id: item.id, person_id: 1, start: now})
+
+    # Stop the timer based on its item_id
+    Timer.stop_timer_for_item_id(item.id)
+
+    {:ok, view, _html} = live(conn, "/")
+
+    # Update fails because of overlap timer -----------
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    four_seconds_ago_string =
+      NaiveDateTime.truncate(four_seconds_ago, :second)
+      |> NaiveDateTime.to_string()
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.map(fn {value, index} ->
+        if index == 10 do
+          "T"
+        else
+          value
+        end
+      end)
+      |> List.to_string()
+
+    now_string =
+      NaiveDateTime.truncate(now, :second)
+      |> NaiveDateTime.to_string()
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.map(fn {value, index} ->
+        if index == 10 do
+          "T"
+        else
+          value
+        end
+      end)
+      |> List.to_string()
+
+    error_view =
+      render_submit(view, "update-item-timer", %{
+        "timer_id" => timer2.id,
+        "index" => 1,
+        "timer_start" => four_seconds_ago_string,
+        "timer_stop" => ""
+      })
+
+    assert error_view =~ "When editing an ongoing timer"
+
+    # Update fails because of format -----------
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    error_format_view =
+      render_submit(view, "update-item-timer", %{
+        "timer_id" => timer2.id,
+        "index" => 1,
+        "timer_start" => "invalidformat",
+        "timer_stop" => ""
+      })
+
+    assert error_format_view =~ "Start field has an invalid date format."
+
+    # Update successful -----------
+    ten_seconds_after_string =
+      NaiveDateTime.truncate(ten_seconds_after, :second)
+      |> NaiveDateTime.to_string()
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.map(fn {value, index} ->
+        if index == 10 do
+          "T"
+        else
+          value
+        end
+      end)
+      |> List.to_string()
+
+    ten_seconds_after_datetime =
+      NaiveDateTime.truncate(ten_seconds_after, :second)
+
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    view =
+      assert render_submit(view, "update-item-timer", %{
+               "timer_id" => timer2.id,
+               "index" => 1,
+               "timer_start" => ten_seconds_after_string,
+               "timer_stop" => ""
+             })
+
+    updated_timer2 = Timer.get_timer!(timer2.id)
+
+    assert updated_timer2.start == ten_seconds_after_datetime
+  end
+
+  test "timer overlap error when updating timer", %{conn: conn} do
+    {:ok, item} =
+      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+
+    {:ok, seven_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
+
+    {:ok, now} = NaiveDateTime.new(Date.utc_today(), Time.utc_now())
+
+    {:ok, four_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -4))
+
+    # Start the timer 7 seconds ago:
+    {:ok, timer} =
+      Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
+
+    # Stop the timer based on its item_id
+    Timer.stop_timer_for_item_id(item.id)
+
+    # Start a second timer
+    {:ok, timer2} = Timer.start(%{item_id: item.id, person_id: 1, start: now})
+
+    # Stop the timer based on its item_id
+    Timer.stop_timer_for_item_id(item.id)
+
+    {:ok, view, _html} = live(conn, "/")
+
+    # Update fails because of overlap -----------
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    four_seconds_ago_string =
+      NaiveDateTime.truncate(four_seconds_ago, :second)
+      |> NaiveDateTime.to_string()
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.map(fn {value, index} ->
+        if index == 10 do
+          "T"
+        else
+          value
+        end
+      end)
+      |> List.to_string()
+
+    now_string =
+      NaiveDateTime.truncate(now, :second)
+      |> NaiveDateTime.to_string()
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.map(fn {value, index} ->
+        if index == 10 do
+          "T"
+        else
+          value
+        end
+      end)
+      |> List.to_string()
+
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer2.id,
+             "index" => 0,
+             "timer_start" => four_seconds_ago_string,
+             "timer_stop" => now_string
+           }) =~ "This timer interval overlaps with other timers."
+  end
+
+  test "timer overlap error when updating historical timer with ongoing timer",
+       %{conn: conn} do
+    {:ok, item} =
+      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+
+    {:ok, seven_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
+
+    {:ok, now} = NaiveDateTime.new(Date.utc_today(), Time.utc_now())
+
+    {:ok, twenty_seconds_future} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), 20))
+
+    # Start the timer 7 seconds ago:
+    {:ok, timer} =
+      Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
+
+    # Stop the timer based on its item_id
+    Timer.stop_timer_for_item_id(item.id)
+
+    # Start a second timer
+    {:ok, timer2} = Timer.start(%{item_id: item.id, person_id: 1, start: now})
+
+    {:ok, view, _html} = live(conn, "/")
+
+    # Update fails because of overlap -----------
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    seven_seconds_ago_string =
+      NaiveDateTime.truncate(seven_seconds_ago, :second)
+      |> NaiveDateTime.to_string()
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.map(fn {value, index} ->
+        if index == 10 do
+          "T"
+        else
+          value
+        end
+      end)
+      |> List.to_string()
+
+    twenty_seconds_string =
+      NaiveDateTime.truncate(twenty_seconds_future, :second)
+      |> NaiveDateTime.to_string()
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.map(fn {value, index} ->
+        if index == 10 do
+          "T"
+        else
+          value
+        end
+      end)
+      |> List.to_string()
+
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer.id,
+             "index" => 0,
+             "timer_start" => seven_seconds_ago_string,
+             "timer_stop" => twenty_seconds_string
+           }) =~ "This timer interval overlaps with other timers."
+  end
+```
+
+Let us not forget we also changed the way 
+the `update` event is broadcasted. 
+It now updates the socket assigns depending
+on whether an item is being edited or not. 
+Let's add tests in the same file to cover these scenarios
+
+```elixir
+test "handle_info/2 update with editing open (start)", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+
+    {:ok, item} =
+      Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
+
+    {:ok, now} = NaiveDateTime.new(Date.utc_today(), Time.utc_now())
+
+    now_string =
+      NaiveDateTime.truncate(now, :second)
+      |> NaiveDateTime.to_string()
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.map(fn {value, index} ->
+        if index == 10 do
+          "T"
+        else
+          value
+        end
+      end)
+      |> List.to_string()
+
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+    render_click(view, "start", %{"id" => Integer.to_string(item.id)})
+
+    # The editing panel is open and showing the newly created timer on the 'Start' text input field
+    assert render(view) =~ now_string
+  end
+
+  test "handle_info/2 update with editing open (stop)", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+
+    {:ok, item} =
+      Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
+
+    {:ok, seven_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
+
+    # Start the timer 7 seconds ago:
+    {:ok, timer} =
+      Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
+
+    # Stop the timer based on its item_id
+    Timer.stop_timer_for_item_id(item.id)
+
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+    render_click(view, "start", %{"id" => Integer.to_string(item.id)})
+    render_click(view, "stop", %{"timerid" => timer.id, "id" => item.id})
+
+    num_timers_rendered =
+      (render(view) |> String.split("Update") |> length()) - 1
+
+    # Checking if two timers were rendered
+    assert num_timers_rendered == 2
+  end
+
+  test "handle_info/2 update with editing open (delete)", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+
+    {:ok, item} =
+      Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
+
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    send(view.pid, %Broadcast{
+      event: "update",
+      payload: :delete
+    })
+
+    assert render(view) =~ item.text
+  end
+```
+
+# 13. Run the _Finished_ MVP App!
 
 With all the code saved, let's run the tests one more time.
 
-## 12.1 Run the Tests
+## 13.1 Run the Tests
 
 In your terminal window, run: 
 
@@ -2789,7 +3971,7 @@ COV    FILE                                        LINES RELEVANT   MISSED
 All tests pass and we have **`100%` Test Coverage**.
 This reminds us just how few _relevant_ lines of code there are in the MVP!
 
-## 12.2 Run The App
+## 13.2 Run The App
 
 In your second terminal tab/window, run:
 

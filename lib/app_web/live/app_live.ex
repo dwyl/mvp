@@ -1,5 +1,8 @@
 defmodule AppWeb.AppLive do
+  require Logger
+
   use AppWeb, :live_view
+  use Timex
   alias App.{Item, Timer}
   # run authentication on mount
   on_mount AppWeb.AuthController
@@ -20,6 +23,7 @@ defmodule AppWeb.AppLive do
     {:ok,
      assign(socket,
        items: items,
+       editing_timers: [],
        editing: nil,
        filter: "active",
        filter_tag: nil
@@ -74,7 +78,7 @@ defmodule AppWeb.AppLive do
         start: NaiveDateTime.utc_now()
       })
 
-    AppWeb.Endpoint.broadcast(@topic, "update", :start)
+    AppWeb.Endpoint.broadcast(@topic, "update", {:start, item.id})
     {:noreply, socket}
   end
 
@@ -83,13 +87,18 @@ defmodule AppWeb.AppLive do
     timer_id = Map.get(data, "timerid")
     {:ok, _timer} = Timer.stop(%{id: timer_id})
 
-    AppWeb.Endpoint.broadcast(@topic, "update", :stop)
+    AppWeb.Endpoint.broadcast(@topic, "update", {:stop, Map.get(data, "id")})
     {:noreply, socket}
   end
 
   @impl true
   def handle_event("edit-item", data, socket) do
-    {:noreply, assign(socket, editing: String.to_integer(data["id"]))}
+    item_id = String.to_integer(data["id"])
+
+    timers_list_changeset = Timer.list_timers_changesets(item_id)
+
+    {:noreply,
+     assign(socket, editing: item_id, editing_timers: timers_list_changeset)}
   end
 
   @impl true
@@ -108,15 +117,80 @@ defmodule AppWeb.AppLive do
     })
 
     AppWeb.Endpoint.broadcast(@topic, "update", :update)
-    {:noreply, assign(socket, editing: nil)}
+    {:noreply, assign(socket, editing: nil, editing_timers: [])}
   end
 
   @impl true
-  def handle_info(%Broadcast{event: "update", payload: _message}, socket) do
+  def handle_event(
+        "update-item-timer",
+        %{
+          "timer_id" => id,
+          "index" => index,
+          "timer_start" => timer_start,
+          "timer_stop" => timer_stop
+        },
+        socket
+      ) do
+    timer_changeset_list = socket.assigns.editing_timers
+    index = String.to_integer(index)
+
+    timer = %{
+      id: id,
+      start: timer_start,
+      stop: timer_stop
+    }
+
+    case Timer.update_timer_inside_changeset_list(
+           timer,
+           index,
+           timer_changeset_list
+         ) do
+      {:ok, _list} ->
+        {:noreply, assign(socket, editing: nil, editing_timers: [])}
+
+      {:error, updated_errored_list} ->
+        {:noreply, assign(socket, editing_timers: updated_errored_list)}
+    end
+  end
+
+  @impl true
+  def handle_info(%Broadcast{event: "update", payload: payload}, socket) do
     person_id = get_person_id(socket.assigns)
     items = Item.items_with_timers(person_id)
 
-    {:noreply, assign(socket, items: items)}
+    isEditingItem = socket.assigns.editing
+
+    # If the item is being edited, we update the timer list of the item being edited.
+    if isEditingItem do
+      case payload do
+        {:start, item_id} ->
+          timers_list_changeset = Timer.list_timers_changesets(item_id)
+
+          {:noreply,
+           assign(socket,
+             items: items,
+             editing: item_id,
+             editing_timers: timers_list_changeset
+           )}
+
+        {:stop, item_id} ->
+          timers_list_changeset = Timer.list_timers_changesets(item_id)
+
+          {:noreply,
+           assign(socket,
+             items: items,
+             editing: item_id,
+             editing_timers: timers_list_changeset
+           )}
+
+        _ ->
+          {:noreply, assign(socket, items: items)}
+      end
+
+      # If not, just update the item list.
+    else
+      {:noreply, assign(socket, items: items)}
+    end
   end
 
   # only show certain UI elements (buttons) if there are items:
@@ -245,7 +319,7 @@ defmodule AppWeb.AppLive do
   the tag names are seperated by commas
 
   ## Examples
-    
+
     tags_to_string([%Tag{text: "Learn"}, %Tag{text: "Elixir"}])
     "Learn, Elixir"
 
