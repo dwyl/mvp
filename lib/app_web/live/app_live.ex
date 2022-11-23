@@ -31,8 +31,14 @@ defmodule AppWeb.AppLive do
        filter_tag: nil,
        tags: tags,
        changeset: changeset,
-       selected_tags: selected_tags
+       selected_tags: selected_tags,
+       text_value: ""
      )}
+  end
+
+  @impl true
+  def handle_event("validate", %{"text" => text}, socket) do
+    {:noreply, assign(socket, text_value: text)}
   end
 
   @impl true
@@ -66,8 +72,10 @@ defmodule AppWeb.AppLive do
 
   @impl true
   def handle_event("toggle_tag", value, socket) do
+    person_id = get_person_id(socket.assigns)
     selected_tags = socket.assigns.selected_tags
     tag = Tag.get_tag!(value["tag_id"])
+    tags = Tag.list_person_tags(person_id)
 
     selected_tags =
       if Enum.member?(selected_tags, tag) do
@@ -75,8 +83,22 @@ defmodule AppWeb.AppLive do
       else
         [tag | selected_tags]
       end
+      |> Enum.sort_by(& &1.text)
 
-    {:noreply, assign(socket, selected_tags: selected_tags)}
+    {:noreply, assign(socket, tags: tags, selected_tags: selected_tags)}
+  end
+
+  @impl true
+  def handle_event("filter-tags", %{"key" => _key, "value" => value}, socket) do
+    person_id = get_person_id(socket.assigns)
+
+    tags =
+      Tag.list_person_tags(person_id)
+      |> Enum.filter(fn t ->
+        String.contains?(String.downcase(t.text), String.downcase(value))
+      end)
+
+    {:noreply, assign(socket, tags: tags)}
   end
 
   @impl true

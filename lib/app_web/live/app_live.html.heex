@@ -2,6 +2,7 @@
   <.form
     :let={_f}
     for={@changeset}
+    phx-change="validate"
     phx-submit="create"
     class="w-full lg:w-1/2 m-auto"
   >
@@ -25,9 +26,7 @@
       }"
       x-init="resize"
       x-on:input="resize"
-      phx-no-format
-    >
-    </textarea>
+    ><%= @text_value %></textarea>
     <!-- Select Input -->
     <div
       class="lg:w-1/2 "
@@ -40,6 +39,8 @@
         name="tag"
         class="w-full my-2"
         x-on:focus="open = true"
+        phx-keyup="filter-tags"
+        phx-debounce="250"
         autocomplete="off"
         placeholder="tags"
       />
@@ -93,7 +94,7 @@
     <!-- End Select Input -->
 
     <!-- Display the selected tags -->
-    <div class="m-h-24">
+    <div class="">
       <%= for selected_tag <- @selected_tags do %>
         <span
           class="text-white font-bold py-1 px-2 rounded-full ml-2"
