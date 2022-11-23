@@ -21,8 +21,9 @@
       x-init="resize"
       x-on:input="resize"
       phx-no-format
-    ></textarea>
-   <!-- Select Input -->
+    >
+    </textarea>
+    <!-- Select Input -->
     <div
       class="lg:w-1/2 "
       x-data="{open: false}"
@@ -77,6 +78,9 @@
               </div>
             </li>
           <% end %>
+          <li class="border-b p-2 cursor-pointer hover:bg-slate-200">
+            <%= link("edit tags", to: "/tags", class: "block w-full text-center") %>
+          </li>
         </ul>
       </div>
     </div>
