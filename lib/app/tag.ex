@@ -28,13 +28,13 @@ defmodule App.Tag do
     |> Repo.insert()
   end
 
-  def parse_and_create_tags(attrs) do
-    (attrs[:tags] || "")
-    |> String.split(",")
-    |> Enum.map(&String.trim/1)
-    |> Enum.reject(&(&1 == ""))
-    |> create_tags(attrs[:person_id])
-  end
+#  def parse_and_create_tags(attrs) do
+#    (attrs[:tags] || "")
+#    |> String.split(",")
+#    |> Enum.map(&String.trim/1)
+#    |> Enum.reject(&(&1 == ""))
+#    |> create_tags(attrs[:person_id])
+#  end
 
   @doc """
   Insert the list of tag names given as argument.

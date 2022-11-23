@@ -4,7 +4,7 @@ defmodule AppWeb.AppLive do
   use Timex
   alias App.{Item, Tag, Timer}
   # run authentication on mount
-  on_mount AppWeb.AuthController
+  on_mount(AppWeb.AuthController)
   alias Phoenix.Socket.Broadcast
 
   @topic "live"
@@ -19,6 +19,8 @@ defmodule AppWeb.AppLive do
     person_id = get_person_id(socket.assigns)
     items = Item.items_with_timers(person_id)
     tags = Tag.list_person_tags(person_id)
+    changeset = Item.changeset(%Item{}, %{})
+    selected_tags = []
 
     {:ok,
      assign(socket,
@@ -27,19 +29,21 @@ defmodule AppWeb.AppLive do
        editing: nil,
        filter: "active",
        filter_tag: nil,
-       tags: tags
+       tags: tags,
+       changeset: changeset,
+       selected_tags: selected_tags
      )}
   end
 
   @impl true
-  def handle_event("create", %{"text" => text, "tags" => tags}, socket) do
+  def handle_event("create", %{"text" => text}, socket) do
     person_id = get_person_id(socket.assigns)
 
     Item.create_item_with_tags(%{
       text: text,
       person_id: person_id,
       status: 2,
-      tags: tags
+      tags: socket.assigns.selected_tags
     })
 
     AppWeb.Endpoint.broadcast(@topic, "update", :create)
@@ -58,6 +62,21 @@ defmodule AppWeb.AppLive do
 
     AppWeb.Endpoint.broadcast(@topic, "update", :toggle)
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("toggle_tag", value, socket) do
+    selected_tags = socket.assigns.selected_tags
+    tag = Tag.get_tag!(value["tag_id"])
+
+    selected_tags =
+      if Enum.member?(selected_tags, tag) do
+        List.delete(selected_tags, tag)
+      else
+        [tag | selected_tags]
+      end
+
+    {:noreply, assign(socket, selected_tags: selected_tags)}
   end
 
   @impl true

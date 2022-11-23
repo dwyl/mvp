@@ -1,5 +1,10 @@
 <main class="font-sans container mx-auto">
-  <form phx-submit="create" class="w-full lg:w-1/2  m-auto">
+  <.form
+    :let={_f}
+    for={@changeset}
+    phx-submit="create"
+    class="w-full lg:w-1/2 m-auto"
+  >
     <textarea
       class="w-full py-1 px-1 text-slate-800 text-3xl
         bg-white bg-clip-padding
@@ -21,8 +26,7 @@
       x-init="resize"
       x-on:input="resize"
       phx-no-format
-    >
-    </textarea>
+    ></textarea>
     <!-- Select Input -->
     <div
       class="lg:w-1/2 "
@@ -32,7 +36,7 @@
     >
       <input
         type="text"
-        name="tags"
+        name="tag"
         class="w-full my-2"
         x-on:focus="open = true"
         autocomplete="off"
@@ -48,7 +52,8 @@
           <%= for tag <- @tags do %>
             <li
               class="border-b p-2 cursor-pointer hover:bg-slate-200"
-              x-on:click={"$dispatch('toggle-item', {id: #{tag.id}})"}
+              phx-click="toggle_tag"
+              phx-value-tag_id={tag.id}
             >
               <div class="relative h-10">
                 <div class="inline-flex items-center w-3/4">
@@ -61,7 +66,7 @@
                     <%= tag.text %>
                   </span>
                 </div>
-                <%= if true do %>
+                <%= if Enum.member?(@selected_tags, tag) do %>
                   <svg
                     class="absolute font-bold w-4 top-0 bottom-0 m-auto right-0 text-green-500"
                     xmlns="http://www.w3.org/2000/svg"
@@ -84,7 +89,7 @@
         </ul>
       </div>
     </div>
-    <!-- End Select Inpu -->
+    <!-- End Select Input -->
 
     <!-- Want to help "DRY" this? see: https://github.com/dwyl/app-mvp-phoenix/issues/105 -->
     <!-- https://tailwindcss.com/docs/justify-content#end -->
@@ -108,7 +113,7 @@
         Save
       </button>
     </div>
-  </form>
+  </.form>
   <!-- List of items with inline buttons and controls -->
   <ul class="w-full">
     <%= for item <- filter_items(@items, @filter, @filter_tag) do %>
