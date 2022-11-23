@@ -26,7 +26,8 @@
       x-init="resize"
       x-on:input="resize"
       phx-no-format
-    ></textarea>
+    >
+    </textarea>
     <!-- Select Input -->
     <div
       class="lg:w-1/2 "
@@ -91,6 +92,17 @@
     </div>
     <!-- End Select Input -->
 
+    <!-- Display the selected tags -->
+    <div class="m-h-24">
+      <%= for selected_tag <- @selected_tags do %>
+        <span
+          class="text-white font-bold py-1 px-2 rounded-full ml-2"
+          style={"background-color:#{selected_tag.color}"}
+        >
+          <%= selected_tag.text %>
+        </span>
+      <% end %>
+    </div>
     <!-- Want to help "DRY" this? see: https://github.com/dwyl/app-mvp-phoenix/issues/105 -->
     <!-- https://tailwindcss.com/docs/justify-content#end -->
     <div class="flex justify-end mr-1">
