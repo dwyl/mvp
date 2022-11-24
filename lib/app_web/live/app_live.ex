@@ -19,7 +19,6 @@ defmodule AppWeb.AppLive do
     person_id = get_person_id(socket.assigns)
     items = Item.items_with_timers(person_id)
     tags = Tag.list_person_tags(person_id)
-    changeset = Item.changeset(%Item{}, %{})
     selected_tags = []
 
     {:ok,
@@ -30,7 +29,6 @@ defmodule AppWeb.AppLive do
        filter: "active",
        filter_tag: nil,
        tags: tags,
-       changeset: changeset,
        selected_tags: selected_tags,
        text_value: ""
      )}
@@ -53,7 +51,7 @@ defmodule AppWeb.AppLive do
     })
 
     AppWeb.Endpoint.broadcast(@topic, "update", :create)
-    {:noreply, socket}
+    {:noreply, assign(socket, text_value: "", selected_tags: [])}
   end
 
   @impl true

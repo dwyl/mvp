@@ -1,8 +1,7 @@
 <main class="font-sans container mx-auto">
   <.form
     :let={_f}
-    for={@changeset}
-    phx-change="validate"
+    for={:item}
     phx-submit="create"
     class="w-full lg:w-1/2 m-auto"
   >
@@ -16,6 +15,7 @@
         focus:border-none focus:outline-none
         my-2"
       name="text"
+      phx-change="validate"
       placeholder="What needs to be done?"
       autofocus="true"
       required="required"
