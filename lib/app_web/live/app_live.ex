@@ -144,15 +144,14 @@ defmodule AppWeb.AppLive do
   @impl true
   def handle_event(
         "update-item",
-        %{"id" => item_id, "text" => text, "tags" => tags},
+        %{"id" => item_id, "text" => text},
         socket
       ) do
     person_id = get_person_id(socket.assigns)
     current_item = Item.get_item!(item_id)
 
-    Item.update_item_with_tags(current_item, %{
+    Item.update_item(current_item, %{
       text: text,
-      tags: tags,
       person_id: person_id
     })
 

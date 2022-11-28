@@ -65,12 +65,12 @@ defmodule App.ItemTest do
       text: "new item",
       person_id: 1,
       status: 2,
-      tags: "tag1, tag2, tag3"
+      tags: []
     }
 
     test "get_item!/1 returns the item with given id" do
       {:ok, item} = Item.create_item_with_tags(@valid_attrs)
-      assert length(item.tags) == 3
+      assert length(item.tags) == 0
     end
   end
 

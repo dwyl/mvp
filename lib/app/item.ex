@@ -117,11 +117,11 @@ defmodule App.Item do
   @doc """
   Update an item and its associated tags
   """
-  def update_item_with_tags(%Item{} = item, attrs) do
-    item
-    |> Item.changeset_with_tags(attrs)
-    |> Repo.update()
-  end
+  #def update_item_with_tags(%Item{} = item, attrs) do
+  #  item
+  #  |> Item.changeset_with_tags(attrs)
+  #  |> Repo.update()
+  #end
 
   def delete_item(id) do
     get_item!(id)
