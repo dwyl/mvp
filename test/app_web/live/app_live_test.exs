@@ -674,6 +674,30 @@ defmodule AppWeb.AppLiveTest do
            ]) == "Learn, Elixir"
   end
 
+  test "input text for new task change", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+    assert render_hook(view, "validate", %{"text" => "new item"}) =~ "new item"
+  end
+
+  test "select tag", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+
+    {:ok, tag1} =
+      Tag.create_tag(%{person_id: 0, text: "tag1", color: "#FCA5A5"})
+
+    assert render_hook(view, "toggle_tag", %{"tag_id" => tag1.id})
+    # can toggle again the same tag
+    assert render_hook(view, "toggle_tag", %{"tag_id" => tag1.id})
+  end
+
+  test "filter list tags", %{conn: conn} do
+    {:ok, _tag1} =
+      Tag.create_tag(%{person_id: 0, text: "tag1", color: "#FCA5A5"})
+
+    {:ok, view, _html} = live(conn, "/")
+    assert render_hook(view, "filter-tags", %{"key" => "t", "value" => "t"})
+  end
+
   defp create_person(_) do
     person = Person.create_person(%{"person_id" => 0, "name" => "guest"})
     %{person: person}
