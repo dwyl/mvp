@@ -1,11 +1,10 @@
 defmodule AppWeb.AppLive do
   require Logger
-
   use AppWeb, :live_view
   use Timex
-  alias App.{Item, Timer}
+  alias App.{Item, Tag, Timer}
   # run authentication on mount
-  on_mount AppWeb.AuthController
+  on_mount(AppWeb.AuthController)
   alias Phoenix.Socket.Broadcast
 
   @topic "live"
@@ -19,6 +18,8 @@ defmodule AppWeb.AppLive do
 
     person_id = get_person_id(socket.assigns)
     items = Item.items_with_timers(person_id)
+    tags = Tag.list_person_tags(person_id)
+    selected_tags = []
 
     {:ok,
      assign(socket,
@@ -26,23 +27,31 @@ defmodule AppWeb.AppLive do
        editing_timers: [],
        editing: nil,
        filter: "active",
-       filter_tag: nil
+       filter_tag: nil,
+       tags: tags,
+       selected_tags: selected_tags,
+       text_value: ""
      )}
   end
 
   @impl true
-  def handle_event("create", %{"text" => text, "tags" => tags}, socket) do
+  def handle_event("validate", %{"text" => text}, socket) do
+    {:noreply, assign(socket, text_value: text)}
+  end
+
+  @impl true
+  def handle_event("create", %{"text" => text}, socket) do
     person_id = get_person_id(socket.assigns)
 
     Item.create_item_with_tags(%{
       text: text,
       person_id: person_id,
       status: 2,
-      tags: tags
+      tags: socket.assigns.selected_tags
     })
 
     AppWeb.Endpoint.broadcast(@topic, "update", :create)
-    {:noreply, socket}
+    {:noreply, assign(socket, text_value: "", selected_tags: [])}
   end
 
   @impl true
@@ -57,6 +66,37 @@ defmodule AppWeb.AppLive do
 
     AppWeb.Endpoint.broadcast(@topic, "update", :toggle)
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("toggle_tag", value, socket) do
+    person_id = get_person_id(socket.assigns)
+    selected_tags = socket.assigns.selected_tags
+    tag = Tag.get_tag!(value["tag_id"])
+    tags = Tag.list_person_tags(person_id)
+
+    selected_tags =
+      if Enum.member?(selected_tags, tag) do
+        List.delete(selected_tags, tag)
+      else
+        [tag | selected_tags]
+      end
+      |> Enum.sort_by(& &1.text)
+
+    {:noreply, assign(socket, tags: tags, selected_tags: selected_tags)}
+  end
+
+  @impl true
+  def handle_event("filter-tags", %{"key" => _key, "value" => value}, socket) do
+    person_id = get_person_id(socket.assigns)
+
+    tags =
+      Tag.list_person_tags(person_id)
+      |> Enum.filter(fn t ->
+        String.contains?(String.downcase(t.text), String.downcase(value))
+      end)
+
+    {:noreply, assign(socket, tags: tags)}
   end
 
   @impl true
@@ -104,15 +144,14 @@ defmodule AppWeb.AppLive do
   @impl true
   def handle_event(
         "update-item",
-        %{"id" => item_id, "text" => text, "tags" => tags},
+        %{"id" => item_id, "text" => text},
         socket
       ) do
     person_id = get_person_id(socket.assigns)
     current_item = Item.get_item!(item_id)
 
-    Item.update_item_with_tags(current_item, %{
+    Item.update_item(current_item, %{
       text: text,
-      tags: tags,
       person_id: person_id
     })
 

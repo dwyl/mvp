@@ -379,7 +379,6 @@ defmodule App.Timer do
     res = Ecto.Adapters.SQL.query!(Repo, sql, [item_id])
 
     if res.num_rows > 0 do
-      # IO.inspect(res.rows)
       timer_id = res.rows |> List.first() |> List.first()
 
       Logger.debug(

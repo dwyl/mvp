@@ -26,7 +26,7 @@ defmodule App.Item do
 
   def changeset_with_tags(item, attrs) do
     changeset(item, attrs)
-    |> put_assoc(:tags, Tag.parse_and_create_tags(attrs))
+    |> put_assoc(:tags, attrs.tags)
   end
 
   @doc """
@@ -117,11 +117,12 @@ defmodule App.Item do
   @doc """
   Update an item and its associated tags
   """
-  def update_item_with_tags(%Item{} = item, attrs) do
-    item
-    |> Item.changeset_with_tags(attrs)
-    |> Repo.update()
-  end
+
+  # def update_item_with_tags(%Item{} = item, attrs) do
+  #  item
+  #  |> Item.changeset_with_tags(attrs)
+  #  |> Repo.update()
+  # end
 
   def delete_item(id) do
     get_item!(id)

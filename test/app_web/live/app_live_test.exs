@@ -188,13 +188,11 @@ defmodule AppWeb.AppLiveTest do
 
     assert render_submit(view, "update-item", %{
              "id" => item.id,
-             "text" => "Learn more Elixir",
-             "tags" => "Learn, Elixir"
+             "text" => "Learn more Elixir"
            })
 
     updated_item = Item.get_item!(item.id)
     assert updated_item.text == "Learn more Elixir"
-    assert length(updated_item.tags) == 2
   end
 
   test "update an item's timer", %{conn: conn} do
@@ -571,12 +569,21 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "filter items by tag name", %{conn: conn} do
+    {:ok, tag1} =
+      Tag.create_tag(%{person_id: 0, text: "tag1", color: "#FCA5A5"})
+
+    {:ok, tag2} =
+      Tag.create_tag(%{person_id: 0, text: "tag2", color: "#FCA5A5"})
+
+    {:ok, tag3} =
+      Tag.create_tag(%{person_id: 0, text: "tag3", color: "#FCA5A5"})
+
     {:ok, _item} =
       Item.create_item_with_tags(%{
         text: "Item1 to do",
         person_id: 0,
         status: 2,
-        tags: "tag1, tag2"
+        tags: [tag1, tag2]
       })
 
     {:ok, _item} =
@@ -584,7 +591,7 @@ defmodule AppWeb.AppLiveTest do
         text: "Item2 to do",
         person_id: 0,
         status: 2,
-        tags: "tag1, tag3"
+        tags: [tag1, tag3]
       })
 
     {:ok, view, _html} = live(conn, "/?filter_by=all")
@@ -665,6 +672,30 @@ defmodule AppWeb.AppLiveTest do
              %Tag{text: "Learn"},
              %Tag{text: "Elixir"}
            ]) == "Learn, Elixir"
+  end
+
+  test "input text for new task change", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+    assert render_hook(view, "validate", %{"text" => "new item"}) =~ "new item"
+  end
+
+  test "select tag", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+
+    {:ok, tag1} =
+      Tag.create_tag(%{person_id: 0, text: "tag1", color: "#FCA5A5"})
+
+    assert render_hook(view, "toggle_tag", %{"tag_id" => tag1.id})
+    # can toggle again the same tag
+    assert render_hook(view, "toggle_tag", %{"tag_id" => tag1.id})
+  end
+
+  test "filter list tags", %{conn: conn} do
+    {:ok, _tag1} =
+      Tag.create_tag(%{person_id: 0, text: "tag1", color: "#FCA5A5"})
+
+    {:ok, view, _html} = live(conn, "/")
+    assert render_hook(view, "filter-tags", %{"key" => "t", "value" => "t"})
   end
 
   defp create_person(_) do
