@@ -43,8 +43,8 @@ jobs:
           deps-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}
     - name: Install dependencies
       run: mix deps.get
-        #    - name: Check code is formatted
-        #      run: mix format --check-formatted
+    - name: Check code is formatted
+      run: mix format --check-formatted
     - name: Run Tests
       run: mix coveralls.json
       env:
