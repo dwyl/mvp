@@ -30,8 +30,16 @@ defmodule AppWeb.AppLive do
        filter_tag: nil,
        tags: tags,
        selected_tags: selected_tags,
-       text_value: ""
+       text_value: "",
+       item: ""
      )}
+  end
+
+  @impl true
+  def handle_event("item-updated", %{"content" => content}, socket) do
+    IO.inspect(content)
+    content = String.replace(content, "tag", "<span style=\"font-weight: bold\">tag</span>")
+    {:noreply, assign(socket, item: content )}
   end
 
   @impl true
