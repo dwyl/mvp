@@ -38,8 +38,11 @@ defmodule AppWeb.AppLive do
   @impl true
   def handle_event("item-updated", %{"content" => content}, socket) do
     IO.inspect(content)
-    content = String.replace(content, "tag", "<span style=\"font-weight: bold\">tag</span>")
-    {:noreply, assign(socket, item: content )}
+
+    content =
+      String.replace(content, "tag", "<span style=\"color: red\">tag</span>")
+
+    {:noreply, assign(socket, item: content)}
   end
 
   @impl true
