@@ -697,7 +697,7 @@ defmodule AppWeb.AppLiveTest do
     {:ok, view, _html} = live(conn, "/")
     assert render_hook(view, "filter-tags", %{"key" => "t", "value" => "t"})
   end
-  
+
   test "create tag from select input", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
     assert render_hook(view, "create-tag", %{"tag" => "new tag"})
