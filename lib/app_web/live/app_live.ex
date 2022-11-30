@@ -30,7 +30,8 @@ defmodule AppWeb.AppLive do
        filter_tag: nil,
        tags: tags,
        selected_tags: selected_tags,
-       text_value: ""
+       text_value: "",
+       search_tag: ""
      )}
   end
 
@@ -75,13 +76,7 @@ defmodule AppWeb.AppLive do
     tag = Tag.get_tag!(value["tag_id"])
     tags = Tag.list_person_tags(person_id)
 
-    selected_tags =
-      if Enum.member?(selected_tags, tag) do
-        List.delete(selected_tags, tag)
-      else
-        [tag | selected_tags]
-      end
-      |> Enum.sort_by(& &1.text)
+    selected_tags = toggle_tag(tag, selected_tags)
 
     {:noreply, assign(socket, tags: tags, selected_tags: selected_tags)}
   end
@@ -96,7 +91,26 @@ defmodule AppWeb.AppLive do
         String.contains?(String.downcase(t.text), String.downcase(value))
       end)
 
-    {:noreply, assign(socket, tags: tags)}
+    {:noreply, assign(socket, tags: tags, search_tag: value)}
+  end
+
+  @impl true
+  def handle_event("create-tag", %{"tag" => tag}, socket) do
+    person_id = get_person_id(socket.assigns)
+
+    {:ok, tag} =
+      Tag.create_tag(%{
+        person_id: person_id,
+        text: tag,
+        color: App.Color.random()
+      })
+
+    selected_tags = socket.assigns.selected_tags
+    selected_tags = toggle_tag(tag, selected_tags)
+    tags = Tag.list_person_tags(person_id)
+
+    {:noreply,
+     assign(socket, tags: tags, selected_tags: selected_tags, search_tag: "")}
   end
 
   @impl true
@@ -364,4 +378,13 @@ defmodule AppWeb.AppLive do
 
   """
   def tags_to_string(tags), do: Enum.map_join(tags, ", ", & &1.text)
+
+  defp toggle_tag(tag, selected_tags) do
+    if Enum.member?(selected_tags, tag) do
+      List.delete(selected_tags, tag)
+    else
+      [tag | selected_tags]
+    end
+    |> Enum.sort_by(& &1.text)
+  end
 end

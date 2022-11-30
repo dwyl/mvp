@@ -85,6 +85,11 @@
               </div>
             </li>
           <% end %>
+          <%= if Enum.empty?(@tags) and String.length(String.trim(@search_tag)) != 0 do %>
+          <li class="border-b p-2 cursor-pointer hover:bg-slate-200" phx-click="create-tag" phx-value-tag={@search_tag}>
+            <span class="block w-full text-center overflow-hidden text-ellipsis whitespace-nowrap"><%= "Create #{@search_tag}" %></span>
+          </li>
+          <% end %>
           <li class="border-b p-2 cursor-pointer hover:bg-slate-200">
             <%= link("edit tags", to: "/tags", class: "block w-full text-center") %>
           </li>
