@@ -3,8 +3,18 @@ defmodule AppWeb.AuthController do
   import Phoenix.Component, only: [assign_new: 3]
 
   def on_mount(:default, _params, %{"jwt" => jwt} = _session, socket) do
-    {:cont,
-     AuthPlug.assign_jwt_to_socket(socket, &Phoenix.Component.assign_new/3, jwt)}
+    claims =
+      jwt
+      |> AuthPlug.Token.verify_jwt!()
+      |> AuthPlug.Helpers.strip_struct_metadata()
+      |> Useful.atomize_map_keys()
+
+    socket =
+      socket
+      |> assign_new(:person, fn -> claims end)
+      |> assign_new(:loggedin, fn -> true end)
+
+    {:cont, socket}
   end
 
   def on_mount(:default, _params, _session, socket) do
