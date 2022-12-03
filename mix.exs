@@ -41,6 +41,7 @@ defmodule App.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      # Phoenix deps:
       {:phoenix, "~> 1.6.10"},
       {:phoenix_ecto, "~> 4.4"},
       {:ecto_sql, "~> 3.6"},
@@ -54,28 +55,38 @@ defmodule App.MixProject do
       {:telemetry_poller, "~> 1.0"},
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
+
       # Time string parsing: github.com/bitwalker/timex
       {:timex, "~> 3.7"},
 
-      # Check/get Environment Variables: https://github.com/dwyl/envar
-      {:envar, "~> 1.0.8"},
+      # Check/get Environment Variables: github.com/dwyl/envar
+      {:envar, "~> 1.1.0"},
+
       # Auth with ONE Environment Variable™: github.com/dwyl/auth_plug
-      {:auth_plug, "~> 1.4.14"},
+      {:auth_plug, "~> 1.5.1"},
+
       # Easily Encrypt Senstive Data: github.com/dwyl/fields
-      {:fields, "~> 2.9.1"},
+      {:fields, "~> 2.10.3"},
+
       # Useful functions: github.com/dwyl/useful
       {:useful, "~> 1.0.8", override: true},
-      # https://github.com/dwyl/useful/issues/17
+
+      # See: github.com/dwyl/useful/issues/17
       {:atomic_map, "~> 0.9.3"},
+
       # Statuses: github.com/dwyl/statuses
       {:statuses, "~> 1.1.1"},
 
       # create docs on localhost by running "mix docs"
       {:ex_doc, "~> 0.29", only: :dev, runtime: false},
+
       # Track test coverage
       {:excoveralls, "~> 0.15", only: [:test, :dev]},
+
       # git pre-commit hook runs tests before allowing commits
       {:pre_commit, "~> 0.3.4"},
+
+
       {:credo, "~> 1.6.4", only: [:dev, :test], runtime: false},
 
       # Ref: github.com/dwyl/learn-tailwind
