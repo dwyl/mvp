@@ -9,6 +9,31 @@ env:
   FLY_ORG: dwyl-mvp
 
 jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        otp: ['24.3.4']
+        elixir: ['1.14.1']
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Elixir
+      uses: erlef/setup-beam@v1
+      with:
+        otp-version: ${{ matrix.otp }}
+        elixir-version: ${{ matrix.elixir }} 
+    - name: Restore deps and _build cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          deps
+          _build
+        key: deps-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles('**/mix.lock') }}
+        restore-keys: |
+          deps-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}
+    - name: Install dependencies
+      run: mix deps.get
   staging_app:
     runs-on: ubuntu-latest
 
@@ -29,4 +54,4 @@ jobs:
         id: deploy
         uses: superfly/fly-pr-review-apps@1.0.0
         with:
-          postgres: mvp-postgres-staging-apps
+          postgres: mvp-db
