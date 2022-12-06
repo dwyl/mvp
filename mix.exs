@@ -60,7 +60,7 @@ defmodule App.MixProject do
       {:timex, "~> 3.7"},
 
       # Check/get Environment Variables: github.com/dwyl/envar
-      {:envar, "~> 1.1.0"},
+      {:envar, "~> 1.1.0", override: true},
 
       # Auth with ONE Environment Variable™: github.com/dwyl/auth_plug
       {:auth_plug, "~> 1.5.1"},
@@ -69,7 +69,7 @@ defmodule App.MixProject do
       {:fields, "~> 2.10.3"},
 
       # Useful functions: github.com/dwyl/useful
-      {:useful, "~> 1.0.8", override: true},
+      {:useful, "~> 1.0.8"},
 
       # See: github.com/dwyl/useful/issues/17
       {:atomic_map, "~> 0.9.3"},
@@ -85,8 +85,6 @@ defmodule App.MixProject do
 
       # git pre-commit hook runs tests before allowing commits
       {:pre_commit, "~> 0.3.4"},
-
-
       {:credo, "~> 1.6.4", only: [:dev, :test], runtime: false},
 
       # Ref: github.com/dwyl/learn-tailwind
