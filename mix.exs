@@ -58,13 +58,13 @@ defmodule App.MixProject do
       {:timex, "~> 3.7"},
 
       # Check/get Environment Variables: https://github.com/dwyl/envar
-      {:envar, "~> 1.0.8"},
+      {:envar, "~> 1.1", override: true},
       # Auth with ONE Environment Variable™: github.com/dwyl/auth_plug
-      {:auth_plug, "~> 1.4.14"},
+      {:auth_plug, "~> 1.5.1"},
       # Easily Encrypt Senstive Data: github.com/dwyl/fields
-      {:fields, "~> 2.9.1"},
+      {:fields, "~> 2.10"},
       # Useful functions: github.com/dwyl/useful
-      {:useful, "~> 1.0.8", override: true},
+      {:useful, "~> 1.0.8"},
       # https://github.com/dwyl/useful/issues/17
       {:atomic_map, "~> 0.9.3"},
       # Statuses: github.com/dwyl/statuses
