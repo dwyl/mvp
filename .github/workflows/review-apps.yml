@@ -7,7 +7,7 @@ env:
 jobs:
   review_app:
     name: Review App Job
-    runs_on: ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3

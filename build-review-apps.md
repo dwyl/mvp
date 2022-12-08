@@ -35,7 +35,7 @@ env:
 jobs:
   review_app:
     name: Review App Job
-    runs_on: ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -65,14 +65,13 @@ env:
   FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 ```
 
-
 - Start a new `job` with a runner based on the latest ubuntu:
 
 ```yml
 jobs:
   review_app:
     name: Review App Job
-    runs_on: ubuntu-latest
+    runs-on: ubuntu-latest
 ```
 
 - Finally define the steps of the job.
@@ -115,4 +114,12 @@ refs:
 - [Using jobs in a workflow](https://docs.github.com/en/actions/using-jobs/using-jobs-in-a-workflow)
 
 # Create script
+
+This script take inspiration from: https://github.com/superfly/fly-pr-review-apps/blob/main/entrypoint.sh
+
+Create a new shell script:
+
+Make it executable:
+
+
 
