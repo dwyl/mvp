@@ -1,0 +1,17 @@
+name: Review App
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
+env:
+  FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+jobs:
+  review_app:
+    name: Review App Job
+    runs_on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Install flyctl
+        run: curl -L https://fly.io/install.sh | FLYCTL_INSTALL=/usr/local sh
+      - name: Run Review App Script
+        run: ./.github/scripts/review-apps.sh
