@@ -15,3 +15,6 @@ jobs:
         run: curl -L https://fly.io/install.sh | FLYCTL_INSTALL=/usr/local sh
       - name: Run Review App Script
         run: ./.github/scripts/review-apps.sh
+        env:
+          EVENT_NAME: ${{ toJSON(github) }}
+          EVENT_ACTION: ${{ github.event.action }}
