@@ -16,5 +16,11 @@ jobs:
       - name: Run Review App Script
         run: ./.github/scripts/review-apps.sh
         env:
-          EVENT_NAME: ${{ toJSON(github) }}
+          ENCRYPTION_KEYS: ${{ secrets. ENCRYPTION_KEYS }}
+          AUTH_API_KEY: ${{ secrets.AUTH_API_KEY }}
+          PR_NUMBER: ${{ github.event.number}}
           EVENT_ACTION: ${{ github.event.action }}
+          FLY_ORG: dwyl-mvp
+          FLY_REGION: lhr
+          FLY_POSTGRES_NAME: mvp-db
+
