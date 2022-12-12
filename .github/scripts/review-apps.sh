@@ -10,18 +10,23 @@ if [ "$EVENT_ACTION" = "closed" ]; then
   exit 0
 elif ! flyctl status --app "$app"; then
   # create application
+  echo "lauch application"
   flyctl launch --no-deploy --copy-config --name "$app" --region "$FLY_REGION" --org "$FLY_ORG" --remote-only
 
   # attach existing posgres
-  flyctl postgres attach "$FLY_POSTGRES_NAME" -a "$app"
+  echo "attach postgres cluster - create new database based on app_name"
+  flyctl postgres attach "$FLY_POSTGRES_NAME" -a "$app" -y || true
 
   # add secrets
+  echo "add AUTH_API_KEY and ENCRYPTION_KEYS envs"
   echo $secrets | tr " " "\n" | flyctl secrets import --app "$app"
 
   # deploy
+  echo "deploy application"
   flyctl deploy --app "$app" --region "$FLY_REGION" --strategy immediate --remote-only
 
 else
+  echo "deploy updated application"
   flyctl deploy --app "$app" --region "$FLY_REGION" --strategy immediate --remote-only
 fi
 
