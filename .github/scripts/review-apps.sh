@@ -10,18 +10,18 @@ if [ "$EVENT_ACTION" = "closed" ]; then
   exit 0
 elif ! flyctl status --app "$app"; then
   # create application
-  flyctl launch --no-deploy --copy-config --name "$app" --region "$FLY_REGION" --org "$FLY_ORG"
+  flyctl launch --no-deploy --copy-config --name "$app" --region "$FLY_REGION" --org "$FLY_ORG" --remote-only
 
   # attach existing posgres
-  flyctl postgres attach "$FLY_POSTGRES_NAME"
+  flyctl postgres attach "$FLY_POSTGRES_NAME" -a "$app"
 
   # add secrets
   echo $secrets | tr " " "\n" | flyctl secrets import --app "$app"
 
   # deploy
-  flyctl deploy --app "$app" --region "$FLY_REGION" --image --strategy immediate
+  flyctl deploy --app "$app" --region "$FLY_REGION" --strategy immediate --remote-only
 
 else
-  flyctl deploy --app "$app" --region "$FLY_REGION" --image --strategy immediate
+  flyctl deploy --app "$app" --region "$FLY_REGION" --strategy immediate --remote-only
 fi
 
