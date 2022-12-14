@@ -583,7 +583,7 @@ defmodule AppWeb.AppLiveTest do
         text: "Item1 to do",
         person_id: 0,
         status: 2,
-        tags: [tag1, tag2]
+        tags: [tag1.text, tag2.text]
       })
 
     {:ok, _item} =
@@ -591,7 +591,7 @@ defmodule AppWeb.AppLiveTest do
         text: "Item2 to do",
         person_id: 0,
         status: 2,
-        tags: [tag1, tag3]
+        tags: [tag1.text, tag3.text]
       })
 
     {:ok, view, _html} = live(conn, "/?filter_by=all")

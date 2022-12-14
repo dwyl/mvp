@@ -36,18 +36,27 @@ defmodule AppWeb.AppLive do
 
   @impl true
   def handle_event("validate", %{"text" => text}, socket) do
-    {:noreply, assign(socket, text_value: text)}
+    tags =
+      Regex.scan(~r/#(\w+)/, text)
+      |> Enum.map(fn t ->
+        tag = Enum.at(t, 1)
+        %Tag{text: tag, color: "#FCA5A5"}
+      end)
+      |> Enum.uniq_by(fn tag -> String.downcase(tag.text) end)
+
+    {:noreply, assign(socket, text_value: text, selected_tags: tags)}
   end
 
   @impl true
   def handle_event("create", %{"text" => text}, socket) do
     person_id = get_person_id(socket.assigns)
+    selected_tags_text = Enum.map(socket.assigns.selected_tags, & &1.text)
 
     Item.create_item_with_tags(%{
       text: text,
       person_id: person_id,
       status: 2,
-      tags: socket.assigns.selected_tags
+      tags: selected_tags_text
     })
 
     AppWeb.Endpoint.broadcast(@topic, "update", :create)

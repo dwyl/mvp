@@ -26,7 +26,7 @@ defmodule App.Item do
 
   def changeset_with_tags(item, attrs) do
     changeset(item, attrs)
-    |> put_assoc(:tags, attrs.tags)
+    |> put_assoc(:tags, Tag.create_tags(attrs.tags, attrs.person_id))
   end
 
   @doc """

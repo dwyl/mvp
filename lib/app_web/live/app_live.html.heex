@@ -16,6 +16,7 @@
         my-2"
       name="text"
       phx-change="validate"
+      phx-debounce="500"
       placeholder="What needs to be done?!!!"
       autofocus="true"
       required="required"
@@ -27,77 +28,11 @@
       x-init="resize"
       x-on:input="resize"
     ><%= @text_value %></textarea>
-    <!-- Select Input -->
-    <div
-      class="lg:w-1/2 "
-      x-data="{open: false}"
-      x-on:click.away="open = false"
-      x-on:keydown.escape="open = false"
-    >
-      <input
-        type="text"
-        name="tag"
-        class="w-full my-2"
-        x-on:focus="open = true"
-        phx-keyup="filter-tags"
-        phx-debounce="250"
-        autocomplete="off"
-        placeholder="tags"
-      />
-      <div
-        class="relative z-10 drop-shadow-lg w-auto"
-        x-show="open"
-        x-transition
-        x-cloak
-      >
-        <ul class="absolute border bg-white max-h-64 overflow-auto w-full">
-          <%= for tag <- @tags do %>
-            <li
-              class="border-b p-2 cursor-pointer hover:bg-slate-200"
-              phx-click="toggle_tag"
-              phx-value-tag_id={tag.id}
-            >
-              <div class="relative h-10">
-                <div class="inline-flex items-center w-3/4">
-                  <span
-                    class="w-5 h-5 bg-red-500 rounded-full mx-2 shrink-0"
-                    style={"background-color:#{tag.color}"}
-                  >
-                  </span>
-                  <span class="overflow-hidden text-ellipsis whitespace-nowrap">
-                    <%= tag.text %>
-                  </span>
-                </div>
-                <%= if Enum.member?(@selected_tags, tag) do %>
-                  <svg
-                    class="absolute font-bold w-4 top-0 bottom-0 m-auto right-0 text-green-500"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                <% end %>
-              </div>
-            </li>
-          <% end %>
-          <li class="border-b p-2 cursor-pointer hover:bg-slate-200">
-            <%= link("edit tags", to: "/tags", class: "block w-full text-center") %>
-          </li>
-        </ul>
-      </div>
-    </div>
-    <!-- End Select Input -->
-
     <!-- Display the selected tags -->
     <div class="">
       <%= for selected_tag <- @selected_tags do %>
         <span
-          class="text-white font-bold py-1 px-2 rounded-full ml-2"
+          class="text-white font-bold py-1 px-2 rounded-full ml-2 mt-2"
           style={"background-color:#{selected_tag.color}"}
         >
           <%= selected_tag.text %>
