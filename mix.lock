@@ -68,5 +68,5 @@
   "timex": {:hex, :timex, "3.7.9", "790cdfc4acfce434e442f98c02ea6d84d0239073bfd668968f82ac63e9a6788d", [:mix], [{:combine, "~> 0.10", [hex: :combine, repo: "hexpm", optional: false]}, {:gettext, "~> 0.10", [hex: :gettext, repo: "hexpm", optional: false]}, {:tzdata, "~> 1.1", [hex: :tzdata, repo: "hexpm", optional: false]}], "hexpm", "64691582e5bb87130f721fc709acfb70f24405833998fabf35be968984860ce1"},
   "tzdata": {:hex, :tzdata, "1.1.1", "20c8043476dfda8504952d00adac41c6eda23912278add38edc140ae0c5bcc46", [:mix], [{:hackney, "~> 1.17", [hex: :hackney, repo: "hexpm", optional: false]}], "hexpm", "a69cec8352eafcd2e198dea28a34113b60fdc6cb57eb5ad65c10292a6ba89787"},
   "unicode_util_compat": {:hex, :unicode_util_compat, "0.7.0", "bc84380c9ab48177092f43ac89e4dfa2c6d62b40b8bd132b1059ecc7232f9a78", [:rebar3], [], "hexpm", "25eee6d67df61960cf6a794239566599b09e17e668d3700247bc498638152521"},
-  "useful": {:hex, :useful, "1.0.8", "795a5bf94567e4a1b374621577acabc80ea80634b634095237f98e40e64e9d24", [:mix], [], "hexpm", "947ae0ba2b3c06bcfd8994e95e29f4cc13287aab81b481ae6abb9077fc9c1ad5"},
+  "useful": {:hex, :useful, "1.0.9", "f01699d8f6b3d05c846da4bf5d378741be37aebe8c45b33968ad8cce251a97ff", [:mix], [], "hexpm", "8fc2de40df9dd728c3b3fd8ddb55658e92118bd02c1eb2990c1edbcc70f8f977"},
 }
