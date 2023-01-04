@@ -2921,8 +2921,13 @@ in the same file.
     }
 
     case Timer.update_timer_inside_changeset_list( timer, index, timer_changeset_list) do
-      {:ok, _list} -> {:noreply, assign(socket, editing: nil, editing_timers: [])}
-      {:error, updated_errored_list} -> {:noreply, assign(socket, editing_timers: updated_errored_list)}
+      {:ok, _list} -> 
+      # Updates item list and broadcast to other users
+      AppWeb.Endpoint.broadcast(@topic, "update", :update)
+      {:noreply, assign(socket, editing: nil, editing_timers: [])}
+
+      {:error, updated_errored_list} -> 
+        {:noreply, assign(socket, editing_timers: updated_errored_list)}
     end
   end
 ```
