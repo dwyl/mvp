@@ -169,6 +169,33 @@ defmodule App.Item do
   end
 
   @doc """
+  `person_with_item_and_timer_count/0` returns a list of number of timers and items per person.
+  Used mainly for metric-tracking purposes.
+
+  ## Examples
+
+  iex> person_with_item_and_timer_count()
+  [
+    %{name: nil, num_items: 3, num_timers: 8, person_id: 0}
+    %{name: username, num_items: 1, num_timers: 3, person_id: 1}
+  ]
+  """
+  def person_with_item_and_timer_count() do
+    sql = """
+    select p.person_id, p.name, COUNT(distinct i.id) as "num_items", count(distinct t.id) as "num_timers"
+    from people p
+    left join items i on i.person_id = p.person_id
+    left join timers t on t.item_id = i.id
+    group by p.person_id, p.name
+    order by person_id
+    """
+
+    Ecto.Adapters.SQL.query!(Repo, sql)
+    |> map_columns_to_values()
+
+  end
+
+  @doc """
   `map_columns_to_values/1` takes an Ecto SQL query result
   which has the List of columns and rows separate
   and returns a List of Maps where the keys are the column names and values the data.

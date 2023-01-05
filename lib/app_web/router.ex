@@ -30,9 +30,13 @@ defmodule AppWeb.Router do
 
     pipe_through [:check_profile_name]
     live "/", AppLive
+
     resources "/tags", TagController, except: [:show]
+
     get "/login", AuthController, :login
     get "/logout", AuthController, :logout
+
+    live "/stats", StatsLive
   end
 
   # assign to conn the loggedin value used in templates
