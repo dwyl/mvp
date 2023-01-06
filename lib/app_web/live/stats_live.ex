@@ -7,14 +7,13 @@ defmodule AppWeb.StatsLive do
   # run authentication on mount
   on_mount(AppWeb.AuthController)
 
-  @topic "live"
-
+  @stats_topic "stats"
 
   @impl true
   def mount(_params, _session, socket) do
 
     # subscribe to the channel
-    if connected?(socket), do: AppWeb.Endpoint.subscribe(@topic)
+    if connected?(socket), do: AppWeb.Endpoint.subscribe(@stats_topic)
 
     metrics = Item.person_with_item_and_timer_count()
 
@@ -24,8 +23,29 @@ defmodule AppWeb.StatsLive do
      )}
   end
 
-  def handle_info(%Broadcast{event: "update", payload: payload}, socket) do
-    dbg("cuh")
-    {:noreply, socket}
+  @impl true
+  def handle_info(%Broadcast{topic: @stats_topic, event: "item", payload: payload}, socket) do
+
+    metrics = socket.assigns.metrics
+
+    case payload do
+      {:create, payload: payload} ->
+        dbg(metrics)
+
+        updated_metrics =
+          Enum.map(metrics, fn row ->
+            if row.person_id == payload.person_id do
+              Map.put(row, :num_items, row.num_items + 1)
+            else
+              row
+            end
+          end)
+
+        dbg(updated_metrics)
+
+        {:noreply, assign(socket, metrics: updated_metrics)}
+      _ ->
+        {:noreply, socket}
+    end
   end
 end
