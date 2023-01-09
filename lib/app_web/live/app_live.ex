@@ -15,9 +15,8 @@ defmodule AppWeb.AppLive do
   @impl true
   def mount(_params, _session, socket) do
     # subscribe to the channel
-    if connected?(socket), do:
-      AppWeb.Endpoint.subscribe(@topic)
-      AppWeb.Endpoint.subscribe(@stats_topic)
+    if connected?(socket), do: AppWeb.Endpoint.subscribe(@topic)
+    AppWeb.Endpoint.subscribe(@stats_topic)
 
     person_id = get_person_id(socket.assigns)
     items = Item.items_with_timers(person_id)
@@ -54,7 +53,13 @@ defmodule AppWeb.AppLive do
     })
 
     AppWeb.Endpoint.broadcast(@topic, "update", :create)
-    AppWeb.Endpoint.broadcast(@stats_topic, "item", {:create, payload: %{person_id: person_id}})
+
+    AppWeb.Endpoint.broadcast(
+      @stats_topic,
+      "item",
+      {:create, payload: %{person_id: person_id}}
+    )
+
     {:noreply, assign(socket, text_value: "", selected_tags: [])}
   end
 
@@ -123,7 +128,13 @@ defmodule AppWeb.AppLive do
       })
 
     AppWeb.Endpoint.broadcast(@topic, "update", {:start, item.id})
-    AppWeb.Endpoint.broadcast(@stats_topic, "timer", {:create, payload: %{person_id: person_id}})
+
+    AppWeb.Endpoint.broadcast(
+      @stats_topic,
+      "timer",
+      {:create, payload: %{person_id: person_id}}
+    )
+
     {:noreply, socket}
   end
 
@@ -238,7 +249,10 @@ defmodule AppWeb.AppLive do
   end
 
   @impl true
-  def handle_info(%Broadcast{topic: @stats_topic, event: _event, payload: _payload}, socket) do
+  def handle_info(
+        %Broadcast{topic: @stats_topic, event: _event, payload: _payload},
+        socket
+      ) do
     {:noreply, socket}
   end
 

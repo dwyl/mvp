@@ -31,8 +31,10 @@ defmodule AppWeb.StatsLiveTest do
     {:ok, _timer} = Timer.start(%{item_id: item.id, start: started})
 
     assert render(page_live) =~ "User metrics"
-    assert render(page_live) =~ "2"   # num of items
-    assert render(page_live) =~ "1"   # num of timers
+    # num of items
+    assert render(page_live) =~ "2"
+    # num of timers
+    assert render(page_live) =~ "1"
   end
 
   test "handle broadcast when item is created", %{conn: conn} do
@@ -43,16 +45,28 @@ defmodule AppWeb.StatsLiveTest do
     {:ok, page_live, _html} = live(conn, "/stats")
 
     assert render(page_live) =~ "User metrics"
-    assert render(page_live) =~ "1"   # num of items
-
+    # num of items
+    assert render(page_live) =~ "1"
 
     # Creating another item.
-    AppWeb.Endpoint.broadcast("stats", "item", {:create, payload: %{person_id: @person_id}})
-    assert render(page_live) =~ "2"   # num of items
+    AppWeb.Endpoint.broadcast(
+      "stats",
+      "item",
+      {:create, payload: %{person_id: @person_id}}
+    )
+
+    # num of items
+    assert render(page_live) =~ "2"
 
     # Broadcasting update. Shouldn't effect anything in the page
-    AppWeb.Endpoint.broadcast("stats", "item", {:update, payload: %{person_id: @person_id}})
-    assert render(page_live) =~ "2"   # num of items
+    AppWeb.Endpoint.broadcast(
+      "stats",
+      "item",
+      {:update, payload: %{person_id: @person_id}}
+    )
+
+    # num of items
+    assert render(page_live) =~ "2"
   end
 
   test "handle broadcast when timer is created", %{conn: conn} do
@@ -63,19 +77,34 @@ defmodule AppWeb.StatsLiveTest do
     {:ok, page_live, _html} = live(conn, "/stats")
 
     assert render(page_live) =~ "User metrics"
-    assert render(page_live) =~ "0"   # num of timers
+    # num of timers
+    assert render(page_live) =~ "0"
 
     # Creating a timer.
-    AppWeb.Endpoint.broadcast("stats", "timer", {:create, payload: %{person_id: @person_id}})
-    assert render(page_live) =~ "1"   # num of timers
+    AppWeb.Endpoint.broadcast(
+      "stats",
+      "timer",
+      {:create, payload: %{person_id: @person_id}}
+    )
+
+    # num of timers
+    assert render(page_live) =~ "1"
 
     # Broadcasting update. Shouldn't effect anything in the page
-    AppWeb.Endpoint.broadcast("stats", "timer", {:update, payload: %{person_id: @person_id}})
-    assert render(page_live) =~ "1"   # num of timers
+    AppWeb.Endpoint.broadcast(
+      "stats",
+      "timer",
+      {:update, payload: %{person_id: @person_id}}
+    )
+
+    # num of timers
+    assert render(page_live) =~ "1"
   end
 
   defp create_person(_) do
-    person = Person.create_person(%{"person_id" => @person_id, "name" => "guest"})
+    person =
+      Person.create_person(%{"person_id" => @person_id, "name" => "guest"})
+
     %{person: person}
   end
 end

@@ -192,7 +192,6 @@ defmodule App.Item do
 
     Ecto.Adapters.SQL.query!(Repo, sql)
     |> map_columns_to_values()
-
   end
 
   @doc """

@@ -192,7 +192,11 @@ defmodule App.ItemTest do
       })
 
     {:ok, _timer2} =
-      Timer.start(%{item_id: item2.id, person_id: item2.person_id, start: started})
+      Timer.start(%{
+        item_id: item2.id,
+        person_id: item2.person_id,
+        start: started
+      })
 
     # list person with number of timers and items
     person_with_items_timers = Item.person_with_item_and_timer_count()
