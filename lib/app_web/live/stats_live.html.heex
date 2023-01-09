@@ -1,43 +1,43 @@
 <main class="font-sans container mx-auto">
-<div class="relative overflow-x-auto mt-12">
-    <h1 class="mb-12 text-xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl dark:text-white">
-        User metrics
-    </h1>
-    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-            <tr>
-                <th scope="col" class="px-6 py-3">
-                    Username
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    Id
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    Number of items
-                </th>
-                <th scope="col" class="px-6 py-3">
-                    Number of timers
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-        <%= for metric <- @metrics do %>
-            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                    <%= metric.name %>
-                </th>
-                <td class="px-6 py-4">
-                    <%= metric.person_id %>
-                </td>
-                <td class="px-6 py-4">
-                    <%= metric.num_items %>
-                </td>
-                <td class="px-6 py-4">
-                    <%= metric.num_timers %>
-                </td>
-            </tr>
-        <% end %>
-        </tbody>
-    </table>
-</div>
+    <div class="relative overflow-x-auto mt-12">
+        <h1 class="mb-12 text-xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl dark:text-white">
+            User metrics
+        </h1>
+        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                <tr>
+                    <th scope="col" class="px-6 py-3">
+                        Username
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Id
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Number of items
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Number of timers
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+            <%= for metric <- @metrics do %>
+                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        <%= metric.name %>
+                    </th>
+                    <td class="px-6 py-4">
+                        <%= metric.person_id %>
+                    </td>
+                    <td class="px-6 py-4">
+                        <%= metric.num_items %>
+                    </td>
+                    <td class="px-6 py-4">
+                        <%= metric.num_timers %>
+                    </td>
+                </tr>
+            <% end %>
+            </tbody>
+        </table>
+    </div>
 </main>

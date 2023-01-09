@@ -96,9 +96,15 @@ With that in place, let's get building!
   - [12.2 Persisting update in database](#122-persisting-update-in-database)
   - [12.3 Showing timers in UI](#123-showing-timers-in-ui)
   - [12.4 Updating the tests and going back to 100% coverage](#124-updating-the-tests-and-going-back-to-100-coverage)
-- [13. Run the _Finished_ MVP App!](#13-run-the-finished-mvp-app)
-  - [13.1 Run the Tests](#131-run-the-tests)
-  - [13.2 Run The App](#132-run-the-app)
+- [13. Adding a dashboard to track metrics](#13-adding-a-dashboard-to-track-metrics)
+  - [13.1 Adding new liveview page in `/stats`](#131-adding-new-liveview-page-in-stats)
+  - [13.2 Fetching counter of timers and items for each person](#132-fetching-counter-of-timers-and-items-for-each-person)
+  - [13.3 Building the page](#133-building-the-page)
+  - [13.4 Broadcasting to `stats` channel](#134-broadcasting-to-stats-channel)
+  - [13.5 Adding tests](#135-adding-tests)
+- [14. Run the _Finished_ MVP App!](#14-run-the-finished-mvp-app)
+  - [14.1 Run the Tests](#141-run-the-tests)
+  - [14.2 Run The App](#142-run-the-app)
 - [Thanks!](#thanks)
 
 
@@ -3927,11 +3933,466 @@ test "handle_info/2 update with editing open (start)", %{conn: conn} do
   end
 ```
 
-# 13. Run the _Finished_ MVP App!
+# 13. Adding a dashboard to track metrics
+
+Having a page to track metrics 
+regarding app usage is important two-fold:
+- if you are a **developer**, 
+it's crucial to know if and how the app is being used,
+to better implement features in the future.
+- if you are a **user**, 
+you want to view aggregate stats of how many 
+`items` and `timers` you created
+so you know how to improve your personal effectiveness.
+
+Let's create a simple `/stats` dashboard
+to display the number of `items` and `timers` each `person` has created
+in a simple table.
+
+Let's roll!
+
+## 13.1 Adding new liveview page in `/stats`
+
+Let's open `lib/app_web/router.ex` 
+and add the new route inside the `"/"` scope.
+
+```elixir
+    ...
+
+    get "/login", AuthController, :login
+    get "/logout", AuthController, :logout
+
+    live "/stats", StatsLive
+```
+
+Now let's create the `StatsLive` file
+inside `lib/app_web/live/stats_live.ex`, 
+alongside `lib/app_web/live/stats_live.html.heex`.
+
+Inside `stats_live.ex`,
+paste the following code.
+
+```elixir
+defmodule AppWeb.StatsLive do
+  require Logger
+  use AppWeb, :live_view
+  alias App.Item
+  alias Phoenix.Socket.Broadcast
+
+  # run authentication on mount
+  on_mount(AppWeb.AuthController)
+
+  @stats_topic "stats"
+
+  @impl true
+  def mount(_params, _session, socket) do
+
+    # subscribe to the channel
+    if connected?(socket), do: AppWeb.Endpoint.subscribe(@stats_topic)
+
+    metrics = Item.person_with_item_and_timer_count()
+
+    {:ok,
+     assign(socket,
+       metrics: metrics
+     )}
+  end
+
+  @impl true
+  def handle_info(%Broadcast{topic: @stats_topic, event: "item", payload: payload}, socket) do
+
+    metrics = socket.assigns.metrics
+
+    case payload do
+      {:create, payload: payload} ->
+
+
+        updated_metrics =
+          Enum.map(metrics, fn row ->
+            if row.person_id == payload.person_id do
+              Map.put(row, :num_items, row.num_items + 1)
+            else
+              row
+            end
+          end)
+
+        {:noreply, assign(socket, metrics: updated_metrics)}
+      _ ->
+        {:noreply, socket}
+    end
+  end
+
+  @impl true
+  def handle_info(%Broadcast{topic: @stats_topic, event: "timer", payload: payload}, socket) do
+
+    metrics = socket.assigns.metrics
+    case payload do
+      {:create, payload: payload} ->
+
+        updated_metrics =
+          Enum.map(metrics, fn row ->
+            if row.person_id == payload.person_id do
+              Map.put(row, :num_timers, row.num_timers + 1)
+            else
+              row
+            end
+          end)
+
+        {:noreply, assign(socket, metrics: updated_metrics)}
+      _ ->
+        {:noreply, socket}
+    end
+  end
+end
+```
+
+Let's break this down.
+On `mount`, we are retrieving 
+an array containing the number of items and timers of each person (`id` and `name`).
+We are calling `Item.person_with_item_and_timer_count()` for this
+(we will implement this right after this, don't worry!).
+
+This liveview is subscribed to a channel called `stats`,
+and has two handlers which increment the number of timers or items 
+in real-time whenever a user is created.
+For this to actually work, 
+we need to broadcast to this channel. 
+
+We will do this shortly!
+But first, let's implement `Item.person_with_item_and_timer_count()`.
+
+## 13.2 Fetching counter of timers and items for each person
+
+In `lib/app/item.ex`,
+add the following function.
+
+```elixir
+  def person_with_item_and_timer_count() do
+    sql = """
+    select p.person_id, p.name, COUNT(distinct i.id) as "num_items", count(distinct t.id) as "num_timers"
+    from people p
+    left join items i on i.person_id = p.person_id
+    left join timers t on t.item_id = i.id
+    group by p.person_id, p.name
+    order by person_id
+    """
+
+    Ecto.Adapters.SQL.query!(Repo, sql)
+    |> map_columns_to_values()
+
+  end
+```
+
+We are simply executing an SQL query expression
+and retrieving it.
+This function should yield a list of objects 
+containing `person_id`, `name`, `num_items` and `num_timers`.
+
+```elixir
+  [
+    %{name: nil, num_items: 3, num_timers: 8, person_id: 0}
+    %{name: username, num_items: 1, num_timers: 3, person_id: 1}
+  ]
+```
+
+## 13.3 Building the page
+
+We've created `lib/app_web/live/stats_live.html.heex`
+but haven't implemented anything.
+Let's fix that now.
+
+Add this code to the file.
+
+```html
+<main class="font-sans container mx-auto">
+    <div class="relative overflow-x-auto mt-12">
+        <h1 class="mb-12 text-xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl dark:text-white">
+            User metrics
+        </h1>
+        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                <tr>
+                    <th scope="col" class="px-6 py-3">
+                        Username
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Id
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Number of items
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Number of timers
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+            <%= for metric <- @metrics do %>
+                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                        <%= metric.name %>
+                    </th>
+                    <td class="px-6 py-4">
+                        <%= metric.person_id %>
+                    </td>
+                    <td class="px-6 py-4">
+                        <%= metric.num_items %>
+                    </td>
+                    <td class="px-6 py-4">
+                        <%= metric.num_timers %>
+                    </td>
+                </tr>
+            <% end %>
+            </tbody>
+        </table>
+    </div>
+</main>
+```
+
+We are simply creating a table with four columns,
+one for `person_id`, person `name`, number of `items` and number of `timers`.
+We are acessing the `@metrics` array 
+that is fetched and assigned on `mount/3` inside `stats_live.ex`.
+
+## 13.4 Broadcasting to `stats` channel
+
+The only thing that is left to implement 
+is broadcasting events from `lib/app_web/live/app_live.ex`
+so `stats_live.ex` handles them and updates `stats_live.html.heex` accordingly.
+
+In `lib/app_web/live/app_live.ex`,
+let's create a new constant value 
+for the `stats` channel.
+
+```elixir
+  @topic "live"
+  @stats_topic "stats" # add this
+```
+
+Whenever an `item` or `timer` is created,
+an event is going to be broadcasted to this channel.
+
+Let's subscribe to the `stats` channel on mount,
+similarly to what happens with `live`.
+In `mount/3`,
+subscribe to the `stats` channel
+like we are doing to the `live` one.
+
+```elixir
+    if connected?(socket), do:
+      AppWeb.Endpoint.subscribe(@topic)
+      AppWeb.Endpoint.subscribe(@stats_topic)
+```
+
+Now, in the 
+`handle_event("create", %{"text" => text}, socket)` function,
+broadcast an event to the `stats` channel
+whenever an `item` is created.
+
+```elixir
+def handle_event("create", %{"text" => text}, socket) do
+  person_id = get_person_id(socket.assigns)
+
+  Item.create_item_with_tags(%{
+    text: text,
+    person_id: person_id,
+    status: 2,
+    tags: socket.assigns.selected_tags
+  })
+
+  AppWeb.Endpoint.broadcast(@topic, "update", :create)
+  AppWeb.Endpoint.broadcast(@stats_topic, "item", {:create, payload: %{person_id: person_id}}) # add this
+  {:noreply, assign(socket, text_value: "", selected_tags: [])}
+end
+```
+
+Similarly, do the same for `timers`.
+
+```elixir
+  def handle_event("start", data, socket) do
+    item = Item.get_item!(Map.get(data, "id"))
+    person_id = get_person_id(socket.assigns)
+
+    {:ok, _timer} =
+      Timer.start(%{
+        item_id: item.id,
+        person_id: person_id,
+        start: NaiveDateTime.utc_now()
+      })
+
+    AppWeb.Endpoint.broadcast(@topic, "update", {:start, item.id})
+    AppWeb.Endpoint.broadcast(@stats_topic, "timer", {:create, payload: %{person_id: person_id}}) # add this
+    {:noreply, socket}
+  end
+```
+
+In the same file,
+`app_live.ex` also needs to have a handler
+of these new event broadcasts,
+or else an error is thrown.
+
+```sh
+no function clause matching in AppWeb.AppLive.handle_info/2
+```
+
+`app_live.ex` doesn't really care about these events,
+so we do nothing with them.
+Add the following function for this.
+
+```elixir
+  @impl true
+  def handle_info(%Broadcast{topic: @stats_topic, event: _event, payload: _payload}, socket) do
+    {:noreply, socket}
+  end
+
+```
+
+## 13.5 Adding tests
+
+Let's add the tests to cover the use case
+we just created.
+
+Firstly, let's create a file
+in `test/app_web/live/stats_live_test.exs`
+and add the following code to it.
+
+```elixir
+defmodule AppWeb.StatsLiveTest do
+  use AppWeb.ConnCase
+  alias App.{Item, Person, Timer, Tag}
+  import Phoenix.LiveViewTest
+  alias Phoenix.Socket.Broadcast
+
+  @person_id 55
+
+  setup [:create_person]
+
+  test "disconnected and connected render", %{conn: conn} do
+    {:ok, page_live, disconnected_html} = live(conn, "/stats")
+    assert disconnected_html =~ "User metrics"
+    assert render(page_live) =~ "User metrics"
+  end
+
+  test "display metrics on mount", %{conn: conn} do
+    {:ok, page_live, _html} = live(conn, "/stats")
+
+    # Creating two items
+    {:ok, item} =
+      Item.create_item(%{text: "Learn Elixir", status: 2, person_id: @person_id})
+
+    {:ok, _item2} =
+      Item.create_item(%{text: "Learn Elixir", status: 4, person_id: @person_id})
+
+    assert item.status == 2
+
+    # Creating one timer
+    started = NaiveDateTime.utc_now()
+    {:ok, _timer} = Timer.start(%{item_id: item.id, start: started})
+
+    assert render(page_live) =~ "User metrics"
+    assert render(page_live) =~ "2"   # num of items
+    assert render(page_live) =~ "1"   # num of timers
+  end
+
+  test "handle broadcast when item is created", %{conn: conn} do
+    # Creating an item
+    {:ok, item} =
+      Item.create_item(%{text: "Learn Elixir", status: 2, person_id: @person_id})
+
+    {:ok, page_live, _html} = live(conn, "/stats")
+
+    assert render(page_live) =~ "User metrics"
+    assert render(page_live) =~ "1"   # num of items
+
+
+    # Creating another item.
+    AppWeb.Endpoint.broadcast("stats", "item", {:create, payload: %{person_id: @person_id}})
+    assert render(page_live) =~ "2"   # num of items
+
+    # Broadcasting update. Shouldn't effect anything in the page
+    AppWeb.Endpoint.broadcast("stats", "item", {:update, payload: %{person_id: @person_id}})
+    assert render(page_live) =~ "2"   # num of items
+  end
+
+  test "handle broadcast when timer is created", %{conn: conn} do
+    # Creating an item
+    {:ok, item} =
+      Item.create_item(%{text: "Learn Elixir", status: 2, person_id: @person_id})
+
+    {:ok, page_live, _html} = live(conn, "/stats")
+
+    assert render(page_live) =~ "User metrics"
+    assert render(page_live) =~ "0"   # num of timers
+
+    # Creating a timer.
+    AppWeb.Endpoint.broadcast("stats", "timer", {:create, payload: %{person_id: @person_id}})
+    assert render(page_live) =~ "1"   # num of timers
+
+    # Broadcasting update. Shouldn't effect anything in the page
+    AppWeb.Endpoint.broadcast("stats", "timer", {:update, payload: %{person_id: @person_id}})
+    assert render(page_live) =~ "1"   # num of timers
+  end
+
+  defp create_person(_) do
+    person = Person.create_person(%{"person_id" => @person_id, "name" => "guest"})
+    %{person: person}
+  end
+end
+```
+
+We've now covered the `stats_live.ex` file thoroughly.
+The *last* thing we need to do
+is to add a test for the `person_with_item_and_timer_count/0`
+function that was implemented inside `lib/app/item.ex`.
+
+Open `test/app/item_test.exs`
+and add this test.
+
+```elixir
+  test "Item.person_with_item_and_timer_count/0 returns a list of count of timers and items for each given person" do
+    {:ok, item1} = Item.create_item(@valid_attrs)
+    {:ok, item2} = Item.create_item(@valid_attrs)
+
+    started = NaiveDateTime.utc_now()
+
+    {:ok, timer1} =
+      Timer.start(%{
+        item_id: item1.id,
+        person_id: item1.person_id,
+        start: started,
+        stop: started
+      })
+
+    {:ok, _timer2} =
+      Timer.start(%{item_id: item2.id, person_id: item2.person_id, start: started})
+
+    # list person with number of timers and items
+    person_with_items_timers = Item.person_with_item_and_timer_count()
+
+    assert length(person_with_items_timers) == 1
+
+    first_element = Enum.at(person_with_items_timers, 0)
+
+    assert Map.get(first_element, :num_items) == 2
+    assert Map.get(first_element, :num_timers) == 2
+  end
+```
+
+
+And you're done!
+Awesome job! 🎉
+If you run `mix phx.server`,
+you should see `/stats` being updated **live** 
+when creating `timers` or `items`.
+
+![stats_final](https://user-images.githubusercontent.com/17494745/211345854-c541d21c-4289-4576-8fcf-c3b89251ed02.gif)
+
+
+# 14. Run the _Finished_ MVP App!
 
 With all the code saved, let's run the tests one more time.
 
-## 13.1 Run the Tests
+## 14.1 Run the Tests
 
 In your terminal window, run: 
 
@@ -3960,7 +4421,7 @@ COV    FILE                                        LINES RELEVANT   MISSED
 All tests pass and we have **`100%` Test Coverage**.
 This reminds us just how few _relevant_ lines of code there are in the MVP!
 
-## 13.2 Run The App
+## 14.2 Run The App
 
 In your second terminal tab/window, run:
 
