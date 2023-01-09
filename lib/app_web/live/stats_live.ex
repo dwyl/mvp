@@ -27,10 +27,8 @@ defmodule AppWeb.StatsLive do
   def handle_info(%Broadcast{topic: @stats_topic, event: "item", payload: payload}, socket) do
 
     metrics = socket.assigns.metrics
-
     case payload do
       {:create, payload: payload} ->
-        dbg(metrics)
 
         updated_metrics =
           Enum.map(metrics, fn row ->
@@ -41,7 +39,27 @@ defmodule AppWeb.StatsLive do
             end
           end)
 
-        dbg(updated_metrics)
+        {:noreply, assign(socket, metrics: updated_metrics)}
+      _ ->
+        {:noreply, socket}
+    end
+  end
+
+  @impl true
+  def handle_info(%Broadcast{topic: @stats_topic, event: "timer", payload: payload}, socket) do
+
+    metrics = socket.assigns.metrics
+    case payload do
+      {:create, payload: payload} ->
+
+        updated_metrics =
+          Enum.map(metrics, fn row ->
+            if row.person_id == payload.person_id do
+              Map.put(row, :num_timers, row.num_timers + 1)
+            else
+              row
+            end
+          end)
 
         {:noreply, assign(socket, metrics: updated_metrics)}
       _ ->

@@ -177,6 +177,34 @@ defmodule App.ItemTest do
     end
   end
 
+  test "Item.person_with_item_and_timer_count/0 returns a list of count of timers and items for each given person" do
+    {:ok, item1} = Item.create_item(@valid_attrs)
+    {:ok, item2} = Item.create_item(@valid_attrs)
+
+    started = NaiveDateTime.utc_now()
+
+    {:ok, timer1} =
+      Timer.start(%{
+        item_id: item1.id,
+        person_id: item1.person_id,
+        start: started,
+        stop: started
+      })
+
+    {:ok, _timer2} =
+      Timer.start(%{item_id: item2.id, person_id: item2.person_id, start: started})
+
+    # list person with number of timers and items
+    person_with_items_timers = Item.person_with_item_and_timer_count()
+
+    assert length(person_with_items_timers) == 1
+
+    first_element = Enum.at(person_with_items_timers, 0)
+
+    assert Map.get(first_element, :num_items) == 2
+    assert Map.get(first_element, :num_timers) == 2
+  end
+
   defp create_person(_) do
     person = Person.create_person(%{"person_id" => 1, "name" => "guest"})
     %{person: person}

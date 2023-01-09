@@ -123,6 +123,7 @@ defmodule AppWeb.AppLive do
       })
 
     AppWeb.Endpoint.broadcast(@topic, "update", {:start, item.id})
+    AppWeb.Endpoint.broadcast(@stats_topic, "timer", {:create, payload: %{person_id: person_id}})
     {:noreply, socket}
   end
 
