@@ -4406,7 +4406,7 @@ You should see output similar to the following:
 
 ```sh
 Finished in 0.7 seconds (0.1s async, 0.5s sync)
-31 tests, 0 failures
+85 tests, 0 failures
 
 ----------------
 COV    FILE                                        LINES RELEVANT   MISSED
