@@ -14,6 +14,7 @@ defmodule AppWeb.Router do
   scope "/", AppWeb do
     pipe_through :browser
     get "/init", InitController, :index
+    get "/login", AuthController, :login
   end
 
   pipeline :authOptional, do: plug(AuthPlugOptional)
@@ -21,7 +22,6 @@ defmodule AppWeb.Router do
   scope "/", AppWeb do
     pipe_through [:browser, :authOptional]
     live "/", AppLive
-    get "/login", AuthController, :login
     get "/logout", AuthController, :logout
     live "/stats", StatsLive
     resources "/tags", TagController, except: [:show]

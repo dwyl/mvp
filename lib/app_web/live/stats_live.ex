@@ -32,13 +32,7 @@ defmodule AppWeb.StatsLive do
     case payload do
       {:create, payload: payload} ->
         updated_metrics =
-          Enum.map(metrics, fn row ->
-            if row.person_id == payload.person_id do
-              Map.put(row, :num_items, row.num_items + 1)
-            else
-              row
-            end
-          end)
+          Enum.map(metrics, fn row -> add_row(row, payload) end)
 
         {:noreply, assign(socket, metrics: updated_metrics)}
 
@@ -57,19 +51,23 @@ defmodule AppWeb.StatsLive do
     case payload do
       {:create, payload: payload} ->
         updated_metrics =
-          Enum.map(metrics, fn row ->
-            if row.person_id == payload.person_id do
-              Map.put(row, :num_timers, row.num_timers + 1)
-            else
-              row
-            end
-          end)
+          Enum.map(metrics, fn row -> add_row(row, payload) end)
 
         {:noreply, assign(socket, metrics: updated_metrics)}
 
       _ ->
         {:noreply, socket}
     end
+  end
+
+  def add_row(row, payload) do
+    row = if row.person_id == payload.person_id do
+      Map.put(row, :num_timers, row.num_timers + 1)
+    else
+      row
+    end
+
+    row
   end
 
   def person_link(person_id) do

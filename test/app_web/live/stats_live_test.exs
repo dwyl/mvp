@@ -101,10 +101,16 @@ defmodule AppWeb.StatsLiveTest do
     assert render(page_live) =~ "1"
   end
 
-  # defp create_person(_) do
-  #   person =
-  #     Person.create_person(%{"person_id" => @person_id, "name" => "guest"})
+  test "add_row/2 adds 1 to row.num_timers" do
+    row = %{person_id: 1, num_timers: 1}
+    payload = %{person_id: 1}
 
-  #   %{person: person}
-  # end
+    # expect row.num_timers to be incremented by 1:
+    row_updated = AppWeb.StatsLive.add_row(row, payload)
+    assert row_updated == %{person_id: 1, num_timers: 2}
+
+    # no change expected:
+    row2 = %{person_id: 2, num_timers: 42}
+    assert row2 == AppWeb.StatsLive.add_row(row2, payload)
+  end
 end
