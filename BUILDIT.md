@@ -4082,6 +4082,9 @@ update it so it looks like the following:
   end
 ```
 
+e.g.
+[`lib/app_web/live/app_live.ex`](https://github.com/dwyl/mvp/blob/732f2518d792048a38449058a6d7efb088b3d26f/lib/app_web/live/app_live.ex#L66)
+
 We are now passing the `person_id` when toggling 
 (which is an updating operation) an item.
 
@@ -4151,9 +4154,9 @@ update the `@update_attrs` to the following:
 This will make sure the isolated tests pass successfuly.
 
 You can see the updated files in:
-- test/app/item_test.exs
-- test/app/timer_test.exs
-- test/app_web/live/app_live_test.exs
+- [test/app/item_test.exs](https://github.com/dwyl/mvp/blob/732f2518d792048a38449058a6d7efb088b3d26f/test/app/item_test.exs)
+- [test/app/timer_test.exs](https://github.com/dwyl/mvp/blob/d80c2148b2d19535143d6d9794391f6fb3f2421f/test/app/timer_test.exs)
+- [test/app_web/live/app_live_test.exs](https://github.com/dwyl/mvp/blob/d80c2148b2d19535143d6d9794391f6fb3f2421f/test/app_web/live/app_live_test.exs)
 
 ## 13.4 Checking the changes using `DBEaver`
 
