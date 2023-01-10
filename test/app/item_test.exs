@@ -15,7 +15,8 @@ defmodule App.ItemTest do
     end
 
     test "create_item/1 with valid data creates a item" do
-      assert {:ok, %{model: item, version: _version}} = Item.create_item(@valid_attrs)
+      assert {:ok, %{model: item, version: _version}} =
+               Item.create_item(@valid_attrs)
 
       assert item.text == "some text"
 
@@ -46,8 +47,11 @@ defmodule App.ItemTest do
     end
 
     test "list_items/0 returns a list of items stored in the DB" do
-      {:ok, %{model: _item1, version: _version}} = Item.create_item(@valid_attrs)
-      {:ok, %{model: _item2, version: _version}} = Item.create_item(@valid_attrs)
+      {:ok, %{model: _item1, version: _version}} =
+        Item.create_item(@valid_attrs)
+
+      {:ok, %{model: _item2, version: _version}} =
+        Item.create_item(@valid_attrs)
 
       assert Enum.count(Item.list_items()) == 2
     end
@@ -55,7 +59,9 @@ defmodule App.ItemTest do
     test "update_item/2 with valid data updates the item" do
       {:ok, %{model: item, version: _version}} = Item.create_item(@valid_attrs)
 
-      assert {:ok, %{model: item, version: _version}} = Item.update_item(item, @update_attrs)
+      assert {:ok, %{model: item, version: _version}} =
+               Item.update_item(item, @update_attrs)
+
       assert item.text == "some updated text"
     end
   end
@@ -69,7 +75,9 @@ defmodule App.ItemTest do
     }
 
     test "get_item!/1 returns the item with given id" do
-      {:ok, %{model: item, version: _version}} = Item.create_item_with_tags(@valid_attrs)
+      {:ok, %{model: item, version: _version}} =
+        Item.create_item_with_tags(@valid_attrs)
+
       assert length(item.tags) == 0
     end
   end
