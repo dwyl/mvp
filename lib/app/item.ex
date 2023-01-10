@@ -85,6 +85,11 @@ defmodule App.Item do
     |> Repo.preload(tags: from(t in Tag, order_by: t.text))
   end
 
+  def get_draft_item(person_id) do
+    Repo.get_by(Item, status: 7, person_id: person_id) ||
+      Repo.insert!(%Item{person_id: person_id, status: 7})
+  end
+
   @doc """
   Returns the list of items where the status is different to "deleted"
 

@@ -22,6 +22,7 @@ defmodule AppWeb.AppLive do
     items = Item.items_with_timers(person_id)
     tags = Tag.list_person_tags(person_id)
     selected_tags = []
+    draft_item = Item.get_draft_item(person_id)
 
     {:ok,
      assign(socket,
@@ -32,12 +33,16 @@ defmodule AppWeb.AppLive do
        filter_tag: nil,
        tags: tags,
        selected_tags: selected_tags,
-       text_value: ""
+       text_value: draft_item.text || ""
      )}
   end
 
   @impl true
   def handle_event("validate", %{"text" => text}, socket) do
+    person_id = get_person_id(socket.assigns)
+    draft = Item.get_draft_item(person_id)
+    Item.update_item(draft, %{text: text})
+    # only save draft if person id != 0 (ie not guest)
     {:noreply, assign(socket, text_value: text)}
   end
 
@@ -51,6 +56,9 @@ defmodule AppWeb.AppLive do
       status: 2,
       tags: socket.assigns.selected_tags
     })
+
+    draft = Item.get_draft_item(person_id)
+    Item.delete_item(draft.id)
 
     AppWeb.Endpoint.broadcast(@topic, "update", :create)
 
