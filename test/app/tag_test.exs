@@ -2,7 +2,7 @@ defmodule App.TagTest do
   use App.DataCase
   alias App.{Person, Tag}
 
-  setup [:create_person]
+  # setup [:create_person]
 
   describe "Test constraints and requirements for Tag schema" do
     test "valid tag changeset" do
@@ -57,8 +57,8 @@ defmodule App.TagTest do
     end
   end
 
-  defp create_person(_) do
-    person = Person.create_person(%{"person_id" => 1, "name" => "guest"})
-    %{person: person}
-  end
+  # defp create_person(_) do
+  #   person = Person.create_person(%{"person_id" => 1, "name" => "guest"})
+  #   %{person: person}
+  # end
 end

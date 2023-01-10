@@ -2,7 +2,7 @@ defmodule App.ItemTest do
   use App.DataCase
   alias App.{Item, Person, Timer}
 
-  setup [:create_person]
+  # setup [:create_person]
 
   describe "items" do
     @valid_attrs %{text: "some text", person_id: 1, status: 2}
@@ -209,8 +209,8 @@ defmodule App.ItemTest do
     assert Map.get(first_element, :num_timers) == 2
   end
 
-  defp create_person(_) do
-    person = Person.create_person(%{"person_id" => 1, "name" => "guest"})
-    %{person: person}
-  end
+  # defp create_person(_) do
+  #   person = Person.create_person(%{"person_id" => 1, "name" => "guest"})
+  #   %{person: person}
+  # end
 end

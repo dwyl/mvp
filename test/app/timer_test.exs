@@ -2,7 +2,7 @@ defmodule App.TimerTest do
   use App.DataCase
   alias App.{Item, Person, Timer}
 
-  setup [:create_person]
+  # setup [:create_person]
 
   describe "timers" do
     @valid_item_attrs %{text: "some text", person_id: 1}
@@ -94,8 +94,8 @@ defmodule App.TimerTest do
     end
   end
 
-  defp create_person(_) do
-    person = Person.create_person(%{"person_id" => 1, "name" => "guest"})
-    %{person: person}
-  end
+  # defp create_person(_) do
+  #   person = Person.create_person(%{"person_id" => 1, "name" => "guest"})
+  #   %{person: person}
+  # end
 end

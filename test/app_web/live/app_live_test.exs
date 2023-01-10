@@ -1,10 +1,10 @@
 defmodule AppWeb.AppLiveTest do
   use AppWeb.ConnCase
-  alias App.{Item, Person, Timer, Tag}
+  alias App.{Item, Timer, Tag}
   import Phoenix.LiveViewTest
   alias Phoenix.Socket.Broadcast
 
-  setup [:create_person]
+  # setup [:create_person]
 
   test "disconnected and connected render", %{conn: conn} do
     {:ok, page_live, disconnected_html} = live(conn, "/")
@@ -698,8 +698,8 @@ defmodule AppWeb.AppLiveTest do
     assert render_hook(view, "filter-tags", %{"key" => "t", "value" => "t"})
   end
 
-  defp create_person(_) do
-    person = Person.create_person(%{"person_id" => 0, "name" => "guest"})
-    %{person: person}
-  end
+  # defp create_person(_) do
+  #   person = Person.create_person(%{"person_id" => 0, "name" => "guest"})
+  #   %{person: person}
+  # end
 end

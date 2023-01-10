@@ -6,12 +6,12 @@ defmodule AppWeb.StatsLiveTest do
 
   @person_id 55
 
-  setup [:create_person]
+  # setup [:create_person]
 
   test "disconnected and connected render", %{conn: conn} do
     {:ok, page_live, disconnected_html} = live(conn, "/stats")
-    assert disconnected_html =~ "User metrics"
-    assert render(page_live) =~ "User metrics"
+    assert disconnected_html =~ "Stats"
+    assert render(page_live) =~ "Stats"
   end
 
   test "display metrics on mount", %{conn: conn} do
@@ -30,7 +30,7 @@ defmodule AppWeb.StatsLiveTest do
     started = NaiveDateTime.utc_now()
     {:ok, _timer} = Timer.start(%{item_id: item.id, start: started})
 
-    assert render(page_live) =~ "User metrics"
+    assert render(page_live) =~ "Stats"
     # num of items
     assert render(page_live) =~ "2"
     # num of timers
@@ -44,7 +44,7 @@ defmodule AppWeb.StatsLiveTest do
 
     {:ok, page_live, _html} = live(conn, "/stats")
 
-    assert render(page_live) =~ "User metrics"
+    assert render(page_live) =~ "Stats"
     # num of items
     assert render(page_live) =~ "1"
 
@@ -76,7 +76,7 @@ defmodule AppWeb.StatsLiveTest do
 
     {:ok, page_live, _html} = live(conn, "/stats")
 
-    assert render(page_live) =~ "User metrics"
+    assert render(page_live) =~ "Stats"
     # num of timers
     assert render(page_live) =~ "0"
 
@@ -101,10 +101,10 @@ defmodule AppWeb.StatsLiveTest do
     assert render(page_live) =~ "1"
   end
 
-  defp create_person(_) do
-    person =
-      Person.create_person(%{"person_id" => @person_id, "name" => "guest"})
+  # defp create_person(_) do
+  #   person =
+  #     Person.create_person(%{"person_id" => @person_id, "name" => "guest"})
 
-    %{person: person}
-  end
+  #   %{person: person}
+  # end
 end

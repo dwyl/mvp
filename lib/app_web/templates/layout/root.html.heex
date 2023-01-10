@@ -28,13 +28,11 @@
     <nav class="px-2 sm:px-4 py-2 bg-gray-900 w-full min-h-[12%]">
       <div class="container flex flex-wrap justify-between items-center mx-auto">
         <%= if @loggedin do %>
-          <a href={Routes.profile_path(@conn, :edit, @person.id)}>
-            <img
-              src={@person.picture}
-              class="mr-3 h-6 sm:h-9 rounded-full"
-              alt="avatar image"
-            />
-          </a>
+          <img
+            src={@person.picture}
+            class="mr-3 h-6 sm:h-9 rounded-full"
+            alt="avatar image"
+          />
         <% else %>
           <h1 class="text-white">Hi Friend!</h1>
         <% end %>
