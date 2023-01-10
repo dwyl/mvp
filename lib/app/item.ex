@@ -45,13 +45,13 @@ defmodule App.Item do
   def create_item(attrs) do
     %Item{}
     |> changeset(attrs)
-    |> PaperTrail.insert()
+    |> PaperTrail.insert(originator: %{id: attrs.person_id})
   end
 
   def create_item_with_tags(attrs) do
     %Item{}
     |> changeset_with_tags(attrs)
-    |> PaperTrail.insert()
+    |> PaperTrail.insert(originator: %{id: attrs.person_id})
   end
 
   @doc """
@@ -112,7 +112,7 @@ defmodule App.Item do
   def update_item(%Item{} = item, attrs) do
     item
     |> Item.changeset(attrs)
-    |> PaperTrail.update()
+    |> PaperTrail.update(originator: %{id: attrs.person_id})
   end
 
   @doc """
