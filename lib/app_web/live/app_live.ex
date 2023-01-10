@@ -41,7 +41,7 @@ defmodule AppWeb.AppLive do
   def handle_event("validate", %{"text" => text}, socket) do
     person_id = get_person_id(socket.assigns)
     draft = Item.get_draft_item(person_id)
-    Item.update_item(draft, %{text: text})
+    Item.update_draft(draft, %{text: text})
     # only save draft if person id != 0 (ie not guest)
     {:noreply, assign(socket, text_value: text)}
   end
@@ -58,7 +58,7 @@ defmodule AppWeb.AppLive do
     })
 
     draft = Item.get_draft_item(person_id)
-    Item.delete_item(draft.id)
+    Item.update_draft(draft, %{text: ""})
 
     AppWeb.Endpoint.broadcast(@topic, "update", :create)
 
