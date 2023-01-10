@@ -1,6 +1,6 @@
 defmodule App.TimerTest do
   use App.DataCase
-  alias App.{Item, Person, Timer}
+  alias App.{Item, Timer}
 
   # setup [:create_person]
 

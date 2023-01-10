@@ -1,6 +1,6 @@
 defmodule App.TagTest do
   use App.DataCase
-  alias App.{Person, Tag}
+  alias App.Tag
 
   # setup [:create_person]
 
@@ -54,6 +54,11 @@ defmodule App.TagTest do
     test "returns empty list when attempting to insert empty list of tags" do
       assert tags = Tag.create_tags([], 1)
       assert length(tags) == 0
+    end
+
+    test "delete tag" do
+      {:ok, tag} = Tag.create_tag(@valid_attrs)
+      assert {:ok, _etc} = Tag.delete_tag(tag)
     end
   end
 

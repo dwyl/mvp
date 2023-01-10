@@ -1,6 +1,6 @@
 defmodule App.ItemTest do
   use App.DataCase
-  alias App.{Item, Person, Timer}
+  alias App.{Item, Timer}
 
   # setup [:create_person]
 
@@ -183,7 +183,7 @@ defmodule App.ItemTest do
 
     started = NaiveDateTime.utc_now()
 
-    {:ok, timer1} =
+    {:ok, _timer1} =
       Timer.start(%{
         item_id: item1.id,
         person_id: item1.person_id,

@@ -1,8 +1,8 @@
 defmodule AppWeb.StatsLiveTest do
   use AppWeb.ConnCase
-  alias App.{Item, Person, Timer, Tag}
+  alias App.{Item, Timer}
   import Phoenix.LiveViewTest
-  alias Phoenix.Socket.Broadcast
+  # alias Phoenix.Socket.Broadcast
 
   @person_id 55
 
@@ -39,7 +39,7 @@ defmodule AppWeb.StatsLiveTest do
 
   test "handle broadcast when item is created", %{conn: conn} do
     # Creating an item
-    {:ok, item} =
+    {:ok, _item} =
       Item.create_item(%{text: "Learn Elixir", status: 2, person_id: @person_id})
 
     {:ok, page_live, _html} = live(conn, "/stats")
@@ -71,7 +71,7 @@ defmodule AppWeb.StatsLiveTest do
 
   test "handle broadcast when timer is created", %{conn: conn} do
     # Creating an item
-    {:ok, item} =
+    {:ok, _item} =
       Item.create_item(%{text: "Learn Elixir", status: 2, person_id: @person_id})
 
     {:ok, page_live, _html} = live(conn, "/stats")

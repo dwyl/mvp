@@ -21,7 +21,9 @@
         <%= for metric <- @metrics do %>
           <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
             <td class="px-6 py-4">
-              <a href={person_link(metric.person_id)}><%= metric.person_id %></a>
+              <a href={person_link(metric.person_id)}>
+                <%= metric.person_id %>
+              </a>
             </td>
             <td class="px-6 py-4 text-center">
               <%= metric.num_items %>
