@@ -23,10 +23,10 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "toggle an item", %{conn: conn} do
-    {:ok, item} =
+    {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Learn Elixir", status: 2, person_id: 0})
 
-    {:ok, _item2} =
+    {:ok, %{model: _item2, version: _version}} =
       Item.create_item(%{text: "Learn Elixir", status: 4, person_id: 0})
 
     assert item.status == 2
@@ -48,7 +48,7 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "(soft) delete an item", %{conn: conn} do
-    {:ok, item} =
+    {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
     assert item.status == 2
@@ -61,7 +61,7 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "start a timer", %{conn: conn} do
-    {:ok, item} =
+    {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Get Fancy!", person_id: 0, status: 2})
 
     assert item.status == 2
@@ -71,7 +71,7 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "stop a timer", %{conn: conn} do
-    {:ok, item} =
+    {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Get Fancy!", person_id: 0, status: 2})
 
     assert item.status == 2
@@ -87,7 +87,7 @@ defmodule AppWeb.AppLiveTest do
   test "handle_info/2 update", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
 
-    {:ok, item} =
+    {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
 
     send(view.pid, %Broadcast{
@@ -101,7 +101,7 @@ defmodule AppWeb.AppLiveTest do
   test "handle_info/2 update with editing open (start)", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
 
-    {:ok, item} =
+    {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
 
     {:ok, now} = NaiveDateTime.new(Date.utc_today(), Time.utc_now())
@@ -130,7 +130,7 @@ defmodule AppWeb.AppLiveTest do
   test "handle_info/2 update with editing open (stop)", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
 
-    {:ok, item} =
+    {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
 
     {:ok, seven_seconds_ago} =
@@ -157,7 +157,7 @@ defmodule AppWeb.AppLiveTest do
   test "handle_info/2 update with editing open (delete)", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
 
-    {:ok, item} =
+    {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
 
     render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
@@ -171,7 +171,7 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "edit-item", %{conn: conn} do
-    {:ok, item} =
+    {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
     {:ok, view, _html} = live(conn, "/")
@@ -181,7 +181,7 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "update an item", %{conn: conn} do
-    {:ok, item} =
+    {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
     {:ok, view, _html} = live(conn, "/")
@@ -201,7 +201,7 @@ defmodule AppWeb.AppLiveTest do
     start_datetime = ~N[2022-10-27 00:00:00]
     stop_datetime = ~N[2022-10-27 05:00:00]
 
-    {:ok, item} =
+    {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
     {:ok, seven_seconds_ago} =
@@ -273,7 +273,7 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "update timer timer with ongoing timer ", %{conn: conn} do
-    {:ok, item} =
+    {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
     {:ok, seven_seconds_ago} =
@@ -390,7 +390,7 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "timer overlap error when updating timer", %{conn: conn} do
-    {:ok, item} =
+    {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
     {:ok, seven_seconds_ago} =
@@ -457,7 +457,7 @@ defmodule AppWeb.AppLiveTest do
 
   test "timer overlap error when updating historical timer with ongoing timer",
        %{conn: conn} do
-    {:ok, item} =
+    {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
     {:ok, seven_seconds_ago} =
@@ -538,13 +538,13 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "filter items", %{conn: conn} do
-    {:ok, _item} =
+    {:ok, %{model: _item, version: _version}} =
       Item.create_item(%{text: "Item to do", person_id: 0, status: 2})
 
-    {:ok, _item_done} =
+    {:ok, %{model: _item_done, version: _version}} =
       Item.create_item(%{text: "Item done", person_id: 0, status: 4})
 
-    {:ok, _item_archived} =
+    {:ok, %{model: _item_archived, version: _version}} =
       Item.create_item(%{text: "Item archived", person_id: 0, status: 6})
 
     {:ok, view, _html} = live(conn, "/?filter_by=all")
@@ -578,7 +578,7 @@ defmodule AppWeb.AppLiveTest do
     {:ok, tag3} =
       Tag.create_tag(%{person_id: 0, text: "tag3", color: "#FCA5A5"})
 
-    {:ok, _item} =
+    {:ok, %{model: _item, version: _version}} =
       Item.create_item_with_tags(%{
         text: "Item1 to do",
         person_id: 0,
@@ -586,7 +586,7 @@ defmodule AppWeb.AppLiveTest do
         tags: [tag1, tag2]
       })
 
-    {:ok, _item} =
+    {:ok, %{model: _item, version: _version}} =
       Item.create_item_with_tags(%{
         text: "Item2 to do",
         person_id: 0,

@@ -2,6 +2,7 @@ defmodule App.Item do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
+  alias PaperTrail
   alias App.{Repo, Tag, ItemTag, Person, Timer}
   alias __MODULE__
   require Logger
@@ -44,13 +45,13 @@ defmodule App.Item do
   def create_item(attrs) do
     %Item{}
     |> changeset(attrs)
-    |> Repo.insert()
+    |> PaperTrail.insert()
   end
 
   def create_item_with_tags(attrs) do
     %Item{}
     |> changeset_with_tags(attrs)
-    |> Repo.insert()
+    |> PaperTrail.insert()
   end
 
   @doc """
@@ -111,7 +112,7 @@ defmodule App.Item do
   def update_item(%Item{} = item, attrs) do
     item
     |> Item.changeset(attrs)
-    |> Repo.update()
+    |> PaperTrail.update()
   end
 
   @doc """
