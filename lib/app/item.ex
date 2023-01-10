@@ -182,12 +182,14 @@ defmodule App.Item do
   """
   def person_with_item_and_timer_count() do
     sql = """
-    select p.person_id, p.name, COUNT(distinct i.id) as "num_items", count(distinct t.id) as "num_timers"
-    from people p
-    left join items i on i.person_id = p.person_id
-    left join timers t on t.item_id = i.id
-    group by p.person_id, p.name
-    order by person_id
+    SELECT p.person_id, p.name,
+    COUNT(distinct i.id) AS "num_items",
+    COUNT(distinct t.id) AS "num_timers"
+    FROM people p
+    LEFT JOIN items i ON i.person_id = p.person_id
+    LEFT JOIN timers t ON t.item_id = i.id
+    GROUP BY p.person_id, p.name
+    ORDER BY person_id
     """
 
     Ecto.Adapters.SQL.query!(Repo, sql)
