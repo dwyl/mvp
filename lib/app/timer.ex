@@ -3,7 +3,6 @@ defmodule App.Timer do
   import Ecto.Changeset
   alias App.Item
   import Ecto.Query
-  # import Ecto.Query
   alias App.Repo
   alias __MODULE__
   require Logger

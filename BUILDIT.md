@@ -94,12 +94,14 @@ With that in place, let's get building!
 - [12. Editing timers](#12-editing-timers)
   - [12.1 Parsing DateTime strings](#121-parsing-datetime-strings)
   - [12.2 Persisting update in database](#122-persisting-update-in-database)
-  - [12.3 Showing timers in UI](#123-showing-timers-in-ui)
-  - [12.4 Updating the tests and going back to 100% coverage](#124-updating-the-tests-and-going-back-to-100-coverage)
+  - [12.3 Adding event handler in `app_live.ex`](#123-adding-event-handler-in-app_liveex)
+  - [12.4 Updating timer changeset list on `timer.ex`](#124-updating-timer-changeset-list-on-timerex)
+  - [12.5 Updating the UI](#125-updating-the-ui)
+  - [12.6 Updating the tests and going back to 100% coverage](#126-updating-the-tests-and-going-back-to-100-coverage)
 - [13. Adding a dashboard to track metrics](#13-adding-a-dashboard-to-track-metrics)
-  - [13.1 Adding new liveview page in `/stats`](#131-adding-new-liveview-page-in-stats)
+  - [13.1 Adding new `LiveView` page in `/stats`](#131-adding-new-liveview-page-in-stats)
   - [13.2 Fetching counter of timers and items for each person](#132-fetching-counter-of-timers-and-items-for-each-person)
-  - [13.3 Building the page](#133-building-the-page)
+  - [13.3 Building the Stats Page](#133-building-the-stats-page)
   - [13.4 Broadcasting to `stats` channel](#134-broadcasting-to-stats-channel)
   - [13.5 Adding tests](#135-adding-tests)
 - [14. Run the _Finished_ MVP App!](#14-run-the-finished-mvp-app)
@@ -3032,7 +3034,7 @@ Now, everytime the `update` event is broadcasted,
 we update the timer list if the item is being edited.
 If not, we update the timer list, as normally.
 What this does is that every user will have the `socket.assigns`
-properly updated everytime a timer is edited.
+properly updated every time a timer is edited.
 
 
 ## 12.4 Updating timer changeset list on `timer.ex`
@@ -3467,6 +3469,7 @@ the form is passed on (the timer `id`,
 `timer_start` and `timer_stop`)
 
 ## 12.6 Updating the tests and going back to 100% coverage
+
 If we run `source .env_sample` and
 `MIX_ENV=test mix coveralls.html ; open cover/excoveralls.html`
 we will see how coverage dropped. 
@@ -3951,9 +3954,10 @@ in a simple table.
 
 Let's roll!
 
-## 13.1 Adding new liveview page in `/stats`
+## 13.1 Adding new `LiveView` page in `/stats`
 
-Let's open `lib/app_web/router.ex` 
+Open 
+`lib/app_web/router.ex` 
 and add the new route inside the `"/"` scope.
 
 ```elixir
@@ -3965,12 +3969,14 @@ and add the new route inside the `"/"` scope.
     live "/stats", StatsLive
 ```
 
-Now let's create the `StatsLive` file
-inside `lib/app_web/live/stats_live.ex`, 
-alongside `lib/app_web/live/stats_live.html.heex`.
+Now create the `StatsLive` file
+with the path:
+`lib/app_web/live/stats_live.ex`
+and template at:
+`lib/app_web/live/stats_live.html.heex`.
 
-Inside `stats_live.ex`,
-paste the following code.
+In `stats_live.ex`,
+paste the following code:
 
 ```elixir
 defmodule AppWeb.StatsLive do
@@ -4005,8 +4011,6 @@ defmodule AppWeb.StatsLive do
 
     case payload do
       {:create, payload: payload} ->
-
-
         updated_metrics =
           Enum.map(metrics, fn row ->
             if row.person_id == payload.person_id do
@@ -4089,13 +4093,13 @@ This function should yield a list of objects
 containing `person_id`, `name`, `num_items` and `num_timers`.
 
 ```elixir
-  [
-    %{name: nil, num_items: 3, num_timers: 8, person_id: 0}
-    %{name: username, num_items: 1, num_timers: 3, person_id: 1}
-  ]
+[
+  %{name: nil, num_items: 3, num_timers: 8, person_id: 0}
+  %{name: username, num_items: 1, num_timers: 3, person_id: 1}
+]
 ```
 
-## 13.3 Building the page
+## 13.3 Building the Stats Page
 
 We've created `lib/app_web/live/stats_live.html.heex`
 but haven't implemented anything.
@@ -4110,40 +4114,34 @@ Add this code to the file.
             User metrics
         </h1>
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                <tr>
-                    <th scope="col" class="px-6 py-3">
-                        Username
-                    </th>
-                    <th scope="col" class="px-6 py-3">
-                        Id
-                    </th>
-                    <th scope="col" class="px-6 py-3">
-                        Number of items
-                    </th>
-                    <th scope="col" class="px-6 py-3">
-                        Number of timers
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-            <%= for metric <- @metrics do %>
-                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                    <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        <%= metric.name %>
-                    </th>
-                    <td class="px-6 py-4">
-                        <%= metric.person_id %>
-                    </td>
-                    <td class="px-6 py-4">
-                        <%= metric.num_items %>
-                    </td>
-                    <td class="px-6 py-4">
-                        <%= metric.num_timers %>
-                    </td>
-                </tr>
-            <% end %>
-            </tbody>
+          <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <tr>
+              <th scope="col" class="px-6 py-3">
+                Id
+              </th>
+              <th scope="col" class="px-6 py-3">
+                Number of items
+              </th>
+              <th scope="col" class="px-6 py-3">
+                Number of timers
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+          <%= for metric <- @metrics do %>
+            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+              <td class="px-6 py-4">
+                <%= metric.person_id %>
+              </td>
+              <td class="px-6 py-4">
+                <%= metric.num_items %>
+              </td>
+              <td class="px-6 py-4">
+                <%= metric.num_timers %>
+              </td>
+            </tr>
+          <% end %>
+          </tbody>
         </table>
     </div>
 </main>
@@ -4165,8 +4163,8 @@ let's create a new constant value
 for the `stats` channel.
 
 ```elixir
-  @topic "live"
-  @stats_topic "stats" # add this
+@topic "live"
+@stats_topic "stats" # add this
 ```
 
 Whenever an `item` or `timer` is created,
@@ -4179,9 +4177,9 @@ subscribe to the `stats` channel
 like we are doing to the `live` one.
 
 ```elixir
-    if connected?(socket), do:
-      AppWeb.Endpoint.subscribe(@topic)
-      AppWeb.Endpoint.subscribe(@stats_topic)
+if connected?(socket), do:
+  AppWeb.Endpoint.subscribe(@topic)
+  AppWeb.Endpoint.subscribe(@stats_topic)
 ```
 
 Now, in the 
@@ -4209,25 +4207,26 @@ end
 Similarly, do the same for `timers`.
 
 ```elixir
-  def handle_event("start", data, socket) do
-    item = Item.get_item!(Map.get(data, "id"))
-    person_id = get_person_id(socket.assigns)
+def handle_event("start", data, socket) do
+  item = Item.get_item!(Map.get(data, "id"))
+  person_id = get_person_id(socket.assigns)
 
-    {:ok, _timer} =
-      Timer.start(%{
-        item_id: item.id,
-        person_id: person_id,
-        start: NaiveDateTime.utc_now()
-      })
+  {:ok, _timer} =
+    Timer.start(%{
+      item_id: item.id,
+      person_id: person_id,
+      start: NaiveDateTime.utc_now()
+    })
 
-    AppWeb.Endpoint.broadcast(@topic, "update", {:start, item.id})
-    AppWeb.Endpoint.broadcast(@stats_topic, "timer", {:create, payload: %{person_id: person_id}}) # add this
-    {:noreply, socket}
-  end
+  AppWeb.Endpoint.broadcast(@topic, "update", {:start, item.id})
+  AppWeb.Endpoint.broadcast(@stats_topic, "timer", {:create, payload: %{person_id: person_id}}) # add this
+  {:noreply, socket}
+end
 ```
 
 In the same file,
-`app_live.ex` also needs to have a handler
+`app_live.ex` 
+also needs to have a handler
 of these new event broadcasts,
 or else an error is thrown.
 
@@ -4240,10 +4239,10 @@ so we do nothing with them.
 Add the following function for this.
 
 ```elixir
-  @impl true
-  def handle_info(%Broadcast{topic: @stats_topic, event: _event, payload: _payload}, socket) do
-    {:noreply, socket}
-  end
+@impl true
+def handle_info(%Broadcast{topic: @stats_topic, event: _event, payload: _payload}, socket) do
+  {:noreply, socket}
+end
 
 ```
 
@@ -4252,8 +4251,8 @@ Add the following function for this.
 Let's add the tests to cover the use case
 we just created.
 
-Firstly, let's create a file
-in `test/app_web/live/stats_live_test.exs`
+Firstly, let's create a file:
+`test/app_web/live/stats_live_test.exs`
 and add the following code to it.
 
 ```elixir
