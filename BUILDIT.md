@@ -96,9 +96,14 @@ With that in place, let's get building!
   - [12.2 Persisting update in database](#122-persisting-update-in-database)
   - [12.3 Showing timers in UI](#123-showing-timers-in-ui)
   - [12.4 Updating the tests and going back to 100% coverage](#124-updating-the-tests-and-going-back-to-100-coverage)
-- [13. Run the _Finished_ MVP App!](#13-run-the-finished-mvp-app)
-  - [13.1 Run the Tests](#131-run-the-tests)
-  - [13.2 Run The App](#132-run-the-app)
+- [13. Tracking changes of `items` in database](#13-tracking-changes-of-items-in-database)
+  - [13.1 Setting up](#131-setting-up)
+  - [13.2 Changing database transactions on `item` insert and update](#132-changing-database-transactions-on-item-insert-and-update)
+  - [13.3 Fixing tests](#133-fixing-tests)
+  - [13.4 Checking the changes using `DBEaver`](#134-checking-the-changes-using-DBEaver)
+- [14. Run the _Finished_ MVP App!](#14-run-the-finished-mvp-app)
+  - [14.1 Run the Tests](#141-run-the-tests)
+  - [14.2 Run The App](#142-run-the-app)
 - [Thanks!](#thanks)
 
 
@@ -3927,11 +3932,253 @@ test "handle_info/2 update with editing open (start)", %{conn: conn} do
   end
 ```
 
-# 13. Run the _Finished_ MVP App!
+# 13. Tracking changes of `items` in database
+
+Tracking changes that each `item` is subjected to
+over time is important not only for statistics
+but to also implement features 
+that such as *rolling back changes*.
+
+For this, we are going to be using 
+[`PaperTrail`](https://github.com/dwyl/phoenix-papertrail-demo/blob/main/lib/app/change.ex),
+which makes it easy for us to record each change 
+on each `item` transaction occured in the database.
+
+In this section we are going to explain
+the process of implementing this feature.
+Some of these steps overlap 
+[`phoenix-papertrail-demo`](https://github.com/dwyl/phoenix-papertrail-demo)'s.
+If you are interested in a more in-depth tutorial,
+we recommend you take a gander there!
+
+## 13.1 Setting up
+
+Install `paper_trail`.
+
+```elixir
+def deps do
+[
+  ...
+  {:paper_trail, "~> 0.14.3"}
+]
+end
+```
+
+And add this config to `config/config.exs`.
+
+```elixir
+config :paper_trail, repo: App.Repo
+```
+
+This will let `PaperTrail` know the reference of the database repo,
+so it can sabe the changes correctly.
+
+After this, run the following commands.
+
+```sh
+mix deps.get
+mix compile
+mix papertrail.install
+```
+
+This will install dependencies, compile the project
+and create a migration for creating the `versions` table.
+This will be the table where all the changes will be recorded.
+
+If you open the created migration in
+`priv/repo/migrations/XXX_add_versions.exs`,
+you will find the schema for te table.
+
+```elixir
+    create table(:versions) do
+      add :event,        :string, null: false, size: 10
+      add :item_type,    :string, null: false
+      add :item_id,      :integer
+      add :item_changes, :map, null: false
+      add :originator_id, references(:users) # you can change :users to your own foreign key constraint
+      add :origin,       :string, size: 50
+      add :meta,         :map
+
+      # Configure timestamps type in config.ex :paper_trail :timestamps_type
+      add :inserted_at,  :utc_datetime, null: false
+    end
+```
+
+You can find more information about what field means
+in [`phoenix-papertrail-demo`](https://github.com/dwyl/phoenix-papertrail-demo).
+We are going to be changing the `originator_id` to the following line.
+
+```elixir
+add :originator_id, references(:people, column: :person_id)
+```
+
+The `originator_id` refers to "who made this change".
+In the case of our application, 
+we want it to point to the `person_id`, in the `Persons` table.
+
+## 13.2 Changing database transactions on `item` insert and update
+
+We want to track the changes when an `item` is inserted or updated.
+To do this,
+we can use `PaperTrail.insert` and `PaperTrail.update` methods.
+We are going to replace `Repo.insert` and `Repo.update` functions
+with these.
+
+Head over to `lib/app/item.ex`,
+add the import 
+and make these changes in `create_item/1`,
+`create_item_with_tags/1`
+and `update_item/2`.
+
+```elixir
+alias PaperTrail
+
+  def create_item(attrs) do
+    %Item{}
+    |> changeset(attrs)
+    |> PaperTrail.insert(originator: %{id: Map.get(attrs, :person_id, 0)})
+  end
+
+  def create_item_with_tags(attrs) do
+    %Item{}
+    |> changeset_with_tags(attrs)
+    |> PaperTrail.insert(originator: %{id: Map.get(attrs, :person_id, 0)})
+  end
+
+  def update_item(%Item{} = item, attrs) do
+    item
+    |> Item.changeset(attrs)
+    |> PaperTrail.update(originator: %{id: Map.get(attrs, :person_id, 0)})
+  end
+```
+
+We are using the `person_id` 
+and using it to be placed in the `originator_id` column
+in the `Versions` table.
+If no `person_id` is passed, 
+we default to `id=0`.
+
+We want to sucessfully pass the `person_id` 
+when the item is toggled, as well.
+In `lib/app_web/live/app_live.ex`,
+in `handle_event("toggle", data, socket)`,
+update it so it looks like the following:
+
+```elixir
+  @impl true
+  def handle_event("toggle", data, socket) do
+    person_id = get_person_id(socket.assigns)
+
+    # Toggle the status of the item between 3 (:active) and 4 (:done)
+    status = if Map.has_key?(data, "value"), do: 4, else: 3
+
+    # need to restrict getting items to the people who own or have rights to access them!
+    item = Item.get_item!(Map.get(data, "id"))
+    Item.update_item(item, %{status: status, person_id: person_id})
+    Timer.stop_timer_for_item_id(item.id)
+
+    AppWeb.Endpoint.broadcast(@topic, "update", :toggle)
+    {:noreply, socket}
+  end
+```
+
+We are now passing the `person_id` when toggling 
+(which is an updating operation) an item.
+
+## 13.3 Fixing tests
+
+If you run `mix test`,
+you will notice we've broken quite a few of them!
+
+```sh
+..
+Finished in 1.7 seconds (0.3s async, 1.3s sync)
+78 tests, 26 failures
+
+Randomized with seed 205107
+```
+
+Not to worry though, we can fix them!
+
+The reason these tests are failing is because,
+unlike operations like `Repo.insert` or `Repo.update`,
+`PaperTrail.insert` and `PaperTrail.update` 
+return a struct with two fields:
+- the model changeset.
+- `PaperTrail` version object,
+which contains info about the changes made,
+versioning, etc.
+
+The returned struct looks like so:
+
+```elixir
+{:ok,
+  %{
+    model: %Item{__meta__: Ecto.Schema.Metadata<:loaded, "items"> ...},
+    version: %PaperTrail.Version{__meta__: Ecto.Schema.Metadata<:loaded, "versions">...}  
+  }
+}
+```
+
+Many tests are creating `items` like:
+
+```elixir
+{:ok, item} = Item.create_item(@valid_attrs)
+```
+
+which should be changed to:
+
+```elixir
+{:ok, %{model: item, version: version}} = Item.create_item(@valid_attrs)
+```
+
+To fix the tests, all instances
+of `Item.create_item`, 
+`Item.create_item_with_tags`
+and `Item.update_item`
+should be changed according
+to the example above.
+
+Additionally, since we are using `id=0` 
+as the default `person_id`,
+inside `test/app/item_test.exs`,
+update the `@update_attrs` to the following:
+
+```elixir
+@update_attrs %{text: "some updated text", person_id: 1}
+```
+
+This will make sure the isolated tests pass successfuly.
+
+You can see the updated files in:
+- test/app/item_test.exs
+- test/app/timer_test.exs
+- test/app_web/live/app_live_test.exs
+
+## 13.4 Checking the changes using `DBEaver`
+
+If you run `mix phx.server` 
+and create/update items,
+you will see these events being tracked in the `Versions` table.
+
+We often use `DBeaver`,
+which is a PostgreSQL GUI. 
+If you don't have this installed, 
+[we highly recommend you doing so](https://github.com/dwyl/learn-postgresql/issues/43#issuecomment-469000357).
+
+<img width="1824" alt="dbeaver" src="https://user-images.githubusercontent.com/17494745/211629270-996e6c4a-8322-49b4-9ef6-7be2335ccfb7.png">
+
+As you can see, update/insert events are being tracked,
+with the corresponding `person_id` (in `originator_id`),
+the `item_id` that is being edited
+and the corresponding changes.
+
+
+# 14. Run the _Finished_ MVP App!
 
 With all the code saved, let's run the tests one more time.
 
-## 13.1 Run the Tests
+## 14.1 Run the Tests
 
 In your terminal window, run: 
 
@@ -3960,7 +4207,7 @@ COV    FILE                                        LINES RELEVANT   MISSED
 All tests pass and we have **`100%` Test Coverage**.
 This reminds us just how few _relevant_ lines of code there are in the MVP!
 
-## 13.2 Run The App
+## 14.2 Run The App
 
 In your second terminal tab/window, run:
 

@@ -6,7 +6,7 @@ defmodule App.ItemTest do
 
   describe "items" do
     @valid_attrs %{text: "some text", person_id: 1, status: 2}
-    @update_attrs %{text: "some updated text"}
+    @update_attrs %{text: "some updated text", person_id: 1}
     @invalid_attrs %{text: nil}
 
     test "get_item!/1 returns the item with given id" do
