@@ -1,12 +1,9 @@
 defmodule AppWeb.StatsLiveTest do
-  use AppWeb.ConnCase
+  use AppWeb.ConnCase, async: true
   alias App.{Item, Timer}
   import Phoenix.LiveViewTest
-  # alias Phoenix.Socket.Broadcast
 
   @person_id 55
-
-  # setup [:create_person]
 
   test "disconnected and connected render", %{conn: conn} do
     {:ok, page_live, disconnected_html} = live(conn, "/stats")

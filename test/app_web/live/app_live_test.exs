@@ -1,10 +1,8 @@
 defmodule AppWeb.AppLiveTest do
-  use AppWeb.ConnCase
+  use AppWeb.ConnCase, async: true
   alias App.{Item, Timer, Tag}
   import Phoenix.LiveViewTest
   alias Phoenix.Socket.Broadcast
-
-  # setup [:create_person]
 
   test "disconnected and connected render", %{conn: conn} do
     {:ok, page_live, disconnected_html} = live(conn, "/")
@@ -319,20 +317,6 @@ defmodule AppWeb.AppLiveTest do
       end)
       |> List.to_string()
 
-    # now_string =
-    #   NaiveDateTime.truncate(now, :second)
-    #   |> NaiveDateTime.to_string()
-    #   |> String.graphemes()
-    #   |> Enum.with_index()
-    #   |> Enum.map(fn {value, index} ->
-    #     if index == 10 do
-    #       "T"
-    #     else
-    #       value
-    #     end
-    #   end)
-    #   |> List.to_string()
-
     error_view =
       render_submit(view, "update-item-timer", %{
         "timer_id" => timer2.id,
@@ -343,7 +327,7 @@ defmodule AppWeb.AppLiveTest do
 
     assert error_view =~ "When editing an ongoing timer"
 
-    # Update fails because of format -----------
+    # Update fails because of format
     render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
 
     error_format_view =
@@ -356,7 +340,7 @@ defmodule AppWeb.AppLiveTest do
 
     assert error_format_view =~ "Start field has an invalid date format."
 
-    # Update successful -----------
+    # Update successful
     ten_seconds_after_string =
       NaiveDateTime.truncate(ten_seconds_after, :second)
       |> NaiveDateTime.to_string()
@@ -695,9 +679,4 @@ defmodule AppWeb.AppLiveTest do
     {:ok, view, _html} = live(conn, "/")
     assert render_hook(view, "filter-tags", %{"key" => "t", "value" => "t"})
   end
-
-  # defp create_person(_) do
-  #   person = Person.create_person(%{"person_id" => 0, "name" => "guest"})
-  #   %{person: person}
-  # end
 end

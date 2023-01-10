@@ -1,8 +1,6 @@
 defmodule App.TimerTest do
-  use App.DataCase
+  use App.DataCase, async: true
   alias App.{Item, Timer}
-
-  # setup [:create_person]
 
   describe "timers" do
     @valid_item_attrs %{text: "some text", person_id: 1}
@@ -93,9 +91,4 @@ defmodule App.TimerTest do
       assert updated_timer.stop == stop
     end
   end
-
-  # defp create_person(_) do
-  #   person = Person.create_person(%{"person_id" => 1, "name" => "guest"})
-  #   %{person: person}
-  # end
 end

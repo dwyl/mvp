@@ -111,7 +111,6 @@ defmodule AppWeb.TagControllerTest do
       conn =
         conn
         |> assign(:jwt, AuthPlug.Token.generate_jwt!(%{id: 1, picture: ""}))
-        # |> assign(:person, %{id: 1})
         |> delete(Routes.tag_path(conn, :delete, tag))
 
       assert redirected_to(conn) == Routes.tag_path(conn, :index)
@@ -122,10 +121,4 @@ defmodule AppWeb.TagControllerTest do
     tag = fixture(:tag)
     %{tag: tag}
   end
-
-  # defp create_person(_) do
-  #   _person = Person.create_person(%{"person_id" => 0, "name" => "guest"})
-  #   person = Person.create_person(%{"person_id" => 1, "name" => "Person1"})
-  #   %{person: person}
-  # end
 end
