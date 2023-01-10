@@ -2,16 +2,16 @@ defmodule App.Item do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
-  alias App.{Repo, Tag, ItemTag, Person, Timer}
+  alias App.{Repo, Tag, ItemTag, Timer}
   alias __MODULE__
   require Logger
 
   schema "items" do
+    field :person_id, :integer
     field :status, :integer
     field :text, :string
 
     has_many :timer, Timer
-    belongs_to :people, Person, references: :person_id, foreign_key: :person_id
     many_to_many(:tags, Tag, join_through: ItemTag, on_replace: :delete)
 
     timestamps()
@@ -166,6 +166,33 @@ defmodule App.Item do
     |> Enum.map(fn t ->
       Map.put(t, :tags, items_tags[t.id].tags)
     end)
+  end
+
+  @doc """
+  `person_with_item_and_timer_count/0` returns a list of number of timers and items per person.
+  Used mainly for metric-tracking purposes.
+
+  ## Examples
+
+  iex> person_with_item_and_timer_count()
+  [
+    %{name: nil, num_items: 3, num_timers: 8, person_id: 0}
+    %{name: username, num_items: 1, num_timers: 3, person_id: 1}
+  ]
+  """
+  def person_with_item_and_timer_count() do
+    sql = """
+    SELECT i.person_id,
+    COUNT(distinct i.id) AS "num_items",
+    COUNT(distinct t.id) AS "num_timers"
+    FROM items i
+    LEFT JOIN timers t ON t.item_id = i.id
+    GROUP BY person_id
+    ORDER BY person_id
+    """
+
+    Ecto.Adapters.SQL.query!(Repo, sql)
+    |> map_columns_to_values()
   end
 
   @doc """
