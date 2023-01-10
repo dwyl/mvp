@@ -182,13 +182,12 @@ defmodule App.Item do
   """
   def person_with_item_and_timer_count() do
     sql = """
-    SELECT p.person_id, p.name,
+    SELECT i.person_id,
     COUNT(distinct i.id) AS "num_items",
     COUNT(distinct t.id) AS "num_timers"
-    FROM people p
-    LEFT JOIN items i ON i.person_id = p.person_id
+    FROM items i
     LEFT JOIN timers t ON t.item_id = i.id
-    GROUP BY p.person_id, p.name
+    GROUP BY person_id
     ORDER BY person_id
     """
 

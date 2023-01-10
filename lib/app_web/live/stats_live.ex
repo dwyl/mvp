@@ -71,4 +71,8 @@ defmodule AppWeb.StatsLive do
         {:noreply, socket}
     end
   end
+
+  def person_link(person_id) do
+    "https://auth.dwyl.com/people/#{person_id}"
+  end
 end
