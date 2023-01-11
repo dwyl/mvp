@@ -7,7 +7,7 @@ defmodule Repo.Migrations.AddVersions do
       add :item_type,    :string, null: false
       add :item_id,      :integer
       add :item_changes, :map, null: false
-      add :originator_id, references(:people, column: :person_id)
+      add :originator_id, :integer
       add :origin,       :string, size: 50
       add :meta,         :map
 

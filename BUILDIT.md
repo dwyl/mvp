@@ -2831,7 +2831,7 @@ This will properly reference `Timer` to the `Item` object.
 In the same file, let us add a way to list all the timer changesets associated
 with a certain `item` id.
 We are returning changesets because of form validation.
-In case an error occurs, we want to provide feedback to the user.
+In case an error occurs, we want to provide feedback to the person.
 To do this, we use these changesets and add errors to them, 
 which will later be displayed on the UI.
 Paste the following.
@@ -2853,7 +2853,7 @@ Paste the following.
 
 ## 12.3 Adding event handler in `app_live.ex`
 We need a way to show the timers related to an `item` in the UI.
-Currently, in `lib/app_web/live/app_live.ex`, every time the user
+Currently, in `lib/app_web/live/app_live.ex`, every time the person
 edits an item, an `edit-timer` event is propped up, setting the 
 socket assigns accordingly.
 
@@ -3030,7 +3030,7 @@ everytime `Start/Resume` or `Stop` is called.
 Now, everytime the `update` event is broadcasted,
 we update the timer list if the item is being edited.
 If not, we update the timer list, as normally.
-What this does is that every user will have the `socket.assigns`
+What this does is that every person will have the `socket.assigns`
 properly updated everytime a timer is edited.
 
 
@@ -3257,7 +3257,7 @@ pattern matching of the `timer_stop` field.
 If `timer_stop` field is empty, we assume it's an 
 ongoing timer being edited. 
 If both `timer_start` and `timer_stop` is being edited,
-it's because the user is changing an old timer. 
+it's because the person is changing an old timer. 
 
 Inside both functions, the flow is the same.
 We first get the *timer changeset* being edited
@@ -4009,12 +4009,18 @@ in [`phoenix-papertrail-demo`](https://github.com/dwyl/phoenix-papertrail-demo).
 We are going to be changing the `originator_id` to the following line.
 
 ```elixir
-add :originator_id, references(:people, column: :person_id)
+add :originator_id, :integer
 ```
 
 The `originator_id` refers to "who made this change".
 In the case of our application, 
-we want it to point to the `person_id`, in the `Persons` table.
+we want to use the `person_id` that is used when logging in 
+with a third-party provider.
+
+Do note that **we do not save a person's information**.
+So the `person_id` will need to be passed each time
+a CRUD operation occurs 
+(or not, if the operation is anonymous).
 
 ## 13.2 Changing database transactions on `item` insert and update
 
