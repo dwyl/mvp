@@ -1,10 +1,8 @@
 defmodule AppWeb.AppLiveTest do
-  use AppWeb.ConnCase
-  alias App.{Item, Person, Timer, Tag}
+  use AppWeb.ConnCase, async: true
+  alias App.{Item, Timer, Tag}
   import Phoenix.LiveViewTest
   alias Phoenix.Socket.Broadcast
-
-  setup [:create_person]
 
   test "disconnected and connected render", %{conn: conn} do
     {:ok, page_live, disconnected_html} = live(conn, "/")
@@ -288,7 +286,7 @@ defmodule AppWeb.AppLiveTest do
       NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), 10))
 
     # Start the timer 7 seconds ago:
-    {:ok, timer} =
+    {:ok, _timer} =
       Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
 
     # Stop the timer based on its item_id
@@ -319,20 +317,6 @@ defmodule AppWeb.AppLiveTest do
       end)
       |> List.to_string()
 
-    now_string =
-      NaiveDateTime.truncate(now, :second)
-      |> NaiveDateTime.to_string()
-      |> String.graphemes()
-      |> Enum.with_index()
-      |> Enum.map(fn {value, index} ->
-        if index == 10 do
-          "T"
-        else
-          value
-        end
-      end)
-      |> List.to_string()
-
     error_view =
       render_submit(view, "update-item-timer", %{
         "timer_id" => timer2.id,
@@ -343,7 +327,7 @@ defmodule AppWeb.AppLiveTest do
 
     assert error_view =~ "When editing an ongoing timer"
 
-    # Update fails because of format -----------
+    # Update fails because of format
     render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
 
     error_format_view =
@@ -356,7 +340,7 @@ defmodule AppWeb.AppLiveTest do
 
     assert error_format_view =~ "Start field has an invalid date format."
 
-    # Update successful -----------
+    # Update successful
     ten_seconds_after_string =
       NaiveDateTime.truncate(ten_seconds_after, :second)
       |> NaiveDateTime.to_string()
@@ -376,16 +360,14 @@ defmodule AppWeb.AppLiveTest do
 
     render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
 
-    view =
-      assert render_submit(view, "update-item-timer", %{
-               "timer_id" => timer2.id,
-               "index" => 1,
-               "timer_start" => ten_seconds_after_string,
-               "timer_stop" => ""
-             })
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer2.id,
+             "index" => 1,
+             "timer_start" => ten_seconds_after_string,
+             "timer_stop" => ""
+           })
 
     updated_timer2 = Timer.get_timer!(timer2.id)
-
     assert updated_timer2.start == ten_seconds_after_datetime
   end
 
@@ -402,7 +384,7 @@ defmodule AppWeb.AppLiveTest do
       NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -4))
 
     # Start the timer 7 seconds ago:
-    {:ok, timer} =
+    {:ok, _timer} =
       Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
 
     # Stop the timer based on its item_id
@@ -476,7 +458,7 @@ defmodule AppWeb.AppLiveTest do
     Timer.stop_timer_for_item_id(item.id)
 
     # Start a second timer
-    {:ok, timer2} = Timer.start(%{item_id: item.id, person_id: 1, start: now})
+    {:ok, _t2} = Timer.start(%{item_id: item.id, person_id: 1, start: now})
 
     {:ok, view, _html} = live(conn, "/")
 
@@ -696,10 +678,5 @@ defmodule AppWeb.AppLiveTest do
 
     {:ok, view, _html} = live(conn, "/")
     assert render_hook(view, "filter-tags", %{"key" => "t", "value" => "t"})
-  end
-
-  defp create_person(_) do
-    person = Person.create_person(%{"person_id" => 0, "name" => "guest"})
-    %{person: person}
   end
 end
