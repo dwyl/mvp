@@ -6,6 +6,7 @@ defmodule App.Item do
   alias __MODULE__
   require Logger
 
+  @derive {Jason.Encoder, only: [:id, :person_id, :status, :text]}
   schema "items" do
     field :person_id, :integer
     field :status, :integer
