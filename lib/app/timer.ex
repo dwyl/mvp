@@ -7,12 +7,24 @@ defmodule App.Timer do
   alias __MODULE__
   require Logger
 
+  @derive {Jason.Encoder, only: [:id, :start, :stop]}
   schema "timers" do
     field :start, :naive_datetime
     field :stop, :naive_datetime
     belongs_to :item, Item, references: :id, foreign_key: :item_id
 
     timestamps()
+  end
+
+  defp validate_start_before_stop(changeset) do
+    start = get_field(changeset, :start)
+    stop = get_field(changeset, :stop)
+    
+    if NaiveDateTime.compare(start, stop) == :gt do
+      add_error(changeset, :start, "cannot be later than 'stop'")
+    else
+      changeset
+    end
   end
 
   @doc false
@@ -33,6 +45,24 @@ defmodule App.Timer do
       %Timer{}
   """
   def get_timer!(id), do: Repo.get!(Timer, id)
+
+  @doc """
+  Creates an `timer`.
+
+  ## Examples
+
+      iex> create_timer(%{item_id: 1, start: 2022-02-02T12:01:01})
+      {:ok, %Timer{item_id: 1, start: 2022-02-02T12:01:01, stop: nil}}
+
+      iex> create_timer(%{item_id: nil})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_timer(attrs) do
+    %Timer{}
+    |> changeset(attrs)
+    |> Repo.insert()
+  end
 
   @doc """
   `start/1` starts a timer.
@@ -76,6 +106,7 @@ defmodule App.Timer do
   def update_timer(attrs \\ %{}) do
     get_timer!(attrs.id)
     |> changeset(attrs)
+    |> validate_start_before_stop()
     |> Repo.update()
   end
 

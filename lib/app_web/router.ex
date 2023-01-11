@@ -38,5 +38,6 @@ defmodule AppWeb.Router do
     pipe_through [:api, :authOptional]
 
     resources "/items", API.ItemController, only: [:create, :update, :show]
+    resources "/items/:item_id/timers", API.TimerController, only: [:create, :update, :show, :index]
   end
 end
