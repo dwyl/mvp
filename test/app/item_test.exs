@@ -184,8 +184,8 @@ defmodule App.ItemTest do
   end
 
   test "Item.person_with_item_and_timer_count/0 returns a list of count of timers and items for each given person" do
-    {:ok, item1} = Item.create_item(@valid_attrs)
-    {:ok, item2} = Item.create_item(@valid_attrs)
+    {:ok, %{model: item1, version: _version}} = Item.create_item(@valid_attrs)
+    {:ok, %{model: item2, version: _version}} = Item.create_item(@valid_attrs)
 
     started = NaiveDateTime.utc_now()
 

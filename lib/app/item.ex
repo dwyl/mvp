@@ -3,7 +3,7 @@ defmodule App.Item do
   import Ecto.Changeset
   import Ecto.Query
   alias PaperTrail
-  alias App.{Repo, Tag, ItemTag, Person, Timer}
+  alias App.{Repo, Tag, ItemTag, Timer}
   alias __MODULE__
   require Logger
 
