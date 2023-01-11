@@ -82,12 +82,7 @@ defmodule AppWeb.API.ItemController do
       message: "Malformed request",
     }
 
-    changeset_errors = traverse_errors(changeset, fn {msg, opts} ->
-      Regex.replace(~r"%{(\w+)}", msg, fn _, key ->
-        opts |> Keyword.get(String.to_existing_atom(key), key) |> to_string()
-      end)
-    end)
-
+    changeset_errors = traverse_errors(changeset, fn {msg, _opts} -> msg end)
     Map.put(errors, :errors, changeset_errors)
   end
 end
