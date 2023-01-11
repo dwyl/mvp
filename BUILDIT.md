@@ -1,8 +1,7 @@
 <div align="center">
 
 # Build Log 👩‍💻 
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dwyl/mvp/Elixir%20CI?label=build&style=flat-square)
-
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/dwyl/mvp/ci.yml?label=build&style=flat-square&branch=main)
 
 This is a log 
 of the steps taken 
