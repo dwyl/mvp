@@ -15,10 +15,10 @@ defmodule AppWeb.StatsLiveTest do
     {:ok, page_live, _html} = live(conn, "/stats")
 
     # Creating two items
-    {:ok, item} =
+    {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Learn Elixir", status: 2, person_id: @person_id})
 
-    {:ok, _item2} =
+    {:ok, %{model: _item2, version: _version}} =
       Item.create_item(%{text: "Learn Elixir", status: 4, person_id: @person_id})
 
     assert item.status == 2
@@ -36,7 +36,7 @@ defmodule AppWeb.StatsLiveTest do
 
   test "handle broadcast when item is created", %{conn: conn} do
     # Creating an item
-    {:ok, _item} =
+    {:ok, %{model: _item, version: _version}} =
       Item.create_item(%{text: "Learn Elixir", status: 2, person_id: @person_id})
 
     {:ok, page_live, _html} = live(conn, "/stats")
@@ -68,7 +68,7 @@ defmodule AppWeb.StatsLiveTest do
 
   test "handle broadcast when timer is created", %{conn: conn} do
     # Creating an item
-    {:ok, _item} =
+    {:ok, %{model: _item, version: _version}} =
       Item.create_item(%{text: "Learn Elixir", status: 2, person_id: @person_id})
 
     {:ok, page_live, _html} = live(conn, "/stats")
