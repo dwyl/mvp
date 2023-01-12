@@ -11,12 +11,8 @@ defmodule AppWeb.API.TimerControllerTest do
 
   describe "index" do
     test "timers", %{conn: conn} do
-      # Create item
-      {:ok, item} = Item.create_item(@create_item_attrs)
-
-      # Create timer
-      started = NaiveDateTime.utc_now()
-      {:ok, timer} = Timer.start(%{item_id: item.id, start: started})
+      # Create item and timer
+      {item, timer} = item_and_timer_fixture()
 
       conn = get(conn, Routes.timer_path(conn, :index, item.id))
 
@@ -27,12 +23,8 @@ defmodule AppWeb.API.TimerControllerTest do
 
   describe "show" do
     test "specific timer", %{conn: conn} do
-      # Create item
-      {:ok, item} = Item.create_item(@create_item_attrs)
-
-      # Create timer
-      started = NaiveDateTime.utc_now()
-      {:ok, timer} = Timer.start(%{item_id: item.id, start: started})
+      # Create item and timer
+      {item, timer} = item_and_timer_fixture()
 
       conn = get(conn, Routes.timer_path(conn, :show, item.id, timer.id))
 
@@ -84,13 +76,8 @@ defmodule AppWeb.API.TimerControllerTest do
 
   describe "update" do
     test "timer with valid attributes", %{conn: conn} do
-
-      # Create item
-      {:ok, item} = Item.create_item(@create_item_attrs)
-
-      # Create timer
-      started = NaiveDateTime.utc_now()
-      {:ok, timer} = Timer.start(%{item_id: item.id, start: started})
+      # Create item and timer
+      {item, timer} = item_and_timer_fixture()
 
       conn = put(conn, Routes.timer_path(conn, :update, item.id, timer.id, @update_attrs))
 
@@ -99,17 +86,24 @@ defmodule AppWeb.API.TimerControllerTest do
     end
 
     test "timer with invalid attributes", %{conn: conn} do
-      # Create item
-      {:ok, item} = Item.create_item(@create_item_attrs)
-
-      # Create timer
-      started = NaiveDateTime.utc_now()
-      {:ok, timer} = Timer.start(%{item_id: item.id, start: started})
+      # Create item and timer
+      {item, timer} = item_and_timer_fixture()
 
       conn = put(conn, Routes.timer_path(conn, :update, item.id, timer.id, @invalid_attrs))
 
       assert conn.status == 400
       assert length(json_response(conn, 400)["errors"]["start"]) > 0
     end
+  end
+
+  defp item_and_timer_fixture() do
+    # Create item
+    {:ok, item} = Item.create_item(@create_item_attrs)
+
+    # Create timer
+    started = NaiveDateTime.utc_now()
+    {:ok, timer} = Timer.start(%{item_id: item.id, start: started})
+
+    {item, timer}
   end
 end
