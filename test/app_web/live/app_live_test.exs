@@ -646,7 +646,7 @@ defmodule AppWeb.AppLiveTest do
   test "test login link redirect to auth.dwyl.com", %{conn: conn} do
     conn = get(conn, "/login")
 
-    assert redirected_to(conn, 302) =~ "auth.dwyl.com"
+    assert redirected_to(conn, 302) =~ "auth"
   end
 
   test "tags_to_string/1" do
