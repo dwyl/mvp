@@ -26,3 +26,11 @@ config :logger, level: :debug
 
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
+
+# Don't worry, this AUTH_API_KEY is NOT valid.
+# It's just for ensuring it passes on GitHub CI
+# see: github.com/dwyl/mvp/issues/258
+config :auth_plug,
+  api_key:
+    "2PzB7PPnpuLsbWmWtXpGyI+kfSQSQ1zUW2Atz/+8PdZuSEJzHgzGnJWV35nTKRwx/authdemo.fly.dev",
+  httpoison_mock: true
