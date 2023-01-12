@@ -555,7 +555,72 @@ For this, we are using a function
 that *is not yet implemented*
 in `lib/app/timer.ex` - **`list_timers/1`**.
 
-## 3. Listing `timers` and validating updates
+
+## 3. `JSON` serializing
+
+Let's look at `index` in `lib/app/timer.ex`.
+You may notice that we are returning a `JSON`
+with `json(conn, timers)`.
+
+```elixir
+  def index(conn, params) do
+    item_id = Map.get(params, "item_id")
+
+    timers = Timer.list_timers(item_id)
+    json(conn, timers)
+  end
+```
+
+However, as it stands, 
+[`Jason`](https://github.com/michalmuskala/jason)
+(which is the package that serializes and deserializes `JSON` objects),
+doesn't know how to encode/decode our `timer` and `item` objects.
+
+We can **derive the implementation**
+by specifying which fields should be encoded to `JSON`.
+We are going to be using `Jason.Encoder` for this.
+
+In `lib/app/timer.ex`,
+add the line on top of the schema, like so.
+
+```elixir
+  @derive {Jason.Encoder, only: [:id, :start, :stop]}
+  schema "timers" do
+    field :start, :naive_datetime
+    field :stop, :naive_datetime
+    belongs_to :item, Item, references: :id, foreign_key: :item_id
+
+    timestamps()
+  end
+```
+
+This will allow `Jason` to encode 
+any `Timer` struct when returning API calls.
+
+Let's do the same for `Item`!
+In `lib/app/timer.ex`,
+
+```elixir
+  @derive {Jason.Encoder, only: [:id, :person_id, :status, :text]}
+  schema "items" do
+    field :person_id, :integer
+    field :status, :integer
+    field :text, :string
+
+    has_many :timer, Timer
+    many_to_many(:tags, Tag, join_through: ItemTag, on_replace: :delete)
+
+    timestamps()
+  end
+```
+
+By leveraging the `@derive` annotation,
+we can easily encode our structs 
+and serialize them as `JSON` objects
+so they can be returned to the person
+using the API! ✨
+
+## 4. Listing `timers` and validating updates
 
 Let's implement `list_timers/1`
 in `lib/app/timer.ex`.
