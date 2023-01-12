@@ -187,8 +187,8 @@ defmodule App.Item do
     COUNT(distinct t.id) AS "num_timers"
     FROM items i
     LEFT JOIN timers t ON t.item_id = i.id
-    GROUP BY person_id
-    ORDER BY person_id
+    GROUP BY i.person_id
+    ORDER BY i.person_id
     """
 
     Ecto.Adapters.SQL.query!(Repo, sql)
