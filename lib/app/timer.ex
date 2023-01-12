@@ -87,6 +87,7 @@ defmodule App.Timer do
   def start(attrs \\ %{}) do
     %Timer{}
     |> changeset(attrs)
+    |> validate_start_before_stop()
     |> Repo.insert()
   end
 

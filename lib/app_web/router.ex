@@ -12,6 +12,7 @@ defmodule AppWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug :fetch_session
   end
 
   # No Auth
@@ -22,7 +23,6 @@ defmodule AppWeb.Router do
   end
 
   pipeline :authOptional do
-    plug :fetch_session
     plug(AuthPlugOptional)
   end
 
