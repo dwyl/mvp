@@ -30,7 +30,7 @@ defmodule AppWeb.StatsLiveTest do
     assert render(page_live) =~ "Stats"
     # two items and one timer expected
     assert render(page_live) =~
-    "<td class=\"px-6 py-4 text-center\">\n2\n            </td><td class=\"px-6 py-4 text-center\">\n1\n            </td>"
+             "<td class=\"px-6 py-4 text-center\">\n2\n            </td><td class=\"px-6 py-4 text-center\">\n1\n            </td>"
   end
 
   test "handle broadcast when item is created", %{conn: conn} do
@@ -43,7 +43,7 @@ defmodule AppWeb.StatsLiveTest do
     assert render(page_live) =~ "Stats"
     # num of items
     assert render(page_live) =~
-    "<td class=\"px-6 py-4 text-center\">\n1\n            </td><td class=\"px-6 py-4 text-center\">\n0\n            </td>"
+             "<td class=\"px-6 py-4 text-center\">\n1\n            </td><td class=\"px-6 py-4 text-center\">\n0\n            </td>"
 
     # Creating another item.
     AppWeb.Endpoint.broadcast(
@@ -54,8 +54,7 @@ defmodule AppWeb.StatsLiveTest do
 
     # num of items
     assert render(page_live) =~
-      "<td class=\"px-6 py-4 text-center\">\n2\n            </td><td class=\"px-6 py-4 text-center\">\n0\n            </td>"
-
+             "<td class=\"px-6 py-4 text-center\">\n2\n            </td><td class=\"px-6 py-4 text-center\">\n0\n            </td>"
 
     # Broadcasting update. Shouldn't effect anything in the page
     AppWeb.Endpoint.broadcast(
@@ -66,7 +65,7 @@ defmodule AppWeb.StatsLiveTest do
 
     # num of items
     assert render(page_live) =~
-      "<td class=\"px-6 py-4 text-center\">\n2\n            </td><td class=\"px-6 py-4 text-center\">\n0\n            </td>"
+             "<td class=\"px-6 py-4 text-center\">\n2\n            </td><td class=\"px-6 py-4 text-center\">\n0\n            </td>"
   end
 
   test "handle broadcast when timer is created", %{conn: conn} do
@@ -79,7 +78,7 @@ defmodule AppWeb.StatsLiveTest do
     assert render(page_live) =~ "Stats"
     # num of timers
     assert render(page_live) =~
-    "<td class=\"px-6 py-4 text-center\">\n1\n            </td><td class=\"px-6 py-4 text-center\">\n0\n            </td>"
+             "<td class=\"px-6 py-4 text-center\">\n1\n            </td><td class=\"px-6 py-4 text-center\">\n0\n            </td>"
 
     # Creating a timer.
     AppWeb.Endpoint.broadcast(
@@ -90,7 +89,7 @@ defmodule AppWeb.StatsLiveTest do
 
     # num of timers
     assert render(page_live) =~
-    "<td class=\"px-6 py-4 text-center\">\n1\n            </td><td class=\"px-6 py-4 text-center\">\n1\n            </td>"
+             "<td class=\"px-6 py-4 text-center\">\n1\n            </td><td class=\"px-6 py-4 text-center\">\n1\n            </td>"
 
     # Broadcasting update. Shouldn't effect anything in the page
     AppWeb.Endpoint.broadcast(
@@ -101,7 +100,7 @@ defmodule AppWeb.StatsLiveTest do
 
     # num of timers
     assert render(page_live) =~
-    "<td class=\"px-6 py-4 text-center\">\n1\n            </td><td class=\"px-6 py-4 text-center\">\n1\n            </td>"
+             "<td class=\"px-6 py-4 text-center\">\n1\n            </td><td class=\"px-6 py-4 text-center\">\n1\n            </td>"
   end
 
   test "add_row/3 adds 1 to row.num_timers" do
