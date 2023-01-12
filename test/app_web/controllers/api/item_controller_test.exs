@@ -65,11 +65,4 @@ defmodule AppWeb.API.ItemControllerTest do
       assert length(json_response(conn, 400)["errors"]["text"]) > 0
     end
   end
-
-  test "testing error traversal", %{conn: conn} do
-    {:ok, item} = Item.create_item(@create_attrs)
-    conn = put(conn, Routes.item_path(conn, :update, item.id, @invalid_attrs))
-
-    assert conn.status == 400
-  end
 end

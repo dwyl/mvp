@@ -7,7 +7,7 @@ defmodule App.Timer do
   alias __MODULE__
   require Logger
 
-  @derive {Jason.Encoder, only: [:id, :start, :stop]}
+  @derive {Jason.Encoder, only: [:id, :start, :stop, ]}
   schema "timers" do
     field :start, :naive_datetime
     field :stop, :naive_datetime
@@ -20,10 +20,15 @@ defmodule App.Timer do
     start = get_field(changeset, :start)
     stop = get_field(changeset, :stop)
 
-    if NaiveDateTime.compare(start, stop) == :gt do
-      add_error(changeset, :start, "cannot be later than 'stop'")
-    else
-      changeset
+    # If start or stop  is nil, no comparison occurs.
+    case is_nil(stop) or is_nil(start) do
+      true -> changeset
+      false ->
+        if NaiveDateTime.compare(start, stop) == :gt do
+          add_error(changeset, :start, "cannot be later than 'stop'")
+        else
+          changeset
+        end
     end
   end
 
@@ -45,6 +50,30 @@ defmodule App.Timer do
       %Timer{}
   """
   def get_timer!(id), do: Repo.get!(Timer, id)
+
+  @doc """
+  `list_timers/1` lists all the timer objects of a given item `id`.
+
+    ## Examples
+
+      iex> list_timers(1)
+      [
+        %App.Timer{
+          id: 7,
+          start: ~N[2023-01-11 17:40:44],
+          stop: nil,
+          item_id: 1,
+          inserted_at: ~N[2023-01-11 18:01:43],
+          updated_at: ~N[2023-01-11 18:01:43]
+        }
+      ]
+  """
+  def list_timers(item_id) do
+    Timer
+    |> where(item_id: ^item_id)
+    |> order_by(:id)
+    |> Repo.all()
+  end
 
   @doc """
   `start/1` starts a timer.

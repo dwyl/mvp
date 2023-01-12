@@ -6,7 +6,7 @@ defmodule AppWeb.API.TimerController do
   def index(conn, params) do
     item_id = Map.get(params, "item_id")
 
-    timers = Timer.list_timers_changesets(item_id)
+    timers = Timer.list_timers(item_id)
     json(conn, timers)
   end
 
@@ -41,7 +41,7 @@ defmodule AppWeb.API.TimerController do
       stop: Map.get(params, "stop")
     }
 
-    case Timer.create_timer(attrs) do
+    case Timer.start(attrs) do
 
       # Successfully creates item
       {:ok, timer} ->
@@ -91,12 +91,7 @@ defmodule AppWeb.API.TimerController do
       message: "Malformed request",
     }
 
-    changeset_errors = traverse_errors(changeset, fn {msg, opts} ->
-      Regex.replace(~r"%{(\w+)}", msg, fn _, key ->
-        opts |> Keyword.get(String.to_existing_atom(key), key) |> to_string()
-      end)
-    end)
-
+    changeset_errors = traverse_errors(changeset, fn {msg, _opts} -> msg end)
     Map.put(errors, :errors, changeset_errors)
   end
 end
