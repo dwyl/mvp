@@ -2,6 +2,7 @@ defmodule App.Item do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
+  alias PaperTrail
   alias App.{Repo, Tag, ItemTag, Timer}
   alias __MODULE__
   require Logger
@@ -44,13 +45,24 @@ defmodule App.Item do
   def create_item(attrs) do
     %Item{}
     |> changeset(attrs)
-    |> Repo.insert()
+    |> PaperTrail.insert(originator: %{id: Map.get(attrs, :person_id, 0)})
   end
 
+  @doc """
+  Creates an `item` with tags.
+
+  ## Examples
+
+      iex> create_item_with_tags(%{text: "Learn LiveView", tags: [tag1, tag2]})
+      {:ok, %Item{}}
+
+      iex> create_item_with_tags(%{text: nil})
+      {:error, %Ecto.Changeset{}}
+  """
   def create_item_with_tags(attrs) do
     %Item{}
     |> changeset_with_tags(attrs)
-    |> Repo.insert()
+    |> PaperTrail.insert(originator: %{id: Map.get(attrs, :person_id, 0)})
   end
 
   @doc """
@@ -111,7 +123,7 @@ defmodule App.Item do
   def update_item(%Item{} = item, attrs) do
     item
     |> Item.changeset(attrs)
-    |> Repo.update()
+    |> PaperTrail.update(originator: %{id: Map.get(attrs, :person_id, 0)})
   end
 
   @doc """

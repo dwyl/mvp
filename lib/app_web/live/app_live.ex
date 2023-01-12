@@ -65,12 +65,14 @@ defmodule AppWeb.AppLive do
 
   @impl true
   def handle_event("toggle", data, socket) do
+    person_id = get_person_id(socket.assigns)
+
     # Toggle the status of the item between 3 (:active) and 4 (:done)
     status = if Map.has_key?(data, "value"), do: 4, else: 3
 
     # need to restrict getting items to the people who own or have rights to access them!
     item = Item.get_item!(Map.get(data, "id"))
-    Item.update_item(item, %{status: status})
+    Item.update_item(item, %{status: status, person_id: person_id})
     Timer.stop_timer_for_item_id(item.id)
 
     AppWeb.Endpoint.broadcast(@topic, "update", :toggle)
