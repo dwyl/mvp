@@ -20,6 +20,7 @@ defmodule AppWeb.API.TimerController do
               code: 404,
               message: "No timer found with the given \'id\'."
             }
+
             json(conn |> put_status(404), errors)
 
           timer ->

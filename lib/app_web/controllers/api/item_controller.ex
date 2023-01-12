@@ -13,6 +13,7 @@ defmodule AppWeb.API.ItemController do
               code: 404,
               message: "No item found with the given \'id\'."
             }
+
             json(conn |> put_status(404), errors)
 
           timer ->

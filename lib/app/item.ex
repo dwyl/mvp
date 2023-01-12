@@ -74,19 +74,19 @@ defmodule App.Item do
     |> Repo.preload(tags: from(t in Tag, order_by: t.text))
   end
 
-    @doc """
-    `get_item/1` gets a single Item.
+  @doc """
+  `get_item/1` gets a single Item.
 
-    Returns nil if the Item does not exist
+  Returns nil if the Item does not exist
 
-    ## Examples
+  ## Examples
 
-        iex> get_item(1)
-        %Timer{}
+      iex> get_item(1)
+      %Timer{}
 
-        iex> get_item(1313)
-        nil
-    """
+      iex> get_item(1313)
+      nil
+  """
   def get_item(id) do
     Item
     |> Repo.get(id)
