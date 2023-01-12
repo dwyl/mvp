@@ -1,9 +1,7 @@
 defmodule App.Timer do
   use Ecto.Schema
-  import Ecto.Changeset
-  alias App.Item
-  import Ecto.Query
-  alias App.Repo
+  import Ecto.{Changeset, Query}
+  alias App.{Item, Repo}
   alias __MODULE__
   require Logger
 
