@@ -77,10 +77,7 @@ and check if it's correctly formatted.
 
 ### 2.1 Adding tests
 
-Since we now know what to do, let's create our tests.
-
-Let's implement these controllers.
-But before that, let's approach this
+Let's approach this
 with a [`TDD mindset`](https://github.com/dwyl/learn-tdd)
 and create our tests first!
 
@@ -609,10 +606,10 @@ add the following private function.
   end
 ```
 
-If `stop` or `start` is nil, we can't compare the datetimes,
+If `stop` or `start` is `nil`, we can't compare the datetimes,
 so we just skip the validation.
 This usually happens when creating a timer that is ongoing
-(`stop` is nil).
+(`stop` is `nil`).
 We won't block creating `timers` with `stop` with a `nil` value.
 
 Now let's use this validator!

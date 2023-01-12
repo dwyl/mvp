@@ -52,22 +52,25 @@ defmodule AppWeb.API.TimerControllerTest do
 
   describe "create" do
     test "a valid timer", %{conn: conn} do
-
       # Create item
       {:ok, item} = Item.create_item(@create_item_attrs)
 
       # Create timer
-      conn = post(conn, Routes.timer_path(conn, :create, item.id, @create_attrs))
+      conn =
+        post(conn, Routes.timer_path(conn, :create, item.id, @create_attrs))
 
       assert conn.status == 200
-      assert json_response(conn, 200)["start"] == Map.get(@create_attrs, "start")
+
+      assert json_response(conn, 200)["start"] ==
+               Map.get(@create_attrs, "start")
     end
 
     test "an invalid timer", %{conn: conn} do
       # Create item
       {:ok, item} = Item.create_item(@create_item_attrs)
 
-      conn = post(conn, Routes.timer_path(conn, :create, item.id, @invalid_attrs))
+      conn =
+        post(conn, Routes.timer_path(conn, :create, item.id, @invalid_attrs))
 
       assert conn.status == 400
       assert length(json_response(conn, 400)["errors"]["start"]) > 0
@@ -79,7 +82,11 @@ defmodule AppWeb.API.TimerControllerTest do
       # Create item and timer
       {item, timer} = item_and_timer_fixture()
 
-      conn = put(conn, Routes.timer_path(conn, :update, item.id, timer.id, @update_attrs))
+      conn =
+        put(
+          conn,
+          Routes.timer_path(conn, :update, item.id, timer.id, @update_attrs)
+        )
 
       assert conn.status == 200
       assert json_response(conn, 200)["start"] == Map.get(@update_attrs, :start)
@@ -89,7 +96,11 @@ defmodule AppWeb.API.TimerControllerTest do
       # Create item and timer
       {item, timer} = item_and_timer_fixture()
 
-      conn = put(conn, Routes.timer_path(conn, :update, item.id, timer.id, @invalid_attrs))
+      conn =
+        put(
+          conn,
+          Routes.timer_path(conn, :update, item.id, timer.id, @invalid_attrs)
+        )
 
       assert conn.status == 400
       assert length(json_response(conn, 400)["errors"]["start"]) > 0

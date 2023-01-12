@@ -35,9 +35,11 @@ defmodule AppWeb.API.ItemControllerTest do
       assert conn.status == 200
       assert json_response(conn, 200)["text"] == Map.get(@create_attrs, "text")
 
-      assert json_response(conn, 200)["status"] == Map.get(@create_attrs, "status")
+      assert json_response(conn, 200)["status"] ==
+               Map.get(@create_attrs, "status")
 
-      assert json_response(conn, 200)["person_id"] == Map.get(@create_attrs, "person_id")
+      assert json_response(conn, 200)["person_id"] ==
+               Map.get(@create_attrs, "person_id")
     end
 
     test "an invalid item", %{conn: conn} do

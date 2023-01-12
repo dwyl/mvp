@@ -108,7 +108,8 @@ defmodule App.TimerTest do
       Timer.stop_timer_for_item_id(item.id)
 
       # Update timer with stop earlier than start
-      {:error, changeset} = Timer.update_timer(%{id: timer.id, start: start, stop: stop})
+      {:error, changeset} =
+        Timer.update_timer(%{id: timer.id, start: start, stop: stop})
 
       assert length(changeset.errors) > 0
     end

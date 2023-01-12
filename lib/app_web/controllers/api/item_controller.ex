@@ -13,15 +13,17 @@ defmodule AppWeb.API.ItemController do
       Ecto.NoResultsError ->
         errors = %{
           code: 404,
-          message: "No item found with the given \'id\'.",
+          message: "No item found with the given \'id\'."
         }
+
         json(conn |> put_status(404), errors)
 
       Ecto.Query.CastError ->
         errors = %{
           code: 400,
-          message: "The \'id\' is not an integer.",
+          message: "The \'id\' is not an integer."
         }
+
         json(conn |> put_status(400), errors)
     end
   end
@@ -36,7 +38,6 @@ defmodule AppWeb.API.ItemController do
     }
 
     case Item.create_item(attrs) do
-
       # Successfully creates item
       {:ok, item} ->
         id_item = Map.take(item, [:id])
@@ -60,7 +61,6 @@ defmodule AppWeb.API.ItemController do
     item = Item.get_item!(id)
 
     case Item.update_item(item, %{text: new_text}) do
-
       # Successfully updates item
       {:ok, item} ->
         json(conn, item)
@@ -79,7 +79,7 @@ defmodule AppWeb.API.ItemController do
   defp make_changeset_errors_readable(changeset) do
     errors = %{
       code: 400,
-      message: "Malformed request",
+      message: "Malformed request"
     }
 
     changeset_errors = traverse_errors(changeset, fn {msg, _opts} -> msg end)

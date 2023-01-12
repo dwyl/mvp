@@ -20,15 +20,17 @@ defmodule AppWeb.API.TimerController do
       Ecto.NoResultsError ->
         errors = %{
           code: 404,
-          message: "No timer found with the given \'id\'.",
+          message: "No timer found with the given \'id\'."
         }
+
         json(conn |> put_status(404), errors)
 
       Ecto.Query.CastError ->
         errors = %{
           code: 400,
-          message: "The \'id\' is not an integer.",
+          message: "The \'id\' is not an integer."
         }
+
         json(conn |> put_status(400), errors)
     end
   end
@@ -42,7 +44,6 @@ defmodule AppWeb.API.TimerController do
     }
 
     case Timer.start(attrs) do
-
       # Successfully creates item
       {:ok, timer} ->
         id_timer = Map.take(timer, [:id])
@@ -68,7 +69,6 @@ defmodule AppWeb.API.TimerController do
     }
 
     case Timer.update_timer(attrs_to_update) do
-
       # Successfully updates timer
       {:ok, timer} ->
         json(conn, timer)
@@ -84,11 +84,10 @@ defmodule AppWeb.API.TimerController do
     end
   end
 
-
   defp make_changeset_errors_readable(changeset) do
     errors = %{
       code: 400,
-      message: "Malformed request",
+      message: "Malformed request"
     }
 
     changeset_errors = traverse_errors(changeset, fn {msg, _opts} -> msg end)

@@ -7,7 +7,7 @@ defmodule App.Timer do
   alias __MODULE__
   require Logger
 
-  @derive {Jason.Encoder, only: [:id, :start, :stop, ]}
+  @derive {Jason.Encoder, only: [:id, :start, :stop]}
   schema "timers" do
     field :start, :naive_datetime
     field :stop, :naive_datetime
@@ -22,7 +22,9 @@ defmodule App.Timer do
 
     # If start or stop  is nil, no comparison occurs.
     case is_nil(stop) or is_nil(start) do
-      true -> changeset
+      true ->
+        changeset
+
       false ->
         if NaiveDateTime.compare(start, stop) == :gt do
           add_error(changeset, :start, "cannot be later than 'stop'")
