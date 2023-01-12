@@ -32,5 +32,4 @@ config :phoenix, :plug_init_mode, :runtime
 # see: github.com/dwyl/mvp/issues/258
 config :auth_plug,
   api_key:
-    "2PzB7PPnpuLsbWmWtXpGyI+kfSQSQ1zUW2Atz/+8PdZuSEJzHgzGnJWV35nTKRwx/authdemo.fly.dev",
-  httpoison_mock: true
+    "2PzB7PPnpuLsbWmWtXpGyI+kfSQSQ1zUW2Atz/+8PdZuSEJzHgzGnJWV35nTKRwx/authdemo.fly.dev"
