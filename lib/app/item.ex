@@ -55,7 +55,7 @@ defmodule App.Item do
   end
 
   @doc """
-  Gets a single item.
+  `get_item!/1` gets a single Item.
 
   Raises `Ecto.NoResultsError` if the Item does not exist.
 
@@ -71,6 +71,25 @@ defmodule App.Item do
   def get_item!(id) do
     Item
     |> Repo.get!(id)
+    |> Repo.preload(tags: from(t in Tag, order_by: t.text))
+  end
+
+    @doc """
+    `get_item/1` gets a single Item.
+
+    Returns nil if the Item does not exist
+
+    ## Examples
+
+        iex> get_item(1)
+        %Timer{}
+
+        iex> get_item(1313)
+        nil
+    """
+  def get_item(id) do
+    Item
+    |> Repo.get(id)
     |> Repo.preload(tags: from(t in Tag, order_by: t.text))
   end
 

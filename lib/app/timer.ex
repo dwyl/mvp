@@ -42,7 +42,7 @@ defmodule App.Timer do
   end
 
   @doc """
-  `get_timer/1` gets a single Timer.
+  `get_timer!/1` gets a single Timer.
 
   Raises `Ecto.NoResultsError` if the Timer does not exist.
 
@@ -52,6 +52,21 @@ defmodule App.Timer do
       %Timer{}
   """
   def get_timer!(id), do: Repo.get!(Timer, id)
+
+  @doc """
+  `get_timer/1` gets a single Timer.
+
+  Returns nil if the Timer does not exist
+
+  ## Examples
+
+      iex> get_timer(1)
+      %Timer{}
+
+      iex> get_item!(13131)
+      nil
+  """
+  def get_timer(id), do: Repo.get(Timer, id)
 
   @doc """
   `list_timers/1` lists all the timer objects of a given item `id`.

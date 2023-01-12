@@ -3,22 +3,24 @@ defmodule AppWeb.API.ItemController do
   alias App.Item
   import Ecto.Changeset
 
-  def show(conn, params) do
-    id = Map.get(params, "id")
+  def show(conn, %{"id" => id} = _params) do
+    case Integer.parse(id) do
+      # ID is an integer
+      {id, _float} ->
+        case Item.get_item(id) do
+          nil ->
+            errors = %{
+              code: 404,
+              message: "No item found with the given \'id\'."
+            }
+            json(conn |> put_status(404), errors)
 
-    try do
-      item = Item.get_item!(id)
-      json(conn, item)
-    rescue
-      Ecto.NoResultsError ->
-        errors = %{
-          code: 404,
-          message: "No item found with the given \'id\'."
-        }
+          timer ->
+            json(conn, timer)
+        end
 
-        json(conn |> put_status(404), errors)
-
-      Ecto.Query.CastError ->
+      # ID is not an integer
+      :error ->
         errors = %{
           code: 400,
           message: "The \'id\' is not an integer."

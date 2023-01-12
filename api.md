@@ -310,25 +310,29 @@ defmodule AppWeb.API.ItemController do
   alias App.Item
   import Ecto.Changeset
 
-  def show(conn, params) do
-    id = Map.get(params, "id")
+  def show(conn, %{"id" => id} = _params) do
+    case Integer.parse(id) do
+      # ID is an integer
+      {id, _float} ->
+        case Item.get_item(id) do
+          nil ->
+            errors = %{
+              code: 404,
+              message: "No item found with the given \'id\'."
+            }
+            json(conn |> put_status(404), errors)
 
-    try do
-      item = Item.get_item!(id)
-      json(conn, item)
-    rescue
-      Ecto.NoResultsError ->
-        errors = %{
-          code: 404,
-          message: "No item found with the given \'id\'.",
-        }
-        json(conn |> put_status(404), errors)
+          timer ->
+            json(conn, timer)
+        end
 
-      Ecto.Query.CastError ->
+      # ID is not an integer
+      :error ->
         errors = %{
           code: 400,
-          message: "The \'id\' is not an integer.",
+          message: "The \'id\' is not an integer."
         }
+
         json(conn |> put_status(400), errors)
     end
   end
@@ -460,25 +464,29 @@ defmodule AppWeb.API.TimerController do
     json(conn, timers)
   end
 
-  def show(conn, params) do
-    id = Map.get(params, "id")
+  def show(conn, %{"id" => id} = _params) do
+    case Integer.parse(id) do
+      # ID is an integer
+      {id, _float} ->
+        case Timer.get_timer(id) do
+          nil ->
+            errors = %{
+              code: 404,
+              message: "No timer found with the given \'id\'."
+            }
+            json(conn |> put_status(404), errors)
 
-    try do
-      timer = Timer.get_timer!(id)
-      json(conn, timer)
-    rescue
-      Ecto.NoResultsError ->
-        errors = %{
-          code: 404,
-          message: "No timer found with the given \'id\'.",
-        }
-        json(conn |> put_status(404), errors)
+          timer ->
+            json(conn, timer)
+        end
 
-      Ecto.Query.CastError ->
+      # ID is not an integer
+      :error ->
         errors = %{
           code: 400,
-          message: "The \'id\' is not an integer.",
+          message: "The \'id\' is not an integer."
         }
+
         json(conn |> put_status(400), errors)
     end
   end
@@ -620,7 +628,7 @@ and serialize them as `JSON` objects
 so they can be returned to the person
 using the API! ✨
 
-## 4. Listing `timers` and validating updates
+## 4. Listing `timers` and `items` and validating updates
 
 Let's implement `list_timers/1`
 in `lib/app/timer.ex`.
@@ -637,6 +645,38 @@ in `lib/app/timer.ex`.
 Simple, isn't it?
 We are just retrieving every `timer` object
 of a given `item.id`.
+
+We are also using `Item.get_item/1`
+and `Timer.get_timer/1`, 
+instead of using 
+[bang (!) functions](https://stackoverflow.com/questions/33324302/what-are-elixir-bang-functions).
+We are not using bang functions
+because they throw Exceptions.
+And using `try/rescue` constructs
+[isn't a good practice.](https://elixir-lang.org/getting-started/try-catch-and-rescue.html)
+
+To validate parameters and return errors,
+we need to be able to "catch" these scenarios.
+Therefore, we create non-bang functions
+that don't raise exceptions.
+
+In `app/lib/timer.ex`, 
+add `get_timer/1`.
+
+```elixir
+  def get_timer(id), do: Repo.get(Timer, id)
+```
+
+In `app/lib/item.ex`, 
+add `get_item/1`.
+
+```elixir
+  def get_item(id) do
+    Item
+    |> Repo.get(id)
+    |> Repo.preload(tags: from(t in Tag, order_by: t.text))
+  end
+```
 
 Digressing,
 when updating or creating a `timer`, 

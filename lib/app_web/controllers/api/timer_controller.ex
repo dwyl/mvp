@@ -10,22 +10,24 @@ defmodule AppWeb.API.TimerController do
     json(conn, timers)
   end
 
-  def show(conn, params) do
-    id = Map.get(params, "id")
+  def show(conn, %{"id" => id} = _params) do
+    case Integer.parse(id) do
+      # ID is an integer
+      {id, _float} ->
+        case Timer.get_timer(id) do
+          nil ->
+            errors = %{
+              code: 404,
+              message: "No timer found with the given \'id\'."
+            }
+            json(conn |> put_status(404), errors)
 
-    try do
-      timer = Timer.get_timer!(id)
-      json(conn, timer)
-    rescue
-      Ecto.NoResultsError ->
-        errors = %{
-          code: 404,
-          message: "No timer found with the given \'id\'."
-        }
+          timer ->
+            json(conn, timer)
+        end
 
-        json(conn |> put_status(404), errors)
-
-      Ecto.Query.CastError ->
+      # ID is not an integer
+      :error ->
         errors = %{
           code: 400,
           message: "The \'id\' is not an integer."
