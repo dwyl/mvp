@@ -9,7 +9,7 @@ defmodule AppWeb.API.ItemControllerTest do
   describe "show" do
     test "specific item", %{conn: conn} do
       {:ok, %{model: item, version: _version}} = Item.create_item(@create_attrs)
-      conn = get(conn, Routes.item_path(conn, :show, item.id))
+      conn = get(conn, Routes.api_item_path(conn, :show, item.id))
 
       assert conn.status == 200
       assert json_response(conn, 200)["id"] == item.id
@@ -17,20 +17,20 @@ defmodule AppWeb.API.ItemControllerTest do
     end
 
     test "not found item", %{conn: conn} do
-      conn = get(conn, Routes.item_path(conn, :show, -1))
+      conn = get(conn, Routes.api_item_path(conn, :show, -1))
 
       assert conn.status == 404
     end
 
     test "invalid id (not being an integer)", %{conn: conn} do
-      conn = get(conn, Routes.item_path(conn, :show, "invalid"))
+      conn = get(conn, Routes.api_item_path(conn, :show, "invalid"))
       assert conn.status == 400
     end
   end
 
   describe "create" do
     test "a valid item", %{conn: conn} do
-      conn = post(conn, Routes.item_path(conn, :create, @create_attrs))
+      conn = post(conn, Routes.api_item_path(conn, :create, @create_attrs))
 
       assert conn.status == 200
       assert json_response(conn, 200)["text"] == Map.get(@create_attrs, "text")
@@ -43,7 +43,7 @@ defmodule AppWeb.API.ItemControllerTest do
     end
 
     test "an invalid item", %{conn: conn} do
-      conn = post(conn, Routes.item_path(conn, :create, @invalid_attrs))
+      conn = post(conn, Routes.api_item_path(conn, :create, @invalid_attrs))
 
       assert conn.status == 400
       assert length(json_response(conn, 400)["errors"]["text"]) > 0
@@ -53,7 +53,7 @@ defmodule AppWeb.API.ItemControllerTest do
   describe "update" do
     test "item with valid attributes", %{conn: conn} do
       {:ok, %{model: item, version: _version}} = Item.create_item(@create_attrs)
-      conn = put(conn, Routes.item_path(conn, :update, item.id, @update_attrs))
+      conn = put(conn, Routes.api_item_path(conn, :update, item.id, @update_attrs))
 
       assert conn.status == 200
       assert json_response(conn, 200)["text"] == Map.get(@update_attrs, :text)
@@ -61,7 +61,7 @@ defmodule AppWeb.API.ItemControllerTest do
 
     test "item with invalid attributes", %{conn: conn} do
       {:ok, %{model: item, version: _version}} = Item.create_item(@create_attrs)
-      conn = put(conn, Routes.item_path(conn, :update, item.id, @invalid_attrs))
+      conn = put(conn, Routes.api_item_path(conn, :update, item.id, @invalid_attrs))
 
       assert conn.status == 400
       assert length(json_response(conn, 400)["errors"]["text"]) > 0

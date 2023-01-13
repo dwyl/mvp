@@ -34,7 +34,7 @@ defmodule AppWeb.Router do
     resources "/tags", TagController, except: [:show]
   end
 
-  scope "/api", AppWeb do
+  scope "/api", AppWeb, as: :api do
     pipe_through [:api, :authOptional]
 
     resources "/items", API.ItemController, only: [:create, :update, :show]

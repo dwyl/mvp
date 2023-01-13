@@ -7,7 +7,7 @@ defmodule AppWeb.API.TagController do
     case Integer.parse(id) do
       # ID is an integer
       {id, _float} ->
-        case Tag.get_tag!(id) do
+        case Tag.get_tag(id) do
           nil ->
             errors = %{
               code: 404,
@@ -40,8 +40,6 @@ defmodule AppWeb.API.TagController do
       color: Map.get(params, "color", App.Color.random())
     }
 
-    dbg(attrs)
-
     case Tag.create_tag(attrs) do
       # Successfully creates tag
       {:ok, tag} ->
@@ -62,21 +60,32 @@ defmodule AppWeb.API.TagController do
   def update(conn, params) do
     id = Map.get(params, "id")
 
-    tag = Tag.get_tag!(id)
+    # Get tag with the ID
+    case Tag.get_tag(id) do
+      nil ->
+        errors = %{
+          code: 404,
+          message: "No tag found with the given \'id\'."
+        }
 
-    case Tag.update_tag(tag, params) do
-      # Successfully updates tag
-      {:ok, tag} ->
-        json(conn, tag)
+        json(conn |> put_status(404), errors)
 
-      # Error creating tag
-      {:error, %Ecto.Changeset{} = changeset} ->
-        errors = make_changeset_errors_readable(changeset)
+      # If tag is found, try to update it
+      tag ->
+        case Tag.update_tag(tag, params) do
+          # Successfully updates tag
+          {:ok, tag} ->
+            json(conn, tag)
 
-        json(
-          conn |> put_status(400),
-          errors
-        )
+          # Error creating tag
+          {:error, %Ecto.Changeset{} = changeset} ->
+            errors = make_changeset_errors_readable(changeset)
+
+            json(
+              conn |> put_status(400),
+              errors
+            )
+        end
     end
   end
 

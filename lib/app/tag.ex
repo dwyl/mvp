@@ -5,7 +5,7 @@ defmodule App.Tag do
   alias App.{Item, ItemTag, Repo}
   alias __MODULE__
 
-  @derive {Jason.Encoder, only: [:text, :person_id, :color]}
+  @derive {Jason.Encoder, only: [:id, :text, :person_id, :color]}
   schema "tags" do
     field :color, :string
     field :person_id, :integer
@@ -78,6 +78,8 @@ defmodule App.Tag do
   end
 
   def get_tag!(id), do: Repo.get!(Tag, id)
+
+  def get_tag(id), do: Repo.get(Tag, id)
 
   def list_person_tags(person_id) do
     Tag

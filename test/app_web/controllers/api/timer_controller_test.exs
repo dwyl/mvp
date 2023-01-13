@@ -14,7 +14,7 @@ defmodule AppWeb.API.TimerControllerTest do
       # Create item and timer
       {item, timer} = item_and_timer_fixture()
 
-      conn = get(conn, Routes.timer_path(conn, :index, item.id))
+      conn = get(conn, Routes.api_timer_path(conn, :index, item.id))
 
       assert conn.status == 200
       assert length(json_response(conn, 200)) == 1
@@ -26,7 +26,7 @@ defmodule AppWeb.API.TimerControllerTest do
       # Create item and timer
       {item, timer} = item_and_timer_fixture()
 
-      conn = get(conn, Routes.timer_path(conn, :show, item.id, timer.id))
+      conn = get(conn, Routes.api_timer_path(conn, :show, item.id, timer.id))
 
       assert conn.status == 200
       assert json_response(conn, 200)["id"] == timer.id
@@ -37,7 +37,7 @@ defmodule AppWeb.API.TimerControllerTest do
       {:ok, %{model: item, version: _version}} =
         Item.create_item(@create_item_attrs)
 
-      conn = get(conn, Routes.timer_path(conn, :show, item.id, -1))
+      conn = get(conn, Routes.api_timer_path(conn, :show, item.id, -1))
 
       assert conn.status == 404
     end
@@ -47,7 +47,7 @@ defmodule AppWeb.API.TimerControllerTest do
       {:ok, %{model: item, version: _version}} =
         Item.create_item(@create_item_attrs)
 
-      conn = get(conn, Routes.timer_path(conn, :show, item.id, "invalid"))
+      conn = get(conn, Routes.api_timer_path(conn, :show, item.id, "invalid"))
       assert conn.status == 400
     end
   end
@@ -60,7 +60,7 @@ defmodule AppWeb.API.TimerControllerTest do
 
       # Create timer
       conn =
-        post(conn, Routes.timer_path(conn, :create, item.id, @create_attrs))
+        post(conn, Routes.api_timer_path(conn, :create, item.id, @create_attrs))
 
       assert conn.status == 200
 
@@ -74,7 +74,7 @@ defmodule AppWeb.API.TimerControllerTest do
         Item.create_item(@create_item_attrs)
 
       conn =
-        post(conn, Routes.timer_path(conn, :create, item.id, @invalid_attrs))
+        post(conn, Routes.api_timer_path(conn, :create, item.id, @invalid_attrs))
 
       assert conn.status == 400
       assert length(json_response(conn, 400)["errors"]["start"]) > 0
@@ -89,7 +89,7 @@ defmodule AppWeb.API.TimerControllerTest do
       conn =
         put(
           conn,
-          Routes.timer_path(conn, :update, item.id, timer.id, @update_attrs)
+          Routes.api_timer_path(conn, :update, item.id, timer.id, @update_attrs)
         )
 
       assert conn.status == 200
@@ -103,7 +103,7 @@ defmodule AppWeb.API.TimerControllerTest do
       conn =
         put(
           conn,
-          Routes.timer_path(conn, :update, item.id, timer.id, @invalid_attrs)
+          Routes.api_timer_path(conn, :update, item.id, timer.id, @invalid_attrs)
         )
 
       assert conn.status == 400
