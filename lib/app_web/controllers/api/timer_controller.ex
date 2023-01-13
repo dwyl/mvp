@@ -64,27 +64,41 @@ defmodule AppWeb.API.TimerController do
   end
 
   def update(conn, params) do
+
+    id = Map.get(params, "id")
+
     # Attributes to update timer
     attrs_to_update = %{
-      id: Map.get(params, "id"),
       start: Map.get(params, "start"),
       stop: Map.get(params, "stop")
     }
 
-    case Timer.update_timer(attrs_to_update) do
-      # Successfully updates timer
-      {:ok, timer} ->
-        json(conn, timer)
+    case Timer.get_timer(id) do
+      nil ->
+        errors = %{
+          code: 404,
+          message: "No timer found with the given \'id\'."
+        }
 
-      # Error creating timer
-      {:error, %Ecto.Changeset{} = changeset} ->
-        errors = make_changeset_errors_readable(changeset)
+        json(conn |> put_status(404), errors)
 
-        json(
-          conn |> put_status(400),
-          errors
-        )
-    end
+      # If timer is found, try to update it
+      timer ->
+        case Timer.update_timer(timer, attrs_to_update) do
+          # Successfully updates timer
+          {:ok, timer} ->
+            json(conn, timer)
+
+          # Error creating timer
+          {:error, %Ecto.Changeset{} = changeset} ->
+            errors = make_changeset_errors_readable(changeset)
+
+            json(
+              conn |> put_status(400),
+              errors
+            )
+        end
+      end
   end
 
   defp make_changeset_errors_readable(changeset) do

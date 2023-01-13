@@ -109,6 +109,12 @@ defmodule AppWeb.API.TimerControllerTest do
       assert conn.status == 400
       assert length(json_response(conn, 400)["errors"]["start"]) > 0
     end
+
+    test "timer that doesn't exist", %{conn: conn} do
+      conn = put(conn, Routes.timer_path(conn, :update, -1, -1, @invalid_attrs))
+
+      assert conn.status == 404
+    end
   end
 
   defp item_and_timer_fixture() do

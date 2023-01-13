@@ -130,8 +130,8 @@ defmodule App.Timer do
       {:ok, %Timer{id: 1, start: ~N[2022-07-11 05:15:31], stop: ~N[2022-07-11 05:15:37}}
 
   """
-  def update_timer(attrs \\ %{}) do
-    get_timer!(attrs.id)
+  def update_timer(%Timer{} = timer, attrs \\ %{}) do
+    timer
     |> changeset(attrs)
     |> validate_start_before_stop()
     |> Repo.update()
@@ -177,7 +177,8 @@ defmodule App.Timer do
 
       case NaiveDateTime.compare(start, max_end) do
         :gt ->
-          update_timer(%{id: timer_id, start: start, stop: nil})
+          timer = get_timer(timer_id)
+          update_timer(timer, %{start: start, stop: nil})
           {:ok, []}
 
         _ ->
@@ -276,7 +277,8 @@ defmodule App.Timer do
             end
           end
 
-          update_timer(%{id: timer_id, start: start, stop: stop})
+          timer = get_timer(timer_id)
+          update_timer(timer, %{start: start, stop: stop})
           {:ok, []}
 
         :eq ->

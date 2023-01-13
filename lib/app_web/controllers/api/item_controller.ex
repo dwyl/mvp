@@ -61,7 +61,7 @@ defmodule AppWeb.API.ItemController do
     id = Map.get(params, "id")
     new_text = Map.get(params, "text")
 
-    # Get tag with the ID
+    # Get item with the ID
     case Item.get_item(id) do
       nil ->
         errors = %{
