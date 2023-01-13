@@ -101,7 +101,8 @@ defmodule App.TimerTest do
       start = ~N[2022-10-27 05:00:00]
       stop = ~N[2022-10-27 00:00:00]
 
-      {:ok, %{model: item, version: _version}} = Item.create_item(@valid_item_attrs)
+      {:ok, %{model: item, version: _version}} =
+        Item.create_item(@valid_item_attrs)
 
       {:ok, seven_seconds_ago} =
         NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))

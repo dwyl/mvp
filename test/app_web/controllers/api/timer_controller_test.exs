@@ -34,7 +34,8 @@ defmodule AppWeb.API.TimerControllerTest do
 
     test "not found timer", %{conn: conn} do
       # Create item
-      {:ok, %{model: item, version: _version}} = Item.create_item(@create_item_attrs)
+      {:ok, %{model: item, version: _version}} =
+        Item.create_item(@create_item_attrs)
 
       conn = get(conn, Routes.timer_path(conn, :show, item.id, -1))
 
@@ -43,7 +44,8 @@ defmodule AppWeb.API.TimerControllerTest do
 
     test "invalid id (not being an integer)", %{conn: conn} do
       # Create item
-      {:ok, %{model: item, version: _version}} = Item.create_item(@create_item_attrs)
+      {:ok, %{model: item, version: _version}} =
+        Item.create_item(@create_item_attrs)
 
       conn = get(conn, Routes.timer_path(conn, :show, item.id, "invalid"))
       assert conn.status == 400
@@ -53,7 +55,8 @@ defmodule AppWeb.API.TimerControllerTest do
   describe "create" do
     test "a valid timer", %{conn: conn} do
       # Create item
-      {:ok, %{model: item, version: _version}} = Item.create_item(@create_item_attrs)
+      {:ok, %{model: item, version: _version}} =
+        Item.create_item(@create_item_attrs)
 
       # Create timer
       conn =
@@ -67,7 +70,8 @@ defmodule AppWeb.API.TimerControllerTest do
 
     test "an invalid timer", %{conn: conn} do
       # Create item
-      {:ok, %{model: item, version: _version}} = Item.create_item(@create_item_attrs)
+      {:ok, %{model: item, version: _version}} =
+        Item.create_item(@create_item_attrs)
 
       conn =
         post(conn, Routes.timer_path(conn, :create, item.id, @invalid_attrs))
@@ -109,7 +113,8 @@ defmodule AppWeb.API.TimerControllerTest do
 
   defp item_and_timer_fixture() do
     # Create item
-    {:ok, %{model: item, version: _version}} = Item.create_item(@create_item_attrs)
+    {:ok, %{model: item, version: _version}} =
+      Item.create_item(@create_item_attrs)
 
     # Create timer
     started = NaiveDateTime.utc_now()
