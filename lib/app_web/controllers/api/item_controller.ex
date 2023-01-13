@@ -16,8 +16,8 @@ defmodule AppWeb.API.ItemController do
 
             json(conn |> put_status(404), errors)
 
-          timer ->
-            json(conn, timer)
+          item ->
+            json(conn, item)
         end
 
       # ID is not an integer
@@ -42,7 +42,7 @@ defmodule AppWeb.API.ItemController do
 
     case Item.create_item(attrs) do
       # Successfully creates item
-      {:ok, item} ->
+      {:ok, %{model: item, version: _version}} ->
         id_item = Map.take(item, [:id])
         json(conn, id_item)
 
@@ -65,7 +65,7 @@ defmodule AppWeb.API.ItemController do
 
     case Item.update_item(item, %{text: new_text}) do
       # Successfully updates item
-      {:ok, item} ->
+      {:ok, %{model: item, version: _version}} ->
         json(conn, item)
 
       # Error creating item

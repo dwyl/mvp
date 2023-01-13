@@ -110,7 +110,7 @@ defmodule AppWeb.API.ItemControllerTest do
 
   describe "show" do
     test "specific item", %{conn: conn} do
-      {:ok, item} = Item.create_item(@create_attrs)
+      {:ok, %{model: item, version: _version}} = Item.create_item(@create_attrs)
       conn = get(conn, Routes.item_path(conn, :show, item.id))
 
       assert conn.status == 200
@@ -137,9 +137,11 @@ defmodule AppWeb.API.ItemControllerTest do
       assert conn.status == 200
       assert json_response(conn, 200)["text"] == Map.get(@create_attrs, "text")
 
-      assert json_response(conn, 200)["status"] == Map.get(@create_attrs, "status")
+      assert json_response(conn, 200)["status"] ==
+               Map.get(@create_attrs, "status")
 
-      assert json_response(conn, 200)["person_id"] == Map.get(@create_attrs, "person_id")
+      assert json_response(conn, 200)["person_id"] ==
+               Map.get(@create_attrs, "person_id")
     end
 
     test "an invalid item", %{conn: conn} do
@@ -152,7 +154,7 @@ defmodule AppWeb.API.ItemControllerTest do
 
   describe "update" do
     test "item with valid attributes", %{conn: conn} do
-      {:ok, item} = Item.create_item(@create_attrs)
+      {:ok, %{model: item, version: _version}} = Item.create_item(@create_attrs)
       conn = put(conn, Routes.item_path(conn, :update, item.id, @update_attrs))
 
       assert conn.status == 200
@@ -160,7 +162,7 @@ defmodule AppWeb.API.ItemControllerTest do
     end
 
     test "item with invalid attributes", %{conn: conn} do
-      {:ok, item} = Item.create_item(@create_attrs)
+      {:ok, %{model: item, version: _version}} = Item.create_item(@create_attrs)
       conn = put(conn, Routes.item_path(conn, :update, item.id, @invalid_attrs))
 
       assert conn.status == 400
@@ -217,7 +219,7 @@ defmodule AppWeb.API.TimerControllerTest do
 
     test "not found timer", %{conn: conn} do
       # Create item
-      {:ok, item} = Item.create_item(@create_item_attrs)
+      {:ok, %{model: item, version: _version}} = Item.create_item(@create_item_attrs)
 
       conn = get(conn, Routes.timer_path(conn, :show, item.id, -1))
 
@@ -226,7 +228,7 @@ defmodule AppWeb.API.TimerControllerTest do
 
     test "invalid id (not being an integer)", %{conn: conn} do
       # Create item
-      {:ok, item} = Item.create_item(@create_item_attrs)
+      {:ok, %{model: item, version: _version}} = Item.create_item(@create_item_attrs)
 
       conn = get(conn, Routes.timer_path(conn, :show, item.id, "invalid"))
       assert conn.status == 400
@@ -235,22 +237,25 @@ defmodule AppWeb.API.TimerControllerTest do
 
   describe "create" do
     test "a valid timer", %{conn: conn} do
-
       # Create item
-      {:ok, item} = Item.create_item(@create_item_attrs)
+      {:ok, %{model: item, version: _version}} = Item.create_item(@create_item_attrs)
 
       # Create timer
-      conn = post(conn, Routes.timer_path(conn, :create, item.id, @create_attrs))
+      conn =
+        post(conn, Routes.timer_path(conn, :create, item.id, @create_attrs))
 
       assert conn.status == 200
-      assert json_response(conn, 200)["start"] == Map.get(@create_attrs, "start")
+
+      assert json_response(conn, 200)["start"] ==
+               Map.get(@create_attrs, "start")
     end
 
     test "an invalid timer", %{conn: conn} do
       # Create item
-      {:ok, item} = Item.create_item(@create_item_attrs)
+      {:ok, %{model: item, version: _version}} = Item.create_item(@create_item_attrs)
 
-      conn = post(conn, Routes.timer_path(conn, :create, item.id, @invalid_attrs))
+      conn =
+        post(conn, Routes.timer_path(conn, :create, item.id, @invalid_attrs))
 
       assert conn.status == 400
       assert length(json_response(conn, 400)["errors"]["start"]) > 0
@@ -262,7 +267,11 @@ defmodule AppWeb.API.TimerControllerTest do
       # Create item and timer
       {item, timer} = item_and_timer_fixture()
 
-      conn = put(conn, Routes.timer_path(conn, :update, item.id, timer.id, @update_attrs))
+      conn =
+        put(
+          conn,
+          Routes.timer_path(conn, :update, item.id, timer.id, @update_attrs)
+        )
 
       assert conn.status == 200
       assert json_response(conn, 200)["start"] == Map.get(@update_attrs, :start)
@@ -272,7 +281,11 @@ defmodule AppWeb.API.TimerControllerTest do
       # Create item and timer
       {item, timer} = item_and_timer_fixture()
 
-      conn = put(conn, Routes.timer_path(conn, :update, item.id, timer.id, @invalid_attrs))
+      conn =
+        put(
+          conn,
+          Routes.timer_path(conn, :update, item.id, timer.id, @invalid_attrs)
+        )
 
       assert conn.status == 400
       assert length(json_response(conn, 400)["errors"]["start"]) > 0
@@ -281,7 +294,7 @@ defmodule AppWeb.API.TimerControllerTest do
 
   defp item_and_timer_fixture() do
     # Create item
-    {:ok, item} = Item.create_item(@create_item_attrs)
+    {:ok, %{model: item, version: _version}} = Item.create_item(@create_item_attrs)
 
     # Create timer
     started = NaiveDateTime.utc_now()
@@ -320,10 +333,11 @@ defmodule AppWeb.API.ItemController do
               code: 404,
               message: "No item found with the given \'id\'."
             }
+
             json(conn |> put_status(404), errors)
 
-          timer ->
-            json(conn, timer)
+          item ->
+            json(conn, item)
         end
 
       # ID is not an integer
@@ -347,9 +361,8 @@ defmodule AppWeb.API.ItemController do
     }
 
     case Item.create_item(attrs) do
-
       # Successfully creates item
-      {:ok, item} ->
+      {:ok, %{model: item, version: _version}} ->
         id_item = Map.take(item, [:id])
         json(conn, id_item)
 
@@ -371,9 +384,8 @@ defmodule AppWeb.API.ItemController do
     item = Item.get_item!(id)
 
     case Item.update_item(item, %{text: new_text}) do
-
       # Successfully updates item
-      {:ok, item} ->
+      {:ok, %{model: item, version: _version}} ->
         json(conn, item)
 
       # Error creating item
@@ -390,7 +402,7 @@ defmodule AppWeb.API.ItemController do
   defp make_changeset_errors_readable(changeset) do
     errors = %{
       code: 400,
-      message: "Malformed request",
+      message: "Malformed request"
     }
 
     changeset_errors = traverse_errors(changeset, fn {msg, _opts} -> msg end)
@@ -407,6 +419,18 @@ and returns an `item` object.
 and yields the `id` of the newly created `item` object.
 - `:update` refers to `PUT or PATCH api/items/:id` 
 and returns the updated `item` object.
+
+Do notice that, since we are using 
+[`PaperTrail`](https://github.com/izelnakri/paper_trail)
+to record changes to the `items`,
+database operations return 
+a map with `"model"` and `"version"`,
+hence why we are pattern-matching it when
+updating and create items.
+
+```elixir
+{:ok, %{model: item, version: _version}} -> Item.create_item(attrs)
+```
 
 In cases where, for example,
 `:id` is invalid when creating an `item`;

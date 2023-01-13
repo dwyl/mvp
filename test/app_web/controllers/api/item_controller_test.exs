@@ -8,7 +8,7 @@ defmodule AppWeb.API.ItemControllerTest do
 
   describe "show" do
     test "specific item", %{conn: conn} do
-      {:ok, item} = Item.create_item(@create_attrs)
+      {:ok, %{model: item, version: _version}} = Item.create_item(@create_attrs)
       conn = get(conn, Routes.item_path(conn, :show, item.id))
 
       assert conn.status == 200
@@ -52,7 +52,7 @@ defmodule AppWeb.API.ItemControllerTest do
 
   describe "update" do
     test "item with valid attributes", %{conn: conn} do
-      {:ok, item} = Item.create_item(@create_attrs)
+      {:ok, %{model: item, version: _version}} = Item.create_item(@create_attrs)
       conn = put(conn, Routes.item_path(conn, :update, item.id, @update_attrs))
 
       assert conn.status == 200
@@ -60,7 +60,7 @@ defmodule AppWeb.API.ItemControllerTest do
     end
 
     test "item with invalid attributes", %{conn: conn} do
-      {:ok, item} = Item.create_item(@create_attrs)
+      {:ok, %{model: item, version: _version}} = Item.create_item(@create_attrs)
       conn = put(conn, Routes.item_path(conn, :update, item.id, @invalid_attrs))
 
       assert conn.status == 400
