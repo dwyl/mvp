@@ -97,15 +97,20 @@ With that in place, let's get building!
   - [12.4 Updating timer changeset list on `timer.ex`](#124-updating-timer-changeset-list-on-timerex)
   - [12.5 Updating the UI](#125-updating-the-ui)
   - [12.6 Updating the tests and going back to 100% coverage](#126-updating-the-tests-and-going-back-to-100-coverage)
-- [13. Adding a dashboard to track metrics](#13-adding-a-dashboard-to-track-metrics)
-  - [13.1 Adding new `LiveView` page in `/stats`](#131-adding-new-liveview-page-in-stats)
-  - [13.2 Fetching counter of timers and items for each person](#132-fetching-counter-of-timers-and-items-for-each-person)
-  - [13.3 Building the Stats Page](#133-building-the-stats-page)
-  - [13.4 Broadcasting to `stats` channel](#134-broadcasting-to-stats-channel)
-  - [13.5 Adding tests](#135-adding-tests)
-- [14. Run the _Finished_ MVP App!](#14-run-the-finished-mvp-app)
-  - [14.1 Run the Tests](#141-run-the-tests)
-  - [14.2 Run The App](#142-run-the-app)
+- [13. Tracking changes of `items` in database](#13-tracking-changes-of-items-in-database)
+  - [13.1 Setting up](#131-setting-up)
+  - [13.2 Changing database transactions on `item` insert and update](#132-changing-database-transactions-on-item-insert-and-update)
+  - [13.3 Fixing tests](#133-fixing-tests)
+  - [13.4 Checking the changes using `DBEaver`](#134-checking-the-changes-using-DBEaver)
+- [14. Adding a dashboard to track metrics](#14-adding-a-dashboard-to-track-metrics)
+  - [14.1 Adding new `LiveView` page in `/stats`](#141-adding-new-liveview-page-in-stats)
+  - [14.2 Fetching counter of timers and items for each person](#142-fetching-counter-of-timers-and-items-for-each-person)
+  - [14.3 Building the Stats Page](#143-building-the-stats-page)
+  - [14.4 Broadcasting to `stats` channel](#144-broadcasting-to-stats-channel)
+  - [14.5 Adding tests](#145-adding-tests)
+- [15. Run the _Finished_ MVP App!](#15-run-the-finished-mvp-app)
+  - [15.1 Run the Tests](#151-run-the-tests)
+  - [15.2 Run The App](#152-run-the-app)
 - [Thanks!](#thanks)
 
 
@@ -2833,7 +2838,7 @@ This will properly reference `Timer` to the `Item` object.
 In the same file, let us add a way to list all the timer changesets associated
 with a certain `item` id.
 We are returning changesets because of form validation.
-In case an error occurs, we want to provide feedback to the user.
+In case an error occurs, we want to provide feedback to the person.
 To do this, we use these changesets and add errors to them, 
 which will later be displayed on the UI.
 Paste the following.
@@ -2855,7 +2860,7 @@ Paste the following.
 
 ## 12.3 Adding event handler in `app_live.ex`
 We need a way to show the timers related to an `item` in the UI.
-Currently, in `lib/app_web/live/app_live.ex`, every time the user
+Currently, in `lib/app_web/live/app_live.ex`, every time the person
 edits an item, an `edit-timer` event is propped up, setting the 
 socket assigns accordingly.
 
@@ -3032,8 +3037,8 @@ everytime `Start/Resume` or `Stop` is called.
 Now, everytime the `update` event is broadcasted,
 we update the timer list if the item is being edited.
 If not, we update the timer list, as normally.
-What this does is that every user will have the `socket.assigns`
-properly updated every time a timer is edited.
+What this does is that every person will have the `socket.assigns`
+properly updated everytime a timer is edited.
 
 
 ## 12.4 Updating timer changeset list on `timer.ex`
@@ -3259,7 +3264,7 @@ pattern matching of the `timer_stop` field.
 If `timer_stop` field is empty, we assume it's an 
 ongoing timer being edited. 
 If both `timer_start` and `timer_stop` is being edited,
-it's because the user is changing an old timer. 
+it's because the person is changing an old timer. 
 
 Inside both functions, the flow is the same.
 We first get the *timer changeset* being edited
@@ -3935,7 +3940,6 @@ test "handle_info/2 update with editing open (start)", %{conn: conn} do
   end
 ```
 
-# 13. Adding a dashboard to track metrics
 
 Having a page to track metrics 
 regarding app usage is important two-fold:
@@ -3953,7 +3957,6 @@ in a simple table.
 
 Let's roll!
 
-## 13.1 Adding new `LiveView` page in `/stats`
 
 Open 
 `lib/app_web/router.ex` 
@@ -3991,7 +3994,6 @@ defmodule AppWeb.StatsLive do
 
   @impl true
   def mount(_params, _session, socket) do
-
     # subscribe to the channel
     if connected?(socket), do: AppWeb.Endpoint.subscribe(@stats_topic)
 
@@ -4004,47 +4006,54 @@ defmodule AppWeb.StatsLive do
   end
 
   @impl true
-  def handle_info(%Broadcast{topic: @stats_topic, event: "item", payload: payload}, socket) do
-
+  def handle_info(
+        %Broadcast{topic: @stats_topic, event: "item", payload: payload},
+        socket
+      ) do
     metrics = socket.assigns.metrics
 
     case payload do
       {:create, payload: payload} ->
-        updated_metrics =
-          Enum.map(metrics, fn row ->
-            if row.person_id == payload.person_id do
-              Map.put(row, :num_items, row.num_items + 1)
-            else
-              row
-            end
-          end)
+        updated_metrics = Enum.map(metrics, fn row -> add_row(row, payload, :num_items) end)
 
         {:noreply, assign(socket, metrics: updated_metrics)}
+
       _ ->
         {:noreply, socket}
     end
   end
 
   @impl true
-  def handle_info(%Broadcast{topic: @stats_topic, event: "timer", payload: payload}, socket) do
-
+  def handle_info(
+        %Broadcast{topic: @stats_topic, event: "timer", payload: payload},
+        socket
+      ) do
     metrics = socket.assigns.metrics
+
     case payload do
       {:create, payload: payload} ->
-
-        updated_metrics =
-          Enum.map(metrics, fn row ->
-            if row.person_id == payload.person_id do
-              Map.put(row, :num_timers, row.num_timers + 1)
-            else
-              row
-            end
-          end)
+        updated_metrics = Enum.map(metrics, fn row -> add_row(row, payload, :num_timers) end)
 
         {:noreply, assign(socket, metrics: updated_metrics)}
+
       _ ->
         {:noreply, socket}
     end
+  end
+
+  def add_row(row, payload, key) do
+    row =
+      if row.person_id == payload.person_id do
+        Map.put(row, key, Map.get(row, key) + 1)
+      else
+        row
+      end
+
+    row
+  end
+
+  def person_link(person_id) do
+    "https://auth.dwyl.com/people/#{person_id}"
   end
 end
 ```
@@ -4061,10 +4070,12 @@ in real-time whenever a user is created.
 For this to actually work, 
 we need to broadcast to this channel. 
 
+`person_link/1` is merely used to display the 
+user profile in [`auth.dwyl.com`](https://auth.dwyl.com)
+
 We will do this shortly!
 But first, let's implement `Item.person_with_item_and_timer_count()`.
 
-## 13.2 Fetching counter of timers and items for each person
 
 In `lib/app/item.ex`,
 add the following function.
@@ -4072,12 +4083,13 @@ add the following function.
 ```elixir
   def person_with_item_and_timer_count() do
     sql = """
-    select p.person_id, p.name, COUNT(distinct i.id) as "num_items", count(distinct t.id) as "num_timers"
-    from people p
-    left join items i on i.person_id = p.person_id
-    left join timers t on t.item_id = i.id
-    group by p.person_id, p.name
-    order by person_id
+    SELECT i.person_id,
+    COUNT(distinct i.id) AS "num_items",
+    COUNT(distinct t.id) AS "num_timers"
+    FROM items i
+    LEFT JOIN timers t ON t.item_id = i.id
+    GROUP BY i.person_id
+    ORDER BY i.person_id
     """
 
     Ecto.Adapters.SQL.query!(Repo, sql)
@@ -4098,7 +4110,6 @@ containing `person_id`, `name`, `num_items` and `num_timers`.
 ]
 ```
 
-## 13.3 Building the Stats Page
 
 We've created `lib/app_web/live/stats_live.html.heex`
 but haven't implemented anything.
@@ -4130,7 +4141,9 @@ Add this code to the file.
           <%= for metric <- @metrics do %>
             <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
               <td class="px-6 py-4">
-                <%= metric.person_id %>
+                <a href={person_link(metric.person_id)}>
+                  <%= metric.person_id %>
+                </a>
               </td>
               <td class="px-6 py-4">
                 <%= metric.num_items %>
@@ -4151,7 +4164,6 @@ one for `person_id`, person `name`, number of `items` and number of `timers`.
 We are acessing the `@metrics` array 
 that is fetched and assigned on `mount/3` inside `stats_live.ex`.
 
-## 13.4 Broadcasting to `stats` channel
 
 The only thing that is left to implement 
 is broadcasting events from `lib/app_web/live/app_live.ex`
@@ -4245,7 +4257,6 @@ end
 
 ```
 
-## 13.5 Adding tests
 
 Let's add the tests to cover the use case
 we just created.
@@ -4272,8 +4283,6 @@ defmodule AppWeb.StatsLiveTest do
   end
 
   test "display metrics on mount", %{conn: conn} do
-    {:ok, page_live, _html} = live(conn, "/stats")
-
     # Creating two items
     {:ok, item} =
       Item.create_item(%{text: "Learn Elixir", status: 2, person_id: @person_id})
@@ -4287,53 +4296,96 @@ defmodule AppWeb.StatsLiveTest do
     started = NaiveDateTime.utc_now()
     {:ok, _timer} = Timer.start(%{item_id: item.id, start: started})
 
-    assert render(page_live) =~ "User metrics"
-    assert render(page_live) =~ "2"   # num of items
-    assert render(page_live) =~ "1"   # num of timers
+    {:ok, page_live, _html} = live(conn, "/stats")
+
+    assert render(page_live) =~ "Stats"
+    # two items and one timer expected
+    assert render(page_live) =~
+    "<td class=\"px-6 py-4 text-center\">\n2\n            </td><td class=\"px-6 py-4 text-center\">\n1\n            </td>"
   end
 
   test "handle broadcast when item is created", %{conn: conn} do
     # Creating an item
-    {:ok, item} =
+    {:ok, _item} =
       Item.create_item(%{text: "Learn Elixir", status: 2, person_id: @person_id})
 
     {:ok, page_live, _html} = live(conn, "/stats")
 
-    assert render(page_live) =~ "User metrics"
-    assert render(page_live) =~ "1"   # num of items
-
+    assert render(page_live) =~ "Stats"
+    # num of items
+    assert render(page_live) =~
+    "<td class=\"px-6 py-4 text-center\">\n1\n            </td><td class=\"px-6 py-4 text-center\">\n0\n            </td>"
 
     # Creating another item.
-    AppWeb.Endpoint.broadcast("stats", "item", {:create, payload: %{person_id: @person_id}})
-    assert render(page_live) =~ "2"   # num of items
+    AppWeb.Endpoint.broadcast(
+      "stats",
+      "item",
+      {:create, payload: %{person_id: @person_id}}
+    )
+
+    # num of items
+    assert render(page_live) =~
+      "<td class=\"px-6 py-4 text-center\">\n2\n            </td><td class=\"px-6 py-4 text-center\">\n0\n            </td>"
+
 
     # Broadcasting update. Shouldn't effect anything in the page
-    AppWeb.Endpoint.broadcast("stats", "item", {:update, payload: %{person_id: @person_id}})
-    assert render(page_live) =~ "2"   # num of items
+    AppWeb.Endpoint.broadcast(
+      "stats",
+      "item",
+      {:update, payload: %{person_id: @person_id}}
+    )
+
+    # num of items
+    assert render(page_live) =~
+      "<td class=\"px-6 py-4 text-center\">\n2\n            </td><td class=\"px-6 py-4 text-center\">\n0\n            </td>"
   end
 
   test "handle broadcast when timer is created", %{conn: conn} do
     # Creating an item
-    {:ok, item} =
+    {:ok, _item} =
       Item.create_item(%{text: "Learn Elixir", status: 2, person_id: @person_id})
 
     {:ok, page_live, _html} = live(conn, "/stats")
 
-    assert render(page_live) =~ "User metrics"
-    assert render(page_live) =~ "0"   # num of timers
+    assert render(page_live) =~ "Stats"
+    # num of timers
+    assert render(page_live) =~
+    "<td class=\"px-6 py-4 text-center\">\n1\n            </td><td class=\"px-6 py-4 text-center\">\n0\n            </td>"
 
     # Creating a timer.
-    AppWeb.Endpoint.broadcast("stats", "timer", {:create, payload: %{person_id: @person_id}})
-    assert render(page_live) =~ "1"   # num of timers
+    AppWeb.Endpoint.broadcast(
+      "stats",
+      "timer",
+      {:create, payload: %{person_id: @person_id}}
+    )
+
+    # num of timers
+    assert render(page_live) =~
+    "<td class=\"px-6 py-4 text-center\">\n1\n            </td><td class=\"px-6 py-4 text-center\">\n1\n            </td>"
 
     # Broadcasting update. Shouldn't effect anything in the page
-    AppWeb.Endpoint.broadcast("stats", "timer", {:update, payload: %{person_id: @person_id}})
-    assert render(page_live) =~ "1"   # num of timers
+    AppWeb.Endpoint.broadcast(
+      "stats",
+      "timer",
+      {:update, payload: %{person_id: @person_id}}
+    )
+
+    # num of timers
+    assert render(page_live) =~
+    "<td class=\"px-6 py-4 text-center\">\n1\n            </td><td class=\"px-6 py-4 text-center\">\n1\n            </td>"
   end
 
-  defp create_person(_) do
-    person = Person.create_person(%{"person_id" => @person_id, "name" => "guest"})
-    %{person: person}
+  test "add_row/3 adds 1 to row.num_timers" do
+    row = %{person_id: 1, num_items: 1, num_timers: 1}
+    payload = %{person_id: 1}
+
+    # expect row.num_timers to be incremented by 1:
+    row_updated = AppWeb.StatsLive.add_row(row, payload, :num_timers)
+    assert row_updated == %{person_id: 1, num_items: 1, num_timers: 2}
+
+    # no change expected:
+    row2 = %{person_id: 2, num_items: 1, num_timers: 42}
+    assert row2 == AppWeb.StatsLive.add_row(row2, payload, :num_timers)
   end
 end
 ```
@@ -4385,12 +4437,268 @@ when creating `timers` or `items`.
 
 ![stats_final](https://user-images.githubusercontent.com/17494745/211345854-c541d21c-4289-4576-8fcf-c3b89251ed02.gif)
 
+# 13. Tracking changes of `items` in database
 
-# 14. Run the _Finished_ MVP App!
+Tracking changes that each `item` is subjected to
+over time is important not only for statistics
+but to also implement features 
+that such as *rolling back changes*.
+
+For this, we are going to be using 
+[`PaperTrail`](https://github.com/dwyl/phoenix-papertrail-demo/blob/main/lib/app/change.ex),
+which makes it easy for us to record each change 
+on each `item` transaction occured in the database.
+
+In this section we are going to explain
+the process of implementing this feature.
+Some of these steps overlap 
+[`phoenix-papertrail-demo`](https://github.com/dwyl/phoenix-papertrail-demo)'s.
+If you are interested in a more in-depth tutorial,
+we recommend you take a gander there!
+
+## 13.1 Setting up
+
+Install `paper_trail`.
+
+```elixir
+def deps do
+[
+  ...
+  {:paper_trail, "~> 0.14.3"}
+]
+end
+```
+
+And add this config to `config/config.exs`.
+
+```elixir
+config :paper_trail, repo: App.Repo
+```
+
+This will let `PaperTrail` know the reference of the database repo,
+so it can sabe the changes correctly.
+
+After this, run the following commands.
+
+```sh
+mix deps.get
+mix compile
+mix papertrail.install
+```
+
+This will install dependencies, compile the project
+and create a migration for creating the `versions` table.
+This will be the table where all the changes will be recorded.
+
+If you open the created migration in
+`priv/repo/migrations/XXX_add_versions.exs`,
+you will find the schema for te table.
+
+```elixir
+    create table(:versions) do
+      add :event,        :string, null: false, size: 10
+      add :item_type,    :string, null: false
+      add :item_id,      :integer
+      add :item_changes, :map, null: false
+      add :originator_id, references(:users) # you can change :users to your own foreign key constraint
+      add :origin,       :string, size: 50
+      add :meta,         :map
+
+      # Configure timestamps type in config.ex :paper_trail :timestamps_type
+      add :inserted_at,  :utc_datetime, null: false
+    end
+```
+
+You can find more information about what field means
+in [`phoenix-papertrail-demo`](https://github.com/dwyl/phoenix-papertrail-demo).
+We are going to be changing the `originator_id` to the following line.
+
+```elixir
+add :originator_id, :integer
+```
+
+The `originator_id` refers to "who made this change".
+In the case of our application, 
+we want to use the `person_id` that is used when logging in 
+with a third-party provider.
+
+Do note that **we do not save a person's information**.
+So the `person_id` will need to be passed each time
+a CRUD operation occurs 
+(or not, if the operation is anonymous).
+
+## 13.2 Changing database transactions on `item` insert and update
+
+We want to track the changes when an `item` is inserted or updated.
+To do this,
+we can use `PaperTrail.insert` and `PaperTrail.update` methods.
+We are going to replace `Repo.insert` and `Repo.update` functions
+with these.
+
+Head over to `lib/app/item.ex`,
+add the import 
+and make these changes in `create_item/1`,
+`create_item_with_tags/1`
+and `update_item/2`.
+
+```elixir
+alias PaperTrail
+
+  def create_item(attrs) do
+    %Item{}
+    |> changeset(attrs)
+    |> PaperTrail.insert(originator: %{id: Map.get(attrs, :person_id, 0)})
+  end
+
+  def create_item_with_tags(attrs) do
+    %Item{}
+    |> changeset_with_tags(attrs)
+    |> PaperTrail.insert(originator: %{id: Map.get(attrs, :person_id, 0)})
+  end
+
+  def update_item(%Item{} = item, attrs) do
+    item
+    |> Item.changeset(attrs)
+    |> PaperTrail.update(originator: %{id: Map.get(attrs, :person_id, 0)})
+  end
+```
+
+We are using the `person_id` 
+and using it to be placed in the `originator_id` column
+in the `Versions` table.
+If no `person_id` is passed, 
+we default to `id=0`.
+
+We want to sucessfully pass the `person_id` 
+when the item is toggled, as well.
+In `lib/app_web/live/app_live.ex`,
+in `handle_event("toggle", data, socket)`,
+update it so it looks like the following:
+
+```elixir
+  @impl true
+  def handle_event("toggle", data, socket) do
+    person_id = get_person_id(socket.assigns)
+
+    # Toggle the status of the item between 3 (:active) and 4 (:done)
+    status = if Map.has_key?(data, "value"), do: 4, else: 3
+
+    # need to restrict getting items to the people who own or have rights to access them!
+    item = Item.get_item!(Map.get(data, "id"))
+    Item.update_item(item, %{status: status, person_id: person_id})
+    Timer.stop_timer_for_item_id(item.id)
+
+    AppWeb.Endpoint.broadcast(@topic, "update", :toggle)
+    {:noreply, socket}
+  end
+```
+
+e.g.
+[`lib/app_web/live/app_live.ex`](https://github.com/dwyl/mvp/blob/732f2518d792048a38449058a6d7efb088b3d26f/lib/app_web/live/app_live.ex#L66)
+
+We are now passing the `person_id` when toggling 
+(which is an updating operation) an item.
+
+## 13.3 Fixing tests
+
+If you run `mix test`,
+you will notice we've broken quite a few of them!
+
+```sh
+..
+Finished in 1.7 seconds (0.3s async, 1.3s sync)
+78 tests, 26 failures
+
+Randomized with seed 205107
+```
+
+Not to worry though, we can fix them!
+
+The reason these tests are failing is because,
+unlike operations like `Repo.insert` or `Repo.update`,
+`PaperTrail.insert` and `PaperTrail.update` 
+return a struct with two fields:
+- the model changeset.
+- `PaperTrail` version object,
+which contains info about the changes made,
+versioning, etc.
+
+The returned struct looks like so:
+
+```elixir
+{:ok,
+  %{
+    model: %Item{__meta__: Ecto.Schema.Metadata<:loaded, "items"> ...},
+    version: %PaperTrail.Version{__meta__: Ecto.Schema.Metadata<:loaded, "versions">...}  
+  }
+}
+```
+
+Many tests are creating `items` like:
+
+```elixir
+{:ok, item} = Item.create_item(@valid_attrs)
+```
+
+which should be changed to:
+
+```elixir
+{:ok, %{model: item, version: version}} = Item.create_item(@valid_attrs)
+```
+
+To fix the tests, all instances
+of `Item.create_item`, 
+`Item.create_item_with_tags`
+and `Item.update_item`
+should be changed according
+to the example above.
+
+Additionally, since we are using `id=0` 
+as the default `person_id`,
+inside `test/app/item_test.exs`,
+update the `@update_attrs` to the following:
+
+```elixir
+@update_attrs %{text: "some updated text", person_id: 1}
+```
+
+This will make sure the isolated tests pass successfuly.
+
+You can see the updated files in:
+- [test/app/item_test.exs](https://github.com/dwyl/mvp/blob/732f2518d792048a38449058a6d7efb088b3d26f/test/app/item_test.exs)
+- [test/app/timer_test.exs](https://github.com/dwyl/mvp/blob/d80c2148b2d19535143d6d9794391f6fb3f2421f/test/app/timer_test.exs)
+- [test/app_web/live/app_live_test.exs](https://github.com/dwyl/mvp/blob/d80c2148b2d19535143d6d9794391f6fb3f2421f/test/app_web/live/app_live_test.exs)
+
+## 13.4 Checking the changes using `DBEaver`
+
+If you run `mix phx.server` 
+and create/update items,
+you will see these events being tracked in the `Versions` table.
+
+We often use `DBeaver`,
+which is a PostgreSQL GUI. 
+If you don't have this installed, 
+[we highly recommend you doing so](https://github.com/dwyl/learn-postgresql/issues/43#issuecomment-469000357).
+
+<img width="1824" alt="dbeaver" src="https://user-images.githubusercontent.com/17494745/211629270-996e6c4a-8322-49b4-9ef6-7be2335ccfb7.png">
+
+As you can see, update/insert events are being tracked,
+with the corresponding `person_id` (in `originator_id`),
+the `item_id` that is being edited
+and the corresponding changes.
+
+# 14. Adding a dashboard to track metrics
+## 14.1 Adding new `LiveView` page in `/stats`
+## 14.2 Fetching counter of timers and items for each person
+## 14.3 Building the Stats Page
+## 14.4 Broadcasting to `stats` channel
+## 14.5 Adding tests
+
+# 15. Run the _Finished_ MVP App!
 
 With all the code saved, let's run the tests one more time.
 
-## 14.1 Run the Tests
+## 15.1 Run the Tests
 
 In your terminal window, run: 
 
@@ -4419,7 +4727,7 @@ COV    FILE                                        LINES RELEVANT   MISSED
 All tests pass and we have **`100%` Test Coverage**.
 This reminds us just how few _relevant_ lines of code there are in the MVP!
 
-## 14.2 Run The App
+## 15.2 Run The App
 
 In your second terminal tab/window, run:
 

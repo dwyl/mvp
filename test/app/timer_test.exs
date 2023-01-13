@@ -6,7 +6,9 @@ defmodule App.TimerTest do
     @valid_item_attrs %{text: "some text", person_id: 1}
 
     test "Timer.start/1 returns timer that has been started" do
-      {:ok, item} = Item.create_item(@valid_item_attrs)
+      {:ok, %{model: item, version: _version}} =
+        Item.create_item(@valid_item_attrs)
+
       assert Item.get_item!(item.id).text == item.text
 
       started = NaiveDateTime.utc_now()
@@ -18,7 +20,9 @@ defmodule App.TimerTest do
     end
 
     test "Timer.stop/1 stops the timer that had been started" do
-      {:ok, item} = Item.create_item(@valid_item_attrs)
+      {:ok, %{model: item, version: _version}} =
+        Item.create_item(@valid_item_attrs)
+
       assert Item.get_item!(item.id).text == item.text
 
       {:ok, started} =
@@ -35,7 +39,8 @@ defmodule App.TimerTest do
     end
 
     test "stop_timer_for_item_id(item_id) should stop the active timer (happy path)" do
-      {:ok, item} = Item.create_item(@valid_item_attrs)
+      {:ok, %{model: item, version: _version}} =
+        Item.create_item(@valid_item_attrs)
 
       {:ok, seven_seconds_ago} =
         NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
@@ -70,7 +75,8 @@ defmodule App.TimerTest do
       start = ~N[2022-10-27 00:00:00]
       stop = ~N[2022-10-27 05:00:00]
 
-      {:ok, item} = Item.create_item(@valid_item_attrs)
+      {:ok, %{model: item, version: _version}} =
+        Item.create_item(@valid_item_attrs)
 
       {:ok, seven_seconds_ago} =
         NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
