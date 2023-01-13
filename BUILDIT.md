@@ -46,6 +46,10 @@ We suggest keeping two terminal tabs/windows running
 one for the server `mix phx.server` and the other for the tests.
 That way you can also see the UI as you progress.
 
+We have created a *separate*
+document detailing the implementation of the API.
+You can find it in [`api.md`](./api.md).
+
 With that in place, let's get building! 
 
 - [Build Log 👩‍💻](#build-log-)
