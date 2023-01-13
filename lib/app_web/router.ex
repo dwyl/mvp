@@ -41,5 +41,7 @@ defmodule AppWeb.Router do
 
     resources "/items/:item_id/timers", API.TimerController,
       only: [:create, :update, :show, :index]
+
+    resources "/tags", API.TagController, only: [:create, :update, :show]
   end
 end

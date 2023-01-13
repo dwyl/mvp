@@ -5,6 +5,7 @@ defmodule App.Tag do
   alias App.{Item, ItemTag, Repo}
   alias __MODULE__
 
+  @derive {Jason.Encoder, only: [:text, :person_id, :color]}
   schema "tags" do
     field :color, :string
     field :person_id, :integer
@@ -19,6 +20,7 @@ defmodule App.Tag do
     tag
     |> cast(attrs, [:person_id, :text, :color])
     |> validate_required([:person_id, :text, :color])
+    |> validate_format(:color, ~r/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/)
     |> unique_constraint([:text, :person_id], name: :tags_text_person_id_index)
   end
 
