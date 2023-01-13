@@ -61,21 +61,32 @@ defmodule AppWeb.API.ItemController do
     id = Map.get(params, "id")
     new_text = Map.get(params, "text")
 
-    item = Item.get_item!(id)
+    # Get tag with the ID
+    case Item.get_item(id) do
+      nil ->
+        errors = %{
+          code: 404,
+          message: "No item found with the given \'id\'."
+        }
 
-    case Item.update_item(item, %{text: new_text}) do
-      # Successfully updates item
-      {:ok, %{model: item, version: _version}} ->
-        json(conn, item)
+        json(conn |> put_status(404), errors)
 
-      # Error creating item
-      {:error, %Ecto.Changeset{} = changeset} ->
-        errors = make_changeset_errors_readable(changeset)
+      # If item is found, try to update it
+      item ->
+        case Item.update_item(item, %{text: new_text}) do
+          # Successfully updates item
+          {:ok, %{model: item, version: _version}} ->
+            json(conn, item)
 
-        json(
-          conn |> put_status(400),
-          errors
-        )
+          # Error creating item
+          {:error, %Ecto.Changeset{} = changeset} ->
+            errors = make_changeset_errors_readable(changeset)
+
+            json(
+              conn |> put_status(400),
+              errors
+            )
+        end
     end
   end
 

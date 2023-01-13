@@ -66,5 +66,11 @@ defmodule AppWeb.API.ItemControllerTest do
       assert conn.status == 400
       assert length(json_response(conn, 400)["errors"]["text"]) > 0
     end
+
+    test "item that doesn't exist", %{conn: conn} do
+      conn = put(conn, Routes.item_path(conn, :update, -1, @invalid_attrs))
+
+      assert conn.status == 404
+    end
   end
 end
