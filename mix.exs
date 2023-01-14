@@ -57,7 +57,7 @@ defmodule App.MixProject do
       {:plug_cowboy, "~> 2.5"},
 
       # Database changes tracking
-      {:paper_trail, "~> 0.14.3"},
+      {:paper_trail, "~> 1.0.0"},
 
       # Time string parsing: github.com/bitwalker/timex
       {:timex, "~> 3.7"},
