@@ -11,7 +11,6 @@ defmodule AppWeb.API.ItemControllerTest do
       {:ok, %{model: item, version: _version}} = Item.create_item(@create_attrs)
       conn = get(conn, Routes.item_path(conn, :show, item.id))
 
-      assert conn.status == 200
       assert json_response(conn, 200)["id"] == item.id
       assert json_response(conn, 200)["text"] == item.text
     end
@@ -32,7 +31,6 @@ defmodule AppWeb.API.ItemControllerTest do
     test "a valid item", %{conn: conn} do
       conn = post(conn, Routes.item_path(conn, :create, @create_attrs))
 
-      assert conn.status == 200
       assert json_response(conn, 200)["text"] == Map.get(@create_attrs, "text")
 
       assert json_response(conn, 200)["status"] ==
@@ -45,7 +43,6 @@ defmodule AppWeb.API.ItemControllerTest do
     test "an invalid item", %{conn: conn} do
       conn = post(conn, Routes.item_path(conn, :create, @invalid_attrs))
 
-      assert conn.status == 400
       assert length(json_response(conn, 400)["errors"]["text"]) > 0
     end
   end
@@ -55,7 +52,6 @@ defmodule AppWeb.API.ItemControllerTest do
       {:ok, %{model: item, version: _version}} = Item.create_item(@create_attrs)
       conn = put(conn, Routes.item_path(conn, :update, item.id, @update_attrs))
 
-      assert conn.status == 200
       assert json_response(conn, 200)["text"] == Map.get(@update_attrs, :text)
     end
 
@@ -63,7 +59,6 @@ defmodule AppWeb.API.ItemControllerTest do
       {:ok, %{model: item, version: _version}} = Item.create_item(@create_attrs)
       conn = put(conn, Routes.item_path(conn, :update, item.id, @invalid_attrs))
 
-      assert conn.status == 400
       assert length(json_response(conn, 400)["errors"]["text"]) > 0
     end
   end
