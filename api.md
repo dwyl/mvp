@@ -17,7 +17,21 @@ can also be done through our `REST API`
 *and* `WebSocket API`
 (for all real-time updates).
 
-Let's get cracking! 🎉
+
+<br />
+
+- [`REST`ful `API` Integration](#restful-api-integration)
+  - [1. Add `/api` scope and pipeline](#1-add-api-scope-and-pipeline)
+  - [2. `ItemController` and `TimerController`](#2-itemcontroller-and-timercontroller)
+    - [2.1 Adding tests](#21-adding-tests)
+    - [2.2 Implementing the controllers](#22-implementing-the-controllers)
+  - [3. `JSON` serializing](#3-json-serializing)
+  - [4. Listing `timers` and `items` and validating updates](#4-listing-timers-and-items-and-validating-updates)
+- [Done! ✅](#done-)
+
+
+<br />
+
 
 ## 1. Add `/api` scope and pipeline
 
@@ -82,8 +96,8 @@ with a [`TDD mindset`](https://github.com/dwyl/learn-tdd)
 and create our tests first!
 
 Create two new files:
-- `test/app_web/api/item_controller_test.exs`
-- `test/app_web/api/timer_controller_test.exs`
+- `test/api/item_test.exs`
+- `test/api/timer_test.exs`
 
 Before implementing,
 we recommend giving a look at 
@@ -99,10 +113,11 @@ Therefore, we need to test how our API behaves
 when invalid attributes are requested
 and/or an error occurs **and where**.
 
-Let's start with `item_controller_test.exs`.
+Open `test/api/item_test.exs` 
+and add the following code:
 
 ```elixir
-defmodule AppWeb.API.ItemControllerTest do
+defmodule API.ItemTest do
   use AppWeb.ConnCase
   alias App.Item
 
@@ -178,10 +193,10 @@ alongside situations where the person
 requests non-existent items
 or tries to create new ones with invalid attributes.
 
-The same scenario occurs in `test/app_web/api/timer_controller_test.exs`.
+Next, in the `test/api/timer_test.exs` file:
 
 ```elixir
-defmodule AppWeb.API.TimerControllerTest do
+defmodule API.TimerTest do
   use AppWeb.ConnCase
   alias App.Timer
   alias App.Item
@@ -311,12 +326,12 @@ because these functions aren't defined.
 It's time to implement our sweet controllers!
 Let's start with `ItemController`.
 
-Create a directory inside `lib/app_web/controllers/api`
-and a file inside called `item_controller.ex`.
-Paste the following code.
+Create file with the path: 
+`lib/api/item.ex`
+and add the following code:
 
 ```elixir
-defmodule AppWeb.API.ItemController do
+defmodule API.Item do
   use AppWeb, :controller
   alias App.Item
   import Ecto.Changeset
@@ -469,12 +484,12 @@ To retrieve/update/create an `item`,
 we are simply calling the schema functions
 defined in `lib/app/timer.ex`.
 
-Let's head over and create our `TimerController`!
-Inside the same directory, create `timer_controller.ex`
-and use this code.
+Create a new file with the path:
+`lib/api/timer.ex`
+and add the following code:
 
 ```elixir
-defmodule AppWeb.API.TimerController do
+defmodule API.Timer do
   use AppWeb, :controller
   alias App.Timer
   import Ecto.Changeset
@@ -767,7 +782,7 @@ it will error out!
 <img width="1339" alt="error_datetimes" src="https://user-images.githubusercontent.com/17494745/212123844-9a03850d-ac31-47a6-a9f4-d32d317f90bb.png">
 
 
-# And you should be done!
+# Done! ✅
 
 This document is going to be expanded
 as development continues.

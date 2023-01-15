@@ -1,4 +1,4 @@
-defmodule AppWeb.API.TimerControllerTest do
+defmodule API.TimerTest do
   use AppWeb.ConnCase
   alias App.Timer
   alias App.Item

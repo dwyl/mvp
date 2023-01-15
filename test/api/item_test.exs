@@ -1,4 +1,4 @@
-defmodule AppWeb.API.ItemControllerTest do
+defmodule API.ItemTest do
   use AppWeb.ConnCase
   alias App.Item
 
