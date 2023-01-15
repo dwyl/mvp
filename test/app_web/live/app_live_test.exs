@@ -501,6 +501,15 @@ defmodule AppWeb.AppLiveTest do
            }) =~ "This timer interval overlaps with other timers."
   end
 
+  test "timer_text(start, stop) UNDER 1000s" do
+    timer = %{
+      start: ~N[2022-07-17 09:01:42.000000],
+      stop: ~N[2022-07-17 09:02:24.000000]
+    }
+
+    assert AppWeb.AppLive.timer_text(timer) == "00:00:42"
+  end
+
   test "timer_text(start, stop)" do
     timer = %{
       start: ~N[2022-07-17 09:01:42.000000],
