@@ -1,4 +1,4 @@
-defmodule AppWeb.API.TimerController do
+defmodule API.Timer do
   use AppWeb, :controller
   alias App.Timer
   import Ecto.Changeset

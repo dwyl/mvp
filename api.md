@@ -1,34 +1,48 @@
 <div align="center">
 
-# `REST`ful API integration
+# `REST`ful `API` Integration
 
 </div>
 
 This guide demonstrates
-how to *extend* our MVP `Phoenix` application
-so it also acts as an **API** 
+how to *extend* our MVP `Phoenix` App
+so it also acts as an **`API`** 
 returning `JSON` data.
 
-We want our users to securely query
-and manipulate their data 
-and want to ensure all actions 
-that are performed in the Web API
-can also be done through our `RESTful` API
+`people` want to securely query
+and update their data.
+We want to ensure all actions 
+that are performed in the Web UI
+can also be done through our `REST API`
 *and* `WebSocket API`
 (for all real-time updates).
 
-Let's get cracking! 🎉
+
+<br />
+
+- [`REST`ful `API` Integration](#restful-api-integration)
+  - [1. Add `/api` scope and pipeline](#1-add-api-scope-and-pipeline)
+  - [2. `ItemController` and `TimerController`](#2-itemcontroller-and-timercontroller)
+    - [2.1 Adding tests](#21-adding-tests)
+    - [2.2 Implementing the controllers](#22-implementing-the-controllers)
+  - [3. `JSON` serializing](#3-json-serializing)
+  - [4. Listing `timers` and `items` and validating updates](#4-listing-timers-and-items-and-validating-updates)
+- [Done! ✅](#done-)
+
+
+<br />
+
 
 ## 1. Add `/api` scope and pipeline
 
-We want all our API requests
-to be made under the `/api` route.
-This is easier for us to manage changes to API
-that don't create unnecessary regressions to our liveviews.
+We want all `API` requests
+to be made under the `/api` namespace.
+This is easier for us to manage changes to `API`
+that don't create unnecessary complexity in the `LiveView` code.
 
 Let's start by opening `lib/router.ex` 
 and create a new `:api` pipeline
-to be used under `scope "/api"`.
+to be used under `scope "/api"`:
 
 ```elixir
 
@@ -50,12 +64,12 @@ to be used under `scope "/api"`.
 ```
 
 We are creating an `:api` pipeline 
-that will only accepts and returns `json` objects.
+that will only accept and return `json` objects.
 `:fetch_session` is added as a plug 
 because `:authOptional` requires us to do so.
 
 Every request that is routed to `/api`
-will be piped through both `:api` and `:authOptional` pipelines.
+will be piped through both the `:api` and `:authOptional` pipelines.
 
 You might have noticed two new controllers:
 `API.ItemController` and `API.TimerController`.
@@ -71,7 +85,7 @@ Before creating our controller, let's define our requirements. We want the API t
 - edit an `item`
 
 We want each endpoint to respond appropriately if any data is invalid, 
-the response body and status should inform the user what went wrong. 
+the response body and status should inform the `person` what went wrong. 
 We can leverage changesets to validate the `item` and `timer`
 and check if it's correctly formatted.
 
@@ -82,25 +96,28 @@ with a [`TDD mindset`](https://github.com/dwyl/learn-tdd)
 and create our tests first!
 
 Create two new files:
-- `test/app_web/api/item_controller_test.exs`
-- `test/app_web/api/timer_controller_test.exs`
+- `test/api/item_test.exs`
+- `test/api/timer_test.exs`
 
 Before implementing,
-we recommend giving a look at [`learn-api-design`](https://github.com/dwyl/learn-api-design),
-we are going to be using some tips coming from there!
+we recommend giving a look at 
+[`learn-api-design`](https://github.com/dwyl/learn-api-design),
+we are going to be using some best practices described there!
 
-We want the API requests to be handled gracefully 
+We want the `API` requests 
+to be handled gracefully 
 when an error occurs.
-The person using the API 
-[**should be shown meaningful errors**](https://github.com/dwyl/learn-api-design/blob/revamp/README.md#show-meaningful-errors).
+The `person` using the `API` 
+[**should be shown _meaningful_ errors**](https://github.com/dwyl/learn-api-design/blob/main/README.md#show-meaningful-errors).
 Therefore, we need to test how our API behaves
 when invalid attributes are requested
 and/or an error occurs **and where**.
 
-Let's start with `item_controller_test.exs`.
+Open `test/api/item_test.exs` 
+and add the following code:
 
 ```elixir
-defmodule AppWeb.API.ItemControllerTest do
+defmodule API.ItemTest do
   use AppWeb.ConnCase
   alias App.Item
 
@@ -113,7 +130,6 @@ defmodule AppWeb.API.ItemControllerTest do
       {:ok, %{model: item, version: _version}} = Item.create_item(@create_attrs)
       conn = get(conn, Routes.item_path(conn, :show, item.id))
 
-      assert conn.status == 200
       assert json_response(conn, 200)["id"] == item.id
       assert json_response(conn, 200)["text"] == item.text
     end
@@ -134,7 +150,6 @@ defmodule AppWeb.API.ItemControllerTest do
     test "a valid item", %{conn: conn} do
       conn = post(conn, Routes.item_path(conn, :create, @create_attrs))
 
-      assert conn.status == 200
       assert json_response(conn, 200)["text"] == Map.get(@create_attrs, "text")
 
       assert json_response(conn, 200)["status"] ==
@@ -147,7 +162,6 @@ defmodule AppWeb.API.ItemControllerTest do
     test "an invalid item", %{conn: conn} do
       conn = post(conn, Routes.item_path(conn, :create, @invalid_attrs))
 
-      assert conn.status == 400
       assert length(json_response(conn, 400)["errors"]["text"]) > 0
     end
   end
@@ -157,7 +171,6 @@ defmodule AppWeb.API.ItemControllerTest do
       {:ok, %{model: item, version: _version}} = Item.create_item(@create_attrs)
       conn = put(conn, Routes.item_path(conn, :update, item.id, @update_attrs))
 
-      assert conn.status == 200
       assert json_response(conn, 200)["text"] == Map.get(@update_attrs, :text)
     end
 
@@ -165,14 +178,14 @@ defmodule AppWeb.API.ItemControllerTest do
       {:ok, %{model: item, version: _version}} = Item.create_item(@create_attrs)
       conn = put(conn, Routes.item_path(conn, :update, item.id, @invalid_attrs))
 
-      assert conn.status == 400
       assert length(json_response(conn, 400)["errors"]["text"]) > 0
     end
   end
 end
 ```
 
-In `/item`, users will be able to
+In `/item`, 
+a `person` will be able to
 **create**, **update** or **query a single item**.
 In each test we are testing 
 successful scenarios (the [Happy Path](https://en.wikipedia.org/wiki/Happy_path)),
@@ -180,10 +193,10 @@ alongside situations where the person
 requests non-existent items
 or tries to create new ones with invalid attributes.
 
-The same scenario occurs in `test/app_web/api/timer_controller_test.exs`.
+Next, in the `test/api/timer_test.exs` file:
 
 ```elixir
-defmodule AppWeb.API.TimerControllerTest do
+defmodule API.TimerTest do
   use AppWeb.ConnCase
   alias App.Timer
   alias App.Item
@@ -313,12 +326,12 @@ because these functions aren't defined.
 It's time to implement our sweet controllers!
 Let's start with `ItemController`.
 
-Create a directory inside `lib/app_web/controllers/api`
-and a file inside called `item_controller.ex`.
-Paste the following code.
+Create file with the path: 
+`lib/api/item.ex`
+and add the following code:
 
 ```elixir
-defmodule AppWeb.API.ItemController do
+defmodule API.Item do
   use AppWeb, :controller
   alias App.Item
   import Ecto.Changeset
@@ -471,12 +484,12 @@ To retrieve/update/create an `item`,
 we are simply calling the schema functions
 defined in `lib/app/timer.ex`.
 
-Let's head over and create our `TimerController`!
-Inside the same directory, create `timer_controller.ex`
-and use this code.
+Create a new file with the path:
+`lib/api/timer.ex`
+and add the following code:
 
 ```elixir
-defmodule AppWeb.API.TimerController do
+defmodule API.Timer do
   use AppWeb, :controller
   alias App.Timer
   import Ecto.Changeset
@@ -769,7 +782,7 @@ it will error out!
 <img width="1339" alt="error_datetimes" src="https://user-images.githubusercontent.com/17494745/212123844-9a03850d-ac31-47a6-a9f4-d32d317f90bb.png">
 
 
-# And you should be done!
+# Done! ✅
 
 This document is going to be expanded
 as development continues.

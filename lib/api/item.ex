@@ -1,4 +1,4 @@
-defmodule AppWeb.API.ItemController do
+defmodule API.Item do
   use AppWeb, :controller
   alias App.Item
   import Ecto.Changeset
