@@ -22,7 +22,7 @@ can also be done through our `REST API`
 
 - [`REST`ful `API` Integration](#restful-api-integration)
   - [1. Add `/api` scope and pipeline](#1-add-api-scope-and-pipeline)
-  - [2. `ItemController` and `TimerController`](#2-itemcontroller-and-timercontroller)
+  - [2. `API.Item` and `API.Timer`](#2-apiitem-and-apitimer)
     - [2.1 Adding tests](#21-adding-tests)
     - [2.2 Implementing the controllers](#22-implementing-the-controllers)
   - [3. `JSON` serializing](#3-json-serializing)
@@ -75,7 +75,7 @@ You might have noticed two new controllers:
 `API.ItemController` and `API.TimerController`.
 We are going to need to create these to handle our requests!
 
-## 2. `ItemController` and `TimerController`
+## 2. `API.Item` and `API.Timer`
 
 Before creating our controller, let's define our requirements. We want the API to:
 
@@ -118,7 +118,7 @@ and add the following code:
 
 ```elixir
 defmodule API.ItemTest do
-  use AppWeb.ConnCase
+use AppWeb.ConnCase
   alias App.Item
 
   @create_attrs %{person_id: 42, status: 0, text: "some text"}
@@ -180,6 +180,12 @@ defmodule API.ItemTest do
 
       assert length(json_response(conn, 400)["errors"]["text"]) > 0
     end
+
+    test "item that doesn't exist", %{conn: conn} do
+      conn = put(conn, Routes.item_path(conn, :update, -1, @invalid_attrs))
+
+      assert conn.status == 404
+    end
   end
 end
 ```
@@ -232,7 +238,8 @@ defmodule API.TimerTest do
 
     test "not found timer", %{conn: conn} do
       # Create item
-      {:ok, %{model: item, version: _version}} = Item.create_item(@create_item_attrs)
+      {:ok, %{model: item, version: _version}} =
+        Item.create_item(@create_item_attrs)
 
       conn = get(conn, Routes.timer_path(conn, :show, item.id, -1))
 
@@ -241,7 +248,8 @@ defmodule API.TimerTest do
 
     test "invalid id (not being an integer)", %{conn: conn} do
       # Create item
-      {:ok, %{model: item, version: _version}} = Item.create_item(@create_item_attrs)
+      {:ok, %{model: item, version: _version}} =
+        Item.create_item(@create_item_attrs)
 
       conn = get(conn, Routes.timer_path(conn, :show, item.id, "invalid"))
       assert conn.status == 400
@@ -251,7 +259,8 @@ defmodule API.TimerTest do
   describe "create" do
     test "a valid timer", %{conn: conn} do
       # Create item
-      {:ok, %{model: item, version: _version}} = Item.create_item(@create_item_attrs)
+      {:ok, %{model: item, version: _version}} =
+        Item.create_item(@create_item_attrs)
 
       # Create timer
       conn =
@@ -265,7 +274,8 @@ defmodule API.TimerTest do
 
     test "an invalid timer", %{conn: conn} do
       # Create item
-      {:ok, %{model: item, version: _version}} = Item.create_item(@create_item_attrs)
+      {:ok, %{model: item, version: _version}} =
+        Item.create_item(@create_item_attrs)
 
       conn =
         post(conn, Routes.timer_path(conn, :create, item.id, @invalid_attrs))
@@ -303,11 +313,18 @@ defmodule API.TimerTest do
       assert conn.status == 400
       assert length(json_response(conn, 400)["errors"]["start"]) > 0
     end
+
+    test "timer that doesn't exist", %{conn: conn} do
+      conn = put(conn, Routes.timer_path(conn, :update, -1, -1, @invalid_attrs))
+
+      assert conn.status == 404
+    end
   end
 
   defp item_and_timer_fixture() do
     # Create item
-    {:ok, %{model: item, version: _version}} = Item.create_item(@create_item_attrs)
+    {:ok, %{model: item, version: _version}} =
+      Item.create_item(@create_item_attrs)
 
     # Create timer
     started = NaiveDateTime.utc_now()
@@ -324,7 +341,7 @@ because these functions aren't defined.
 ### 2.2 Implementing the controllers
 
 It's time to implement our sweet controllers!
-Let's start with `ItemController`.
+Let's start with `API.Item`.
 
 Create file with the path: 
 `lib/api/item.ex`
@@ -394,21 +411,32 @@ defmodule API.Item do
     id = Map.get(params, "id")
     new_text = Map.get(params, "text")
 
-    item = Item.get_item!(id)
+    # Get item with the ID
+    case Item.get_item(id) do
+      nil ->
+        errors = %{
+          code: 404,
+          message: "No item found with the given \'id\'."
+        }
 
-    case Item.update_item(item, %{text: new_text}) do
-      # Successfully updates item
-      {:ok, %{model: item, version: _version}} ->
-        json(conn, item)
+        json(conn |> put_status(404), errors)
 
-      # Error creating item
-      {:error, %Ecto.Changeset{} = changeset} ->
-        errors = make_changeset_errors_readable(changeset)
+      # If item is found, try to update it
+      item ->
+        case Item.update_item(item, %{text: new_text}) do
+          # Successfully updates item
+          {:ok, %{model: item, version: _version}} ->
+            json(conn, item)
 
-        json(
-          conn |> put_status(400),
-          errors
-        )
+          # Error creating item
+          {:error, %Ecto.Changeset{} = changeset} ->
+            errors = make_changeset_errors_readable(changeset)
+
+            json(
+              conn |> put_status(400),
+              errors
+            )
+        end
     end
   end
 
@@ -511,6 +539,7 @@ defmodule API.Timer do
               code: 404,
               message: "No timer found with the given \'id\'."
             }
+
             json(conn |> put_status(404), errors)
 
           timer ->
@@ -537,7 +566,6 @@ defmodule API.Timer do
     }
 
     case Timer.start(attrs) do
-
       # Successfully creates item
       {:ok, timer} ->
         id_timer = Map.take(timer, [:id])
@@ -555,35 +583,47 @@ defmodule API.Timer do
   end
 
   def update(conn, params) do
+
+    id = Map.get(params, "id")
+
     # Attributes to update timer
     attrs_to_update = %{
-      id: Map.get(params, "id"),
       start: Map.get(params, "start"),
       stop: Map.get(params, "stop")
     }
 
-    case Timer.update_timer(attrs_to_update) do
+    case Timer.get_timer(id) do
+      nil ->
+        errors = %{
+          code: 404,
+          message: "No timer found with the given \'id\'."
+        }
 
-      # Successfully updates timer
-      {:ok, timer} ->
-        json(conn, timer)
+        json(conn |> put_status(404), errors)
 
-      # Error creating timer
-      {:error, %Ecto.Changeset{} = changeset} ->
-        errors = make_changeset_errors_readable(changeset)
+      # If timer is found, try to update it
+      timer ->
+        case Timer.update_timer(timer, attrs_to_update) do
+          # Successfully updates timer
+          {:ok, timer} ->
+            json(conn, timer)
 
-        json(
-          conn |> put_status(400),
-          errors
-        )
-    end
+          # Error creating timer
+          {:error, %Ecto.Changeset{} = changeset} ->
+            errors = make_changeset_errors_readable(changeset)
+
+            json(
+              conn |> put_status(400),
+              errors
+            )
+        end
+      end
   end
-
 
   defp make_changeset_errors_readable(changeset) do
     errors = %{
       code: 400,
-      message: "Malformed request",
+      message: "Malformed request"
     }
 
     changeset_errors = traverse_errors(changeset, fn {msg, _opts} -> msg end)
