@@ -46,6 +46,11 @@ We suggest keeping two terminal tabs/windows running
 one for the server `mix phx.server` and the other for the tests.
 That way you can also see the UI as you progress.
 
+We created a *separate*
+document detailing the implementation of the `API`.
+Please see: 
+[`API.md`](./API.md).
+
 With that in place, let's get building! 
 
 - [Build Log 👩‍💻](#build-log-)
@@ -101,7 +106,7 @@ With that in place, let's get building!
   - [13.1 Setting up](#131-setting-up)
   - [13.2 Changing database transactions on `item` insert and update](#132-changing-database-transactions-on-item-insert-and-update)
   - [13.3 Fixing tests](#133-fixing-tests)
-  - [13.4 Checking the changes using `DBEaver`](#134-checking-the-changes-using-DBEaver)
+  - [13.4 Checking the changes using `DBEaver`](#134-checking-the-changes-using-dbeaver)
 - [14. Adding a dashboard to track metrics](#14-adding-a-dashboard-to-track-metrics)
   - [14.1 Adding new `LiveView` page in `/stats`](#141-adding-new-liveview-page-in-stats)
   - [14.2 Fetching counter of timers and items for each person](#142-fetching-counter-of-timers-and-items-for-each-person)

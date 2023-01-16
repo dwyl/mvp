@@ -1,18 +1,35 @@
 defmodule App.Timer do
   use Ecto.Schema
-  import Ecto.Changeset
-  alias App.Item
-  import Ecto.Query
-  alias App.Repo
+  import Ecto.{Changeset, Query}
+  alias App.{Item, Repo}
   alias __MODULE__
   require Logger
 
+  @derive {Jason.Encoder, only: [:id, :start, :stop]}
   schema "timers" do
     field :start, :naive_datetime
     field :stop, :naive_datetime
     belongs_to :item, Item, references: :id, foreign_key: :item_id
 
     timestamps()
+  end
+
+  defp validate_start_before_stop(changeset) do
+    start = get_field(changeset, :start)
+    stop = get_field(changeset, :stop)
+
+    # If start or stop  is nil, no comparison occurs.
+    case is_nil(stop) or is_nil(start) do
+      true ->
+        changeset
+
+      false ->
+        if NaiveDateTime.compare(start, stop) == :gt do
+          add_error(changeset, :start, "cannot be later than 'stop'")
+        else
+          changeset
+        end
+    end
   end
 
   @doc false
@@ -23,7 +40,7 @@ defmodule App.Timer do
   end
 
   @doc """
-  `get_timer/1` gets a single Timer.
+  `get_timer!/1` gets a single Timer.
 
   Raises `Ecto.NoResultsError` if the Timer does not exist.
 
@@ -33,6 +50,45 @@ defmodule App.Timer do
       %Timer{}
   """
   def get_timer!(id), do: Repo.get!(Timer, id)
+
+  @doc """
+  `get_timer/1` gets a single Timer.
+
+  Returns nil if the Timer does not exist
+
+  ## Examples
+
+      iex> get_timer(1)
+      %Timer{}
+
+      iex> get_item!(13131)
+      nil
+  """
+  def get_timer(id), do: Repo.get(Timer, id)
+
+  @doc """
+  `list_timers/1` lists all the timer objects of a given item `id`.
+
+    ## Examples
+
+      iex> list_timers(1)
+      [
+        %App.Timer{
+          id: 7,
+          start: ~N[2023-01-11 17:40:44],
+          stop: nil,
+          item_id: 1,
+          inserted_at: ~N[2023-01-11 18:01:43],
+          updated_at: ~N[2023-01-11 18:01:43]
+        }
+      ]
+  """
+  def list_timers(item_id) do
+    Timer
+    |> where(item_id: ^item_id)
+    |> order_by(:id)
+    |> Repo.all()
+  end
 
   @doc """
   `start/1` starts a timer.
@@ -46,6 +102,7 @@ defmodule App.Timer do
   def start(attrs \\ %{}) do
     %Timer{}
     |> changeset(attrs)
+    |> validate_start_before_stop()
     |> Repo.insert()
   end
 
@@ -73,9 +130,10 @@ defmodule App.Timer do
       {:ok, %Timer{id: 1, start: ~N[2022-07-11 05:15:31], stop: ~N[2022-07-11 05:15:37}}
 
   """
-  def update_timer(attrs \\ %{}) do
-    get_timer!(attrs.id)
+  def update_timer(%Timer{} = timer, attrs \\ %{}) do
+    timer
     |> changeset(attrs)
+    |> validate_start_before_stop()
     |> Repo.update()
   end
 
@@ -119,7 +177,8 @@ defmodule App.Timer do
 
       case NaiveDateTime.compare(start, max_end) do
         :gt ->
-          update_timer(%{id: timer_id, start: start, stop: nil})
+          timer = get_timer(timer_id)
+          update_timer(timer, %{start: start, stop: nil})
           {:ok, []}
 
         _ ->
@@ -218,7 +277,8 @@ defmodule App.Timer do
             end
           end
 
-          update_timer(%{id: timer_id, start: start, stop: stop})
+          timer = get_timer(timer_id)
+          update_timer(timer, %{start: start, stop: stop})
           {:ok, []}
 
         :eq ->

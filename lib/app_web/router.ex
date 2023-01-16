@@ -10,6 +10,11 @@ defmodule AppWeb.Router do
     plug :put_secure_browser_headers
   end
 
+  pipeline :api do
+    plug :accepts, ["json"]
+    plug :fetch_session
+  end
+
   # No Auth
   scope "/", AppWeb do
     pipe_through :browser
@@ -17,7 +22,9 @@ defmodule AppWeb.Router do
     get "/login", AuthController, :login
   end
 
-  pipeline :authOptional, do: plug(AuthPlugOptional)
+  pipeline :authOptional do
+    plug(AuthPlugOptional)
+  end
 
   scope "/", AppWeb do
     pipe_through [:browser, :authOptional]
@@ -25,5 +32,14 @@ defmodule AppWeb.Router do
     get "/logout", AuthController, :logout
     live "/stats", StatsLive
     resources "/tags", TagController, except: [:show]
+  end
+
+  scope "/api", API do
+    pipe_through [:api, :authOptional]
+
+    resources "/items", Item, only: [:create, :update, :show]
+
+    resources "/items/:item_id/timers", Timer,
+      only: [:create, :update, :show, :index]
   end
 end
