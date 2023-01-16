@@ -1,6 +1,6 @@
 <div align="center">
 
-# `REST`ful `API` Integration
+# `REST`ful `API` Integration 
 
 </div>
 
@@ -830,3 +830,7 @@ So if you're reading this, it's because that's all we currently have!
 
 If you found it interesting, 
 please let us know by starring the repo on GitHub! ⭐
+
+<br />
+
+[![HitCount](https://hits.dwyl.com/dwyl/app-mvp-api.svg)](https://hits.dwyl.com/dwyl/app-mvp)

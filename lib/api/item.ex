@@ -24,7 +24,7 @@ defmodule API.Item do
       :error ->
         errors = %{
           code: 400,
-          message: "The \'id\' is not an integer."
+          message: "Item \'id\' should be an integer."
         }
 
         json(conn |> put_status(400), errors)
