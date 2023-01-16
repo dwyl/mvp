@@ -15,17 +15,21 @@
         focus:border-none focus:outline-none
         my-2"
       name="text"
+      id="textval"
       phx-change="validate"
       phx-debounce="2000"
       placeholder="What needs to be done?!!!"
-      autofocus="true"
       required="required"
       x-data="{resize() {
            $el.style.height = '100px';
            $el.style.height = $el.scrollHeight + 'px';
         }
       }"
-      x-init="resize"
+      x-on:focus=""
+      x-init="$el.selectionStart= $el.value.length;
+      $el.selectionEnd= $el.value.length;
+      $el.focus();
+      resize"
       x-on:input="resize"
     ><%= @text_value %></textarea>
     <!-- Select Input -->
