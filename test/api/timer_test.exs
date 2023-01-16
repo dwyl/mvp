@@ -12,7 +12,7 @@ defmodule API.TimerTest do
   describe "index" do
     test "timers", %{conn: conn} do
       # Create item and timer
-      {item, timer} = item_and_timer_fixture()
+      {item, _timer} = item_and_timer_fixture()
 
       conn = get(conn, Routes.timer_path(conn, :index, item.id))
 
