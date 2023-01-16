@@ -64,7 +64,6 @@ defmodule API.Timer do
   end
 
   def update(conn, params) do
-
     id = Map.get(params, "id")
 
     # Attributes to update timer
@@ -98,7 +97,7 @@ defmodule API.Timer do
               errors
             )
         end
-      end
+    end
   end
 
   defp make_changeset_errors_readable(changeset) do
