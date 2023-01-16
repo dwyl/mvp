@@ -1,6 +1,6 @@
 <div align="center">
 
-# `REST`ful `API` Integration 
+# `API` Integration
 
 </div>
 
@@ -20,20 +20,27 @@ can also be done through our `REST API`
 
 <br />
 
-- [`REST`ful `API` Integration](#restful-api-integration)
-  - [1. Add `/api` scope and pipeline](#1-add-api-scope-and-pipeline)
-  - [2. `API.Item` and `API.Timer`](#2-apiitem-and-apitimer)
-    - [2.1 Adding tests](#21-adding-tests)
-    - [2.2 Implementing the controllers](#22-implementing-the-controllers)
-  - [3. `JSON` serializing](#3-json-serializing)
-  - [4. Listing `timers` and `items` and validating updates](#4-listing-timers-and-items-and-validating-updates)
+- [`API` Integration](#api-integration)
+- [1. Add `/api` scope and pipeline in `router.ex`](#1-add-api-scope-and-pipeline-in-routerex)
+- [2. `API.Item` and `API.Timer`](#2-apiitem-and-apitimer)
+  - [2.1 Adding tests](#21-adding-tests)
+  - [2.2 Implementing the controllers](#22-implementing-the-controllers)
+- [3. `JSON` serializing](#3-json-serializing)
+- [4. Listing `timers` and `items` and validating updates](#4-listing-timers-and-items-and-validating-updates)
+- [5. Basic `API` Testing Using `cUrl`](#5-basic-api-testing-using-curl)
+  - [5.1 _Create_ an `item` via `API` Request](#51-create-an-item-via-api-request)
+  - [5.2 _Read_ the `item` via `API`](#52-read-the-item-via-api)
+  - [5.3 Create a `Timer` for your `item`](#53-create-a-timer-for-your-item)
+  - [5.4 _Stop_ the `Timer`](#54-stop-the-timer)
+- [TODO: Update once this is working](#todo-update-once-this-is-working)
+- [6. _Advanced/Automated_ `API` Testing Using `Hoppscotch`](#6-advancedautomated-api-testing-using-hoppscotch)
 - [Done! ✅](#done-)
 
 
 <br />
 
 
-## 1. Add `/api` scope and pipeline
+# 1. Add `/api` scope and pipeline in `router.ex`
 
 We want all `API` requests
 to be made under the `/api` namespace.
@@ -75,7 +82,7 @@ You might have noticed two new controllers:
 `API.ItemController` and `API.TimerController`.
 We are going to need to create these to handle our requests!
 
-## 2. `API.Item` and `API.Timer`
+# 2. `API.Item` and `API.Timer`
 
 Before creating our controller, let's define our requirements. We want the API to:
 
@@ -89,7 +96,7 @@ the response body and status should inform the `person` what went wrong.
 We can leverage changesets to validate the `item` and `timer`
 and check if it's correctly formatted.
 
-### 2.1 Adding tests
+## 2.1 Adding tests
 
 Let's approach this
 with a [`TDD mindset`](https://github.com/dwyl/learn-tdd)
@@ -338,7 +345,7 @@ end
 If you run `mix test`, they will fail,
 because these functions aren't defined.
 
-### 2.2 Implementing the controllers
+## 2.2 Implementing the controllers
 
 It's time to implement our sweet controllers!
 Let's start with `API.Item`.
@@ -641,7 +648,7 @@ that *is not yet implemented*
 in `lib/app/timer.ex` - **`list_timers/1`**.
 
 
-## 3. `JSON` serializing
+# 3. `JSON` serializing
 
 Let's look at `index` in `lib/app/timer.ex`.
 You may notice that we are returning a `JSON`
@@ -705,7 +712,7 @@ and serialize them as `JSON` objects
 so they can be returned to the person
 using the API! ✨
 
-## 4. Listing `timers` and `items` and validating updates
+# 4. Listing `timers` and `items` and validating updates
 
 Let's implement `list_timers/1`
 in `lib/app/timer.ex`.
@@ -820,6 +827,82 @@ where `start` is *after* `stop`,
 it will error out!
 
 <img width="1339" alt="error_datetimes" src="https://user-images.githubusercontent.com/17494745/212123844-9a03850d-ac31-47a6-a9f4-d32d317f90bb.png">
+
+
+# 5. Basic `API` Testing Using `cUrl`
+
+At this point we have a working `API` for `items` and `timers`.
+We can demonstrate it using `curl` commands in the `Terminal`.
+
+1. Run the `Phoenix` App with the command: `mix s`
+2. In a _separate_ `Terminal` window, run the following commands:
+
+## 5.1 _Create_ an `item` via `API` Request
+
+```sh
+curl -X POST http://localhost:4000/api/items -H 'Content-Type: application/json' -d '{"text":"My Awesome item text"}'
+```
+You should expect to see the following result:
+
+```sh
+{"id":1}
+```
+
+## 5.2 _Read_ the `item` via `API`
+
+Now if you request this `item` using the `id`:
+
+```sh
+curl http://localhost:4000/api/items/1
+```
+
+You should see: 
+
+```sh
+{"id":1,"person_id":0,"status":2,"text":"My Awesome item text"}
+```
+
+This tells us that `items` are being created. ✅
+
+## 5.3 Create a `Timer` for your `item`
+
+The route pattern is: `/api/items/:item_id/timers`.
+Therefore our `cURL` request is:
+
+```sh
+curl -X POST http://localhost:4000/api/items/1/timers -H 'Content-Type: application/json' -d '{"start":"2022-10-28T00:00:00"}'
+```
+
+You should see a response similar to the following:
+
+```sh
+{"id":1}
+```
+
+This is the `timer.id` and informs us that the timer is running. 
+
+> **Note**: the `API` should allow me to create a `timer`
+> _without_ having to specify the `start` time.
+> See: https://github.com/dwyl/mvp/issues/256#issuecomment-1384091996
+
+
+## 5.4 _Stop_ the `Timer` 
+
+The path to `stop` a timer is: `/api/items/:item_id/timers/:id`
+It _should_ be `/api/timers/:id` ... 
+https://github.com/dwyl/mvp/issues/256#issuecomment-1384104504
+
+
+# TODO: Update once this is working
+
+Revisit this once the `API` route has been updated.
+`timers` should not be bound to `item` once they are created.
+
+
+# 6. _Advanced/Automated_ `API` Testing Using `Hoppscotch`
+
+Coming soon! https://github.com/dwyl/mvp/issues/268
+
 
 
 # Done! ✅

@@ -49,7 +49,7 @@ That way you can also see the UI as you progress.
 We created a *separate*
 document detailing the implementation of the `API`.
 Please see: 
-[`api.md`](./api.md).
+[`API.md`](./API.md).
 
 With that in place, let's get building! 
 
