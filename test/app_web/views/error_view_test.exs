@@ -5,6 +5,7 @@ defmodule AppWeb.ErrorViewTest do
   import Phoenix.View
 
   test "renders 404.html" do
+    dbg(render_to_string(AppWeb.ErrorView, "404.html", []))
     assert render_to_string(AppWeb.ErrorView, "404.html", []) == "Not Found"
   end
 

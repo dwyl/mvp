@@ -10,9 +10,9 @@ defmodule AppWeb.ErrorView do
   # By default, Phoenix returns the status message from
   # the template name. For example, "404.html" becomes
   # "Not Found".
-  def template_not_found(template, assigns) do
+  def template_not_found(template, %{:conn => conn}) do
     acceptHeader =
-      Enum.at(Plug.Conn.get_req_header(assigns.conn, "content-type"), 0, "")
+      Enum.at(Plug.Conn.get_req_header(conn, "content-type"), 0, "")
 
     isJson =
       String.contains?(acceptHeader, "application/json") or
@@ -29,7 +29,7 @@ defmodule AppWeb.ErrorView do
           %{
             error:
               Map.get(
-                assigns.conn.assigns.reason,
+                conn.assigns.reason,
                 :message,
                 Phoenix.Controller.status_message_from_template(template)
               )
@@ -37,11 +37,11 @@ defmodule AppWeb.ErrorView do
 
         false ->
           Phoenix.Controller.json(
-            assigns.conn,
+            conn,
             %{
               error:
                 Map.get(
-                  assigns.conn.assigns.reason,
+                  conn.assigns.reason,
                   :message,
                   Phoenix.Controller.status_message_from_template(template)
                 )
@@ -51,5 +51,9 @@ defmodule AppWeb.ErrorView do
     else
       Phoenix.Controller.status_message_from_template(template)
     end
+  end
+
+  def template_not_found(template, _assigns) do
+    Phoenix.Controller.status_message_from_template(template)
   end
 end
