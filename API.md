@@ -567,7 +567,7 @@ defmodule API.Timer do
   end
 
   def create(conn, params) do
-    now = NaiveDateTime.to_string(NaiveDateTime.utc_now())
+    now = NaiveDateTime.utc_now() |> NaiveDateTime.to_iso8601()
 
     # Attributes to create timer
     attrs = %{

@@ -10,6 +10,29 @@ defmodule API.Timer do
     json(conn, timers)
   end
 
+  def stop(conn, params) do
+    now = NaiveDateTime.utc_now() |> NaiveDateTime.to_iso8601()
+    id = Map.get(params, "id")
+
+    # Checking if `stop` is nil. If a nil is passed on body, current time is used
+    stop = if is_nil(Map.get(params, "stop")) do
+      now
+    else
+      Map.get(params, "stop")
+    end
+
+    # Attributes to update timer
+    attrs_to_update = %{
+      stop: stop
+    }
+
+    case update_timer(id, attrs_to_update) do
+      {:not_found_error, errors} -> json(conn |> put_status(404), errors)
+      {:bad_request_error, errors} -> json( conn |> put_status(400), errors )
+      {:ok, timer} -> json(conn, timer)
+    end
+  end
+
   def show(conn, %{"id" => id} = _params) do
     case Integer.parse(id) do
       # ID is an integer
@@ -39,7 +62,7 @@ defmodule API.Timer do
   end
 
   def create(conn, params) do
-    now = NaiveDateTime.to_string(NaiveDateTime.utc_now())
+    now = NaiveDateTime.utc_now() |> NaiveDateTime.to_iso8601()
 
     # Attributes to create timer
     attrs = %{
@@ -74,30 +97,33 @@ defmodule API.Timer do
       stop: Map.get(params, "stop")
     }
 
-    case Timer.get_timer(id) do
+    case update_timer(id, attrs_to_update) do
+      {:not_found_error, errors} -> json(conn |> put_status(404), errors)
+      {:bad_request_error, errors} -> json( conn |> put_status(400), errors )
+      {:ok, timer} -> json(conn, timer)
+    end
+  end
+
+  defp update_timer(timer_id, attrs_to_update) do
+    case Timer.get_timer(timer_id) do
       nil ->
         errors = %{
           code: 404,
           message: "No timer found with the given \'id\'."
         }
-
-        json(conn |> put_status(404), errors)
+        {:not_found_error, errors}
 
       # If timer is found, try to update it
       timer ->
         case Timer.update_timer(timer, attrs_to_update) do
           # Successfully updates timer
-          {:ok, timer} ->
-            json(conn, timer)
+          {:ok, timer} -> {:ok, timer}
 
           # Error creating timer
           {:error, %Ecto.Changeset{} = changeset} ->
             errors = make_changeset_errors_readable(changeset)
 
-            json(
-              conn |> put_status(400),
-              errors
-            )
+            {:bad_request_error, errors}
         end
     end
   end

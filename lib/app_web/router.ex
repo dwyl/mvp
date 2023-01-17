@@ -41,5 +41,7 @@ defmodule AppWeb.Router do
 
     resources "/items/:item_id/timers", Timer,
       only: [:create, :update, :show, :index]
+
+    put "/timers/:id", Timer, :stop
   end
 end
