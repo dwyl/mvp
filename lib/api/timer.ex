@@ -34,7 +34,7 @@ defmodule API.Timer do
         # If the timer has already stopped, throw error
         if not is_nil(timer.stop) do
           errors = %{
-            code: 404,
+            code: 403,
             message: "Timer with the given \'id\' has already stopped."
           }
           json(conn |> put_status(403), errors)

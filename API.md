@@ -34,7 +34,7 @@ can also be done through our `REST API`
   - [6.2 _Read_ the `item` via `API`](#62-read-the-item-via-api)
   - [6.3 Create a `Timer` for your `item`](#63-create-a-timer-for-your-item)
   - [6.4 _Stop_ the `Timer`](#64-stop-the-timer)
-- [TODO: Update once this is working](#todo-update-once-this-is-working)
+  - [6.5 Updating a `Timer`](#65-updating-a-timer)
 - [7. _Advanced/Automated_ `API` Testing Using `Hoppscotch`](#7-advancedautomated-api-testing-using-hoppscotch)
 - [Done! ✅](#done-)
 
@@ -69,6 +69,8 @@ to be used under `scope "/api"`:
 
     resources "/items", API.ItemController, only: [:create, :update, :show]
     resources "/items/:item_id/timers", API.TimerController, only: [:create, :update, :show, :index]
+
+    put "/timers/:id", Timer, :stop
   end
 ```
 
@@ -92,6 +94,9 @@ Before creating our controller, let's define our requirements. We want the API t
 - list `timers` of an `item`
 - create an `item` and return only the created `id`.
 - edit an `item`
+- stop a `timer`
+- update a `timer`
+- create a `timer`
 
 We want each endpoint to respond appropriately if any data is invalid, 
 the response body and status should inform the `person` what went wrong. 
@@ -225,7 +230,7 @@ defmodule API.TimerTest do
   describe "index" do
     test "timers", %{conn: conn} do
       # Create item and timer
-      {item, timer} = item_and_timer_fixture()
+      {item, _timer} = item_and_timer_fixture()
 
       conn = get(conn, Routes.timer_path(conn, :index, item.id))
 
@@ -291,6 +296,55 @@ defmodule API.TimerTest do
 
       assert conn.status == 400
       assert length(json_response(conn, 400)["errors"]["start"]) > 0
+    end
+
+    test "a timer with empty body", %{conn: conn} do
+      # Create item
+      {:ok, %{model: item, version: _version}} =
+        Item.create_item(@create_item_attrs)
+
+      conn =
+        post(conn, Routes.timer_path(conn, :create, item.id, %{}))
+
+      assert conn.status == 200
+    end
+  end
+
+  describe "stop" do
+    test "timer without any attributes", %{conn: conn} do
+      # Create item and timer
+      {item, timer} = item_and_timer_fixture()
+
+      conn =
+        put(
+          conn,
+          Routes.timer_path(conn, :stop, timer.id, %{})
+        )
+
+      assert conn.status == 200
+    end
+
+    test "timer that doesn't exist", %{conn: conn} do
+      conn = put(conn, Routes.timer_path(conn, :stop, -1, %{}))
+
+      assert conn.status == 404
+    end
+
+    test "timer that has already stopped", %{conn: conn} do
+      # Create item and timer
+      {_item, timer} = item_and_timer_fixture()
+
+      # Stop timer
+      now = NaiveDateTime.utc_now() |> NaiveDateTime.to_iso8601()
+      {:ok, timer} = Timer.update_timer(timer, %{stop: now})
+
+      conn =
+        put(
+          conn,
+          Routes.timer_path(conn, :stop, timer.id, %{})
+        )
+
+      assert conn.status == 403
     end
   end
 
@@ -538,6 +592,46 @@ defmodule API.Timer do
     json(conn, timers)
   end
 
+  def stop(conn, params) do
+    now = NaiveDateTime.utc_now() |> NaiveDateTime.to_iso8601()
+    id = Map.get(params, "id")
+
+    # Attributes to update timer
+    attrs_to_update = %{
+      stop: now
+    }
+
+    # Fetching associated timer
+    case Timer.get_timer(id) do
+      nil ->
+        errors = %{
+          code: 404,
+          message: "No timer found with the given \'id\'."
+        }
+        json(conn |> put_status(404), errors)
+
+      # If timer is found, try to update it
+      timer ->
+
+        # If the timer has already stopped, throw error
+        if not is_nil(timer.stop) do
+          errors = %{
+            code: 403,
+            message: "Timer with the given \'id\' has already stopped."
+          }
+          json(conn |> put_status(403), errors)
+
+        # If timer is ongoing, try to update
+        else
+          case Timer.update_timer(timer, attrs_to_update) do
+            # Successfully updates timer
+            {:ok, timer} ->
+              json(conn, timer)
+          end
+        end
+    end
+  end
+
   def show(conn, %{"id" => id} = _params) do
     case Integer.parse(id) do
       # ID is an integer
@@ -559,7 +653,7 @@ defmodule API.Timer do
       :error ->
         errors = %{
           code: 400,
-          message: "The \'id\' is not an integer."
+          message: "Timer \'id\' should be an integer."
         }
 
         json(conn |> put_status(400), errors)
@@ -577,12 +671,12 @@ defmodule API.Timer do
     }
 
     case Timer.start(attrs) do
-      # Successfully creates item
+      # Successfully creates timer
       {:ok, timer} ->
         id_timer = Map.take(timer, [:id])
         json(conn, id_timer)
 
-      # Error creating item
+      # Error creating timer
       {:error, %Ecto.Changeset{} = changeset} ->
         errors = make_changeset_errors_readable(changeset)
 
@@ -594,7 +688,6 @@ defmodule API.Timer do
   end
 
   def update(conn, params) do
-
     id = Map.get(params, "id")
 
     # Attributes to update timer
@@ -609,7 +702,6 @@ defmodule API.Timer do
           code: 404,
           message: "No timer found with the given \'id\'."
         }
-
         json(conn |> put_status(404), errors)
 
       # If timer is found, try to update it
@@ -619,16 +711,14 @@ defmodule API.Timer do
           {:ok, timer} ->
             json(conn, timer)
 
-          # Error creating timer
+
+          # Error updating timer
           {:error, %Ecto.Changeset{} = changeset} ->
             errors = make_changeset_errors_readable(changeset)
 
-            json(
-              conn |> put_status(400),
-              errors
-            )
+            json( conn |> put_status(400), errors )
         end
-      end
+    end
   end
 
   defp make_changeset_errors_readable(changeset) do
@@ -1066,16 +1156,71 @@ with a `start` value of the current UTC time.
 
 ## 6.4 _Stop_ the `Timer` 
 
-The path to `stop` a timer is: `/api/items/:item_id/timers/:id`
-It _should_ be `/api/timers/:id` ... 
-https://github.com/dwyl/mvp/issues/256#issuecomment-1384104504
+The path to `stop` a timer is `/api/timers/:id`.
+Stopping a timer is a simple `PUT` request 
+without a body.
 
+```sh
+curl -X PUT http://localhost:4000/api/timers/1 -H 'Content-Type: application/json'
+```
 
-# TODO: Update once this is working
+If the timer with the given `id` was not stopped prior,
+you should see a response similar to the following:
 
-Revisit this once the `API` route has been updated.
-`timers` should not be bound to `item` once they are created.
+```sh
+{
+  "id": 1,
+  "start": "2023-01-11T17:40:44",
+  "stop": "2023-01-17T15:43:24"
+}
+```
 
+Otherwise, an error will surface.
+
+```sh
+{
+  "code": 403,
+  "message": "Timer with the given 'id' has already stopped."
+}
+```
+
+## 6.5 Updating a `Timer` 
+
+You can update a timer with a specific
+`stop` and/or `start` attribute.
+This can be done in `/api/items/1/timers/1`
+with a `PUT` request.
+
+```sh
+curl -X PUT http://localhost:4000/api/items/1/timers/1 -H 'Content-Type: application/json' -d '{"start": "2023-01-11T17:40:44", "stop": "2023-01-11T17:40:45"}'
+```
+
+If successful, you will see a response like so.
+
+```sh
+{
+  "id": 1,
+  "start": "2023-01-11T17:40:44",
+  "stop": "2023-01-11T17:40:45"
+}
+```
+
+You might get a `400 - Bad Request` error
+if `stop` is before `start`
+or the values being passed in the `json` body
+are invalid.
+
+```sh
+{
+  "code": 400,
+  "errors": {
+    "start": [
+      "cannot be later than 'stop'"
+    ]
+  },
+  "message": "Malformed request"
+}
+```
 
 # 7. _Advanced/Automated_ `API` Testing Using `Hoppscotch`
 
