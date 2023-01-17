@@ -211,6 +211,8 @@ defmodule AppWeb.AppLive do
            timer_changeset_list
          ) do
       {:ok, _list} ->
+        # Updates item list and broadcast to other users
+        AppWeb.Endpoint.broadcast(@topic, "update", :update)
         {:noreply, assign(socket, editing: nil, editing_timers: [])}
 
       {:error, updated_errored_list} ->
