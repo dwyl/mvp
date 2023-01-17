@@ -1060,11 +1060,9 @@ You should see a response similar to the following:
 ```
 
 This is the `timer.id` and informs us that the timer is running. 
-
-> **Note**: the `API` should allow me to create a `timer`
-> _without_ having to specify the `start` time.
-> See: https://github.com/dwyl/mvp/issues/256#issuecomment-1384091996
-
+You may also create a `timer` without passing a body.
+This will create an *ongoing `timer`* 
+with a `start` value of the current UTC time.
 
 ## 6.4 _Stop_ the `Timer` 
 
