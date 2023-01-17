@@ -106,54 +106,27 @@ defmodule API.TimerTest do
       assert conn.status == 200
     end
 
-    test "timer with attributes", %{conn: conn} do
-      # Create item and timer
-      {item, timer} = item_and_timer_fixture()
-
-      now = NaiveDateTime.utc_now() |> NaiveDateTime.to_iso8601()
-
-      conn =
-        put(
-          conn,
-          Routes.timer_path(conn, :stop, timer.id, %{stop: now})
-        )
-
-      assert conn.status == 200
-    end
-
     test "timer that doesn't exist", %{conn: conn} do
       conn = put(conn, Routes.timer_path(conn, :stop, -1, %{}))
 
       assert conn.status == 404
     end
 
-    test "timer with stop as `nil`", %{conn: conn} do
+    test "timer that has already stopped", %{conn: conn} do
       # Create item and timer
-      {item, timer} = item_and_timer_fixture()
+      {_item, timer} = item_and_timer_fixture()
+
+      # Stop timer
+      now = NaiveDateTime.utc_now() |> NaiveDateTime.to_iso8601()
+      {:ok, timer} = Timer.update_timer(timer, %{stop: now})
 
       conn =
         put(
           conn,
-          Routes.timer_path(conn, :stop, timer.id, @invalid_attrs)
+          Routes.timer_path(conn, :stop, timer.id, %{})
         )
 
-      # `Stop` as nil is ignored and current time is used
-      assert conn.status == 200
-    end
-
-    test "timer with stop as an invalid attribute", %{conn: conn} do
-      # Create item and timer
-      {item, timer} = item_and_timer_fixture()
-
-      conn =
-        put(
-          conn,
-          Routes.timer_path(conn, :stop, timer.id, %{stop: "invalid"})
-        )
-
-      # `Stop` as nil is ignored and current time is used
-      assert conn.status == 400
-      assert length(json_response(conn, 400)["errors"]["stop"]) > 0
+      assert conn.status == 403
     end
   end
 

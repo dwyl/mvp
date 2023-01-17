@@ -14,22 +14,39 @@ defmodule API.Timer do
     now = NaiveDateTime.utc_now() |> NaiveDateTime.to_iso8601()
     id = Map.get(params, "id")
 
-    # Checking if `stop` is nil. If a nil is passed on body, current time is used
-    stop = if is_nil(Map.get(params, "stop")) do
-      now
-    else
-      Map.get(params, "stop")
-    end
-
     # Attributes to update timer
     attrs_to_update = %{
-      stop: stop
+      stop: now
     }
 
-    case update_timer(id, attrs_to_update) do
-      {:not_found_error, errors} -> json(conn |> put_status(404), errors)
-      {:bad_request_error, errors} -> json( conn |> put_status(400), errors )
-      {:ok, timer} -> json(conn, timer)
+    # Fetching associated timer
+    case Timer.get_timer(id) do
+      nil ->
+        errors = %{
+          code: 404,
+          message: "No timer found with the given \'id\'."
+        }
+        json(conn |> put_status(404), errors)
+
+      # If timer is found, try to update it
+      timer ->
+
+        # If the timer has already stopped, throw error
+        if not is_nil(timer.stop) do
+          errors = %{
+            code: 404,
+            message: "Timer with the given \'id\' has already stopped."
+          }
+          json(conn |> put_status(403), errors)
+
+        # If timer is ongoing, try to update
+        else
+          case Timer.update_timer(timer, attrs_to_update) do
+            # Successfully updates timer
+            {:ok, timer} ->
+              json(conn, timer)
+          end
+        end
     end
   end
 
@@ -72,12 +89,12 @@ defmodule API.Timer do
     }
 
     case Timer.start(attrs) do
-      # Successfully creates item
+      # Successfully creates timer
       {:ok, timer} ->
         id_timer = Map.take(timer, [:id])
         json(conn, id_timer)
 
-      # Error creating item
+      # Error creating timer
       {:error, %Ecto.Changeset{} = changeset} ->
         errors = make_changeset_errors_readable(changeset)
 
@@ -97,33 +114,27 @@ defmodule API.Timer do
       stop: Map.get(params, "stop")
     }
 
-    case update_timer(id, attrs_to_update) do
-      {:not_found_error, errors} -> json(conn |> put_status(404), errors)
-      {:bad_request_error, errors} -> json( conn |> put_status(400), errors )
-      {:ok, timer} -> json(conn, timer)
-    end
-  end
-
-  defp update_timer(timer_id, attrs_to_update) do
-    case Timer.get_timer(timer_id) do
+    case Timer.get_timer(id) do
       nil ->
         errors = %{
           code: 404,
           message: "No timer found with the given \'id\'."
         }
-        {:not_found_error, errors}
+        json(conn |> put_status(404), errors)
 
       # If timer is found, try to update it
       timer ->
         case Timer.update_timer(timer, attrs_to_update) do
           # Successfully updates timer
-          {:ok, timer} -> {:ok, timer}
+          {:ok, timer} ->
+            json(conn, timer)
 
-          # Error creating timer
+
+          # Error updating timer
           {:error, %Ecto.Changeset{} = changeset} ->
             errors = make_changeset_errors_readable(changeset)
 
-            {:bad_request_error, errors}
+            json( conn |> put_status(400), errors )
         end
     end
   end
