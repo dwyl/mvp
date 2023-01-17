@@ -26,20 +26,21 @@ defmodule API.Timer do
           code: 404,
           message: "No timer found with the given \'id\'."
         }
+
         json(conn |> put_status(404), errors)
 
       # If timer is found, try to update it
       timer ->
-
         # If the timer has already stopped, throw error
         if not is_nil(timer.stop) do
           errors = %{
             code: 403,
             message: "Timer with the given \'id\' has already stopped."
           }
+
           json(conn |> put_status(403), errors)
 
-        # If timer is ongoing, try to update
+          # If timer is ongoing, try to update
         else
           case Timer.update_timer(timer, attrs_to_update) do
             # Successfully updates timer
@@ -120,6 +121,7 @@ defmodule API.Timer do
           code: 404,
           message: "No timer found with the given \'id\'."
         }
+
         json(conn |> put_status(404), errors)
 
       # If timer is found, try to update it
@@ -129,12 +131,11 @@ defmodule API.Timer do
           {:ok, timer} ->
             json(conn, timer)
 
-
           # Error updating timer
           {:error, %Ecto.Changeset{} = changeset} ->
             errors = make_changeset_errors_readable(changeset)
 
-            json( conn |> put_status(400), errors )
+            json(conn |> put_status(400), errors)
         end
     end
   end

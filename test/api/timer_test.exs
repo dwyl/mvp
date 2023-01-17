@@ -85,8 +85,7 @@ defmodule API.TimerTest do
       {:ok, %{model: item, version: _version}} =
         Item.create_item(@create_item_attrs)
 
-      conn =
-        post(conn, Routes.timer_path(conn, :create, item.id, %{}))
+      conn = post(conn, Routes.timer_path(conn, :create, item.id, %{}))
 
       assert conn.status == 200
     end
