@@ -17,33 +17,38 @@ defmodule AppWeb.ErrorViewTest do
   test "testing error view with `Accept` header with `application/json` and passing a `.json` template" do
     assigns = %{reason: %{message: "Route not found."}}
 
-    conn = build_conn()
-    |> put_req_header("accept", "application/json")
-    |> Map.put(:assigns, assigns)
+    conn =
+      build_conn()
+      |> put_req_header("accept", "application/json")
+      |> Map.put(:assigns, assigns)
 
     conn = %{conn: conn}
 
-    assert Jason.decode!(render_to_string(AppWeb.ErrorView, "404.json", conn)) == %{"error" => "Route not found."}
+    assert Jason.decode!(render_to_string(AppWeb.ErrorView, "404.json", conn)) ==
+             %{"error" => "Route not found."}
   end
 
   test "testing error view with `Content-type` header with `application/json` and passing a `.json` template" do
     assigns = %{reason: %{message: "Route not found."}}
 
-    conn = build_conn()
-    |> put_req_header("content-type", "application/json")
-    |> Map.put(:assigns, assigns)
+    conn =
+      build_conn()
+      |> put_req_header("content-type", "application/json")
+      |> Map.put(:assigns, assigns)
 
     conn = %{conn: conn}
 
-    assert Jason.decode!(render_to_string(AppWeb.ErrorView, "404.json", conn)) == %{"error" => "Route not found."}
+    assert Jason.decode!(render_to_string(AppWeb.ErrorView, "404.json", conn)) ==
+             %{"error" => "Route not found."}
   end
 
   test "testing error view with `Content-type` header with `application/json` and passing a `.html` template" do
     assigns = %{reason: %{message: "Route not found."}}
 
-    conn = build_conn()
-    |> put_req_header("content-type", "application/json")
-    |> Map.put(:assigns, assigns)
+    conn =
+      build_conn()
+      |> put_req_header("content-type", "application/json")
+      |> Map.put(:assigns, assigns)
 
     conn = %{conn: conn}
 
