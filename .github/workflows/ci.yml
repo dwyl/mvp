@@ -49,7 +49,7 @@ jobs:
       run: mix coveralls.json
       env:
         MIX_ENV: test
-#         AUTH_API_KEY: ${{ secrets.AUTH_API_KEY }}
+        AUTH_API_KEY: ${{ secrets.AUTH_API_KEY }}
         ENCRYPTION_KEYS: ${{ secrets.ENCRYPTION_KEYS }}
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
