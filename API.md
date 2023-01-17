@@ -567,10 +567,12 @@ defmodule API.Timer do
   end
 
   def create(conn, params) do
+    now = NaiveDateTime.to_string(NaiveDateTime.utc_now())
+
     # Attributes to create timer
     attrs = %{
       item_id: Map.get(params, "item_id"),
-      start: Map.get(params, "start"),
+      start: Map.get(params, "start", now),
       stop: Map.get(params, "stop")
     }
 
