@@ -8,6 +8,7 @@ defmodule AppWeb.AppLive do
   alias Phoenix.Socket.Broadcast
 
   @topic "live"
+  @stats_topic "stats"
 
   defp get_person_id(assigns), do: assigns[:person][:id] || 0
 
@@ -15,11 +16,13 @@ defmodule AppWeb.AppLive do
   def mount(_params, _session, socket) do
     # subscribe to the channel
     if connected?(socket), do: AppWeb.Endpoint.subscribe(@topic)
+    AppWeb.Endpoint.subscribe(@stats_topic)
 
     person_id = get_person_id(socket.assigns)
     items = Item.items_with_timers(person_id)
     tags = Tag.list_person_tags(person_id)
     selected_tags = []
+    draft_item = Item.get_draft_item(person_id)
 
     {:ok,
      assign(socket,
@@ -30,12 +33,16 @@ defmodule AppWeb.AppLive do
        filter_tag: nil,
        tags: tags,
        selected_tags: selected_tags,
-       text_value: ""
+       text_value: draft_item.text || ""
      )}
   end
 
   @impl true
   def handle_event("validate", %{"text" => text}, socket) do
+    person_id = get_person_id(socket.assigns)
+    draft = Item.get_draft_item(person_id)
+    Item.update_draft(draft, %{text: text})
+    # only save draft if person id != 0 (ie not guest)
     {:noreply, assign(socket, text_value: text)}
   end
 
@@ -50,18 +57,30 @@ defmodule AppWeb.AppLive do
       tags: socket.assigns.selected_tags
     })
 
+    draft = Item.get_draft_item(person_id)
+    Item.update_draft(draft, %{text: ""})
+
     AppWeb.Endpoint.broadcast(@topic, "update", :create)
+
+    AppWeb.Endpoint.broadcast(
+      @stats_topic,
+      "item",
+      {:create, payload: %{person_id: person_id}}
+    )
+
     {:noreply, assign(socket, text_value: "", selected_tags: [])}
   end
 
   @impl true
   def handle_event("toggle", data, socket) do
+    person_id = get_person_id(socket.assigns)
+
     # Toggle the status of the item between 3 (:active) and 4 (:done)
     status = if Map.has_key?(data, "value"), do: 4, else: 3
 
     # need to restrict getting items to the people who own or have rights to access them!
     item = Item.get_item!(Map.get(data, "id"))
-    Item.update_item(item, %{status: status})
+    Item.update_item(item, %{status: status, person_id: person_id})
     Timer.stop_timer_for_item_id(item.id)
 
     AppWeb.Endpoint.broadcast(@topic, "update", :toggle)
@@ -119,6 +138,13 @@ defmodule AppWeb.AppLive do
       })
 
     AppWeb.Endpoint.broadcast(@topic, "update", {:start, item.id})
+
+    AppWeb.Endpoint.broadcast(
+      @stats_topic,
+      "timer",
+      {:create, payload: %{person_id: person_id}}
+    )
+
     {:noreply, socket}
   end
 
@@ -232,6 +258,14 @@ defmodule AppWeb.AppLive do
     else
       {:noreply, assign(socket, items: items)}
     end
+  end
+
+  @impl true
+  def handle_info(
+        %Broadcast{topic: @stats_topic, event: _event, payload: _payload},
+        socket
+      ) do
+    {:noreply, socket}
   end
 
   # only show certain UI elements (buttons) if there are items:

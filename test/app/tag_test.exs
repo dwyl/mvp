@@ -1,8 +1,6 @@
 defmodule App.TagTest do
-  use App.DataCase
-  alias App.{Person, Tag}
-
-  setup [:create_person]
+  use App.DataCase, async: true
+  alias App.Tag
 
   describe "Test constraints and requirements for Tag schema" do
     test "valid tag changeset" do
@@ -55,10 +53,10 @@ defmodule App.TagTest do
       assert tags = Tag.create_tags([], 1)
       assert length(tags) == 0
     end
-  end
 
-  defp create_person(_) do
-    person = Person.create_person(%{"person_id" => 1, "name" => "guest"})
-    %{person: person}
+    test "delete tag" do
+      {:ok, tag} = Tag.create_tag(@valid_attrs)
+      assert {:ok, _etc} = Tag.delete_tag(tag)
+    end
   end
 end

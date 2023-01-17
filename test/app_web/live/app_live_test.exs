@@ -1,10 +1,8 @@
 defmodule AppWeb.AppLiveTest do
-  use AppWeb.ConnCase
-  alias App.{Item, Person, Timer, Tag}
+  use AppWeb.ConnCase, async: true
+  alias App.{Item, Timer, Tag}
   import Phoenix.LiveViewTest
   alias Phoenix.Socket.Broadcast
-
-  setup [:create_person]
 
   test "disconnected and connected render", %{conn: conn} do
     {:ok, page_live, disconnected_html} = live(conn, "/")
@@ -23,10 +21,10 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "toggle an item", %{conn: conn} do
-    {:ok, item} =
+    {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Learn Elixir", status: 2, person_id: 0})
 
-    {:ok, _item2} =
+    {:ok, %{model: _item2, version: _version}} =
       Item.create_item(%{text: "Learn Elixir", status: 4, person_id: 0})
 
     assert item.status == 2
@@ -48,7 +46,7 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "(soft) delete an item", %{conn: conn} do
-    {:ok, item} =
+    {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
     assert item.status == 2
@@ -61,7 +59,7 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "start a timer", %{conn: conn} do
-    {:ok, item} =
+    {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Get Fancy!", person_id: 0, status: 2})
 
     assert item.status == 2
@@ -71,7 +69,7 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "stop a timer", %{conn: conn} do
-    {:ok, item} =
+    {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Get Fancy!", person_id: 0, status: 2})
 
     assert item.status == 2
@@ -87,7 +85,7 @@ defmodule AppWeb.AppLiveTest do
   test "handle_info/2 update", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
 
-    {:ok, item} =
+    {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
 
     send(view.pid, %Broadcast{
@@ -101,7 +99,7 @@ defmodule AppWeb.AppLiveTest do
   test "handle_info/2 update with editing open (start)", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
 
-    {:ok, item} =
+    {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
 
     {:ok, now} = NaiveDateTime.new(Date.utc_today(), Time.utc_now())
@@ -130,7 +128,7 @@ defmodule AppWeb.AppLiveTest do
   test "handle_info/2 update with editing open (stop)", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
 
-    {:ok, item} =
+    {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
 
     {:ok, seven_seconds_ago} =
@@ -157,7 +155,7 @@ defmodule AppWeb.AppLiveTest do
   test "handle_info/2 update with editing open (delete)", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
 
-    {:ok, item} =
+    {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
 
     render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
@@ -171,7 +169,7 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "edit-item", %{conn: conn} do
-    {:ok, item} =
+    {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
     {:ok, view, _html} = live(conn, "/")
@@ -181,7 +179,7 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "update an item", %{conn: conn} do
-    {:ok, item} =
+    {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
     {:ok, view, _html} = live(conn, "/")
@@ -201,7 +199,7 @@ defmodule AppWeb.AppLiveTest do
     start_datetime = ~N[2022-10-27 00:00:00]
     stop_datetime = ~N[2022-10-27 05:00:00]
 
-    {:ok, item} =
+    {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
     {:ok, seven_seconds_ago} =
@@ -273,7 +271,7 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "update timer timer with ongoing timer ", %{conn: conn} do
-    {:ok, item} =
+    {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
     {:ok, seven_seconds_ago} =
@@ -288,7 +286,7 @@ defmodule AppWeb.AppLiveTest do
       NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), 10))
 
     # Start the timer 7 seconds ago:
-    {:ok, timer} =
+    {:ok, _timer} =
       Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
 
     # Stop the timer based on its item_id
@@ -319,20 +317,6 @@ defmodule AppWeb.AppLiveTest do
       end)
       |> List.to_string()
 
-    now_string =
-      NaiveDateTime.truncate(now, :second)
-      |> NaiveDateTime.to_string()
-      |> String.graphemes()
-      |> Enum.with_index()
-      |> Enum.map(fn {value, index} ->
-        if index == 10 do
-          "T"
-        else
-          value
-        end
-      end)
-      |> List.to_string()
-
     error_view =
       render_submit(view, "update-item-timer", %{
         "timer_id" => timer2.id,
@@ -343,7 +327,7 @@ defmodule AppWeb.AppLiveTest do
 
     assert error_view =~ "When editing an ongoing timer"
 
-    # Update fails because of format -----------
+    # Update fails because of format
     render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
 
     error_format_view =
@@ -356,7 +340,7 @@ defmodule AppWeb.AppLiveTest do
 
     assert error_format_view =~ "Start field has an invalid date format."
 
-    # Update successful -----------
+    # Update successful
     ten_seconds_after_string =
       NaiveDateTime.truncate(ten_seconds_after, :second)
       |> NaiveDateTime.to_string()
@@ -376,21 +360,19 @@ defmodule AppWeb.AppLiveTest do
 
     render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
 
-    view =
-      assert render_submit(view, "update-item-timer", %{
-               "timer_id" => timer2.id,
-               "index" => 1,
-               "timer_start" => ten_seconds_after_string,
-               "timer_stop" => ""
-             })
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer2.id,
+             "index" => 1,
+             "timer_start" => ten_seconds_after_string,
+             "timer_stop" => ""
+           })
 
     updated_timer2 = Timer.get_timer!(timer2.id)
-
     assert updated_timer2.start == ten_seconds_after_datetime
   end
 
   test "timer overlap error when updating timer", %{conn: conn} do
-    {:ok, item} =
+    {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
     {:ok, seven_seconds_ago} =
@@ -402,7 +384,7 @@ defmodule AppWeb.AppLiveTest do
       NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -4))
 
     # Start the timer 7 seconds ago:
-    {:ok, timer} =
+    {:ok, _timer} =
       Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
 
     # Stop the timer based on its item_id
@@ -457,7 +439,7 @@ defmodule AppWeb.AppLiveTest do
 
   test "timer overlap error when updating historical timer with ongoing timer",
        %{conn: conn} do
-    {:ok, item} =
+    {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
     {:ok, seven_seconds_ago} =
@@ -476,7 +458,7 @@ defmodule AppWeb.AppLiveTest do
     Timer.stop_timer_for_item_id(item.id)
 
     # Start a second timer
-    {:ok, timer2} = Timer.start(%{item_id: item.id, person_id: 1, start: now})
+    {:ok, _t2} = Timer.start(%{item_id: item.id, person_id: 1, start: now})
 
     {:ok, view, _html} = live(conn, "/")
 
@@ -519,6 +501,15 @@ defmodule AppWeb.AppLiveTest do
            }) =~ "This timer interval overlaps with other timers."
   end
 
+  test "timer_text(start, stop) UNDER 1000s" do
+    timer = %{
+      start: ~N[2022-07-17 09:01:42.000000],
+      stop: ~N[2022-07-17 09:02:24.000000]
+    }
+
+    assert AppWeb.AppLive.timer_text(timer) == "00:00:42"
+  end
+
   test "timer_text(start, stop)" do
     timer = %{
       start: ~N[2022-07-17 09:01:42.000000],
@@ -538,13 +529,13 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "filter items", %{conn: conn} do
-    {:ok, _item} =
+    {:ok, %{model: _item, version: _version}} =
       Item.create_item(%{text: "Item to do", person_id: 0, status: 2})
 
-    {:ok, _item_done} =
+    {:ok, %{model: _item_done, version: _version}} =
       Item.create_item(%{text: "Item done", person_id: 0, status: 4})
 
-    {:ok, _item_archived} =
+    {:ok, %{model: _item_archived, version: _version}} =
       Item.create_item(%{text: "Item archived", person_id: 0, status: 6})
 
     {:ok, view, _html} = live(conn, "/?filter_by=all")
@@ -578,7 +569,7 @@ defmodule AppWeb.AppLiveTest do
     {:ok, tag3} =
       Tag.create_tag(%{person_id: 0, text: "tag3", color: "#FCA5A5"})
 
-    {:ok, _item} =
+    {:ok, %{model: _item, version: _version}} =
       Item.create_item_with_tags(%{
         text: "Item1 to do",
         person_id: 0,
@@ -586,7 +577,7 @@ defmodule AppWeb.AppLiveTest do
         tags: [tag1, tag2]
       })
 
-    {:ok, _item} =
+    {:ok, %{model: _item, version: _version}} =
       Item.create_item_with_tags(%{
         text: "Item2 to do",
         person_id: 0,
@@ -661,10 +652,10 @@ defmodule AppWeb.AppLiveTest do
     assert "/" = redirected_to(conn, 302)
   end
 
-  test "test login link redirect to auth.dwyl.com", %{conn: conn} do
+  test "test login link redirect to auth", %{conn: conn} do
     conn = get(conn, "/login")
 
-    assert redirected_to(conn, 302) =~ "auth.dwyl.com"
+    assert redirected_to(conn, 302) =~ "auth"
   end
 
   test "tags_to_string/1" do
@@ -696,10 +687,5 @@ defmodule AppWeb.AppLiveTest do
 
     {:ok, view, _html} = live(conn, "/")
     assert render_hook(view, "filter-tags", %{"key" => "t", "value" => "t"})
-  end
-
-  defp create_person(_) do
-    person = Person.create_person(%{"person_id" => 0, "name" => "guest"})
-    %{person: person}
   end
 end

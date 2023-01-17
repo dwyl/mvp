@@ -1,21 +1,20 @@
 defmodule App.ItemTest do
   use App.DataCase
-  alias App.{Item, Person, Timer}
-
-  setup [:create_person]
+  alias App.{Item, Timer}
 
   describe "items" do
     @valid_attrs %{text: "some text", person_id: 1, status: 2}
-    @update_attrs %{text: "some updated text"}
+    @update_attrs %{text: "some updated text", person_id: 1}
     @invalid_attrs %{text: nil}
 
     test "get_item!/1 returns the item with given id" do
-      {:ok, item} = Item.create_item(@valid_attrs)
+      {:ok, %{model: item, version: _version}} = Item.create_item(@valid_attrs)
       assert Item.get_item!(item.id).text == item.text
     end
 
     test "create_item/1 with valid data creates a item" do
-      assert {:ok, %Item{} = item} = Item.create_item(@valid_attrs)
+      assert {:ok, %{model: item, version: _version}} =
+               Item.create_item(@valid_attrs)
 
       assert item.text == "some text"
 
@@ -36,7 +35,7 @@ defmodule App.ItemTest do
         status: 2
       }
 
-      assert {:ok, %Item{} = item} = Item.create_item(attrs)
+      assert {:ok, %{model: item, version: _version}} = Item.create_item(attrs)
 
       assert item.text == attrs.text
     end
@@ -46,16 +45,21 @@ defmodule App.ItemTest do
     end
 
     test "list_items/0 returns a list of items stored in the DB" do
-      {:ok, _item1} = Item.create_item(@valid_attrs)
-      {:ok, _item2} = Item.create_item(@valid_attrs)
+      {:ok, %{model: _item1, version: _version}} =
+        Item.create_item(@valid_attrs)
+
+      {:ok, %{model: _item2, version: _version}} =
+        Item.create_item(@valid_attrs)
 
       assert Enum.count(Item.list_items()) == 2
     end
 
     test "update_item/2 with valid data updates the item" do
-      {:ok, item} = Item.create_item(@valid_attrs)
+      {:ok, %{model: item, version: _version}} = Item.create_item(@valid_attrs)
 
-      assert {:ok, %Item{} = item} = Item.update_item(item, @update_attrs)
+      assert {:ok, %{model: item, version: _version}} =
+               Item.update_item(item, @update_attrs)
+
       assert item.text == "some updated text"
     end
   end
@@ -69,7 +73,9 @@ defmodule App.ItemTest do
     }
 
     test "get_item!/1 returns the item with given id" do
-      {:ok, item} = Item.create_item_with_tags(@valid_attrs)
+      {:ok, %{model: item, version: _version}} =
+        Item.create_item_with_tags(@valid_attrs)
+
       assert length(item.tags) == 0
     end
   end
@@ -152,8 +158,8 @@ defmodule App.ItemTest do
     end
 
     test "Item.items_with_timers/1 returns a list of items with timers" do
-      {:ok, item1} = Item.create_item(@valid_attrs)
-      {:ok, item2} = Item.create_item(@valid_attrs)
+      {:ok, %{model: item1, version: _version}} = Item.create_item(@valid_attrs)
+      {:ok, %{model: item2, version: _version}} = Item.create_item(@valid_attrs)
       assert Item.get_item!(item1.id).text == item1.text
 
       started = NaiveDateTime.utc_now()
@@ -177,8 +183,35 @@ defmodule App.ItemTest do
     end
   end
 
-  defp create_person(_) do
-    person = Person.create_person(%{"person_id" => 1, "name" => "guest"})
-    %{person: person}
+  test "Item.person_with_item_and_timer_count/0 returns a list of count of timers and items for each given person" do
+    {:ok, %{model: item1, version: _version}} = Item.create_item(@valid_attrs)
+    {:ok, %{model: item2, version: _version}} = Item.create_item(@valid_attrs)
+
+    started = NaiveDateTime.utc_now()
+
+    {:ok, _timer1} =
+      Timer.start(%{
+        item_id: item1.id,
+        person_id: item1.person_id,
+        start: started,
+        stop: started
+      })
+
+    {:ok, _timer2} =
+      Timer.start(%{
+        item_id: item2.id,
+        person_id: item2.person_id,
+        start: started
+      })
+
+    # list person with number of timers and items
+    person_with_items_timers = Item.person_with_item_and_timer_count()
+
+    assert length(person_with_items_timers) == 1
+
+    first_element = Enum.at(person_with_items_timers, 0)
+
+    assert Map.get(first_element, :num_items) == 2
+    assert Map.get(first_element, :num_timers) == 2
   end
 end

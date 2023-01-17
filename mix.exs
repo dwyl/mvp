@@ -56,6 +56,9 @@ defmodule App.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
 
+      # Database changes tracking
+      {:paper_trail, "~> 1.0.0"},
+
       # Time string parsing: github.com/bitwalker/timex
       {:timex, "~> 3.7"},
 
@@ -69,8 +72,7 @@ defmodule App.MixProject do
       {:fields, "~> 2.10.3"},
 
       # Useful functions: github.com/dwyl/useful
-      {:useful, "~> 1.0.8"},
-
+      {:useful, "~> 1.10.0", override: true},
       # See: github.com/dwyl/useful/issues/17
       {:atomic_map, "~> 0.9.3"},
 
@@ -79,8 +81,7 @@ defmodule App.MixProject do
 
       # create docs on localhost by running "mix docs"
       {:ex_doc, "~> 0.29", only: :dev, runtime: false},
-
-      # Track test coverage
+      # Track test coverage: github.com/parroty/excoveralls
       {:excoveralls, "~> 0.15", only: [:test, :dev]},
 
       # git pre-commit hook runs tests before allowing commits
