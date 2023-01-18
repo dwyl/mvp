@@ -27,13 +27,15 @@ can also be done through our `REST API`
   - [2.2 Implementing the controllers](#22-implementing-the-controllers)
 - [3. `JSON` serializing](#3-json-serializing)
 - [4. Listing `timers` and `items` and validating updates](#4-listing-timers-and-items-and-validating-updates)
-- [5. Basic `API` Testing Using `cUrl`](#5-basic-api-testing-using-curl)
-  - [5.1 _Create_ an `item` via `API` Request](#51-create-an-item-via-api-request)
-  - [5.2 _Read_ the `item` via `API`](#52-read-the-item-via-api)
-  - [5.3 Create a `Timer` for your `item`](#53-create-a-timer-for-your-item)
-  - [5.4 _Stop_ the `Timer`](#54-stop-the-timer)
+- [5. Error handling in `ErrorView`](#5-error-handling-in-errorview)
+- [5.1 Fixing tests](#51-fixing-tests)
+- [6. Basic `API` Testing Using `cUrl`](#6-basic-api-testing-using-curl)
+  - [6.1 _Create_ an `item` via `API` Request](#61-create-an-item-via-api-request)
+  - [6.2 _Read_ the `item` via `API`](#62-read-the-item-via-api)
+  - [6.3 Create a `Timer` for your `item`](#63-create-a-timer-for-your-item)
+  - [6.4 _Stop_ the `Timer`](#64-stop-the-timer)
 - [TODO: Update once this is working](#todo-update-once-this-is-working)
-- [6. _Advanced/Automated_ `API` Testing Using `Hoppscotch`](#6-advancedautomated-api-testing-using-hoppscotch)
+- [7. _Advanced/Automated_ `API` Testing Using `Hoppscotch`](#7-advancedautomated-api-testing-using-hoppscotch)
 - [Done! ✅](#done-)
 
 
@@ -828,8 +830,184 @@ it will error out!
 
 <img width="1339" alt="error_datetimes" src="https://user-images.githubusercontent.com/17494745/212123844-9a03850d-ac31-47a6-a9f4-d32d317f90bb.png">
 
+# 5. Error handling in `ErrorView`
 
-# 5. Basic `API` Testing Using `cUrl`
+Sometimes the user might access a route that is not defined.
+If you are running on localhost and try to access a random route, like:
+
+```sh
+curl -X GET http://localhost:4000/api/items/1/invalidroute -H 'Content-Type: application/json'
+```
+
+You will receive an `HTML` response.
+This `HTML` pertains to the debug screen 
+you can see on your browser.
+
+![image](https://user-images.githubusercontent.com/17494745/212749069-82cf85ff-ab6f-4a2f-801c-cae0e9e3229a.png)
+
+The reason this debug screen is appearing 
+is because we are running on **`dev` mode**.
+If we ran this in production
+or *toggle `:debug_errors` to `false` 
+in `config/dev.exs`, 
+we would get a simple `"Not Found"` text.
+
+<img width="693" alt="image" src="https://user-images.githubusercontent.com/17494745/212878187-5f696dbb-8bbc-4b46-ab15-f010af5ce394.png">
+
+All of this behaviour occurs
+in `lib/app_web/views/error_view.ex`.
+
+```elixir
+  def template_not_found(template, _assigns) do
+    Phoenix.Controller.status_message_from_template(template)
+  end
+```
+
+When a browser-based call occurs to an undefined route, 
+`template` has a value of `404.html`.
+Conversely, in our API-scoped routes, 
+a value of `404.json` is expected.
+[Phoenix renders each one according to the `Accept` request header of the incoming request.](https://github.com/phoenixframework/phoenix/issues/1879)
+
+We should extend this behaviour 
+for when requests have `Content-type` as `application/json`
+to also return a `json` response, 
+instead of `HTML` (which Phoenix by default does).
+
+For this, 
+add the following funciton
+inside `lib/app_web/views/error_view.ex`.
+
+```elixir
+  def template_not_found(template, %{:conn => conn}) do
+    acceptHeader =
+      Enum.at(Plug.Conn.get_req_header(conn, "content-type"), 0, "")
+
+    isJson =
+      String.contains?(acceptHeader, "application/json") or
+        String.match?(template, ~r/.*\.json/)
+
+    if isJson do
+      # If `Content-Type` is `json` but the `Accept` header is not passed, Phoenix considers this as an `.html` request.
+      # We want to return a JSON, hence why we check if Phoenix considers this an `.html` request.
+      #
+      # If so, we return a JSON with appropriate headers.
+      # We try to return a meaningful error if it exists (:reason). It it doesn't, we return the status message from template
+      case String.match?(template, ~r/.*\.json/) do
+        true ->
+          %{
+            error:
+              Map.get(
+                conn.assigns.reason,
+                :message,
+                Phoenix.Controller.status_message_from_template(template)
+              )
+          }
+
+        false ->
+          Phoenix.Controller.json(
+            conn,
+            %{
+              error:
+                Map.get(
+                  conn.assigns.reason,
+                  :message,
+                  Phoenix.Controller.status_message_from_template(template)
+                )
+            }
+          )
+      end
+    else
+      Phoenix.Controller.status_message_from_template(template)
+    end
+  end
+```
+
+In this function,
+we are retrieving the `content-type` request header
+and asserting if it is `json` or not.
+If it does,
+we return a `json` response.
+Otherwise, we do not.
+
+Since users sometimes might not send the `accept` request header
+but the `content-type` instead,
+Phoenix will assume the template is `*.html`-based.
+Hence why we are checking for the template 
+format and returning the response accordingly.
+
+# 5.1 Fixing tests
+
+We ought to test these scenarios now!
+Open `test/app_web/views/error_view_test.exs`
+and add the following piece of code.
+
+```elixir
+
+  alias Phoenix.ConnTest
+
+  test "testing error view with `Accept` header with `application/json` and passing a `.json` template" do
+    assigns = %{reason: %{message: "Route not found."}}
+
+    conn =
+      build_conn()
+      |> put_req_header("accept", "application/json")
+      |> Map.put(:assigns, assigns)
+
+    conn = %{conn: conn}
+
+    assert Jason.decode!(render_to_string(AppWeb.ErrorView, "404.json", conn)) ==
+             %{"error" => "Route not found."}
+  end
+
+  test "testing error view with `Content-type` header with `application/json` and passing a `.json` template" do
+    assigns = %{reason: %{message: "Route not found."}}
+
+    conn =
+      build_conn()
+      |> put_req_header("content-type", "application/json")
+      |> Map.put(:assigns, assigns)
+
+    conn = %{conn: conn}
+
+    assert Jason.decode!(render_to_string(AppWeb.ErrorView, "404.json", conn)) ==
+             %{"error" => "Route not found."}
+  end
+
+  test "testing error view with `Content-type` header with `application/json` and passing a `.html` template" do
+    assigns = %{reason: %{message: "Route not found."}}
+
+    conn =
+      build_conn()
+      |> put_req_header("content-type", "application/json")
+      |> Map.put(:assigns, assigns)
+
+    conn = %{conn: conn}
+
+    resp_body = Map.get(render(AppWeb.ErrorView, "404.html", conn), :resp_body)
+
+    assert Jason.decode!(resp_body) == %{"error" => "Route not found."}
+  end
+
+  test "testing error view and passing a `.html` template" do
+    conn = build_conn()
+    conn = %{conn: conn}
+
+    assert render_to_string(AppWeb.ErrorView, "404.html", conn) == "Not Found"
+  end
+```
+
+If we run `mix test`,
+you should see the following output!
+
+```sh
+Finished in 1.7 seconds (1.5s async, 0.1s sync)
+96 tests, 0 failures
+```
+
+And our coverage is back to 100%! 🎉
+
+# 6. Basic `API` Testing Using `cUrl`
 
 At this point we have a working `API` for `items` and `timers`.
 We can demonstrate it using `curl` commands in the `Terminal`.
@@ -837,7 +1015,7 @@ We can demonstrate it using `curl` commands in the `Terminal`.
 1. Run the `Phoenix` App with the command: `mix s`
 2. In a _separate_ `Terminal` window, run the following commands:
 
-## 5.1 _Create_ an `item` via `API` Request
+## 6.1 _Create_ an `item` via `API` Request
 
 ```sh
 curl -X POST http://localhost:4000/api/items -H 'Content-Type: application/json' -d '{"text":"My Awesome item text"}'
@@ -848,7 +1026,7 @@ You should expect to see the following result:
 {"id":1}
 ```
 
-## 5.2 _Read_ the `item` via `API`
+## 6.2 _Read_ the `item` via `API`
 
 Now if you request this `item` using the `id`:
 
@@ -864,7 +1042,7 @@ You should see:
 
 This tells us that `items` are being created. ✅
 
-## 5.3 Create a `Timer` for your `item`
+## 6.3 Create a `Timer` for your `item`
 
 The route pattern is: `/api/items/:item_id/timers`.
 Therefore our `cURL` request is:
@@ -886,7 +1064,7 @@ This is the `timer.id` and informs us that the timer is running.
 > See: https://github.com/dwyl/mvp/issues/256#issuecomment-1384091996
 
 
-## 5.4 _Stop_ the `Timer` 
+## 6.4 _Stop_ the `Timer` 
 
 The path to `stop` a timer is: `/api/items/:item_id/timers/:id`
 It _should_ be `/api/timers/:id` ... 
@@ -899,7 +1077,7 @@ Revisit this once the `API` route has been updated.
 `timers` should not be bound to `item` once they are created.
 
 
-# 6. _Advanced/Automated_ `API` Testing Using `Hoppscotch`
+# 7. _Advanced/Automated_ `API` Testing Using `Hoppscotch`
 
 Coming soon! https://github.com/dwyl/mvp/issues/268
 
