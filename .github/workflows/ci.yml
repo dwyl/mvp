@@ -45,6 +45,13 @@ jobs:
       run: mix deps.get
     - name: Check code is formatted
       run: mix format --check-formatted
+
+    - name: Install Hoppscotch CLI
+      run: npm i -g @hoppscotch/cli
+
+    - name: Check Hoppscotch version
+      run: hopp -v
+
     - name: Run Tests
       run: mix coveralls.json
       env:
