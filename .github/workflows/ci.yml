@@ -46,9 +46,6 @@ jobs:
     - name: Check code is formatted
       run: mix format --check-formatted
 
-    - name: Postgres CLI
-      run: psql --help
-
     - name: Install Hoppscotch CLI
       run: npm i -g @hoppscotch/cli
 
@@ -57,6 +54,9 @@ jobs:
 
     - name: Run ecto.migrate
       run: mix ecto.migrate
+
+    - name: Adding mock data for API test
+      run: psql -d app_dev -a -f ./hoppscotch/api_test_mock_data.sql
 
     - name: Running server and Hoppscotch Tests
       run: mix phx.server & sleep 5 && hopp test -e ./hoppscotch/envs.json ./hoppscotch/MVP.json
