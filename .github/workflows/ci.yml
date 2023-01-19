@@ -55,14 +55,14 @@ jobs:
     - name: Run ecto.migrate
       run: mix ecto.migrate
 
-    - name: Adding mock data for API test
-      run: psql -f ./hoppscotch/api_test_mock_data.sql
+    - name: Install dependencies for Postgres mocking data
+      run: npm ci --prefix ./hoppscotch
+
+    - name: Populate Postgres
+      run: node ./hoppscotch/client.js
       env:
-          # The hostname used to communicate with the PostgreSQL service container
-          POSTGRES_HOST: localhost
-          # The default PostgreSQL port
-          POSTGRES_PORT: 5432
-      #run: psql -d app_dev -a -f ./hoppscotch/api_test_mock_data.sql
+        POSTGRES_HOST: localhost
+        POSTGRES_PORT: 5432
 
     - name: Running server and Hoppscotch Tests
       run: mix phx.server & sleep 5 && hopp test -e ./hoppscotch/envs.json ./hoppscotch/MVP.json
