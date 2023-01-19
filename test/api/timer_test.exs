@@ -79,6 +79,54 @@ defmodule API.TimerTest do
       assert conn.status == 400
       assert length(json_response(conn, 400)["errors"]["start"]) > 0
     end
+
+    test "a timer with empty body", %{conn: conn} do
+      # Create item
+      {:ok, %{model: item, version: _version}} =
+        Item.create_item(@create_item_attrs)
+
+      conn = post(conn, Routes.timer_path(conn, :create, item.id, %{}))
+
+      assert conn.status == 200
+    end
+  end
+
+  describe "stop" do
+    test "timer without any attributes", %{conn: conn} do
+      # Create item and timer
+      {item, timer} = item_and_timer_fixture()
+
+      conn =
+        put(
+          conn,
+          Routes.timer_path(conn, :stop, timer.id, %{})
+        )
+
+      assert conn.status == 200
+    end
+
+    test "timer that doesn't exist", %{conn: conn} do
+      conn = put(conn, Routes.timer_path(conn, :stop, -1, %{}))
+
+      assert conn.status == 404
+    end
+
+    test "timer that has already stopped", %{conn: conn} do
+      # Create item and timer
+      {_item, timer} = item_and_timer_fixture()
+
+      # Stop timer
+      now = NaiveDateTime.utc_now() |> NaiveDateTime.to_iso8601()
+      {:ok, timer} = Timer.update_timer(timer, %{stop: now})
+
+      conn =
+        put(
+          conn,
+          Routes.timer_path(conn, :stop, timer.id, %{})
+        )
+
+      assert conn.status == 403
+    end
   end
 
   describe "update" do
