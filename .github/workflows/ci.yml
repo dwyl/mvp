@@ -56,7 +56,7 @@ jobs:
       run: mix ecto.migrate
 
     - name: Populate Postgres
-      run: psql -h localhost -p 5432 -d app_dev -U postgres
+      run: psql -h localhost -p 5432 -d app_dev -U postgres -f ./hoppscotch/api_test_mock_data.sql
 
       env:
         POSTGRES_HOST: localhost
