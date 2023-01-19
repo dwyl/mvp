@@ -5,7 +5,7 @@ const pgclient = new Client({
     port: process.env.POSTGRES_PORT,
     user: 'postgres',
     password: 'postgres',
-    database: 'postgres'
+    database: 'app_dev'
 });
 
 pgclient.connect();
