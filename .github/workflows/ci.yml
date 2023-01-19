@@ -55,11 +55,9 @@ jobs:
     - name: Run ecto.migrate
       run: mix ecto.migrate
 
-    - name: Install dependencies for Postgres mocking data
-      run: npm ci --prefix ./hoppscotch
-
     - name: Populate Postgres
-      run: node ./hoppscotch/mock_data.js
+      run: psql -h localhost -p 5432 -d app_dev -U postgres
+
       env:
         POSTGRES_HOST: localhost
         POSTGRES_PORT: 5432
