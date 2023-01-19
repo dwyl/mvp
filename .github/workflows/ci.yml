@@ -61,6 +61,7 @@ jobs:
       env:
         POSTGRES_HOST: localhost
         POSTGRES_PORT: 5432
+        PGPASSWORD: postgres
 
     - name: Running server and Hoppscotch Tests
       run: mix phx.server & sleep 5 && hopp test -e ./hoppscotch/envs.json ./hoppscotch/MVP.json
