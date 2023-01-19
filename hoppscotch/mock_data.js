@@ -27,6 +27,6 @@ pgclient.query(item, (err, res) => {
     if (err) throw err
 });
 
-pgclient.query(timers, values, (err, res) => {
+pgclient.query(timers, (err, res) => {
     if (err) throw err
 });
