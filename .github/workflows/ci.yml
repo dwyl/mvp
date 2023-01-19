@@ -49,8 +49,11 @@ jobs:
     - name: Install Hoppscotch CLI
       run: npm i -g @hoppscotch/cli
 
-    - name: Run mix setup
-      run: mix setup
+    - name: Run mix ecto.create
+      run: mix ecto.create
+
+    - name: Run ecto.migrate
+      run: mix ecto.migrate
 
     - name: Running server and Hoppscotch Tests
       run: mix phx.server & sleep 5 & hopp test -e ./hoppscotch/envs.json ./hoppscotch/MVP.json
