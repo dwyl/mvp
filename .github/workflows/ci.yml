@@ -56,7 +56,7 @@ jobs:
       run: mix ecto.migrate
 
     - name: Adding mock data for API test
-      run: ps -ef | grep postgres
+      run: psql -f ./hoppscotch/api_test_mock_data.sql
       #run: psql -d app_dev -a -f ./hoppscotch/api_test_mock_data.sql
 
     - name: Running server and Hoppscotch Tests
