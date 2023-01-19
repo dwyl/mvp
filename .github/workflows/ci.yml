@@ -59,7 +59,7 @@ jobs:
       run: npm ci --prefix ./hoppscotch
 
     - name: Populate Postgres
-      run: node ./hoppscotch/client.js
+      run: node ./hoppscotch/mock_data.js
       env:
         POSTGRES_HOST: localhost
         POSTGRES_PORT: 5432
