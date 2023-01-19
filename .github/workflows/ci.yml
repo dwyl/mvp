@@ -50,7 +50,7 @@ jobs:
       run: npm i -g @hoppscotch/cli
 
     - name: Running server and Hoppscotch Tests
-      run: mix phx.server & hopp test -e ./hoppscotch/envs.json ./hoppscotch/MVP.json
+      run: mix ecto.migrate & sleep 3 mix phx.server sleep 5 & hopp test -e ./hoppscotch/envs.json ./hoppscotch/MVP.json
 
     - name: Run Tests
       run: mix coveralls.json
