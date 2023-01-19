@@ -46,6 +46,9 @@ jobs:
     - name: Check code is formatted
       run: mix format --check-formatted
 
+    - name: Postgres CLI
+      run: psql --help
+
     - name: Install Hoppscotch CLI
       run: npm i -g @hoppscotch/cli
 
