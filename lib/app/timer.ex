@@ -102,7 +102,6 @@ defmodule App.Timer do
   def start(attrs \\ %{}) do
     %Timer{}
     |> changeset(attrs)
-    |> foreign_key_constraint(:item_id)
     |> validate_start_before_stop()
     |> Repo.insert()
   end
@@ -118,7 +117,6 @@ defmodule App.Timer do
   """
   def stop(attrs \\ %{}) do
     get_timer!(attrs.id)
-    |> foreign_key_constraint(:item_id)
     |> changeset(%{stop: NaiveDateTime.utc_now()})
     |> Repo.update()
   end
