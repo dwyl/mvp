@@ -57,6 +57,11 @@ jobs:
 
     - name: Adding mock data for API test
       run: psql -f ./hoppscotch/api_test_mock_data.sql
+      env:
+          # The hostname used to communicate with the PostgreSQL service container
+          POSTGRES_HOST: localhost
+          # The default PostgreSQL port
+          POSTGRES_PORT: 5432
       #run: psql -d app_dev -a -f ./hoppscotch/api_test_mock_data.sql
 
     - name: Running server and Hoppscotch Tests
