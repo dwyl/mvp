@@ -95,10 +95,6 @@ jobs:
     - name: Install dependencies
       run: mix deps.get
 
-
-    - name: ls
-      run: ls
-
     - name: Install Hoppscotch CLI
       run: npm i -g @hoppscotch/cli
 
@@ -109,7 +105,7 @@ jobs:
       run: mix ecto.migrate
 
     - name: Bootstrap Postgres DB with data
-      run: psql -h localhost -p 5432 -d app_dev -U postgres -f ./hoppscotch/api_test_mock_data.sql
+      run: psql -h localhost -p 5432 -d app_dev -U postgres -f ./.hoppscotch/api_test_mock_data.sql
 
       env:
         POSTGRES_HOST: localhost
@@ -117,7 +113,7 @@ jobs:
         PGPASSWORD: postgres
 
     - name: Running server and Hoppscotch Tests
-      run: mix phx.server & sleep 5 && hopp test -e ./hoppscotch/envs.json ./hoppscotch/MVP.json
+      run: mix phx.server & sleep 5 && hopp test -e ./.hoppscotch/envs.json ./.hoppscotch/MVP.json
 
   # Continuous Deployment to Fly.io
   # https://fly.io/docs/app-guides/continuous-deployment-with-github-actions/
