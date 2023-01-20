@@ -36,6 +36,9 @@ can also be done through our `REST API`
   - [6.4 _Stop_ the `Timer`](#64-stop-the-timer)
   - [6.5 Updating a `Timer`](#65-updating-a-timer)
 - [7. _Advanced/Automated_ `API` Testing Using `Hoppscotch`](#7-advancedautomated-api-testing-using-hoppscotch)
+  - [7.1 Using `Hoppscotch`](#71-using-hoppscotch)
+  - [7.2 Integration with `Github Actions` with `Hoppscotch CLI`](#72-integration-with-github-actions-with-hoppscotch-cli)
+- [7.2.1 Changing the workflow `.yml` file](#721-changing-the-workflow-yml-file)
 - [Done! ✅](#done-)
 
 
@@ -1224,8 +1227,266 @@ are invalid.
 
 # 7. _Advanced/Automated_ `API` Testing Using `Hoppscotch`
 
-Coming soon! https://github.com/dwyl/mvp/issues/268
+API testing is a crucial part of the API development lifecycle.
+Incorporating tests will allow us 
+to avoid regressions 
+and make sure our API performs 
+the way it's supposed to.
+In other words,
+the person using the API
+*expects* consistent responses to their requests.
 
+Integrating this into a 
+[CI pipeline](https://en.wikipedia.org/wiki/Continuous_integration)
+automates this process 
+and helps avoiding unintentional breaking changes.
+
+We are going to be using 
+[`Hoppscotch`](https://github.com/hoppscotch/hoppscotch).
+This is an open-source tool 
+similar to [Postman](https://www.postman.com/)
+which allow us to make requests, 
+organize them and create test suites.
+
+## 7.1 Using `Hoppscotch`
+
+`Hoppscotch` can be accessed in https://hoppscotch.io.
+In here, you will see an UI similar to the following.
+
+<img width="1528" alt="hoppscotch_ui" src="https://user-images.githubusercontent.com/17494745/213747493-5a59e18a-af3d-4a7e-91b2-a056086d4530.png">
+
+You won't have any requests configured.
+To use our **collection** of requests,
+you can import it. 
+Check the following steps to import 
+the `JSON` file in [`.hoppscotch/MVP.json`](./.hoppscotch/MVP.json).
+
+<img width="49%" alt="import1" src="https://user-images.githubusercontent.com/17494745/213747810-d2c0ba75-a7a2-4b98-a5b0-abd17c079faf.png">
+<img width="49%" alt="import2" src="https://user-images.githubusercontent.com/17494745/213747822-d855450a-71e1-40ef-b0ab-600b20587238.png">
+
+After importing the collection,
+the requests and possible responses are made available.
+If you open the `MVP` and subsequent `Items` folders,
+you will see a list of possible requests.
+
+<img width="1456" alt="items" src="https://user-images.githubusercontent.com/17494745/213748576-83653fd9-86e0-4c84-93ca-acd9ab499864.png">
+
+
+You might notice in the URL
+we are using *variables*.
+These are **environment variables**.
+This is useful to switch 
+between development or production environments seamlessly.
+
+If you want to test the API locally,
+just import [`.hoppscotch/localhost.json`](./.hoppscotch/localhost.json).
+
+<img width="32%" alt="env1" src="https://user-images.githubusercontent.com/17494745/213749782-99edcf6c-0922-473e-9cb5-0eb61037c296.png">
+<img width="32%" alt="env2" src="https://user-images.githubusercontent.com/17494745/213749789-b1c347b7-6b10-4747-a39f-491c450a98ba.png">
+<img width="32%" alt="env3" src="https://user-images.githubusercontent.com/17494745/213749786-511bf6cb-a9a0-44eb-8bd5-110c3b47b02b.png">
+
+Now you can start testing the requests!
+Start the Phoenix server locally
+by running `mix phx.server`.
+
+If you open `MVP, Items` 
+and try to `Get Item` (by clicking `Send`),
+you will receive a response from the `localhost` server.
+
+<img width="32%" alt="get1" src="https://user-images.githubusercontent.com/17494745/213750744-1946f282-1bdb-4ce9-b4e8-7a1f10f790da.png">
+<img width="32%" alt="get2" src="https://user-images.githubusercontent.com/17494745/213750736-ffe3fd6f-b668-4b45-af25-51653daca286.png">
+<img width="32%" alt="get3" src="https://user-images.githubusercontent.com/17494745/213750742-f4e3f504-7f85-4d4c-80f5-58401c177335.png">
+
+Depending if the `item` with `id=1` 
+(which is defined in the *env variable* `item_id`
+in the `localhost` environment),
+you will receive a successful response
+or an error, detailing the error
+that the item was not found with the given `id`.
+
+You can create **tests** for each request,
+asserting the response object and HTTP code.
+You can do so by clicking the `Tests` tab.
+
+<img width="1456" alt="test" src="https://user-images.githubusercontent.com/17494745/213751271-13f71098-d3eb-4fbc-bcb6-1f5ccc30bcd3.png">
+
+These tests are important to validate 
+the expected response of the API.
+For further information 
+on how you can test the response in each request,
+please visit their documentation at
+https://docs.hoppscotch.io/features/tests.
+
+## 7.2 Integration with `Github Actions` with `Hoppscotch CLI`
+
+These tests can (and should!)
+be used in CI pipelines.
+To integrate this in our Github Action,
+we will need to make some changes to our 
+[workflow file](https://docs.github.com/en/actions/using-workflows)
+in `.github/worflows/ci.yml`.
+
+We want the [runner](https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions#runners)
+to be able to *execute* these tests.
+
+For this, we are going to be using 
+[**`Hoppscotch CLI`**](https://docs.hoppscotch.io/cli).
+
+With `hopps` (Hoppscotch CLI),
+we will be able to run the collection of requests
+and its tests in a command-line environment. 
+
+To run the tests inside a command-line interface,
+we are going to need two files:
+- **environment file**, 
+a `json` file with each env variable as key
+and its referring value.
+For an example, 
+check the 
+[`.hoppscotch/localhost.json` file](./.hoppscotch/localhost.json).
+- **collection file**, 
+the `json` file with all the requests.
+It is the one you imported earlier.
+You can export it the same way you imported it.
+For an example, 
+check the 
+[`.hoppscotch/MVP.json` file](./.hoppscotch/MVP.json).
+
+These files 
+will need to be pushed into the git repo.
+The CI will need access to these files
+to run `hopps` commands.
+
+In the case of our application,
+for the tests to run properly, 
+we need some bootstrap data 
+so each request runs successfully.
+For this, 
+we also added a 
+[`.hoppscotch/api_test_mock_data.sql`](.hoppscotch/api_test_mock_data.sql)
+`SQL` script file that will insert some mock data.
+
+# 7.2.1 Changing the workflow `.yml` file
+
+It's time to add this API testing step
+into our CI workflow!
+For this, open `.github/workflows/ci.yml`
+and add the following snippet of code
+between the `build` and `deploy` jobs.
+
+
+```yml
+  # API Definition testing
+  # https://docs.hoppscotch.io/cli
+  api_definition:
+    name: API Definition Tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:12
+        ports: ['5432:5432']
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    strategy:
+      matrix:
+        otp: ['25.1.2']
+        elixir: ['1.14.2']
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Elixir
+      uses: erlef/setup-beam@v1
+      with:
+        otp-version: ${{ matrix.otp }}
+        elixir-version: ${{ matrix.elixir }} 
+    - name: Restore deps and _build cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          deps
+          _build
+        key: deps-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles('**/mix.lock') }}
+        restore-keys: |
+          deps-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}
+    - name: Install dependencies
+      run: mix deps.get
+
+    - name: Install Hoppscotch CLI
+      run: npm i -g @hoppscotch/cli
+
+    - name: Run mix ecto.create
+      run: mix ecto.create
+
+    - name: Run ecto.migrate
+      run: mix ecto.migrate
+
+    - name: Bootstrap Postgres DB with data
+      run: psql -h localhost -p 5432 -d app_dev -U postgres -f ./.hoppscotch/api_test_mock_data.sql
+
+      env:
+        POSTGRES_HOST: localhost
+        POSTGRES_PORT: 5432
+        PGPASSWORD: postgres
+
+    - name: Running server and Hoppscotch Tests
+      run: mix phx.server & sleep 5 && hopp test -e ./.hoppscotch/envs.json ./.hoppscotch/MVP.json
+```
+
+Let's breakdown what we just added.
+We are running this job in a 
+[service container](https://docs.github.com/en/actions/using-containerized-services/about-service-containers)
+that includes a PostgreSQL database -
+similarly to the existent `build` job.
+
+We then install the `Hoppscotch CLI` 
+by running `npm i -g @hoppscotch/cli`.
+
+We then run `mix ecto.create` 
+and `ecto.migrate` 
+to create and setup the database.
+
+After this, 
+we *boostrap* the database with 
+`psql -h localhost -p 5432 -d app_dev -U postgres -f ./.hoppscotch/api_test_mock_data.sql`.
+This command ([`psql`](https://www.postgresql.org/docs/current/app-psql.html))
+allows us to connect to the PostgreSQL database
+and execute the `.hoppscotch/api_test_mock_data.sql` script,
+which inserts data for the tests to run.
+
+
+At last,
+we run the API by running `mix phx.server`
+and execute `hopp test -e ./.hoppscotch/localhost.json ./.hoppscotch/MVP.json`.
+This `hopp` command takes the environment file
+and the collections file
+and executes its tests.
+You might notice we are using `sleep 5`.
+This is because we want the `hopps` 
+command to be executed 
+after `mix phx.server` finishes initializing.
+
+And you should be done!
+When running `hopps test`,
+you will see the result of each request test.
+
+```sh
+↳ API.Item.update/2, at: lib/api/item.ex:65
+ 400 : Bad Request (0.049 s)
+[info] Sent 400 in 4ms
+  ✔ Status code is 400
+  Ran tests in 0.001 s
+
+Test Cases: 0 failed 31 passed
+Test Suites: 0 failed 28 passed
+Test Scripts: 0 failed 22 passed
+Tests Duration: 0.041 s
+```
+
+If one test fails, the whole build fails, as well.
 
 
 # Done! ✅
