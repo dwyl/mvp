@@ -59,7 +59,7 @@ jobs:
   # API Definition testing
   # https://docs.hoppscotch.io/cli
   api_definition:
-    name: Build and test
+    name: API Definition Tests
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -104,7 +104,7 @@ jobs:
     - name: Run ecto.migrate
       run: mix ecto.migrate
 
-    - name: Populate Postgres
+    - name: Bootstrap Postgres DB with data
       run: psql -h localhost -p 5432 -d app_dev -U postgres -f ./hoppscotch/api_test_mock_data.sql
 
       env:
@@ -120,7 +120,7 @@ jobs:
   deploy:
     name: Deploy app
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build, api_definition]
     # https://stackoverflow.com/questions/58139406/only-run-job-on-specific-branch-with-github-actions
     if: github.ref == 'refs/heads/main'
     env:
