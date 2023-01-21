@@ -6,8 +6,8 @@ defmodule AppWeb.AppLiveTest do
 
   test "disconnected and connected render", %{conn: conn} do
     {:ok, page_live, disconnected_html} = live(conn, "/")
-    assert disconnected_html =~ "done"
-    assert render(page_live) =~ "done"
+    assert disconnected_html =~ "mind"
+    assert render(page_live) =~ "mind"
   end
 
   test "connect and create an item", %{conn: conn} do
@@ -508,6 +508,15 @@ defmodule AppWeb.AppLiveTest do
     }
 
     assert AppWeb.AppLive.timer_text(timer) == "00:00:42"
+  end
+
+  test "timer_text(start, stop) both the same" do
+    timer = %{
+      start: ~N[2022-07-17 09:01:42.000000],
+      stop: ~N[2022-07-17 09:01:42.000000]
+    }
+
+    assert AppWeb.AppLive.timer_text(timer) == "00:00:00"
   end
 
   test "timer_text(start, stop)" do
