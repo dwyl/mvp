@@ -28,6 +28,10 @@ jobs:
         elixir: ['1.14.2']
     steps:
     - uses: actions/checkout@v2
+    - name: Install inotify package
+      run: |
+        sudo apt-get -y install inotify-tools
+        which inotify-tools
     - name: Set up Elixir
       uses: erlef/setup-beam@v1
       with:
@@ -59,6 +63,8 @@ jobs:
     - name: Install Hoppscotch CLI
       run: npm i -g @hoppscotch/cli
     - name: Run mix ecto.setup
+      env: 
+        MIX_ENV: dev
       run: mix ecto.setup
     - name: Bootstrap Postgres DB with data
       run: psql -h localhost -p 5432 -d app_dev -U postgres -f ./api/api_test_mock_data.sql
@@ -68,7 +74,7 @@ jobs:
         PGPASSWORD: postgres
 
     - name: Running Phoenix server and Hoppscotch Tests
-      run: mix phx.server & sleep 5 && hopp test -e ./api/localhost.json ./api/MVP.json
+      run: MIX_ENV=dev mix phx.server & sleep 5 && hopp test -e ./api/localhost.json ./api/MVP.json
 
   # Continuous Deployment to Fly.io
   # https://fly.io/docs/app-guides/continuous-deployment-with-github-actions/
