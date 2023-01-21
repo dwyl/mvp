@@ -57,7 +57,7 @@ jobs:
       uses: codecov/codecov-action@v1
 
   # API Definition testing
-  # https://docs.hoppscotch.io/cli
+  # https://docsapi.io/cli
   api_definition:
     name: API Definition Tests
     runs-on: ubuntu-latest
@@ -105,14 +105,14 @@ jobs:
       run: mix ecto.migrate
 
     - name: Bootstrap Postgres DB with data
-      run: psql -h localhost -p 5432 -d app_dev -U postgres -f ./.hoppscotch/api_test_mock_data.sql
+      run: psql -h localhost -p 5432 -d app_dev -U postgres -f ./api/api_test_mock_data.sql
       env:
         POSTGRES_HOST: localhost
         POSTGRES_PORT: 5432
         PGPASSWORD: postgres
 
     - name: Running server and Hoppscotch Tests
-      run: mix phx.server & sleep 5 && hopp test -e ./.hoppscotch/localhost.json ./.hoppscotch/MVP.json
+      run: mix phx.server & sleep 5 && hopp test -e ./api/localhost.json ./api/MVP.json
 
   # Continuous Deployment to Fly.io
   # https://fly.io/docs/app-guides/continuous-deployment-with-github-actions/

@@ -36,6 +36,7 @@ can also be done through our `REST API`
   - [6.4 _Stop_ the `Timer`](#64-stop-the-timer)
   - [6.5 Updating a `Timer`](#65-updating-a-timer)
 - [7. _Advanced/Automated_ `API` Testing Using `Hoppscotch`](#7-advancedautomated-api-testing-using-hoppscotch)
+  - [7.0 `Hoppscotch` Setup](#70-hoppscotch-setup)
   - [7.1 Using `Hoppscotch`](#71-using-hoppscotch)
   - [7.2 Integration with `Github Actions` with `Hoppscotch CLI`](#72-integration-with-github-actions-with-hoppscotch-cli)
 - [7.2.1 Changing the workflow `.yml` file](#721-changing-the-workflow-yml-file)
@@ -1227,13 +1228,14 @@ are invalid.
 
 # 7. _Advanced/Automated_ `API` Testing Using `Hoppscotch`
 
-API testing is a crucial part of the API development lifecycle.
+`API` testing is an essential part 
+of the development lifecycle.
 Incorporating tests will allow us 
 to avoid regressions 
-and make sure our API performs 
+and make sure our `API` performs 
 the way it's supposed to.
 In other words,
-the person using the API
+the `person` using the API
 *expects* consistent responses to their requests.
 
 Integrating this into a 
@@ -1243,15 +1245,59 @@ and helps avoiding unintentional breaking changes.
 
 We are going to be using 
 [`Hoppscotch`](https://github.com/hoppscotch/hoppscotch).
-This is an open-source tool 
-similar to [Postman](https://www.postman.com/)
-which allow us to make requests, 
+This is an open source tool 
+similar to [`Postman`](https://www.postman.com/)
+that allow us to make requests, 
 organize them and create test suites.
+
+Red more about `Hoppscotch`: 
+[hoppscotch.io](https://hoppscotch.io)
+
+## 7.0 `Hoppscotch` Setup
+
+There is no `App` to download, 
+but you can run `Hoppscotch` as 
+an "installable" [`PWA`](https://web.dev/what-are-pwas/):
+![hoppscotch-docs-pwa](https://user-images.githubusercontent.com/194400/213877931-47344cfd-4dd7-491e-b032-9e65dff49ebc.png)
+
+In `Google Chrome` and `Microsoft Edge` 
+you will see an icon 
+in the Address bar to 
+"Install Hoppscotch app": 
+
+<img width="410" alt="image" src="https://user-images.githubusercontent.com/194400/213877816-a12b64ae-4ac3-459e-96ba-500b09693c31.png">
+
+That will create what _looks_ like a "Native" App on your `Mac`:
+
+<img width="919" alt="image" src="https://user-images.githubusercontent.com/194400/213877863-fcb98f52-4236-40c8-971f-8d1b875e6649.png">
+
+Which then opens full-screen an _feels_ `Native`:
+
+<img width="512" alt="image" src="https://user-images.githubusercontent.com/194400/213877899-9b7c3fde-90cd-4071-a986-f36f150e8708.png">
+
+And you're off to the races!
+
+Having the `PWA` will _significantly_ increase your dev speed 
+because you can easily ``+`Tab` between your IDE and `Hoppscotch` 
+and not have to hunt for a Tab in your Web Browser. 
+
+You can use `Hoppscotch` anonymously
+(without logging in),
+without any loss of functionality. 
+
+If you decide to Authenticate
+and you don't want to see the noise in the Top Nav,
+simply enable "Zen Mode":
+
+![hoppscotch-zen-mode](https://user-images.githubusercontent.com/194400/213877013-0ff9c65d-10dc-4741-aa67-395e9fd6adb7.gif)
+
+With that out of the way, let's get started _using_ `Hoppscotch`!
+
 
 ## 7.1 Using `Hoppscotch`
 
-`Hoppscotch` can be accessed in https://hoppscotch.io.
-In here, you will see an UI similar to the following.
+
+In here, you will see an UI similar to the following:
 
 <img width="1528" alt="hoppscotch_ui" src="https://user-images.githubusercontent.com/17494745/213747493-5a59e18a-af3d-4a7e-91b2-a056086d4530.png">
 
