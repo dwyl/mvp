@@ -1305,7 +1305,7 @@ You won't have any requests configured.
 To use our **collection** of requests,
 you can import it. 
 Check the following steps to import 
-the `JSON` file in [`.hoppscotch/MVP.json`](./.hoppscotch/MVP.json).
+the `JSON` file in [`api/MVP.json`](./api/MVP.json).
 
 <img width="49%" alt="import1" src="https://user-images.githubusercontent.com/17494745/213747810-d2c0ba75-a7a2-4b98-a5b0-abd17c079faf.png">
 <img width="49%" alt="import2" src="https://user-images.githubusercontent.com/17494745/213747822-d855450a-71e1-40ef-b0ab-600b20587238.png">
@@ -1325,7 +1325,7 @@ This is useful to switch
 between development or production environments seamlessly.
 
 If you want to test the API locally,
-just import [`.hoppscotch/localhost.json`](./.hoppscotch/localhost.json).
+just import [`api/localhost.json`](./api/localhost.json).
 
 <img width="32%" alt="env1" src="https://user-images.githubusercontent.com/17494745/213749782-99edcf6c-0922-473e-9cb5-0eb61037c296.png">
 <img width="32%" alt="env2" src="https://user-images.githubusercontent.com/17494745/213749789-b1c347b7-6b10-4747-a39f-491c450a98ba.png">
@@ -1361,7 +1361,7 @@ the expected response of the API.
 For further information 
 on how you can test the response in each request,
 please visit their documentation at
-https://docs.hoppscotch.io/features/tests.
+https://docsapi.io/features/tests.
 
 ## 7.2 Integration with `Github Actions` with `Hoppscotch CLI`
 
@@ -1376,7 +1376,7 @@ We want the [runner](https://docs.github.com/en/actions/learn-github-actions/und
 to be able to *execute* these tests.
 
 For this, we are going to be using 
-[**`Hoppscotch CLI`**](https://docs.hoppscotch.io/cli).
+[**`Hoppscotch CLI`**](https://docsapi.io/cli).
 
 With `hopps` (Hoppscotch CLI),
 we will be able to run the collection of requests
@@ -1389,14 +1389,14 @@ a `json` file with each env variable as key
 and its referring value.
 For an example, 
 check the 
-[`.hoppscotch/localhost.json` file](./.hoppscotch/localhost.json).
+[`api/localhost.json` file](./api/localhost.json).
 - **collection file**, 
 the `json` file with all the requests.
 It is the one you imported earlier.
 You can export it the same way you imported it.
 For an example, 
 check the 
-[`.hoppscotch/MVP.json` file](./.hoppscotch/MVP.json).
+[`api/MVP.json` file](./api/MVP.json).
 
 These files 
 will need to be pushed into the git repo.
@@ -1409,7 +1409,7 @@ we need some bootstrap data
 so each request runs successfully.
 For this, 
 we also added a 
-[`.hoppscotch/api_test_mock_data.sql`](.hoppscotch/api_test_mock_data.sql)
+[`api/api_test_mock_data.sql`](api/api_test_mock_data.sql)
 `SQL` script file that will insert some mock data.
 
 # 7.2.1 Changing the workflow `.yml` file
@@ -1423,7 +1423,7 @@ between the `build` and `deploy` jobs.
 
 ```yml
   # API Definition testing
-  # https://docs.hoppscotch.io/cli
+  # https://docsapi.io/cli
   api_definition:
     name: API Definition Tests
     runs-on: ubuntu-latest
@@ -1471,7 +1471,7 @@ between the `build` and `deploy` jobs.
       run: mix ecto.migrate
 
     - name: Bootstrap Postgres DB with data
-      run: psql -h localhost -p 5432 -d app_dev -U postgres -f ./.hoppscotch/api_test_mock_data.sql
+      run: psql -h localhost -p 5432 -d app_dev -U postgres -f ./api/api_test_mock_data.sql
 
       env:
         POSTGRES_HOST: localhost
@@ -1479,7 +1479,7 @@ between the `build` and `deploy` jobs.
         PGPASSWORD: postgres
 
     - name: Running server and Hoppscotch Tests
-      run: mix phx.server & sleep 5 && hopp test -e ./.hoppscotch/envs.json ./.hoppscotch/MVP.json
+      run: mix phx.server & sleep 5 && hopp test -e ./api/envs.json ./api/MVP.json
 ```
 
 Let's breakdown what we just added.
@@ -1497,16 +1497,16 @@ to create and setup the database.
 
 After this, 
 we *boostrap* the database with 
-`psql -h localhost -p 5432 -d app_dev -U postgres -f ./.hoppscotch/api_test_mock_data.sql`.
+`psql -h localhost -p 5432 -d app_dev -U postgres -f ./api/api_test_mock_data.sql`.
 This command ([`psql`](https://www.postgresql.org/docs/current/app-psql.html))
 allows us to connect to the PostgreSQL database
-and execute the `.hoppscotch/api_test_mock_data.sql` script,
+and execute the `api/api_test_mock_data.sql` script,
 which inserts data for the tests to run.
 
 
 At last,
 we run the API by running `mix phx.server`
-and execute `hopp test -e ./.hoppscotch/localhost.json ./.hoppscotch/MVP.json`.
+and execute `hopp test -e ./api/localhost.json ./api/MVP.json`.
 This `hopp` command takes the environment file
 and the collections file
 and executes its tests.
