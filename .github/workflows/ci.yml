@@ -7,6 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
+
   # Build and testing
   build:
     name: Build and test
@@ -28,10 +29,6 @@ jobs:
         elixir: ['1.14.2']
     steps:
     - uses: actions/checkout@v2
-    # - name: Install inotify package
-    #   run: |
-    #     sudo apt-get -y install inotify-tools
-    #     which inotify-tools
     - name: Set up Elixir
       uses: erlef/setup-beam@v1
       with:
@@ -59,13 +56,54 @@ jobs:
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
 
-    # Part 2: API Tests!
+  # API Definition testing
+  # https://docsapi.io/cli
+  api_definition:
+    name: API Definition Tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:12
+        ports: ['5432:5432']
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    strategy:
+      matrix:
+        otp: ['25.1.2']
+        elixir: ['1.14.2']
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Elixir
+      uses: erlef/setup-beam@v1
+      with:
+        otp-version: ${{ matrix.otp }}
+        elixir-version: ${{ matrix.elixir }} 
+    - name: Restore deps and _build cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          deps
+          _build
+        key: deps-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles('**/mix.lock') }}
+        restore-keys: |
+          deps-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}
+    - name: Install dependencies
+      run: mix deps.get
+
     - name: Install Hoppscotch CLI
       run: npm i -g @hoppscotch/cli
-    - name: Run mix ecto.setup
-      env: 
-        MIX_ENV: dev
-      run: mix ecto.setup
+
+    - name: Run mix ecto.create
+      run: mix ecto.create
+
+    - name: Run ecto.migrate
+      run: mix ecto.migrate
+
     - name: Bootstrap Postgres DB with data
       run: psql -h localhost -p 5432 -d app_dev -U postgres -f ./api/api_test_mock_data.sql
       env:
@@ -73,15 +111,15 @@ jobs:
         POSTGRES_PORT: 5432
         PGPASSWORD: postgres
 
-    - name: Running Phoenix server and Hoppscotch Tests
-      run: MIX_ENV=dev mix phx.server & sleep 5 && hopp test -e ./api/localhost.json ./api/MVP.json
+    - name: Running server and Hoppscotch Tests
+      run: mix phx.server & sleep 5 && hopp test -e ./api/localhost.json ./api/MVP.json
 
   # Continuous Deployment to Fly.io
   # https://fly.io/docs/app-guides/continuous-deployment-with-github-actions/
   deploy:
     name: Deploy app
     runs-on: ubuntu-latest
-    needs: [build]
+    needs: [build, api_definition]
     # https://stackoverflow.com/questions/58139406/only-run-job-on-specific-branch-with-github-actions
     if: github.ref == 'refs/heads/main'
     env:
