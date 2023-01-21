@@ -1265,11 +1265,11 @@ you will see an icon
 in the Address bar to 
 "Install Hoppscotch app": 
 
-<img width="410" alt="image" src="https://user-images.githubusercontent.com/194400/213877816-a12b64ae-4ac3-459e-96ba-500b09693c31.png">
+<img width="410" alt="image" src="https://user-images.githubusercontent.com/194400/213888160-a1da70c9-bb7e-4d28-b2a7-8a876d1b1d00.png">
 
 That will create what _looks_ like a "Native" App on your `Mac`:
 
-<img width="919" alt="image" src="https://user-images.githubusercontent.com/194400/213877863-fcb98f52-4236-40c8-971f-8d1b875e6649.png">
+<img width="919" alt="image" src="https://user-images.githubusercontent.com/194400/213888365-3e605407-cd78-44b4-8fb9-3e4c165a4916.png">
 
 Which then opens full-screen an _feels_ `Native`:
 
@@ -1296,6 +1296,36 @@ With that out of the way, let's get started _using_ `Hoppscotch`!
 
 ## 7.1 Using `Hoppscotch`
 
+When you first open `Hoppscotch`,
+either in the browser or as a `PWA`,
+you will not have anything defined:
+
+![hoppscotch-empty](https://user-images.githubusercontent.com/194400/213889044-0e38256d-0c59-41f0-bbbe-ee54a16583e2.png)
+
+
+The _first_ thing to do is open an _existing_ collection:
+
+<img alt="hoppscotch-open-collection" src="https://user-images.githubusercontent.com/194400/213888966-3879177b-3c06-47b1-8654-85b9ffe8c8e3.png">
+
+Import from hoppscotch: `/lib/api/MVP.json`
+
+<img alt="hoppscotch-open-local" src="https://user-images.githubusercontent.com/194400/213888968-7d907b9d-7122-4945-a809-cfe0d3476698.png">
+
+Collection imported:
+
+<img  alt="image" src="https://user-images.githubusercontent.com/194400/213888655-ec4be134-c827-44d3-a503-09f760b8a95e.png">
+
+_Next_ you'll need to open environment configuration / variables:
+
+<img alt="hoppscotch-open-environment" src="https://user-images.githubusercontent.com/194400/213889204-ed95f46d-dc60-49cc-85b8-822a1fe22321.png">
+
+
+![hoppscotch-open-env](https://user-images.githubusercontent.com/194400/213889224-45dd660e-874d-422c-913d-bfdba1052944.png)
+
+When you click on `Localhost`, you will see an `Edit Environment` Modal:
+
+<img alt="image" src="https://user-images.githubusercontent.com/194400/213889517-432b162a-83c9-443c-89a3-47f6f32e1911.png">
+
 
 In here, you will see an UI similar to the following:
 
@@ -1305,7 +1335,7 @@ You won't have any requests configured.
 To use our **collection** of requests,
 you can import it. 
 Check the following steps to import 
-the `JSON` file in [`api/MVP.json`](./api/MVP.json).
+the `JSON` file in [`lib/api/MVP.json`](./lib/api/MVP.json).
 
 <img width="49%" alt="import1" src="https://user-images.githubusercontent.com/17494745/213747810-d2c0ba75-a7a2-4b98-a5b0-abd17c079faf.png">
 <img width="49%" alt="import2" src="https://user-images.githubusercontent.com/17494745/213747822-d855450a-71e1-40ef-b0ab-600b20587238.png">
