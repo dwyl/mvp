@@ -28,10 +28,10 @@ jobs:
         elixir: ['1.14.2']
     steps:
     - uses: actions/checkout@v2
-    - name: Install inotify package
-      run: |
-        sudo apt-get -y install inotify-tools
-        which inotify-tools
+    # - name: Install inotify package
+    #   run: |
+    #     sudo apt-get -y install inotify-tools
+    #     which inotify-tools
     - name: Set up Elixir
       uses: erlef/setup-beam@v1
       with:
