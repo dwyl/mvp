@@ -1273,11 +1273,11 @@ That will create what _looks_ like a "Native" App on your `Mac`:
 
 Which then opens full-screen an _feels_ `Native`:
 
-<img width="512" alt="image" src="https://user-images.githubusercontent.com/194400/213877899-9b7c3fde-90cd-4071-a986-f36f150e8708.png">
+<img alt="Hoppscotch PWA Homescreen" src="https://user-images.githubusercontent.com/194400/213877899-9b7c3fde-90cd-4071-a986-f36f150e8708.png">
 
-And you're off to the races!
+And you're all set to start testing the `API`. 
 
-Having the `PWA` will _significantly_ increase your dev speed 
+> Installing the `PWA` will _significantly_ increase your dev speed 
 because you can easily ``+`Tab` between your IDE and `Hoppscotch` 
 and not have to hunt for a Tab in your Web Browser. 
 
@@ -1326,52 +1326,74 @@ When you click on `Localhost`, you will see an `Edit Environment` Modal:
 
 <img alt="image" src="https://user-images.githubusercontent.com/194400/213889517-432b162a-83c9-443c-89a3-47f6f32e1911.png">
 
-
-In here, you will see an UI similar to the following:
-
-<img width="1528" alt="hoppscotch_ui" src="https://user-images.githubusercontent.com/17494745/213747493-5a59e18a-af3d-4a7e-91b2-a056086d4530.png">
-
-You won't have any requests configured.
-To use our **collection** of requests,
-you can import it. 
-Check the following steps to import 
-the `JSON` file in [`lib/api/MVP.json`](./lib/api/MVP.json).
-
-<img width="49%" alt="import1" src="https://user-images.githubusercontent.com/17494745/213747810-d2c0ba75-a7a2-4b98-a5b0-abd17c079faf.png">
-<img width="49%" alt="import2" src="https://user-images.githubusercontent.com/17494745/213747822-d855450a-71e1-40ef-b0ab-600b20587238.png">
-
-After importing the collection,
-the requests and possible responses are made available.
-If you open the `MVP` and subsequent `Items` folders,
-you will see a list of possible requests.
-
-<img width="1456" alt="items" src="https://user-images.githubusercontent.com/17494745/213748576-83653fd9-86e0-4c84-93ca-acd9ab499864.png">
-
-
-You might notice in the URL
-we are using *variables*.
-These are **environment variables**.
-This is useful to switch 
+**environment variables**
+let us switch 
 between development or production environments seamlessly.
 
-If you want to test the API locally,
-just import [`api/localhost.json`](./api/localhost.json).
+Even after you have imported the environment configuration file, 
+it's not automatically selected: 
 
-<img width="32%" alt="env1" src="https://user-images.githubusercontent.com/17494745/213749782-99edcf6c-0922-473e-9cb5-0eb61037c296.png">
-<img width="32%" alt="env2" src="https://user-images.githubusercontent.com/17494745/213749789-b1c347b7-6b10-4747-a39f-491c450a98ba.png">
-<img width="32%" alt="env3" src="https://user-images.githubusercontent.com/17494745/213749786-511bf6cb-a9a0-44eb-8bd5-110c3b47b02b.png">
+<img alt="hoppscotch-environment-not-found" src="https://user-images.githubusercontent.com/194400/213894754-4881aca8-f150-4ac1-a2fe-07cf81758f4a.png">
+
+You need to **_manually_ select `Localhost`**.
+With the "Environments" tab selected, click the "Select environment" selector and chose "Localhost":
+
+<img alt="hoppscotch-select-environment-localhost" src="https://user-images.githubusercontent.com/194400/213894854-a847344d-75cb-4290-ba18-b9796a8e9235.png">
+
+Once you've selected the `Localhost` environment, the `<<host>>` placeholder will turn from red to blue:
+
+<img alt="image" src="https://user-images.githubusercontent.com/194400/213894929-8d61dda7-fef3-4fcd-a342-0bfff5d0d953.png">
+
+After importing the collection,
+open the `MVP` and `Items` folder,
+you will see a list of possible requests.
+
+
+After importing the collection and environment, it _still_ won't work ...
+<img width="1537" alt="image" src="https://user-images.githubusercontent.com/194400/213896708-9c7cd991-0612-497c-9ef6-b9034a92a618.png">
+
+You will see the message: 
+
+**Could not send request**. 
+Unable to reach the API endpoint. Check your network <br />connection or select a different interceptor and try again.
+
+
+These are the available options: 
+
+![image](https://user-images.githubusercontent.com/194400/213896782-b96d97a5-5e42-41ec-b299-e64c77246b79.png)
+
+If you select "Browser extension" it will open the Chrome web store where you can install the extension.
+
+Install the extension. 
+Once installed, 
+add the the `http://localhost:4000` origin:
+
+<img width="541" alt="add endpoint" src="https://user-images.githubusercontent.com/194400/213896896-83c526f3-baad-4196-b8b0-0389c2e0f55a.png">
+
+Then the presence of the extension will be visible in the Hoppscotch window/UI:
+
+![image](https://user-images.githubusercontent.com/194400/213896932-a8f48f2a-f5ee-47c1-aad6-d9a09cf27b48.png)
+
+<img width="366" alt="image" src="https://user-images.githubusercontent.com/194400/213896635-7c967907-7ad1-4e65-aaf4-5d892fc0f2f1.png">
+
 
 Now you can start testing the requests!
 Start the Phoenix server locally
-by running `mix phx.server`.
+by running `mix s`
+
+The requests in the collection will _finally_ work:
+
+![image](https://user-images.githubusercontent.com/194400/213897127-c70a5961-1db6-4d1f-a944-cf08a5bf2f86.png)
+
+
 
 If you open `MVP, Items` 
 and try to `Get Item` (by clicking `Send`),
 you will receive a response from the `localhost` server.
 
-<img width="32%" alt="get1" src="https://user-images.githubusercontent.com/17494745/213750744-1946f282-1bdb-4ce9-b4e8-7a1f10f790da.png">
-<img width="32%" alt="get2" src="https://user-images.githubusercontent.com/17494745/213750736-ffe3fd6f-b668-4b45-af25-51653daca286.png">
-<img width="32%" alt="get3" src="https://user-images.githubusercontent.com/17494745/213750742-f4e3f504-7f85-4d4c-80f5-58401c177335.png">
+<img alt="get1" src="https://user-images.githubusercontent.com/17494745/213750744-1946f282-1bdb-4ce9-b4e8-7a1f10f790da.png">
+<img alt="get2" src="https://user-images.githubusercontent.com/17494745/213750736-ffe3fd6f-b668-4b45-af25-51653daca286.png">
+<img alt="get3" src="https://user-images.githubusercontent.com/17494745/213750742-f4e3f504-7f85-4d4c-80f5-58401c177335.png">
 
 Depending if the `item` with `id=1` 
 (which is defined in the *env variable* `item_id`
@@ -1384,7 +1406,7 @@ You can create **tests** for each request,
 asserting the response object and HTTP code.
 You can do so by clicking the `Tests` tab.
 
-<img width="1456" alt="test" src="https://user-images.githubusercontent.com/17494745/213751271-13f71098-d3eb-4fbc-bcb6-1f5ccc30bcd3.png">
+<img alt="test" src="https://user-images.githubusercontent.com/17494745/213751271-13f71098-d3eb-4fbc-bcb6-1f5ccc30bcd3.png">
 
 These tests are important to validate 
 the expected response of the API.
@@ -1419,14 +1441,14 @@ a `json` file with each env variable as key
 and its referring value.
 For an example, 
 check the 
-[`api/localhost.json` file](./api/localhost.json).
+[`lib/api/localhost.json` file](./lib/api/localhost.json).
 - **collection file**, 
 the `json` file with all the requests.
 It is the one you imported earlier.
 You can export it the same way you imported it.
 For an example, 
 check the 
-[`api/MVP.json` file](./api/MVP.json).
+[`/lib/api/MVP.json` file](./lib/api/MVP.json).
 
 These files 
 will need to be pushed into the git repo.
