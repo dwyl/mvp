@@ -1430,7 +1430,7 @@ to be able to *execute* these tests.
 For this, we are going to be using 
 [**`Hoppscotch CLI`**](https://docs.hoppscotch.io/cli).
 
-With `hopps` (Hoppscotch CLI),
+With `hopp` (Hoppscotch CLI),
 we will be able to run the collection of requests
 and its tests in a command-line environment. 
 
@@ -1453,7 +1453,7 @@ check the
 These files 
 will need to be pushed into the git repo.
 The CI will need access to these files
-to run `hopps` commands.
+to run `hopp` commands.
 
 In the case of our application,
 for the tests to run properly, 
@@ -1552,7 +1552,7 @@ we *boostrap* the database with
 `psql -h localhost -p 5432 -d app_dev -U postgres -f ./api/api_test_mock_data.sql`.
 This command ([`psql`](https://www.postgresql.org/docs/current/app-psql.html))
 allows us to connect to the PostgreSQL database
-and execute the `api/api_test_mock_data.sql` script,
+and execute the `api_test_mock_data.sql` script,
 which inserts data for the tests to run.
 
 
@@ -1563,12 +1563,12 @@ This `hopp` command takes the environment file
 and the collections file
 and executes its tests.
 You might notice we are using `sleep 5`.
-This is because we want the `hopps` 
+This is because we want the `hopp` 
 command to be executed 
 after `mix phx.server` finishes initializing.
 
 And you should be done!
-When running `hopps test`,
+When running `hopp test`,
 you will see the result of each request test.
 
 ```sh
