@@ -1428,7 +1428,7 @@ We want the [runner](https://docs.github.com/en/actions/learn-github-actions/und
 to be able to *execute* these tests.
 
 For this, we are going to be using 
-[**`Hoppscotch CLI`**](https://docsapi.io/cli).
+[**`Hoppscotch CLI`**](https://docs.hoppscotch.io/cli).
 
 With `hopps` (Hoppscotch CLI),
 we will be able to run the collection of requests
@@ -1461,7 +1461,7 @@ we need some bootstrap data
 so each request runs successfully.
 For this, 
 we also added a 
-[`api/api_test_mock_data.sql`](api/api_test_mock_data.sql)
+[`api_test_mock_data.sql`](lib/api/api_test_mock_data.sql)
 `SQL` script file that will insert some mock data.
 
 # 7.2.1 Changing the workflow `.yml` file
@@ -1475,7 +1475,7 @@ between the `build` and `deploy` jobs.
 
 ```yml
   # API Definition testing
-  # https://docsapi.io/cli
+  # https://docs.hoppscotch.io/cli 
   api_definition:
     name: API Definition Tests
     runs-on: ubuntu-latest
@@ -1523,7 +1523,7 @@ between the `build` and `deploy` jobs.
       run: mix ecto.migrate
 
     - name: Bootstrap Postgres DB with data
-      run: psql -h localhost -p 5432 -d app_dev -U postgres -f ./api/api_test_mock_data.sql
+      run: psql -h localhost -p 5432 -d app_dev -U postgres -f ./lib/api/api_test_mock_data.sql
 
       env:
         POSTGRES_HOST: localhost
@@ -1531,7 +1531,7 @@ between the `build` and `deploy` jobs.
         PGPASSWORD: postgres
 
     - name: Running server and Hoppscotch Tests
-      run: mix phx.server & sleep 5 && hopp test -e ./api/envs.json ./api/MVP.json
+      run: mix phx.server & sleep 5 && hopp test -e ./lib/api/envs.json ./lib/api/MVP.json
 ```
 
 Let's breakdown what we just added.
@@ -1558,7 +1558,7 @@ which inserts data for the tests to run.
 
 At last,
 we run the API by running `mix phx.server`
-and execute `hopp test -e ./api/localhost.json ./api/MVP.json`.
+and execute `hopp test -e ./lib/api/localhost.json ./lib/api/MVP.json`.
 This `hopp` command takes the environment file
 and the collections file
 and executes its tests.
