@@ -1,4 +1,4 @@
-defmodule AppWeb.API.TagControllerTest do
+defmodule API.TagTest do
   use AppWeb.ConnCase
   alias App.Tag
 

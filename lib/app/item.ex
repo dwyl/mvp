@@ -31,6 +31,12 @@ defmodule App.Item do
     |> put_assoc(:tags, attrs.tags)
   end
 
+  def draft_changeset(item, attrs) do
+    item
+    |> cast(attrs, [:person_id, :status, :text])
+    |> validate_required([:person_id])
+  end
+
   @doc """
   Creates an `item`.
 
@@ -84,6 +90,11 @@ defmodule App.Item do
     Item
     |> Repo.get!(id)
     |> Repo.preload(tags: from(t in Tag, order_by: t.text))
+  end
+
+  def get_draft_item(person_id) do
+    Repo.get_by(Item, status: 7, person_id: person_id) ||
+      Repo.insert!(%Item{person_id: person_id, status: 7})
   end
 
   @doc """
@@ -144,6 +155,12 @@ defmodule App.Item do
     item
     |> Item.changeset(attrs)
     |> PaperTrail.update(originator: %{id: Map.get(attrs, :person_id, 0)})
+  end
+
+  def update_draft(%Item{} = item, attrs) do
+    item
+    |> Item.draft_changeset(attrs)
+    |> Repo.update()
   end
 
   @doc """

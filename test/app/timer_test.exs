@@ -89,7 +89,7 @@ defmodule App.TimerTest do
       Timer.stop_timer_for_item_id(item.id)
 
       # Update timer to specific datetimes
-      Timer.update_timer(%{id: timer.id, start: start, stop: stop})
+      Timer.update_timer(timer, %{start: start, stop: stop})
 
       updated_timer = Timer.get_timer!(timer.id)
 
@@ -116,7 +116,7 @@ defmodule App.TimerTest do
 
       # Update timer with stop earlier than start
       {:error, changeset} =
-        Timer.update_timer(%{id: timer.id, start: start, stop: stop})
+        Timer.update_timer(timer, %{start: start, stop: stop})
 
       assert length(changeset.errors) > 0
     end

@@ -22,7 +22,7 @@ config :app, AppWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4000],
   check_origin: false,
   code_reloader: true,
-  debug_errors: true,
+  debug_errors: false,
   secret_key_base:
     "IyvSJdeCw6Z8RkFvfK3hsoU6rSRo6B2/5ltW0EGBjuIdQEDy/bYcYzajk32Kbems",
   watchers: [

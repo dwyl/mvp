@@ -1,4 +1,4 @@
-defmodule AppWeb.API.TagController do
+defmodule API.Tag do
   use AppWeb, :controller
   alias App.Tag
   import Ecto.Changeset

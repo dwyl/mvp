@@ -57,7 +57,7 @@ defmodule App.MixProject do
       {:plug_cowboy, "~> 2.5"},
 
       # Database changes tracking
-      {:paper_trail, "~> 0.14.3"},
+      {:paper_trail, "~> 1.0.0"},
 
       # Time string parsing: github.com/bitwalker/timex
       {:timex, "~> 3.7"},
@@ -72,7 +72,7 @@ defmodule App.MixProject do
       {:fields, "~> 2.10.3"},
 
       # Useful functions: github.com/dwyl/useful
-      {:useful, "~> 1.0.8", override: true},
+      {:useful, "~> 1.10.0", override: true},
       # See: github.com/dwyl/useful/issues/17
       {:atomic_map, "~> 0.9.3"},
 
