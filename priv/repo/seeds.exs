@@ -26,5 +26,5 @@ if Mix.env() == :dev do
 
   # Create tags
   {:ok, _tag} =
-    App.Tag.create_tag(%{text: "tag text", person_id: 0, color: "#FFFFFF"})
+    App.Tag.create_tag(%{text: "random test", person_id: 0, color: "#FFFFFF"})
 end
