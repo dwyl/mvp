@@ -424,7 +424,7 @@ defmodule App.Timer do
 
   """
   def stop_timer_for_item_id(item_id) when is_nil(item_id) do
-    Logger.debug(
+    Logger.info(
       "stop_timer_for_item_id/1 called without item_id: #{item_id} fail."
     )
   end
@@ -440,7 +440,7 @@ defmodule App.Timer do
     if res.num_rows > 0 do
       timer_id = res.rows |> List.first() |> List.first()
 
-      Logger.debug(
+      Logger.info(
         "Found timer.id: #{timer_id} for item: #{item_id}, attempting to stop."
       )
 

@@ -1,0 +1,9 @@
+{
+  "host": "http://localhost:4000",
+  "item_id": "1",
+  "notfound_item_id": "-1",
+  "invalid_id": "invalid_id",
+  "timer_id": "1",
+  "notfound_timer_id": "-1",
+  "timer_id_to_stop": 2
+}

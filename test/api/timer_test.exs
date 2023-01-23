@@ -94,7 +94,7 @@ defmodule API.TimerTest do
   describe "stop" do
     test "timer without any attributes", %{conn: conn} do
       # Create item and timer
-      {item, timer} = item_and_timer_fixture()
+      {_item, timer} = item_and_timer_fixture()
 
       conn =
         put(
