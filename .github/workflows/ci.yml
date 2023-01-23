@@ -101,6 +101,9 @@ jobs:
     # Setups database and adds seed data for API definition tests
     - name: Run mix setup
       run: mix setup
+      env:
+        MIX_ENV: dev
+        AUTH_API_KEY: ${{ secrets.AUTH_API_KEY }}
 
     - name: Running server and Hoppscotch Tests
       run: mix phx.server & sleep 5 && hopp test -e ./lib/api/localhost.json ./lib/api/MVP.json
