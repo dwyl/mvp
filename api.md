@@ -36,11 +36,11 @@ can also be done through our `REST API`
   - [6.4 _Stop_ the `Timer`](#64-stop-the-timer)
   - [6.5 Updating a `Timer`](#65-updating-a-timer)
 - [7. Adding `API.Tag`](#7-adding-apitag)
-- [7.1 Updating scope and `router.ex` tests](#71-updating-scope-and-routerex-tests)
-  - [7.2 Implementing `API.Tag` CRUD operations](#72-implementing-apitag-crud-operations)
-    - [7.2.1 Adding tests](#721-adding-tests)
-    - [7.2.2 Adding `JSON` encoding and operations to `Tag` schema](#722-adding-json-encoding-and-operations-to-tag-schema)
-    - [7.2.3 Implementing `lib/api/tag.ex`](#723-implementing-libapitagex)
+  - [7.1 Updating scope and `router.ex` tests](#71-updating-scope-and-routerex-tests)
+    - [7.2 Implementing `API.Tag` CRUD operations](#72-implementing-apitag-crud-operations)
+      - [7.2.1 Adding tests](#721-adding-tests)
+      - [7.2.2 Adding `JSON` encoding and operations to `Tag` schema](#722-adding-json-encoding-and-operations-to-tag-schema)
+      - [7.2.3 Implementing `lib/api/tag.ex`](#723-implementing-libapitagex)
 - [8. _Advanced/Automated_ `API` Testing Using `Hoppscotch`](#8-advancedautomated-api-testing-using-hoppscotch)
   - [8.0 `Hoppscotch` Setup](#80-hoppscotch-setup)
   - [8.1 Using `Hoppscotch`](#81-using-hoppscotch)
@@ -1238,7 +1238,7 @@ are invalid.
 Having added API controllers for `item` and `timer`,
 it's high time to do the same for `tags`!
 
-# 7.1 Updating scope and `router.ex` tests
+## 7.1 Updating scope and `router.ex` tests
 
 Let's start by changing our `lib/app_web/router.ex` file,
 the same way we did for `items` and `timers`.
@@ -1349,7 +1349,7 @@ Do it so they look like the following.
 - [`test/api/item_test.exs`](https://github.com/dwyl/mvp/blob/api_tags-%23256/test/api/item_test.exs)
 - [`test/api/timer_test.exs`](https://github.com/dwyl/mvp/blob/27962682ebc4302134a3335133a979739cdaf13e/test/api/timer_test.exs)
 
-## 7.2 Implementing `API.Tag` CRUD operations
+### 7.2 Implementing `API.Tag` CRUD operations
 
 Having changed the `router.ex` file 
 to call an unimplemented `Tag` controller,
@@ -1370,7 +1370,7 @@ e.g. `#FFFFFF`.
 If none is passed when created,
 a random one is generated.
 
-### 7.2.1 Adding tests
+#### 7.2.1 Adding tests
 
 Let's create the test file 
 `test/api/tag_test.exs`
@@ -1469,7 +1469,7 @@ In a similar fashion to `item` and `timer`,
 we are testing the API with the "Happy Path" 
 and how it handles receiving invalid attributes.
 
-### 7.2.2 Adding `JSON` encoding and operations to `Tag` schema
+#### 7.2.2 Adding `JSON` encoding and operations to `Tag` schema
 
 In our `lib/app/tag.ex` file resides the `Tag` schema.
 To correctly encode and decode it in `JSON` format,
@@ -1516,7 +1516,7 @@ We are using
 string to validate if the input color
 follows the `#XXXXXX` hex color format.
 
-### 7.2.3 Implementing `lib/api/tag.ex`
+#### 7.2.3 Implementing `lib/api/tag.ex`
 
 Now that we have the tests 
 and the necessary changes implemented in `lib/app/tag.ex`,
