@@ -37,6 +37,10 @@ can also be done through our `REST API`
   - [6.5 Updating a `Timer`](#65-updating-a-timer)
 - [7. Adding `API.Tag`](#7-adding-apitag)
 - [7.1 Updating scope and `router.ex` tests](#71-updating-scope-and-routerex-tests)
+  - [7.2 Implementing `API.Tag` CRUD operations](#72-implementing-apitag-crud-operations)
+    - [7.2.1 Adding tests](#721-adding-tests)
+    - [7.2.2 Adding `JSON` encoding and operations to `Tag` schema](#722-adding-json-encoding-and-operations-to-tag-schema)
+    - [7.2.3 Implementing `lib/api/tag.ex`](#723-implementing-libapitagex)
 - [8. _Advanced/Automated_ `API` Testing Using `Hoppscotch`](#8-advancedautomated-api-testing-using-hoppscotch)
   - [8.0 `Hoppscotch` Setup](#80-hoppscotch-setup)
   - [8.1 Using `Hoppscotch`](#81-using-hoppscotch)
@@ -1345,6 +1349,313 @@ Do it so they look like the following.
 - [`test/api/item_test.exs`](https://github.com/dwyl/mvp/blob/api_tags-%23256/test/api/item_test.exs)
 - [`test/api/timer_test.exs`](https://github.com/dwyl/mvp/blob/27962682ebc4302134a3335133a979739cdaf13e/test/api/timer_test.exs)
 
+## 7.2 Implementing `API.Tag` CRUD operations
+
+Having changed the `router.ex` file 
+to call an unimplemented `Tag` controller,
+we ought to address that!
+
+Let's start by adding tests of 
+what we expect `/tag` CRUD operations to return.
+
+Similarly to `item`,
+we want to:
+- create a `tag`.
+- update a `tag` .
+- retrieve a `tag`.
+
+`Tags` receive a `color` parameter,
+pertaining to an [hex color code](https://en.wikipedia.org/wiki/Web_colors) - 
+e.g. `#FFFFFF`.
+If none is passed when created,
+a random one is generated.
+
+### 7.2.1 Adding tests
+
+Let's create the test file 
+`test/api/tag_test.exs`
+and add the following code to it.
+
+```elixir
+defmodule API.TagTest do
+  use AppWeb.ConnCase
+  alias App.Tag
+
+  @create_attrs %{person_id: 42, color: "#FFFFFF", text: "some text"}
+  @update_attrs %{person_id: 43, color: "#DDDDDD", text: "some updated text"}
+  @invalid_attrs %{person_id: nil, color: nil, text: nil}
+  @update_invalid_color %{color: "invalid"}
+
+  describe "show" do
+    test "specific tag", %{conn: conn} do
+      {:ok, tag} = Tag.create_tag(@create_attrs)
+      conn = get(conn, Routes.api_tag_path(conn, :show, tag.id))
+
+      assert conn.status == 200
+      assert json_response(conn, 200)["id"] == tag.id
+      assert json_response(conn, 200)["text"] == tag.text
+    end
+
+    test "not found tag", %{conn: conn} do
+      conn = get(conn, Routes.api_tag_path(conn, :show, -1))
+
+      assert conn.status == 404
+    end
+
+    test "invalid id (not being an integer)", %{conn: conn} do
+      conn = get(conn, Routes.api_tag_path(conn, :show, "invalid"))
+      assert conn.status == 400
+    end
+  end
+
+  describe "create" do
+    test "a valid tag", %{conn: conn} do
+      conn = post(conn, Routes.api_tag_path(conn, :create, @create_attrs))
+
+      assert conn.status == 200
+      assert json_response(conn, 200)["text"] == Map.get(@create_attrs, "text")
+
+      assert json_response(conn, 200)["color"] ==
+               Map.get(@create_attrs, "color")
+
+      assert json_response(conn, 200)["person_id"] ==
+               Map.get(@create_attrs, "person_id")
+    end
+
+    test "an invalid tag", %{conn: conn} do
+      conn = post(conn, Routes.api_tag_path(conn, :create, @invalid_attrs))
+
+      assert conn.status == 400
+      assert length(json_response(conn, 400)["errors"]["text"]) > 0
+    end
+  end
+
+  describe "update" do
+    test "tag with valid attributes", %{conn: conn} do
+      {:ok, tag} = Tag.create_tag(@create_attrs)
+      conn = put(conn, Routes.api_tag_path(conn, :update, tag.id, @update_attrs))
+
+      assert conn.status == 200
+      assert json_response(conn, 200)["text"] == Map.get(@update_attrs, :text)
+    end
+
+    test "tag with invalid attributes", %{conn: conn} do
+      {:ok, tag} = Tag.create_tag(@create_attrs)
+      conn = put(conn, Routes.api_tag_path(conn, :update, tag.id, @invalid_attrs))
+
+      assert conn.status == 400
+      assert length(json_response(conn, 400)["errors"]["text"]) > 0
+    end
+
+    test "tag that doesn't exist", %{conn: conn} do
+      {:ok, _tag} = Tag.create_tag(@create_attrs)
+      conn = put(conn, Routes.api_tag_path(conn, :update, -1, @update_attrs))
+
+      assert conn.status == 404
+    end
+
+    test "a tag with invalid color", %{conn: conn} do
+      {:ok, tag} = Tag.create_tag(@create_attrs)
+      conn = put(conn, Routes.api_tag_path(conn, :update, tag.id, @update_invalid_color))
+
+      assert conn.status == 400
+      assert length(json_response(conn, 400)["errors"]["color"]) > 0
+    end
+  end
+end
+```
+
+In a similar fashion to `item` and `timer`,
+we are testing the API with the "Happy Path" 
+and how it handles receiving invalid attributes.
+
+### 7.2.2 Adding `JSON` encoding and operations to `Tag` schema
+
+In our `lib/app/tag.ex` file resides the `Tag` schema.
+To correctly encode and decode it in `JSON` format,
+we need to add the `@derive` annotation 
+to the schema declaration.
+
+```elixir
+@derive {Jason.Encoder, only: [:id, :text, :person_id, :color]}
+  schema "tags" do
+    field :color, :string
+    field :person_id, :integer
+    field :text, :string
+    many_to_many(:items, Item, join_through: ItemTag)
+    timestamps()
+  end
+```
+
+Additionally, 
+we want to have a 
+[non-bang function](https://hexdocs.pm/elixir/main/naming-conventions.html#trailing-bang-foo)
+to retrieve a tag item,
+so we are able to pattern-match
+and inform the person using the API 
+if the given `id` is invalid 
+or no `tag` is found.
+
+Lastly, whenever a `tag` is created,
+we need to **check if the `color` is correctly formatted**.
+For this, we add a `validate_format` function
+to the `tag` *changeset*.
+
+```elixir
+def changeset(tag, attrs \\ %{}) do
+    tag
+    |> cast(attrs, [:person_id, :text, :color])
+    |> validate_required([:person_id, :text, :color])
+    |> validate_format(:color, ~r/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/)
+    |> unique_constraint([:text, :person_id], name: :tags_text_person_id_index)
+  end
+```
+
+We are using 
+[`regex`](https://en.wikipedia.org/wiki/Regular_expression)
+string to validate if the input color
+follows the `#XXXXXX` hex color format.
+
+### 7.2.3 Implementing `lib/api/tag.ex`
+
+Now that we have the tests 
+and the necessary changes implemented in `lib/app/tag.ex`,
+we are ready to create our controller!
+
+Create `lib/api/tag.ex` 
+and past the following code.
+
+```elixir
+defmodule API.Tag do
+  use AppWeb, :controller
+  alias App.Tag
+  import Ecto.Changeset
+
+  def show(conn, %{"id" => id} = _params) do
+    case Integer.parse(id) do
+      # ID is an integer
+      {id, _float} ->
+        case Tag.get_tag(id) do
+          nil ->
+            errors = %{
+              code: 404,
+              message: "No tag found with the given \'id\'."
+            }
+
+            json(conn |> put_status(404), errors)
+
+          item ->
+            json(conn, item)
+        end
+
+      # ID is not an integer
+      :error ->
+        errors = %{
+          code: 400,
+          message: "The \'id\' is not an integer."
+        }
+
+        json(conn |> put_status(400), errors)
+    end
+  end
+
+  def create(conn, params) do
+    # Attributes to create tag
+    # Person_id will be changed when auth is added
+    attrs = %{
+      text: Map.get(params, "text"),
+      person_id: 0,
+      color: Map.get(params, "color", App.Color.random())
+    }
+
+    case Tag.create_tag(attrs) do
+      # Successfully creates tag
+      {:ok, tag} ->
+        id_tag = Map.take(tag, [:id])
+        json(conn, id_tag)
+
+      # Error creating tag
+      {:error, %Ecto.Changeset{} = changeset} ->
+        errors = make_changeset_errors_readable(changeset)
+
+        json(
+          conn |> put_status(400),
+          errors
+        )
+    end
+  end
+
+  def update(conn, params) do
+    id = Map.get(params, "id")
+
+    # Get tag with the ID
+    case Tag.get_tag(id) do
+      nil ->
+        errors = %{
+          code: 404,
+          message: "No tag found with the given \'id\'."
+        }
+
+        json(conn |> put_status(404), errors)
+
+      # If tag is found, try to update it
+      tag ->
+        case Tag.update_tag(tag, params) do
+          # Successfully updates tag
+          {:ok, tag} ->
+            json(conn, tag)
+
+          # Error creating tag
+          {:error, %Ecto.Changeset{} = changeset} ->
+            errors = make_changeset_errors_readable(changeset)
+
+            json(
+              conn |> put_status(400),
+              errors
+            )
+        end
+    end
+  end
+
+  defp make_changeset_errors_readable(changeset) do
+    errors = %{
+      code: 400,
+      message: "Malformed request"
+    }
+
+    changeset_errors = traverse_errors(changeset, fn {msg, _opts} -> msg end)
+    Map.put(errors, :errors, changeset_errors)
+  end
+end
+```
+
+If you have implemented the `API.Item` and `API.Timer` controllers,
+you may notice `API.Tag` follows a similar structure:
+- we have a `:create` function for creating a `tag`.
+- the `:update` function updates a given `tag`.
+- the `:show` function retrieves a `tag` with a given `id`.
+
+Each function handles errors
+through the changeset validation
+we implemented earlier. 
+This is evident in the 
+`:create` and `:update` functions,
+that return an error if, for example,
+a `color` has an invalid format.
+
+And we are all done! 
+We can check if the tests pass
+by running `mix test`.
+Your terminal should yield
+the following information.
+
+```sh
+Finished in 1.7 seconds (1.6s async, 0.1s sync)
+110 tests, 0 failures
+```
+
+Congratulations! 🎉
+We've just implemented a CRUD `Tag` controller!
 
 # 8. _Advanced/Automated_ `API` Testing Using `Hoppscotch`
 
@@ -1663,14 +1974,10 @@ and executes `run priv/repo/seeds.exs`.
 The list of commands is present
 in the [`mix.exs` file](./mix.exs).
 
-
-
-
-
-
 We are going to change the `seeds.exs` 
 file to bootstrap the database 
 with sample data for the API tests to run.
+
 
 At last,
 we run the API by running `mix phx.server`

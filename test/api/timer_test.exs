@@ -74,7 +74,10 @@ defmodule API.TimerTest do
         Item.create_item(@create_item_attrs)
 
       conn =
-        post(conn, Routes.api_timer_path(conn, :create, item.id, @invalid_attrs))
+        post(
+          conn,
+          Routes.api_timer_path(conn, :create, item.id, @invalid_attrs)
+        )
 
       assert conn.status == 400
       assert length(json_response(conn, 400)["errors"]["start"]) > 0
@@ -151,7 +154,13 @@ defmodule API.TimerTest do
       conn =
         put(
           conn,
-          Routes.api_timer_path(conn, :update, item.id, timer.id, @invalid_attrs)
+          Routes.api_timer_path(
+            conn,
+            :update,
+            item.id,
+            timer.id,
+            @invalid_attrs
+          )
         )
 
       assert conn.status == 400
@@ -159,7 +168,8 @@ defmodule API.TimerTest do
     end
 
     test "timer that doesn't exist", %{conn: conn} do
-      conn = put(conn, Routes.api_timer_path(conn, :update, -1, -1, @invalid_attrs))
+      conn =
+        put(conn, Routes.api_timer_path(conn, :update, -1, -1, @invalid_attrs))
 
       assert conn.status == 404
     end

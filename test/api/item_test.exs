@@ -50,14 +50,18 @@ defmodule API.ItemTest do
   describe "update" do
     test "item with valid attributes", %{conn: conn} do
       {:ok, %{model: item, version: _version}} = Item.create_item(@create_attrs)
-      conn = put(conn, Routes.api_item_path(conn, :update, item.id, @update_attrs))
+
+      conn =
+        put(conn, Routes.api_item_path(conn, :update, item.id, @update_attrs))
 
       assert json_response(conn, 200)["text"] == Map.get(@update_attrs, :text)
     end
 
     test "item with invalid attributes", %{conn: conn} do
       {:ok, %{model: item, version: _version}} = Item.create_item(@create_attrs)
-      conn = put(conn, Routes.api_item_path(conn, :update, item.id, @invalid_attrs))
+
+      conn =
+        put(conn, Routes.api_item_path(conn, :update, item.id, @invalid_attrs))
 
       assert length(json_response(conn, 400)["errors"]["text"]) > 0
     end

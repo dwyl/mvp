@@ -54,7 +54,9 @@ defmodule API.TagTest do
   describe "update" do
     test "tag with valid attributes", %{conn: conn} do
       {:ok, tag} = Tag.create_tag(@create_attrs)
-      conn = put(conn, Routes.api_tag_path(conn, :update, tag.id, @update_attrs))
+
+      conn =
+        put(conn, Routes.api_tag_path(conn, :update, tag.id, @update_attrs))
 
       assert conn.status == 200
       assert json_response(conn, 200)["text"] == Map.get(@update_attrs, :text)
@@ -62,7 +64,9 @@ defmodule API.TagTest do
 
     test "tag with invalid attributes", %{conn: conn} do
       {:ok, tag} = Tag.create_tag(@create_attrs)
-      conn = put(conn, Routes.api_tag_path(conn, :update, tag.id, @invalid_attrs))
+
+      conn =
+        put(conn, Routes.api_tag_path(conn, :update, tag.id, @invalid_attrs))
 
       assert conn.status == 400
       assert length(json_response(conn, 400)["errors"]["text"]) > 0
@@ -77,7 +81,12 @@ defmodule API.TagTest do
 
     test "a tag with invalid color", %{conn: conn} do
       {:ok, tag} = Tag.create_tag(@create_attrs)
-      conn = put(conn, Routes.api_tag_path(conn, :update, tag.id, @update_invalid_color))
+
+      conn =
+        put(
+          conn,
+          Routes.api_tag_path(conn, :update, tag.id, @update_invalid_color)
+        )
 
       assert conn.status == 400
       assert length(json_response(conn, 400)["errors"]["color"]) > 0
