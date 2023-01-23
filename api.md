@@ -1338,8 +1338,8 @@ We have used these Route Helpers
 in our tests.
 
 Update these files so they look like the following.
-- `test/api/item_test.exs`
-- `test/api/timer_test.exs`
+- [`test/api/item_test.exs`](https://github.com/dwyl/mvp/blob/api_tags-%23256/test/api/item_test.exs)
+- [`test/api/timer_test.exs`](https://github.com/dwyl/mvp/blob/27962682ebc4302134a3335133a979739cdaf13e/test/api/timer_test.exs)
 
 
 # 8. _Advanced/Automated_ `API` Testing Using `Hoppscotch`
