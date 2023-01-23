@@ -69,7 +69,7 @@ defmodule API.TagTest do
     end
 
     test "tag that doesn't exist", %{conn: conn} do
-      {:ok, tag} = Tag.create_tag(@create_attrs)
+      {:ok, _tag} = Tag.create_tag(@create_attrs)
       conn = put(conn, Routes.api_tag_path(conn, :update, -1, @update_attrs))
 
       assert conn.status == 404
