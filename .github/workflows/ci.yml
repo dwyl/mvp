@@ -98,18 +98,9 @@ jobs:
     - name: Install Hoppscotch CLI
       run: npm i -g @hoppscotch/cli
 
-    - name: Run mix ecto.create
-      run: mix ecto.create
-
-    - name: Run ecto.migrate
-      run: mix ecto.migrate
-
-    - name: Bootstrap Postgres DB with data
-      run: psql -h localhost -p 5432 -d app_dev -U postgres -f ./lib/api/api_test_mock_data.sql
-      env:
-        POSTGRES_HOST: localhost
-        POSTGRES_PORT: 5432
-        PGPASSWORD: postgres
+    # Setups database and adds seed data for API definition tests
+    - name: Run mix setup
+      run: mix setup
 
     - name: Running server and Hoppscotch Tests
       run: mix phx.server & sleep 5 && hopp test -e ./lib/api/localhost.json ./lib/api/MVP.json
