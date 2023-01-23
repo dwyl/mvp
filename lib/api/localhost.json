@@ -1,9 +1,43 @@
-{
-  "host": "http://localhost:4000",
-  "item_id": "1",
-  "notfound_item_id": "-1",
-  "invalid_id": "invalid_id",
-  "timer_id": "1",
-  "notfound_timer_id": "-1",
-  "timer_id_to_stop": 2
-}
+[
+  {
+    "name": "Localhost",
+    "variables": [
+      {
+        "key": "host",
+        "value": "http://localhost:4000"
+      },
+      {
+        "value": "1",
+        "key": "item_id"
+      },
+      {
+        "value": "-1",
+        "key": "notfound_item_id"
+      },
+      {
+        "value": "invalid_id",
+        "key": "invalid_id"
+      },
+      {
+        "value": "1",
+        "key": "timer_id"
+      },
+      {
+        "value": "-1",
+        "key": "notfound_timer_id"
+      },
+      {
+        "value": "2",
+        "key": "timer_id_to_stop"
+      },
+      {
+        "key": "tag_id",
+        "value": "1"
+      },
+      {
+        "key": "notfound_tag_id",
+        "value": "-1"
+      }
+    ]
+  }
+]
