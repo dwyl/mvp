@@ -39,8 +39,8 @@ can also be done through our `REST API`
   - [7.0 `Hoppscotch` Setup](#70-hoppscotch-setup)
   - [7.1 Using `Hoppscotch`](#71-using-hoppscotch)
   - [7.2 Integration with `Github Actions` with `Hoppscotch CLI`](#72-integration-with-github-actions-with-hoppscotch-cli)
-- [7.2.1 Changing the workflow `.yml` file](#721-changing-the-workflow-yml-file)
-- [7.2.2 Changing the `priv/repo/seeds.exs` file](#722-changing-the-privreposeedsexs-file)
+    - [7.2.1 Changing the workflow `.yml` file](#721-changing-the-workflow-yml-file)
+    - [7.2.2 Changing the `priv/repo/seeds.exs` file](#722-changing-the-privreposeedsexs-file)
 - [Done! ✅](#done-)
 
 
@@ -1465,7 +1465,7 @@ we also added a
 [`api_test_mock_data.sql`](lib/api/api_test_mock_data.sql)
 `SQL` script file that will insert some mock data.
 
-# 7.2.1 Changing the workflow `.yml` file
+### 7.2.1 Changing the workflow `.yml` file
 
 It's time to add this API testing step
 into our CI workflow!
@@ -1583,7 +1583,7 @@ Tests Duration: 0.041 s
 
 If one test fails, the whole build fails, as well!
 
-# 7.2.2 Changing the `priv/repo/seeds.exs` file
+### 7.2.2 Changing the `priv/repo/seeds.exs` file
 
 As we mentioned prior, 
 the last thing we need to do is 
