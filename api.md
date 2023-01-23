@@ -36,7 +36,7 @@ can also be done through our `REST API`
   - [6.4 _Stop_ the `Timer`](#64-stop-the-timer)
   - [6.5 Updating a `Timer`](#65-updating-a-timer)
 - [7. Adding `API.Tag`](#7-adding-apitag)
-  - [7.1 Updating scope and `router.ex` tests](#71-updating-scope-and-routerex-tests)
+  - [7.1 Updating scope in `router.ex` and tests](#71-updating-scope-in-routerex-and-tests)
     - [7.2 Implementing `API.Tag` CRUD operations](#72-implementing-apitag-crud-operations)
       - [7.2.1 Adding tests](#721-adding-tests)
       - [7.2.2 Adding `JSON` encoding and operations to `Tag` schema](#722-adding-json-encoding-and-operations-to-tag-schema)
@@ -1238,7 +1238,7 @@ are invalid.
 Having added API controllers for `item` and `timer`,
 it's high time to do the same for `tags`!
 
-## 7.1 Updating scope and `router.ex` tests
+## 7.1 Updating scope in `router.ex` and tests
 
 Let's start by changing our `lib/app_web/router.ex` file,
 the same way we did for `items` and `timers`.
@@ -1259,6 +1259,7 @@ the same way we did for `items` and `timers`.
 ```
 
 You might have noticed we've made two changes:
+
 - we've added the `resources "/tags"` line.
 We are going to be adding the associated controller 
 to handle each operation later.
@@ -1299,7 +1300,7 @@ we get the following result in our terminal.
 These are the routes that we are currently handling
 in our application.
 However, we will face some issues
-if we added a `Tag` controller for our API.
+if we add a `Tag` controller for our API.
 It will **clash with TagController** 
 because they share the same path. 💥
 
@@ -1338,14 +1339,19 @@ api_timer_path  PUT     /api/timers/:id                        API.Timer :stop
 
 Notice that the route helpers 
 have changed.
-`item_path` now becomes `**api_item_path**`.
+`item_path` now becomes **`api_item_path`**.
 The same thing happens with `timer_path`.
 
 By making this change, 
-we have broken loads of tests, 
+we have broken a handful of tests, 
 as they are using these route helpers.
 We need to update them!
-Do it so they look like the following.
+
+
+Update all the route helper calls 
+with "`api`" prefixed to fix this.
+The files should now look like this:
+
 - [`test/api/item_test.exs`](https://github.com/dwyl/mvp/blob/api_tags-%23256/test/api/item_test.exs)
 - [`test/api/timer_test.exs`](https://github.com/dwyl/mvp/blob/27962682ebc4302134a3335133a979739cdaf13e/test/api/timer_test.exs)
 
@@ -1496,10 +1502,18 @@ and inform the person using the API
 if the given `id` is invalid 
 or no `tag` is found.
 
+For this, add the following line
+to `lib/app/tag.ex`'s list of functions.
+
+```elixir
+def get_tag(id), do: Repo.get(Tag, id)
+```
+
 Lastly, whenever a `tag` is created,
 we need to **check if the `color` is correctly formatted**.
-For this, we add a `validate_format` function
-to the `tag` *changeset*.
+For this, we add a `validate_format` 
+[validation function](https://hexdocs.pm/ecto/Ecto.Changeset.html#module-validations-and-constraints)
+to the `tag` changeset function.
 
 ```elixir
 def changeset(tag, attrs \\ %{}) do
@@ -1513,7 +1527,7 @@ def changeset(tag, attrs \\ %{}) do
 
 We are using 
 [`regex`](https://en.wikipedia.org/wiki/Regular_expression)
-string to validate if the input color
+to validate if the input color string
 follows the `#XXXXXX` hex color format.
 
 #### 7.2.3 Implementing `lib/api/tag.ex`
@@ -1640,7 +1654,7 @@ through the changeset validation
 we implemented earlier. 
 This is evident in the 
 `:create` and `:update` functions,
-that return an error if, for example,
+as they return an error if, for example,
 a `color` has an invalid format.
 
 And we are all done! 
