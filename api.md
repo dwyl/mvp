@@ -28,19 +28,21 @@ can also be done through our `REST API`
 - [3. `JSON` serializing](#3-json-serializing)
 - [4. Listing `timers` and `items` and validating updates](#4-listing-timers-and-items-and-validating-updates)
 - [5. Error handling in `ErrorView`](#5-error-handling-in-errorview)
-- [5.1 Fixing tests](#51-fixing-tests)
+  - [5.1 Fixing tests](#51-fixing-tests)
 - [6. Basic `API` Testing Using `cUrl`](#6-basic-api-testing-using-curl)
   - [6.1 _Create_ an `item` via `API` Request](#61-create-an-item-via-api-request)
   - [6.2 _Read_ the `item` via `API`](#62-read-the-item-via-api)
   - [6.3 Create a `Timer` for your `item`](#63-create-a-timer-for-your-item)
   - [6.4 _Stop_ the `Timer`](#64-stop-the-timer)
   - [6.5 Updating a `Timer`](#65-updating-a-timer)
-- [7. _Advanced/Automated_ `API` Testing Using `Hoppscotch`](#7-advancedautomated-api-testing-using-hoppscotch)
-  - [7.0 `Hoppscotch` Setup](#70-hoppscotch-setup)
-  - [7.1 Using `Hoppscotch`](#71-using-hoppscotch)
-  - [7.2 Integration with `Github Actions` with `Hoppscotch CLI`](#72-integration-with-github-actions-with-hoppscotch-cli)
-    - [7.2.1 Changing the workflow `.yml` file](#721-changing-the-workflow-yml-file)
-    - [7.2.2 Changing the `priv/repo/seeds.exs` file](#722-changing-the-privreposeedsexs-file)
+- [7. Adding `API.Tag`](#7-adding-apitag)
+- [7.1 Updating scope and `router.ex` tests](#71-updating-scope-and-routerex-tests)
+- [8. _Advanced/Automated_ `API` Testing Using `Hoppscotch`](#8-advancedautomated-api-testing-using-hoppscotch)
+  - [8.0 `Hoppscotch` Setup](#80-hoppscotch-setup)
+  - [8.1 Using `Hoppscotch`](#81-using-hoppscotch)
+  - [8.2 Integration with `Github Actions` with `Hoppscotch CLI`](#82-integration-with-github-actions-with-hoppscotch-cli)
+    - [8.2.1 Changing the workflow `.yml` file](#821-changing-the-workflow-yml-file)
+    - [8.2.2 Changing the `priv/repo/seeds.exs` file](#822-changing-the-privreposeedsexs-file)
 - [Done! ✅](#done-)
 
 
@@ -893,7 +895,7 @@ add the following private function.
     end
   end
 ```
-
+ 
 If `stop` or `start` is `nil`, we can't compare the datetimes,
 so we just skip the validation.
 This usually happens when creating a timer that is ongoing
@@ -1033,7 +1035,7 @@ Phoenix will assume the template is `*.html`-based.
 Hence why we are checking for the template 
 format and returning the response accordingly.
 
-# 5.1 Fixing tests
+## 5.1 Fixing tests
 
 We ought to test these scenarios now!
 Open `test/app_web/views/error_view_test.exs`
@@ -1227,7 +1229,120 @@ are invalid.
 }
 ```
 
-# 7. _Advanced/Automated_ `API` Testing Using `Hoppscotch`
+# 7. Adding `API.Tag`
+
+Having added API controllers for `item` and `timer`,
+it's high time to do the same for `tags`!
+
+# 7.1 Updating scope and `router.ex` tests
+
+Let's start by changing our `lib/app_web/router.ex` file,
+the same way we did for `items` and `timers`.
+
+```elixir
+  scope "/api", API, as: :api do
+    pipe_through [:api, :authOptional]
+
+    resources "/items", Item, only: [:create, :update, :show]
+	@@ -43,5 +43,7 @@ defmodule AppWeb.Router do
+      only: [:create, :update, :show, :index]
+
+    put "/timers/:id", Timer, :stop
+
+    resources "/tags", Tag, only: [:create, :update, :show]
+  end
+```
+
+You might have noticed we made two changes:
+- we added the `resources "/tags"` line.
+We are going to be adding the associated controller 
+to handle each operation later.
+- added an `as:` property when defining the scope -
+`as: :api`.
+
+The latter change pertains to 
+[**route helpers**](https://hexdocs.pm/phoenix/routing.html#path-helpers).
+Before making this change,
+if we run the `mix phx.routes` command,
+we get the following result in our terminal.
+
+```sh
+      ...
+      
+      tag_path  GET     /tags                                  AppWeb.TagController :index
+      tag_path  GET     /tags/:id/edit                         AppWeb.TagController :edit
+      tag_path  GET     /tags/new                              AppWeb.TagController :new
+      tag_path  POST    /tags                                  AppWeb.TagController :create
+      tag_path  PATCH   /tags/:id                              AppWeb.TagController :update
+                PUT     /tags/:id                              AppWeb.TagController :update
+      tag_path  DELETE  /tags/:id                              AppWeb.TagController :delete
+
+      item_path  GET     /api/items/:id                         API.Item :show
+      item_path  POST    /api/items                             API.Item :create
+      item_path  PATCH   /api/items/:id                         API.Item :update
+                 PUT     /api/items/:id                         API.Item :update
+     timer_path  GET     /api/items/:item_id/timers             API.Timer :index
+     timer_path  GET     /api/items/:item_id/timers/:id         API.Timer :show
+     timer_path  POST    /api/items/:item_id/timers             API.Timer :create
+     timer_path  PATCH   /api/items/:item_id/timers/:id         API.Timer :update
+                 PUT     /api/items/:item_id/timers/:id         API.Timer :update
+     timer_path  PUT     /api/timers/:id                        API.Timer :stop
+
+    ...
+```
+
+These are the routes that we are currently handling
+in our application.
+However, we will face some issues
+if we added a `Tag` controller for our API.
+It will **clash with TagController** 
+because they share the same path.
+
+`Item` paths can be accessed by route helper
+`Routes.item_path(conn, :show, item.id)`,
+as shown in the terminal result.
+By adding `as: :api` attribute to our scope,
+these route helpers are prefixed with `"api"`,
+making it easier to use these Route helpers
+differentiate API and browser calls.
+
+Here's the result after adding 
+the aforementioned `as:` attribute to the scope.
+
+```sh 
+      ...
+      tag_path  GET     /tags                                  AppWeb.TagController :index
+      tag_path  GET     /tags/:id/edit                         AppWeb.TagController :edit
+      tag_path  GET     /tags/new                              AppWeb.TagController :new
+      tag_path  POST    /tags                                  AppWeb.TagController :create
+      tag_path  PATCH   /tags/:id                              AppWeb.TagController :update
+                PUT     /tags/:id                              AppWeb.TagController :update
+      tag_path  DELETE  /tags/:id                              AppWeb.TagController :delete
+ api_item_path  GET     /api/items/:id                         API.Item :show
+ api_item_path  POST    /api/items                             API.Item :create
+ api_item_path  PATCH   /api/items/:id                         API.Item :update
+                PUT     /api/items/:id                         API.Item :update
+api_timer_path  GET     /api/items/:item_id/timers             API.Timer :index
+api_timer_path  GET     /api/items/:item_id/timers/:id         API.Timer :show
+api_timer_path  POST    /api/items/:item_id/timers             API.Timer :create
+api_timer_path  PATCH   /api/items/:item_id/timers/:id         API.Timer :update
+                PUT     /api/items/:item_id/timers/:id         API.Timer :update
+api_timer_path  PUT     /api/timers/:id                        API.Timer :stop
+      ...
+```
+
+Notice that the Route Helpers 
+are now updated.
+
+We have used these Route Helpers 
+in our tests.
+
+Update these files so they look like the following.
+- `test/api/item_test.exs`
+- `test/api/timer_test.exs`
+
+
+# 8. _Advanced/Automated_ `API` Testing Using `Hoppscotch`
 
 `API` testing is an essential part 
 of the development lifecycle.
@@ -1254,7 +1369,7 @@ organize them and create test suites.
 Red more about `Hoppscotch`: 
 [hoppscotch.io](https://hoppscotch.io)
 
-## 7.0 `Hoppscotch` Setup
+## 8.0 `Hoppscotch` Setup
 
 There is no `App` to download, 
 but you can run `Hoppscotch` as 
@@ -1295,7 +1410,7 @@ simply enable "Zen Mode":
 With that out of the way, let's get started _using_ `Hoppscotch`!
 
 
-## 7.1 Using `Hoppscotch`
+## 8.1 Using `Hoppscotch`
 
 When you first open `Hoppscotch`,
 either in the browser or as a `PWA`,
@@ -1416,7 +1531,7 @@ on how you can test the response in each request,
 please visit their documentation at
 https://docsapi.io/features/tests.
 
-## 7.2 Integration with `Github Actions` with `Hoppscotch CLI`
+## 8.2 Integration with `Github Actions` with `Hoppscotch CLI`
 
 These tests can (and should!)
 be used in CI pipelines.
@@ -1465,7 +1580,7 @@ we also added a
 [`api_test_mock_data.sql`](lib/api/api_test_mock_data.sql)
 `SQL` script file that will insert some mock data.
 
-### 7.2.1 Changing the workflow `.yml` file
+### 8.2.1 Changing the workflow `.yml` file
 
 It's time to add this API testing step
 into our CI workflow!
@@ -1519,20 +1634,13 @@ between the `build` and `deploy` jobs.
 
     # Setups database and adds seed data for API definition tests
     - name: Run mix setup
-      run: mix setup
+      run: mix ecto.setup
       env:
         MIX_ENV: dev
         AUTH_API_KEY: ${{ secrets.AUTH_API_KEY }}
 
-
-
-      env:
-        POSTGRES_HOST: localhost
-        POSTGRES_PORT: 5432
-        PGPASSWORD: postgres
-
     - name: Running server and Hoppscotch Tests
-      run: mix phx.server & sleep 5 && hopp test -e ./lib/api/envs.json ./lib/api/MVP.json
+      run: mix phx.server & sleep 5 && hopp test -e ./lib/api/localhost.json ./lib/api/MVP.json
 ```
 
 Let's breakdown what we just added.
@@ -1590,7 +1698,7 @@ Tests Duration: 0.041 s
 
 If one test fails, the whole build fails, as well!
 
-### 7.2.2 Changing the `priv/repo/seeds.exs` file
+### 8.2.2 Changing the `priv/repo/seeds.exs` file
 
 As we mentioned prior, 
 the last thing we need to do is 
