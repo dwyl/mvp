@@ -1593,7 +1593,6 @@ when calling `mix ecto.setup`.
 Use the following piece of code
 and change `seeds.exs` to look as such.
 
-```elixir
 
 ```elixir
 if not Envar.is_set?("AUTH_API_KEY") do
