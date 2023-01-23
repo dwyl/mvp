@@ -39,7 +39,8 @@ can also be done through our `REST API`
   - [7.0 `Hoppscotch` Setup](#70-hoppscotch-setup)
   - [7.1 Using `Hoppscotch`](#71-using-hoppscotch)
   - [7.2 Integration with `Github Actions` with `Hoppscotch CLI`](#72-integration-with-github-actions-with-hoppscotch-cli)
-- [7.2.1 Changing the workflow `.yml` file](#721-changing-the-workflow-yml-file)
+    - [7.2.1 Changing the workflow `.yml` file](#721-changing-the-workflow-yml-file)
+    - [7.2.2 Changing the `priv/repo/seeds.exs` file](#722-changing-the-privreposeedsexs-file)
 - [Done! ✅](#done-)
 
 
@@ -1464,7 +1465,7 @@ we also added a
 [`api_test_mock_data.sql`](lib/api/api_test_mock_data.sql)
 `SQL` script file that will insert some mock data.
 
-# 7.2.1 Changing the workflow `.yml` file
+### 7.2.1 Changing the workflow `.yml` file
 
 It's time to add this API testing step
 into our CI workflow!
@@ -1516,14 +1517,14 @@ between the `build` and `deploy` jobs.
     - name: Install Hoppscotch CLI
       run: npm i -g @hoppscotch/cli
 
-    - name: Run mix ecto.create
-      run: mix ecto.create
+    # Setups database and adds seed data for API definition tests
+    - name: Run mix setup
+      run: mix setup
+      env:
+        MIX_ENV: dev
+        AUTH_API_KEY: ${{ secrets.AUTH_API_KEY }}
 
-    - name: Run ecto.migrate
-      run: mix ecto.migrate
 
-    - name: Bootstrap Postgres DB with data
-      run: psql -h localhost -p 5432 -d app_dev -U postgres -f ./lib/api/api_test_mock_data.sql
 
       env:
         POSTGRES_HOST: localhost
@@ -1543,18 +1544,21 @@ similarly to the existent `build` job.
 We then install the `Hoppscotch CLI` 
 by running `npm i -g @hoppscotch/cli`.
 
-We then run `mix ecto.create` 
-and `ecto.migrate` 
-to create and setup the database.
+We then run `mix ecto.setup`.
+This command creates the database,
+runs the migrations
+and executes `run priv/repo/seeds.exs`.
+The list of commands is present
+in the [`mix.exs` file](./mix.exs).
 
-After this, 
-we *boostrap* the database with 
-`psql -h localhost -p 5432 -d app_dev -U postgres -f ./api/api_test_mock_data.sql`.
-This command ([`psql`](https://www.postgresql.org/docs/current/app-psql.html))
-allows us to connect to the PostgreSQL database
-and execute the `api_test_mock_data.sql` script,
-which inserts data for the tests to run.
 
+
+
+
+
+We are going to change the `seeds.exs` 
+file to bootstrap the database 
+with sample data for the API tests to run.
 
 At last,
 we run the API by running `mix phx.server`
@@ -1584,8 +1588,41 @@ Test Scripts: 0 failed 22 passed
 Tests Duration: 0.041 s
 ```
 
-If one test fails, the whole build fails, as well.
+If one test fails, the whole build fails, as well!
 
+### 7.2.2 Changing the `priv/repo/seeds.exs` file
+
+As we mentioned prior, 
+the last thing we need to do is 
+to change our `priv/repo/seeds.exs` file
+so it adds sample data for the tests to run
+when calling `mix ecto.setup`.
+Use the following piece of code
+and change `seeds.exs` to look as such.
+
+
+```elixir
+if not Envar.is_set?("AUTH_API_KEY") do
+  Envar.load(".env")
+end
+
+if Mix.env() == :dev do
+  App.Item.create_item(%{text: "random text", person_id: 0, status: 2})
+
+  {:ok, _timer} =
+    App.Timer.start(%{
+      item_id: 1,
+      start: "2023-01-19 15:52:00",
+      stop: "2023-01-19 15:52:03"
+    })
+
+  {:ok, _timer2} =
+    App.Timer.start(%{item_id: 1, start: "2023-01-19 15:55:00", stop: nil})
+end
+```
+
+We are only adding sample data
+when the server is being run in `dev` mode.
 
 # Done! ✅
 
