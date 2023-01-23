@@ -1244,7 +1244,8 @@ the same way we did for `items` and `timers`.
     pipe_through [:api, :authOptional]
 
     resources "/items", Item, only: [:create, :update, :show]
-	@@ -43,5 +43,7 @@ defmodule AppWeb.Router do
+
+    resources "/items/:item_id/timers", Timer,
       only: [:create, :update, :show, :index]
 
     put "/timers/:id", Timer, :stop
@@ -1253,8 +1254,8 @@ the same way we did for `items` and `timers`.
   end
 ```
 
-You might have noticed we made two changes:
-- we added the `resources "/tags"` line.
+You might have noticed we've made two changes:
+- we've added the `resources "/tags"` line.
 We are going to be adding the associated controller 
 to handle each operation later.
 - added an `as:` property when defining the scope -
@@ -1296,15 +1297,15 @@ in our application.
 However, we will face some issues
 if we added a `Tag` controller for our API.
 It will **clash with TagController** 
-because they share the same path.
+because they share the same path. 💥
 
 `Item` paths can be accessed by route helper
 `Routes.item_path(conn, :show, item.id)`,
 as shown in the terminal result.
+
 By adding `as: :api` attribute to our scope,
-these route helpers are prefixed with `"api"`,
-making it easier to use these Route helpers
-differentiate API and browser calls.
+these route helpers will now be prefixed with `"api"`,
+making it easier differentiate API and browser calls.
 
 Here's the result after adding 
 the aforementioned `as:` attribute to the scope.
@@ -1331,13 +1332,16 @@ api_timer_path  PUT     /api/timers/:id                        API.Timer :stop
       ...
 ```
 
-Notice that the Route Helpers 
-are now updated.
+Notice that the route helpers 
+have changed.
+`item_path` now becomes `**api_item_path**`.
+The same thing happens with `timer_path`.
 
-We have used these Route Helpers 
-in our tests.
-
-Update these files so they look like the following.
+By making this change, 
+we have broken loads of tests, 
+as they are using these route helpers.
+We need to update them!
+Do it so they look like the following.
 - [`test/api/item_test.exs`](https://github.com/dwyl/mvp/blob/api_tags-%23256/test/api/item_test.exs)
 - [`test/api/timer_test.exs`](https://github.com/dwyl/mvp/blob/27962682ebc4302134a3335133a979739cdaf13e/test/api/timer_test.exs)
 
