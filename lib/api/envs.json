@@ -29,6 +29,14 @@
       {
         "value": "2",
         "key": "timer_id_to_stop"
+      },
+      {
+        "key": "tag_id",
+        "value": "1"
+      },
+      {
+        "key": "notfound_tag_id",
+        "value": "-1"
       }
     ]
   }
