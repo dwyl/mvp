@@ -36,7 +36,7 @@ defmodule API.Item do
 
     # Attributes to create item
     # Person_id will be changed when auth is added
-    attrs = %{
+    item_attrs = %{
       text: Map.get(params, "text"),
       person_id: 0,
       status: 2
@@ -46,19 +46,19 @@ defmodule API.Item do
     tag_parameters_array = Map.get(params, "tags", [])
 
     # Item changeset, used to check if the the attributes are valid
-    item_changeset = Item.changeset(%Item{}, attrs)
+    item_changeset = Item.changeset(%Item{}, item_attrs)
 
     # Validating item, tag array and if any tag already exists
     with true <- item_changeset.valid?,
-         {:ok, nil} <- invalid_tags_from_params_array(tag_parameters_array, attrs.person_id),
-         {:ok, nil} <- tags_that_already_exist(tag_parameters_array, attrs.person_id)
+         {:ok, tag_changeset_array} <- invalid_tags_from_params_array(tag_parameters_array, item_attrs.person_id),
+         {:ok, nil} <- tags_that_already_exist(tag_parameters_array, item_attrs.person_id)
       do
 
-      {:ok, %{model: item, version: _version}} = Item.create_item(attrs)
+      # Creating item and tags and associate tags to item
+      attrs = Map.put(item_attrs, :tags, tag_changeset_array)
+      {:ok, %{model: item, version: _version}} = Item.create_item_with_tags(attrs)
 
-      # Adding tags
-      Enum.each(tag_parameters_array, fn tag_attrs -> Tag.create_tag(tag_attrs) end)
-
+      # Return `id` of created item
       id_item = Map.take(item, [:id])
       json(conn, id_item)
     else
@@ -142,9 +142,10 @@ defmodule API.Item do
       Tag.changeset(tag)
     end)
 
-    # Return first invalid tag changeset. If none is found, return nil
+    # Return first invalid tag changeset.
+    # If none is found, return {:ok} and the array with tags converted to changesets
     case Enum.find(tag_changeset_array, fn chs -> not chs.valid? end) do
-      nil -> {:ok, nil}
+      nil -> {:ok, tag_changeset_array}
       tag_changeset -> {:invalid_tag, tag_changeset}
     end
 

@@ -1,6 +1,5 @@
 defmodule API.ItemTest do
   use AppWeb.ConnCase
-  alias App.Tag
   alias App.Item
 
   @tag_text "tag text"
