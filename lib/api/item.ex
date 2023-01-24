@@ -75,7 +75,7 @@ defmodule API.Item do
       {:tag_already_exists, tag} ->
         errors = %{
           code: 400,
-          message: " The tag \'" <> tag <> "\' already exists."
+          message: "The tag \'" <> tag <> "\' already exists."
         }
 
         json(
