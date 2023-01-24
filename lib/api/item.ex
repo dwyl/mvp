@@ -1,6 +1,7 @@
 defmodule API.Item do
   use AppWeb, :controller
   alias App.Item
+  alias App.Tag
   import Ecto.Changeset
 
   def show(conn, %{"id" => id} = _params) do
@@ -32,6 +33,7 @@ defmodule API.Item do
   end
 
   def create(conn, params) do
+
     # Attributes to create item
     # Person_id will be changed when auth is added
     attrs = %{
@@ -40,15 +42,50 @@ defmodule API.Item do
       status: 2
     }
 
-    case Item.create_item(attrs) do
-      # Successfully creates item
-      {:ok, %{model: item, version: _version}} ->
-        id_item = Map.take(item, [:id])
-        json(conn, id_item)
+    # Get array of tag changeset, if supplied
+    tag_parameters_array = Map.get(params, "tags", [])
 
-      # Error creating item
-      {:error, %Ecto.Changeset{} = changeset} ->
-        errors = make_changeset_errors_readable(changeset)
+    # Item changeset, used to check if the the attributes are valid
+    item_changeset = Item.changeset(%Item{}, attrs)
+
+    # Validating item, tag array and if any tag already exists
+    with true <- item_changeset.valid?,
+         {:ok, nil} <- invalid_tags_from_params_array(tag_parameters_array, attrs.person_id),
+         {:ok, nil} <- tags_that_already_exist(tag_parameters_array, attrs.person_id)
+      do
+
+      {:ok, %{model: item, version: _version}} = Item.create_item(attrs)
+
+      # Adding tags
+      Enum.each(tag_parameters_array, fn tag_attrs -> Tag.create_tag(tag_attrs) end)
+
+      id_item = Map.take(item, [:id])
+      json(conn, id_item)
+    else
+      # Error creating item (attributes)
+      false ->
+        errors = make_changeset_errors_readable(item_changeset)
+
+        json(
+          conn |> put_status(400),
+          errors
+        )
+
+      # First tag that already exists
+      {:tag_already_exists, tag} ->
+        errors = %{
+          code: 400,
+          message: " The tag \'" <> tag <> "\' already exists."
+        }
+
+        json(
+          conn |> put_status(400),
+          errors
+        )
+
+      # First tag that is invalid
+      {:invalid_tag, tag_changeset} ->
+        errors = make_changeset_errors_readable(tag_changeset) |> Map.put(:message, "At least one of the tags is malformed.")
 
         json(
           conn |> put_status(400),
@@ -89,6 +126,49 @@ defmodule API.Item do
         end
     end
   end
+
+
+  defp invalid_tags_from_params_array(tag_parameters_array, person_id) do
+
+    tag_changeset_array = Enum.map(tag_parameters_array, fn tag_params ->
+      # Add person_id and color if they are not specified
+      tag = %Tag{
+        person_id: Map.get(tag_params, "person_id", person_id),
+        color: Map.get(tag_params, "color", App.Color.random()),
+        text: Map.get(tag_params, "text")
+      }
+
+      # Return changeset
+      Tag.changeset(tag)
+    end)
+
+    # Return first invalid tag changeset. If none is found, return nil
+    case Enum.find(tag_changeset_array, fn chs -> not chs.valid? end) do
+      nil -> {:ok, nil}
+      tag_changeset -> {:invalid_tag, tag_changeset}
+    end
+
+  end
+
+
+  defp tags_that_already_exist(tag_parameters_array, person_id) do
+    if(length(tag_parameters_array) != 0) do
+
+      # Retrieve tags texts from database
+      db_tags_text = Tag.list_person_tags_text(person_id)
+      tag_text_array = Enum.map(tag_parameters_array, fn tag -> Map.get(tag, "text", nil) end)
+
+      # Return first tag that already exists in database. If none is found, return nil
+      case Enum.find(db_tags_text, fn x -> Enum.member?(tag_text_array, x) end) do
+        nil -> {:ok, nil}
+        tag -> {:tag_already_exists, tag}
+      end
+
+    else
+      {:ok, nil}
+    end
+  end
+
 
   defp make_changeset_errors_readable(changeset) do
     errors = %{

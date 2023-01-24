@@ -81,10 +81,19 @@ defmodule App.Tag do
 
   def get_tag(id), do: Repo.get(Tag, id)
 
+
   def list_person_tags(person_id) do
     Tag
     |> where(person_id: ^person_id)
     |> order_by(:text)
+    |> Repo.all()
+  end
+
+  def list_person_tags_text(person_id) do
+    Tag
+    |> where(person_id: ^person_id)
+    |> order_by(:text)
+    |> select([t], t.text)
     |> Repo.all()
   end
 
