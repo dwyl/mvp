@@ -45,8 +45,8 @@ can also be done through our `REST API`
     - [7.3.1 Adding tests](#731-adding-tests)
     - [7.3.2 Implementing `list_person_tags_text/0`](#732-implementing-list_person_tags_text0)
     - [7.3.3 Updating `:create` in `lib/api/item.ex`](#733-updating-create-in-libapiitemex)
-    - [7.3.3.1 Creating `tag` validating functions](#7331-creating-tag-validating-functions)
-    - [7.3.3.2 Finishing up `lib/api/item.ex`'s `create` function](#7332-finishing-up-libapiitemexs-create-function)
+      - [7.3.3.1 Creating `tag` validating functions](#7331-creating-tag-validating-functions)
+      - [7.3.3.2 Finishing up `lib/api/item.ex`'s `create` function](#7332-finishing-up-libapiitemexs-create-function)
 - [8. _Advanced/Automated_ `API` Testing Using `Hoppscotch`](#8-advancedautomated-api-testing-using-hoppscotch)
   - [8.0 `Hoppscotch` Setup](#80-hoppscotch-setup)
   - [8.1 Using `Hoppscotch`](#81-using-hoppscotch)
@@ -1684,11 +1684,11 @@ we ought to take into account
 how ["chatty"](https://github.com/dwyl/learn-api-design#avoid-chattiness-in-your-api)
 it can be.
 An API is considered **chatty**
-is one that requires the consumer
+if it requires the consumer
 to make distinct API calls 
 to make a specific action/access a resource.
 
-This has many advantages,
+Reducing chattiness has many advantages,
 the main one being 
 that **less bandwitch is used**,
 as we are reducing the number of requests.
@@ -1710,7 +1710,7 @@ Let's do this!
 ### 7.3.1 Adding tests
 
 Let's add our tests first.
-We have two important constraints
+We have three important constraints
 that require validation before 
 creating the `item` and `tags`:
 
@@ -1720,22 +1720,29 @@ If not, inform the user.
 inform the user.
 - the `item` needs to be valid.
 
-We want all of these concerns to be passed
-before we create an `item`, the `tags`
-and associate them.
+We want all of these concerns to be validated
+before creating an `item`, 
+the `tags`
+and associating them.
 
 With this in mind, 
 let's first start 
 by creating the tests needed to cover these scenarios.
 
-We are going to be making these changes
+We are going to be making changes
 in the `:create` function of
 `lib/api/item.ex`.
+
 Therefore, open `test/api/item_test.exs` 
 and add the following tests
 under the `describe "create"` test suite.
 
 ```elixir
+    @tag_text "tag text"
+    @create_attrs %{person_id: 42, status: 0, text: "some text"}
+    @create_attrs_with_tags %{person_id: 42, status: 0, text: "some text", tags: [%{text: @tag_text}]}
+    @create_attrs_with_invalid_tags %{person_id: 42, status: 0, text: "some text", tags: [%{invalid: ""}]}
+
     test "a valid item with tags", %{conn: conn} do
       conn = post(conn, Routes.api_item_path(conn, :create, @create_attrs_with_tags))
       assert json_response(conn, 200)
@@ -1757,6 +1764,9 @@ under the `describe "create"` test suite.
     end
 ```
 
+e.g.
+[`test/api/item_test.exs`](https://github.com/dwyl/mvp/blob/4c568a0659df6f3047536dfea52ffb53806e1c9e/test/api/item_test.exs)
+
 Each test pertains to the 
 constraints we've mentioned earlier.
 
@@ -1764,7 +1774,7 @@ In addition to this,
 we are going to need a function
 to **list the tags text from a person that are already in the database**.
 We are going to be using this function
-to check to *compare the given tags*
+to *compare the given tags*
 with the ones that already exist in the database.
 
 For this, 
@@ -1821,6 +1831,7 @@ We are going to be making some changes
 in `lib/api/item.ex`.
 
 Let's break down how we are going to implement this.
+
 We want the `item` to be valid,
 each `tag` to be valid,
 and each `tag` unique (meaning it doesn't already exist).
@@ -1874,24 +1885,24 @@ if any of the validations fail.
 
 With `with` statements, 
 each expression is executed.
-If all pattern-match as described above,
+If all "pattern-match" as described above,
 the user will create the `item` and `tag` 
 and respond with a success message.
 
-Otherwise, we can pattern-match
+Otherwise, we can "pattern-match"
 any errors in the `else` statement,
 which can be derived from any of the three
 expressions being evaluated inside `with`.
 
 You might have noticed we are evaluating three expressions:
-- `true <- item_changeset.valid?`, 
+- **`true <- item_changeset.valid?`**, 
 which uses the `item_changeset` to check if the passed attributes are valid.
-- `{:ok, tag_changeset_array} <- invalid_tags_from_params_array(tag_parameters_array, item_attrs.person_id)`,
+- **`{:ok, tag_changeset_array} <- invalid_tags_from_params_array(tag_parameters_array, item_attrs.person_id)`**,
 which calls `invalid_tags_from_params_array/2` which,
 in turn, checks if any of the tags 
-passed in the request is invalid.
+passed in the request are invalid.
 It returns an array of `tag` changesets if every `tag` is valid.
-- `{:ok, nil} <- tags_that_already_exist(tag_parameters_array, item_attrs.person_id)`,
+- **`{:ok, nil} <- tags_that_already_exist(tag_parameters_array, item_attrs.person_id)`**,
 which calls `tags_that_already_exist/2` which, 
 in turn, check if any of the passed tags
 already exists in the database.
@@ -1899,7 +1910,7 @@ already exists in the database.
 
 Let's implement these two validating functions!
 
-### 7.3.3.1 Creating `tag` validating functions
+#### 7.3.3.1 Creating `tag` validating functions
 
 Let's start with `invalid_tags_from_params_array/2`.
 In `lib/api/item.ex`, 
@@ -1938,11 +1949,11 @@ to a **changeset**.
 This will allow us to check if each param is valid or not.
 
 We *then* return the first invalid tag.
-If none is found, we returned the `tag` changeset array.
+If none is found, we return the `tag` changeset array.
 
 The reason we return a `tag` changeset array
 if every `tag` is valid
-is to later use when creating the `item` and `tags` 
+is to later use it when creating the `item` and `tags` 
 and associating the latter with the former 
 by calling `create_item_with_tags/1` 
 (located in `lib/app/tag.ex`).
@@ -1982,7 +1993,7 @@ If one is found, it is returned as an error.
 If not, `nil` is returned, 
 meaning the passed `tags` are unique to the `person_id`.
 
-### 7.3.3.2 Finishing up `lib/api/item.ex`'s `create` function
+#### 7.3.3.2 Finishing up `lib/api/item.ex`'s `create` function
 
 Now that we know the possible returns
 each function used in the `with` expression,
@@ -2127,6 +2138,7 @@ an error is returned to the user
 and a meaningful error message is created.
 
 And you are done! 🎉
+
 You've just *extended* the feature of 
 creating an `item` by allowing the user to 
 *also* add the `tag` array, if he so wishes.
