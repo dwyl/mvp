@@ -37,10 +37,16 @@ can also be done through our `REST API`
   - [6.5 Updating a `Timer`](#65-updating-a-timer)
 - [7. Adding `API.Tag`](#7-adding-apitag)
   - [7.1 Updating scope in `router.ex` and tests](#71-updating-scope-in-routerex-and-tests)
-    - [7.2 Implementing `API.Tag` CRUD operations](#72-implementing-apitag-crud-operations)
-      - [7.2.1 Adding tests](#721-adding-tests)
-      - [7.2.2 Adding `JSON` encoding and operations to `Tag` schema](#722-adding-json-encoding-and-operations-to-tag-schema)
-      - [7.2.3 Implementing `lib/api/tag.ex`](#723-implementing-libapitagex)
+  - [7.2 Implementing `API.Tag` CRUD operations](#72-implementing-apitag-crud-operations)
+    - [7.2.1 Adding tests](#721-adding-tests)
+    - [7.2.2 Adding `JSON` encoding and operations to `Tag` schema](#722-adding-json-encoding-and-operations-to-tag-schema)
+    - [7.2.3 Implementing `lib/api/tag.ex`](#723-implementing-libapitagex)
+  - [7.3 Allowing creating `item` with `tags`](#73-allowing-creating-item-with-tags)
+    - [7.3.1 Adding tests](#731-adding-tests)
+    - [7.3.2 Implementing `list_person_tags_text/0`](#732-implementing-list_person_tags_text0)
+    - [7.3.3 Updating `:create` in `lib/api/item.ex`](#733-updating-create-in-libapiitemex)
+    - [7.3.3.1 Creating `tag` validating functions](#7331-creating-tag-validating-functions)
+    - [7.3.3.2 Finishing up `lib/api/item.ex`'s `create` function](#7332-finishing-up-libapiitemexs-create-function)
 - [8. _Advanced/Automated_ `API` Testing Using `Hoppscotch`](#8-advancedautomated-api-testing-using-hoppscotch)
   - [8.0 `Hoppscotch` Setup](#80-hoppscotch-setup)
   - [8.1 Using `Hoppscotch`](#81-using-hoppscotch)
@@ -1355,7 +1361,7 @@ The files should now look like this:
 - [`test/api/item_test.exs`](https://github.com/dwyl/mvp/blob/api_tags-%23256/test/api/item_test.exs)
 - [`test/api/timer_test.exs`](https://github.com/dwyl/mvp/blob/27962682ebc4302134a3335133a979739cdaf13e/test/api/timer_test.exs)
 
-### 7.2 Implementing `API.Tag` CRUD operations
+## 7.2 Implementing `API.Tag` CRUD operations
 
 Having changed the `router.ex` file 
 to call an unimplemented `Tag` controller,
@@ -1376,7 +1382,7 @@ e.g. `#FFFFFF`.
 If none is passed when created,
 a random one is generated.
 
-#### 7.2.1 Adding tests
+### 7.2.1 Adding tests
 
 Let's create the test file 
 `test/api/tag_test.exs`
@@ -1475,7 +1481,7 @@ In a similar fashion to `item` and `timer`,
 we are testing the API with the "Happy Path" 
 and how it handles receiving invalid attributes.
 
-#### 7.2.2 Adding `JSON` encoding and operations to `Tag` schema
+### 7.2.2 Adding `JSON` encoding and operations to `Tag` schema
 
 In our `lib/app/tag.ex` file resides the `Tag` schema.
 To correctly encode and decode it in `JSON` format,
@@ -1530,7 +1536,7 @@ We are using
 to validate if the input color string
 follows the `#XXXXXX` hex color format.
 
-#### 7.2.3 Implementing `lib/api/tag.ex`
+### 7.2.3 Implementing `lib/api/tag.ex`
 
 Now that we have the tests 
 and the necessary changes implemented in `lib/app/tag.ex`,
@@ -1670,6 +1676,471 @@ Finished in 1.7 seconds (1.6s async, 0.1s sync)
 
 Congratulations! 🎉
 We've just implemented a CRUD `Tag` controller!
+
+## 7.3 Allowing creating `item` with `tags`
+
+When designing an API, 
+we ought to take into account
+how ["chatty"](https://github.com/dwyl/learn-api-design#avoid-chattiness-in-your-api)
+it can be.
+An API is considered **chatty**
+is one that requires the consumer
+to make distinct API calls 
+to make a specific action/access a resource.
+
+This has many advantages,
+the main one being 
+that **less bandwitch is used**,
+as we are reducing the number of requests.
+Additionally, it *reduces time wasted*
+when making multiple requests.
+
+Currently in our API,
+if the user wanted to create an `item` and `tags`,
+he would need to make *two requests*:
+one to create an `item` 
+and another to create `tags`.
+
+We can make this better by 
+**allowing the user to pass an array of `tags`**
+when creating an `item`.
+
+Let's do this!
+
+### 7.3.1 Adding tests
+
+Let's add our tests first.
+We have two important constraints
+that require validation before 
+creating the `item` and `tags`:
+
+- the `tags` need *to be valid*.
+If not, inform the user.
+- if any `tag` already exists for the given person,
+inform the user.
+- the `item` needs to be valid.
+
+We want all of these concerns to be passed
+before we create an `item`, the `tags`
+and associate them.
+
+With this in mind, 
+let's first start 
+by creating the tests needed to cover these scenarios.
+
+We are going to be making these changes
+in the `:create` function of
+`lib/api/item.ex`.
+Therefore, open `test/api/item_test.exs` 
+and add the following tests
+under the `describe "create"` test suite.
+
+```elixir
+    test "a valid item with tags", %{conn: conn} do
+      conn = post(conn, Routes.api_item_path(conn, :create, @create_attrs_with_tags))
+      assert json_response(conn, 200)
+    end
+
+    test "a valid item with tag that already exists", %{conn: conn} do
+      conn = post(conn, Routes.api_tag_path(conn, :create, %{text: @tag_text, person_id: @create_attrs_with_tags.person_id}))
+      conn = post(conn, Routes.api_item_path(conn, :create, @create_attrs_with_tags))
+
+      assert json_response(conn, 400)
+      assert json_response(conn, 400)["message"] =~ "already exists"
+    end
+
+    test "a valid item with an invalid tag", %{conn: conn} do
+      conn = post(conn, Routes.api_item_path(conn, :create, @create_attrs_with_invalid_tags))
+
+      assert json_response(conn, 400)
+      assert length(json_response(conn, 400)["errors"]["text"]) > 0
+    end
+```
+
+Each test pertains to the 
+constraints we've mentioned earlier.
+
+In addition to this, 
+we are going to need a function
+to **list the tags text from a person that are already in the database**.
+We are going to be using this function
+to check to *compare the given tags*
+with the ones that already exist in the database.
+
+For this, 
+open `test/app/tag_test.exs`
+and add the following piece of code.
+
+```elixir
+  describe "List tags" do
+    @valid_attrs %{text: "tag1", person_id: 1, color: "#FCA5A5"}
+
+    test "list_person_tags_text/0 returns the tags texts" do
+      {:ok, tag} = Tag.create_tag(@valid_attrs)
+      tags_text_array = Tag.list_person_tags_text(@valid_attrs.person_id)
+      assert length(tags_text_array) == 1
+      assert Enum.at(tags_text_array, 0) == @valid_attrs.text
+    end
+  end
+```
+
+We are going to be implementing
+the `list_person_tags_text/0` shortly.
+This function will list the text of all the tags
+for a given `person_id`.
+
+Now that we got the tests added,
+it's time for us to start implementing!
+
+### 7.3.2 Implementing `list_person_tags_text/0`
+
+Let's start by 
+implementing `list_person_tags_text/0`.
+Head over to `lib/app/tag.ex`
+and add:
+
+```elixir
+  def list_person_tags_text(person_id) do
+    Tag
+    |> where(person_id: ^person_id)
+    |> order_by(:text)
+    |> select([t], t.text)
+    |> Repo.all()
+  end
+```
+
+This will return an array of tag texts
+pertaining to the given `person_id`.
+
+This function will be used in the next section.
+
+### 7.3.3 Updating `:create` in `lib/api/item.ex`
+
+Now it's time for the bread and butter of this feature!
+We are going to be making some changes
+in `lib/api/item.ex`.
+
+Let's break down how we are going to implement this.
+We want the `item` to be valid,
+each `tag` to be valid,
+and each `tag` unique (meaning it doesn't already exist).
+
+Open `lib/api/item.ex`,
+locate the `create` function.
+We are going to be implementing
+the following structure.
+
+```elixir
+def create(conn, params) do
+
+    # Attributes to create item
+    # Person_id will be changed when auth is added
+    item_attrs = %{
+      text: Map.get(params, "text"),
+      person_id: 0,
+      status: 2
+    }
+
+    # Get array of tag changeset, if supplied
+    tag_parameters_array = Map.get(params, "tags", [])
+
+    # Item changeset, used to check if the the attributes are valid
+    item_changeset = Item.changeset(%Item{}, item_attrs)
+
+    # Validating item, tag array and if any tag already exists
+    with true <- item_changeset.valid?,
+         {:ok, tag_changeset_array} <- invalid_tags_from_params_array(tag_parameters_array, item_attrs.person_id),
+         {:ok, nil} <- tags_that_already_exist(tag_parameters_array, item_attrs.person_id)
+      do
+
+      # Creating item and tags and responding to the user with the newly created `id`.
+
+    else
+      
+      # Handle any errors
+
+    end
+  end
+```
+
+We are using a 
+[`with` control structure statement](https://www.openmymind.net/Elixirs-With-Statement/).
+Using `with` is *super useful* 
+when we might use nested `case` statements
+or in situations that cannot cleanly be piped together.
+This is great since we are doing multiple validations
+and we want to handle errors gracefully 
+if any of the validations fail.
+
+With `with` statements, 
+each expression is executed.
+If all pattern-match as described above,
+the user will create the `item` and `tag` 
+and respond with a success message.
+
+Otherwise, we can pattern-match
+any errors in the `else` statement,
+which can be derived from any of the three
+expressions being evaluated inside `with`.
+
+You might have noticed we are evaluating three expressions:
+- `true <- item_changeset.valid?`, 
+which uses the `item_changeset` to check if the passed attributes are valid.
+- `{:ok, tag_changeset_array} <- invalid_tags_from_params_array(tag_parameters_array, item_attrs.person_id)`,
+which calls `invalid_tags_from_params_array/2` which,
+in turn, checks if any of the tags 
+passed in the request is invalid.
+It returns an array of `tag` changesets if every `tag` is valid.
+- `{:ok, nil} <- tags_that_already_exist(tag_parameters_array, item_attrs.person_id)`,
+which calls `tags_that_already_exist/2` which, 
+in turn, check if any of the passed tags
+already exists in the database.
+`nil` is returned is none of the `tags` exists in the database.
+
+Let's implement these two validating functions!
+
+### 7.3.3.1 Creating `tag` validating functions
+
+Let's start with `invalid_tags_from_params_array/2`.
+In `lib/api/item.ex`, 
+add the next private function.
+
+```elixir
+  defp invalid_tags_from_params_array(tag_parameters_array, person_id) do
+
+    tag_changeset_array = Enum.map(tag_parameters_array, fn tag_params ->
+      # Add person_id and color if they are not specified
+      tag = %Tag{
+        person_id: Map.get(tag_params, "person_id", person_id),
+        color: Map.get(tag_params, "color", App.Color.random()),
+        text: Map.get(tag_params, "text")
+      }
+
+      # Return changeset
+      Tag.changeset(tag)
+    end)
+
+    # Return first invalid tag changeset.
+    # If none is found, return {:ok} and the array with tags converted to changesets
+    case Enum.find(tag_changeset_array, fn chs -> not chs.valid? end) do
+      nil -> {:ok, tag_changeset_array}
+      tag_changeset -> {:invalid_tag, tag_changeset}
+    end
+
+  end
+```
+
+In this function, we receive the `person_id` 
+and an array of tag parameters 
+(originated from the request body).
+We are converting each `tag` param object in the array
+to a **changeset**.
+This will allow us to check if each param is valid or not.
+
+We *then* return the first invalid tag.
+If none is found, we returned the `tag` changeset array.
+
+The reason we return a `tag` changeset array
+if every `tag` is valid
+is to later use when creating the `item` and `tags` 
+and associating the latter with the former 
+by calling `create_item_with_tags/1` 
+(located in `lib/app/tag.ex`).
+
+Let's implement the other function - 
+`tags_that_already_exist/2`.
+
+In the same file `lib/api/item.ex`:
+
+```elixir
+  defp tags_that_already_exist(tag_parameters_array, person_id) do
+    if(length(tag_parameters_array) != 0) do
+
+      # Retrieve tags texts from database
+      db_tags_text = Tag.list_person_tags_text(person_id)
+      tag_text_array = Enum.map(tag_parameters_array, fn tag -> Map.get(tag, "text", nil) end)
+
+      # Return first tag that already exists in database. If none is found, return nil
+      case Enum.find(db_tags_text, fn x -> Enum.member?(tag_text_array, x) end) do
+        nil -> {:ok, nil}
+        tag -> {:tag_already_exists, tag}
+      end
+
+    else
+      {:ok, nil}
+    end
+  end
+```
+
+In this private function 
+we *fetch the tags from database* from the given `person_id`
+and check if any of the request `tags` 
+that were passed in the request 
+*already exist in the database*.
+
+If one is found, it is returned as an error.
+If not, `nil` is returned, 
+meaning the passed `tags` are unique to the `person_id`.
+
+### 7.3.3.2 Finishing up `lib/api/item.ex`'s `create` function
+
+Now that we know the possible returns
+each function used in the `with` expression,
+we can implement the rest of the function.
+
+Check out the final version of this function,
+in `lib/api/item.ex`.
+
+```elixir
+ def create(conn, params) do
+
+    # Attributes to create item
+    # Person_id will be changed when auth is added
+    item_attrs = %{
+      text: Map.get(params, "text"),
+      person_id: 0,
+      status: 2
+    }
+
+    # Get array of tag changeset, if supplied
+    tag_parameters_array = Map.get(params, "tags", [])
+
+    # Item changeset, used to check if the the attributes are valid
+    item_changeset = Item.changeset(%Item{}, item_attrs)
+
+    # Validating item, tag array and if any tag already exists
+    with true <- item_changeset.valid?,
+         {:ok, tag_changeset_array} <- invalid_tags_from_params_array(tag_parameters_array, item_attrs.person_id),
+         {:ok, nil} <- tags_that_already_exist(tag_parameters_array, item_attrs.person_id)
+      do
+
+      # Creating item and tags and associate tags to item
+      attrs = Map.put(item_attrs, :tags, tag_changeset_array)
+      {:ok, %{model: item, version: _version}} = Item.create_item_with_tags(attrs)
+
+      # Return `id` of created item
+      id_item = Map.take(item, [:id])
+      json(conn, id_item)
+    else
+      # Error creating item (attributes)
+      false ->
+        errors = make_changeset_errors_readable(item_changeset)
+
+        json(
+          conn |> put_status(400),
+          errors
+        )
+
+      # First tag that already exists
+      {:tag_already_exists, tag} ->
+        errors = %{
+          code: 400,
+          message: "The tag \'" <> tag <> "\' already exists."
+        }
+
+        json(
+          conn |> put_status(400),
+          errors
+        )
+
+      # First tag that is invalid
+      {:invalid_tag, tag_changeset} ->
+        errors = make_changeset_errors_readable(tag_changeset) |> Map.put(:message, "At least one of the tags is malformed.")
+
+        json(
+          conn |> put_status(400),
+          errors
+        )
+    end
+  end
+```
+
+If all validations are successfully met,
+we *use* the `tag` changeset array
+so we can create the `item`, `tags`
+and associate them
+by calling `Item.create_item_with_tags/1` function
+in `lib/app/item.ex`.
+
+After this, we return the `id` of the created `item`.
+
+```elixir
+    # Creating item and tags and associate tags to item
+    attrs = Map.put(item_attrs, :tags, tag_changeset_array)
+    {:ok, %{model: item, version: _version}} = Item.create_item_with_tags(attrs)
+
+    # Return `id` of created item
+    id_item = Map.take(item, [:id])
+    json(conn, id_item)
+```
+
+And lastly, 
+if these validations in the `with` statement
+are not correctly matched,
+we pattern-match the possible return scenarios.
+
+```elixir
+      # Error creating item (attributes)
+      false ->
+        errors = make_changeset_errors_readable(item_changeset)
+
+        json(
+          conn |> put_status(400),
+          errors
+        )
+
+      # First tag that already exists
+      {:tag_already_exists, tag} ->
+        errors = %{
+          code: 400,
+          message: "The tag \'" <> tag <> "\' already exists."
+        }
+
+        json(
+          conn |> put_status(400),
+          errors
+        )
+
+      # First tag that is invalid
+      {:invalid_tag, tag_changeset} ->
+        errors = make_changeset_errors_readable(tag_changeset) |> Map.put(:message, "At least one of the tags is malformed.")
+
+        json(
+          conn |> put_status(400),
+          errors
+        )
+```
+
+If `false` is returned, 
+it's because `item_changeset.valid?` returns as such.
+
+If `{:tag_already_exists, tag}` is returned,
+it's because `tags_that_already_exist/2`
+returns the error and the `tag` text that already exists.
+
+If `{:invalid_tag, tag_changeset}` is returned,
+it means `invalid_tags_from_params_array/2` 
+returned the error and the `tag` changeset that is invalid.
+
+In **all of these scenarios**,
+an error is returned to the user
+and a meaningful error message is created.
+
+And you are done! 🎉
+You've just *extended* the feature of 
+creating an `item` by allowing the user to 
+*also* add the `tag` array, if he so wishes.
+
+If you run `mix test`,
+all tests should pass!
+
+```sh
+Finished in 1.9 seconds (1.7s async, 0.1s sync)
+114 tests, 1 failure
+
+Randomized with seed 907513
+```
+
 
 # 8. _Advanced/Automated_ `API` Testing Using `Hoppscotch`
 
