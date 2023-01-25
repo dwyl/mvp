@@ -4,8 +4,18 @@ defmodule API.ItemTest do
 
   @tag_text "tag text"
   @create_attrs %{person_id: 42, status: 0, text: "some text"}
-  @create_attrs_with_tags %{person_id: 42, status: 0, text: "some text", tags: [%{text: @tag_text}]}
-  @create_attrs_with_invalid_tags %{person_id: 42, status: 0, text: "some text", tags: [%{invalid: ""}]}
+  @create_attrs_with_tags %{
+    person_id: 42,
+    status: 0,
+    text: "some text",
+    tags: [%{text: @tag_text}]
+  }
+  @create_attrs_with_invalid_tags %{
+    person_id: 42,
+    status: 0,
+    text: "some text",
+    tags: [%{invalid: ""}]
+  }
   @update_attrs %{person_id: 43, status: 0, text: "some updated text"}
   @invalid_attrs %{person_id: nil, status: nil, text: nil}
 
@@ -38,20 +48,35 @@ defmodule API.ItemTest do
     end
 
     test "a valid item with tags", %{conn: conn} do
-      conn = post(conn, Routes.api_item_path(conn, :create, @create_attrs_with_tags))
+      conn =
+        post(conn, Routes.api_item_path(conn, :create, @create_attrs_with_tags))
+
       assert json_response(conn, 200)
     end
 
     test "a valid item with tag that already exists", %{conn: conn} do
-      conn = post(conn, Routes.api_tag_path(conn, :create, %{text: @tag_text, person_id: @create_attrs_with_tags.person_id}))
-      conn = post(conn, Routes.api_item_path(conn, :create, @create_attrs_with_tags))
+      conn =
+        post(
+          conn,
+          Routes.api_tag_path(conn, :create, %{
+            text: @tag_text,
+            person_id: @create_attrs_with_tags.person_id
+          })
+        )
+
+      conn =
+        post(conn, Routes.api_item_path(conn, :create, @create_attrs_with_tags))
 
       assert json_response(conn, 400)
       assert json_response(conn, 400)["message"] =~ "already exists"
     end
 
     test "a valid item with an invalid tag", %{conn: conn} do
-      conn = post(conn, Routes.api_item_path(conn, :create, @create_attrs_with_invalid_tags))
+      conn =
+        post(
+          conn,
+          Routes.api_item_path(conn, :create, @create_attrs_with_invalid_tags)
+        )
 
       assert json_response(conn, 400)
       assert length(json_response(conn, 400)["errors"]["text"]) > 0

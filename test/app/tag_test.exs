@@ -70,5 +70,4 @@ defmodule App.TagTest do
       assert Enum.at(tags_text_array, 0) == @valid_attrs.text
     end
   end
-
 end
