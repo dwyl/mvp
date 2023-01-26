@@ -30,7 +30,11 @@ defmodule API.ItemTest do
 
     test "specific item with tags", %{conn: conn} do
       {:ok, %{model: item, version: _version}} = Item.create_item(@create_attrs)
-      conn = get(conn, Routes.api_item_path(conn, :show, item.id), %{"embed" => "tags"})
+
+      conn =
+        get(conn, Routes.api_item_path(conn, :show, item.id), %{
+          "embed" => "tags"
+        })
 
       assert json_response(conn, 200)["id"] == item.id
       assert json_response(conn, 200)["text"] == item.text
