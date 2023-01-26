@@ -2200,7 +2200,8 @@ to return tags according to a second boolean parameter.
 We will implement this change shortly.
 
 Let's add the test that will check the `:show` endpoint
-and if tags are being returned when requested.
+and if `tags` are being returned when requested.
+
 Inside `test/api/item_test.exs`,
 add the following test.
 
@@ -2216,7 +2217,7 @@ add the following test.
 ```
 
 We are passing a `embed` query parameter with `tags` value
-and returning an array of `tags`.
+and expect a return with an array of `tags`.
 
 Now that we have the tests added,
 let's implement the needed changes for these to pass!
@@ -2242,6 +2243,11 @@ Change it so it looks like the following.
   end
 ```
 
+The user can now send a second parameter 
+(which is `false` by default)
+detailing if we want to fetch the `item` 
+with `tags` preloaded.
+
 We are also going to change how to encode the schema.
 Change the `@derive` annotation to the following.
 
@@ -2262,13 +2268,9 @@ Change the `@derive` annotation to the following.
 We are now encoding *all the fields*
 except those that are specified.
 
-The user can now send a second parameter 
-(which is `false` by default)
-detailing if we want to fetch the `item` 
-with `tags` preloaded.
-
 Now let's *use* this changed function
 in the `:show` endpoint of `/items`.
+
 In `lib/api/item.ex`,
 change `show/2` to the following.
 
@@ -2415,9 +2417,8 @@ This is why we **also need to add the following line**...
   end
 ```
 
-CHANGEHERE
 e.g.
-`lib/api/item`
+[`lib/api/item`](https://github.com/dwyl/mvp/blob/a7a234479467e6c83bd837ca74a2f50433e992df/lib/api/item.ex)
 
 Because `tags` is not loaded, 
 we **remove it**.
