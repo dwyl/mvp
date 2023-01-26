@@ -7,5 +7,6 @@
   "notfound_timer_id": "-1",
   "timer_id_to_stop": 2,
   "tag_id": 1,
-  "notfound_tag_id": -1
+  "notfound_tag_id": -1,
+  "item_id_with_tag": 1
 }
