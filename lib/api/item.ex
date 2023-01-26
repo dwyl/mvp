@@ -133,6 +133,7 @@ defmodule API.Item do
         case Item.update_item(item, %{text: new_text}) do
           # Successfully updates item
           {:ok, %{model: item, version: _version}} ->
+            item = Map.drop(item, [:tags, :timer, :__meta__, :__struct__, :inserted_at, :updated_at])
             json(conn, item)
 
           # Error creating item
