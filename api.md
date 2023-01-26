@@ -47,6 +47,10 @@ can also be done through our `REST API`
     - [7.3.3 Updating `:create` in `lib/api/item.ex`](#733-updating-create-in-libapiitemex)
       - [7.3.3.1 Creating `tag` validating functions](#7331-creating-tag-validating-functions)
       - [7.3.3.2 Finishing up `lib/api/item.ex`'s `create` function](#7332-finishing-up-libapiitemexs-create-function)
+  - [7.3 Fetching items with embedded tags](#73-fetching-items-with-embedded-tags)
+    - [7.3.1 Adding tests](#731-adding-tests-1)
+    - [7.3.2 Returning `item` with `tags` on endpoint](#732-returning-item-with-tags-on-endpoint)
+    - [7.3.3 A note about `Jason` encoding](#733-a-note-about-jason-encoding)
 - [8. _Advanced/Automated_ `API` Testing Using `Hoppscotch`](#8-advancedautomated-api-testing-using-hoppscotch)
   - [8.0 `Hoppscotch` Setup](#80-hoppscotch-setup)
   - [8.1 Using `Hoppscotch`](#81-using-hoppscotch)
@@ -2153,6 +2157,283 @@ Finished in 1.9 seconds (1.7s async, 0.1s sync)
 Randomized with seed 907513
 ```
 
+
+## 7.3 Fetching items with embedded tags
+
+Now that people can create `items` with `tags`,
+we can apply the same logic 
+and *allow the person to fetch `items` with the associated `tags`*.
+
+We can use **query parameters**
+to know if the user wants to embed `tags` or not.
+By limiting fields returned by the API,
+we are
+[following good `RESTful` practices](https://github.com/dwyl/learn-api-design#use-query-parameters-to-filter-sort-or-search-resources).
+
+Luckily, implementing this feature is quite simple!
+Let's roll! 🍣
+
+### 7.3.1 Adding tests
+
+Let's add our tests first.
+We want the user to pass a *query param*
+named `embed` with a value of `"tags"`
+so the API returns the `item` with the associated `tags`.
+
+Inside `test/app/item_test.exs`, 
+add the following test.
+
+```elixir
+    test "get_item/2 returns the item with given id with tags" do
+      {:ok, %{model: item, version: _version}} = Item.create_item(@valid_attrs)
+
+      tags = Map.get(Item.get_item(item.id, true), :tags)
+
+      assert Item.get_item(item.id, true).text == item.text
+      assert not is_nil(tags)
+    end
+```
+
+The function `get_item/1` that is currently
+in `lib/app/item.ex` will need to be changed
+to return tags according to a second boolean parameter.
+We will implement this change shortly.
+
+Let's add the test that will check the `:show` endpoint
+and if tags are being returned when requested.
+Inside `test/api/item_test.exs`,
+add the following test.
+
+```elixir
+    test "specific item with tags", %{conn: conn} do
+      {:ok, %{model: item, version: _version}} = Item.create_item(@create_attrs)
+      conn = get(conn, Routes.api_item_path(conn, :show, item.id), %{"embed" => "tags"})
+
+      assert json_response(conn, 200)["id"] == item.id
+      assert json_response(conn, 200)["text"] == item.text
+      assert not is_nil(json_response(conn, 200)["tags"])
+    end
+```
+
+We are passing a `embed` query parameter with `tags` value
+and returning an array of `tags`.
+
+Now that we have the tests added,
+let's implement the needed changes for these to pass!
+
+### 7.3.2 Returning `item` with `tags` on endpoint
+
+It's time to implement the changes!
+Let's start by changing the function `get_item/1`
+in `lib/app/item.ex`.
+
+Change it so it looks like the following.
+
+```elixir
+  def get_item(id, preload_tags \\ false ) do
+    item = Item
+    |> Repo.get(id)
+
+    if(preload_tags == true) do
+      item |> Repo.preload(tags: from(t in Tag, order_by: t.text))
+    else
+      item
+    end
+  end
+```
+
+We are also going to change how to encode the schema.
+Change the `@derive` annotation to the following.
+
+```elixir
+  @derive {Jason.Encoder, except: [:__meta__, :__struct__, :timer, :inserted_at, :updated_at]}
+  schema "items" do
+    field :person_id, :integer
+    field :status, :integer
+    field :text, :string
+
+    has_many :timer, Timer
+    many_to_many(:tags, Tag, join_through: ItemTag, on_replace: :delete)
+
+    timestamps()
+  end
+```
+
+We are now encoding *all the fields*
+except those that are specified.
+
+The user can now send a second parameter 
+(which is `false` by default)
+detailing if we want to fetch the `item` 
+with `tags` preloaded.
+
+Now let's *use* this changed function
+in the `:show` endpoint of `/items`.
+In `lib/api/item.ex`,
+change `show/2` to the following.
+
+```elixir
+  def show(conn, %{"id" => id} = params) do
+
+    embed = Map.get(params, "embed", "")
+
+    case Integer.parse(id) do
+      # ID is an integer
+      {id, _float} ->
+        retrieve_tags = embed =~ "tag"
+        case Item.get_item(id, retrieve_tags) do
+          nil ->
+            errors = %{
+              code: 404,
+              message: "No item found with the given \'id\'."
+            }
+
+            json(conn |> put_status(404), errors)
+
+          item ->
+            if retrieve_tags do
+              json(conn, item)
+            else
+              # Since tags is Ecto.Association.NotLoaded, we have to remove it.
+              # By removing it, the object is no longer an Item struct, hence why encoding fails (@derive  no longer applies).
+              # We need to remove the rest of the unwanted fields from the "now-map" object.
+              #
+              # Jason.Encode should do this instead of removing here.
+              item = Map.drop(item, [:tags, :timer, :__meta__, :__struct__, :inserted_at, :updated_at])
+              json(conn, item)
+            end
+        end
+
+      # ID is not an integer
+      :error ->
+        errors = %{
+          code: 400,
+          message: "Item \'id\' should be an integer."
+        }
+
+        json(conn |> put_status(400), errors)
+    end
+  end
+```
+
+We've retrieved the `embed` query parameter
+and check if it has a value of `"tag"`.
+Depending on whether the person wants `tags` or not,
+the result is returned normally.
+
+### 7.3.3 A note about `Jason` encoding
+
+There is another small change
+we ought to make.
+Since we changed the `@derive` annotation,
+the `update/2` function, after updating,
+retrieves the `item` and *tries* to encode
+`tags`.
+
+If you run `mix test` 
+or try to update an item (`PUT /items/:id`),
+you will see an error pop up in the terminal.
+
+```sh
+     ** (RuntimeError) cannot encode association :tags from App.Item to JSON because the association was not loaded.
+     
+     You can either preload the association:
+     
+         Repo.preload(App.Item, :tags)
+     
+     Or choose to not encode the association when converting the struct to JSON by explicitly listing the JSON fields in your schema:
+     
+         defmodule App.Item do
+           # ...
+     
+           @derive {Jason.Encoder, only: [:name, :title, ...]}
+           schema ... do
+     
+```
+
+`Jason.Encoder` expects `tags` to be loaded.
+However, they are not *preloaded by default*.
+The `item` after being updated and returned to the API controller
+looks like so:
+
+```elixir
+item #=> %App.Item{
+  __meta__: #Ecto.Schema.Metadata<:loaded, "items">,
+  id: 1,
+  person_id: 42,
+  status: 0,
+  text: "some updated text",
+  timer: #Ecto.Association.NotLoaded<association :timer is not loaded>,
+  tags: #Ecto.Association.NotLoaded<association :tags is not loaded>,
+  inserted_at: ~N[2023-01-26 16:19:29],
+  updated_at: ~N[2023-01-26 16:19:30]
+}
+```
+
+Notice how `:tags` nor `:timer` are not loaded.
+`Jason.Encoder` doesn't know how to encode this in a `json` format.
+
+This is why we **also need to add the following line**...
+
+`Map.drop(item, [:tags, :timer, :__meta__, :__struct__, :inserted_at, :updated_at])` 
+
+... to the `update/2` function, like so:
+
+```elixir
+  def update(conn, params) do
+    id = Map.get(params, "id")
+    new_text = Map.get(params, "text")
+
+    # Get item with the ID
+    case Item.get_item(id) do
+      nil ->
+        errors = %{
+          code: 404,
+          message: "No item found with the given \'id\'."
+        }
+
+        json(conn |> put_status(404), errors)
+
+      # If item is found, try to update it
+      item ->
+        case Item.update_item(item, %{text: new_text}) do
+          # Successfully updates item
+          {:ok, %{model: item, version: _version}} ->
+            item = Map.drop(item, [:tags, :timer, :__meta__, :__struct__, :inserted_at, :updated_at])
+            json(conn, item)
+
+          # Error creating item
+          {:error, %Ecto.Changeset{} = changeset} ->
+            errors = make_changeset_errors_readable(changeset)
+
+            json(
+              conn |> put_status(400),
+              errors
+            )
+        end
+    end
+  end
+```
+
+CHANGEHERE
+e.g.
+`lib/api/item`
+
+Because `tags` is not loaded, 
+we **remove it**.
+But by removing this field,
+the object *is no longer an `Item` struct*,
+so `Jason` doesn't know how to serialize `__meta__` or `__struct__`.
+
+**This is why we remove the detailed fields whenever `tags` are not loaded.**
+
+After all of these changes, 
+if you run `mix test`,
+all tests should run properly!
+
+Congratulations, 
+now the person using the API
+can *choose* to retrieve an `item` with `tags` or not!
 
 # 8. _Advanced/Automated_ `API` Testing Using `Hoppscotch`
 
