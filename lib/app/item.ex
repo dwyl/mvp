@@ -7,7 +7,7 @@ defmodule App.Item do
   alias __MODULE__
   require Logger
 
-  @derive {Jason.Encoder, only: [:id, :person_id, :status, :text]}
+  @derive {Jason.Encoder, except: [:__meta__, :__struct__, :timer, :inserted_at, :updated_at]}
   schema "items" do
     field :person_id, :integer
     field :status, :integer
@@ -110,10 +110,15 @@ defmodule App.Item do
       iex> get_item(1313)
       nil
   """
-  def get_item(id) do
-    Item
+  def get_item(id, preload_tags \\ false ) do
+    item = Item
     |> Repo.get(id)
-    |> Repo.preload(tags: from(t in Tag, order_by: t.text))
+
+    if(preload_tags == true) do
+      item |> Repo.preload(tags: from(t in Tag, order_by: t.text))
+    else
+      item
+    end
   end
 
   @doc """

@@ -4,11 +4,15 @@ defmodule API.Item do
   alias App.Tag
   import Ecto.Changeset
 
-  def show(conn, %{"id" => id} = _params) do
+  def show(conn, %{"id" => id} = params) do
+
+    embed = Map.get(params, "embed", "")
+
     case Integer.parse(id) do
       # ID is an integer
       {id, _float} ->
-        case Item.get_item(id) do
+        retrieve_tags = embed =~ "tag"
+        case Item.get_item(id, retrieve_tags) do
           nil ->
             errors = %{
               code: 404,
@@ -18,7 +22,17 @@ defmodule API.Item do
             json(conn |> put_status(404), errors)
 
           item ->
-            json(conn, item)
+            if retrieve_tags do
+              json(conn, item)
+            else
+              # Since tags is Ecto.Association.NotLoaded, we have to remove it.
+              # By removing it, the object is no longer an Item struct, hence why encoding fails (@derive  no longer applies).
+              # We need to remove the rest of the unwanted fields from the "now-map" object.
+              #
+              # Jason.Encode should do this instead of removing here.
+              item = Map.drop(item, [:tags, :timer, :__meta__, :__struct__, :inserted_at, :updated_at])
+              json(conn, item)
+            end
         end
 
       # ID is not an integer
