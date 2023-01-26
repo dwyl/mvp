@@ -11,7 +11,12 @@ end
 
 if Mix.env() == :dev do
   # Create item
-  App.Item.create_item_with_tags(%{text: "random text", person_id: 0, status: 2, tags: [%{text: "first_tag", person_id: 0}]})
+  App.Item.create_item_with_tags(%{
+    text: "random text",
+    person_id: 0,
+    status: 2,
+    tags: [%{text: "first_tag", person_id: 0}]
+  })
 
   # Create timers
   {:ok, _timer} =
