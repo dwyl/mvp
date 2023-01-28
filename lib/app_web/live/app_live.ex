@@ -391,7 +391,7 @@ defmodule AppWeb.AppLive do
 
   @doc """
   Convert a list of tags to a string where
-  the tag names are seperated by commas
+  the tag names are separated by commas
 
   ## Examples
 
