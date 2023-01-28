@@ -4457,7 +4457,7 @@ that such as *rolling back changes*.
 For this, we are going to be using 
 [`PaperTrail`](https://github.com/dwyl/phoenix-papertrail-demo/blob/main/lib/app/change.ex),
 which makes it easy for us to record each change 
-on each `item` transaction occured in the database.
+on each `item` transaction occurred in the database.
 
 In this section we are going to explain
 the process of implementing this feature.
@@ -4579,7 +4579,7 @@ in the `Versions` table.
 If no `person_id` is passed, 
 we default to `id=0`.
 
-We want to sucessfully pass the `person_id` 
+We want to successfully pass the `person_id` 
 when the item is toggled, as well.
 In `lib/app_web/live/app_live.ex`,
 in `handle_event("toggle", data, socket)`,
