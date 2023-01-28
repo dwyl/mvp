@@ -59,4 +59,15 @@ defmodule App.TagTest do
       assert {:ok, _etc} = Tag.delete_tag(tag)
     end
   end
+
+  describe "List tags" do
+    @valid_attrs %{text: "tag1", person_id: 1, color: "#FCA5A5"}
+
+    test "list_person_tags_text/0 returns the tags texts" do
+      {:ok, _tag} = Tag.create_tag(@valid_attrs)
+      tags_text_array = Tag.list_person_tags_text(@valid_attrs.person_id)
+      assert length(tags_text_array) == 1
+      assert Enum.at(tags_text_array, 0) == @valid_attrs.text
+    end
+  end
 end

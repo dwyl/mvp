@@ -7,9 +7,18 @@ defmodule App.ItemTest do
     @update_attrs %{text: "some updated text", person_id: 1}
     @invalid_attrs %{text: nil}
 
-    test "get_item!/1 returns the item with given id" do
+    test "get_item!/2 returns the item with given id" do
       {:ok, %{model: item, version: _version}} = Item.create_item(@valid_attrs)
       assert Item.get_item!(item.id).text == item.text
+    end
+
+    test "get_item/2 returns the item with given id with tags" do
+      {:ok, %{model: item, version: _version}} = Item.create_item(@valid_attrs)
+
+      tags = Map.get(Item.get_item(item.id, true), :tags)
+
+      assert Item.get_item(item.id, true).text == item.text
+      assert not is_nil(tags)
     end
 
     test "create_item/1 with valid data creates a item" do

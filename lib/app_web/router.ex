@@ -34,7 +34,7 @@ defmodule AppWeb.Router do
     resources "/tags", TagController, except: [:show]
   end
 
-  scope "/api", API do
+  scope "/api", API, as: :api do
     pipe_through [:api, :authOptional]
 
     resources "/items", Item, only: [:create, :update, :show]
@@ -43,5 +43,7 @@ defmodule AppWeb.Router do
       only: [:create, :update, :show, :index]
 
     put "/timers/:id", Timer, :stop
+
+    resources "/tags", Tag, only: [:create, :update, :show]
   end
 end

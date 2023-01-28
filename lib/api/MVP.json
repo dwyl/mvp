@@ -1,368 +1,885 @@
-{
-  "folders": [
-    {
-      "requests": [
-        {
-          "v": "1",
-          "endpoint": "<<host>>/api/items/<<item_id>>",
-          "name": "Get item",
-          "params": [],
-          "headers": [
-            { "active": true, "value": "application/json", "key": "accept" }
-          ],
-          "method": "GET",
-          "auth": {
-            "authType": "none",
-            "addTo": "Headers",
-            "authActive": true,
-            "value": "",
-            "key": ""
+[
+  {
+    "folders": [
+      {
+        "folders": [],
+        "name": "Items",
+        "v": 1,
+        "requests": [
+          {
+            "params": [],
+            "endpoint": "<<host>>/api/items/<<item_id>>",
+            "headers": [
+              {
+                "active": true,
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "preRequestScript": "",
+            "body": {
+              "body": null,
+              "contentType": null
+            },
+            "v": "1",
+            "testScript": "// Check status code is 2xx\npw.test(\"Status code is 2xx\", ()=> {\n    pw.expect(pw.response.status).toBeLevel2xx();\n});\n\n// Check JSON response property\npw.test(\"Check JSON response property\", ()=> {\n    pw.expect(pw.response.body.person_id).toBeType(\"number\");\n    pw.expect(pw.response.body.status).toBeType(\"number\");\n});",
+            "name": "Get item",
+            "auth": {
+              "authActive": true,
+              "value": "",
+              "addTo": "Headers",
+              "key": "",
+              "authType": "none"
+            },
+            "method": "GET"
           },
-          "preRequestScript": "",
-          "testScript": "// Check status code is 2xx\npw.test(\"Status code is 2xx\", ()=> {\n    pw.expect(pw.response.status).toBeLevel2xx();\n});\n\n// Check JSON response property\npw.test(\"Check JSON response property\", ()=> {\n    pw.expect(pw.response.body.person_id).toBeType(\"number\");\n    pw.expect(pw.response.body.status).toBeType(\"number\");\n});",
-          "body": { "contentType": null, "body": null }
-        },
-        {
-          "v": "1",
-          "endpoint": "<<host>>/api/items/<<notfound_item_id>>",
-          "name": "Get item (404 - Item not found)",
-          "params": [],
-          "headers": [
-            { "key": "accept", "value": "application/json", "active": true }
-          ],
-          "method": "GET",
-          "auth": { "authType": "none", "authActive": true },
-          "preRequestScript": "",
-          "testScript": "// Check status code is 404\npw.test(\"Status code is 404\", ()=> {\n    pw.expect(pw.response.status).toBe(404);\n});",
-          "body": { "body": null, "contentType": null }
-        },
-        {
-          "testScript": "// Check status code is 400\npw.test(\"Status code is 400\", ()=> {\n    pw.expect(pw.response.status).toBe(400);\n});",
-          "auth": { "authActive": true, "authType": "none" },
-          "preRequestScript": "",
-          "params": [],
-          "body": { "body": null, "contentType": null },
-          "name": "Get item (400 - Invalid ID)",
-          "v": "1",
-          "endpoint": "<<host>>/api/items/<<invalid_id>>",
-          "method": "GET",
-          "headers": [
-            { "key": "accept", "active": true, "value": "application/json" }
-          ]
-        },
-        {
-          "v": "1",
-          "endpoint": "<<host>>/api/items",
-          "name": "Create item",
-          "params": [],
-          "headers": [
-            { "key": "accept", "active": true, "value": "application/json" }
-          ],
-          "method": "POST",
-          "auth": { "authType": "none", "authActive": true },
-          "preRequestScript": "",
-          "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\n// Check JSON response property\npw.test(\"Check JSON response property\", ()=> {\n    pw.expect(pw.response.body.id).toBeType(\"number\");\n});",
-          "body": {
-            "body": "{\n    \"text\": \"some text\"\n}",
-            "contentType": "application/json"
+          {
+            "headers": [
+              {
+                "value": "application/json",
+                "key": "accept",
+                "active": true
+              }
+            ],
+            "method": "GET",
+            "preRequestScript": "",
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "params": [],
+            "testScript": "// Check status code is 404\npw.test(\"Status code is 404\", ()=> {\n    pw.expect(pw.response.status).toBe(404);\n});",
+            "name": "Get item (404 - Item not found)",
+            "endpoint": "<<host>>/api/items/<<notfound_item_id>>",
+            "v": "1",
+            "body": {
+              "contentType": null,
+              "body": null
+            }
+          },
+          {
+            "body": {
+              "body": null,
+              "contentType": null
+            },
+            "params": [],
+            "preRequestScript": "",
+            "method": "GET",
+            "name": "Get item (400 - Invalid ID)",
+            "endpoint": "<<host>>/api/items/<<invalid_id>>",
+            "testScript": "// Check status code is 400\npw.test(\"Status code is 400\", ()=> {\n    pw.expect(pw.response.status).toBe(400);\n});",
+            "headers": [
+              {
+                "value": "application/json",
+                "key": "accept",
+                "active": true
+              }
+            ],
+            "v": "1",
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            }
+          },
+          {
+            "v": "1",
+            "endpoint": "<<host>>/api/items/<<item_id_with_tag>>",
+            "name": "Get item with tag embed",
+            "params": [
+              {
+                "key": "embed",
+                "value": "tag",
+                "active": true
+              }
+            ],
+            "headers": [
+              {
+                "value": "application/json",
+                "active": true,
+                "key": "accept"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "value": "",
+              "authType": "none",
+              "authActive": true,
+              "key": "",
+              "addTo": "Headers"
+            },
+            "preRequestScript": "",
+            "testScript": "// Check status code is 2xx\npw.test(\"Status code is 2xx\", ()=> {\n    pw.expect(pw.response.status).toBeLevel2xx();\n});\n\n// Check JSON response property\npw.test(\"Check JSON response property\", ()=> {\n    pw.expect(pw.response.body.person_id).toBeType(\"number\");\n    pw.expect(pw.response.body.status).toBeType(\"number\");\n    pw.expect(pw.response.body.tags).not.toBeType(\"undefined\");\n});",
+            "body": {
+              "contentType": null,
+              "body": null
+            }
+          },
+          {
+            "headers": [
+              {
+                "key": "accept",
+                "value": "application/json",
+                "active": true
+              }
+            ],
+            "method": "POST",
+            "body": {
+              "contentType": "application/json",
+              "body": "{\n  \"text\": \"aaa text\"\n}"
+            },
+            "v": "1",
+            "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\n// Check JSON response property\npw.test(\"Check JSON response property\", ()=> {\n    pw.expect(pw.response.body.id).toBeType(\"number\");\n});",
+            "endpoint": "<<host>>/api/items",
+            "params": [],
+            "preRequestScript": "",
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "name": "Create item"
+          },
+          {
+            "body": {
+              "contentType": "application/json",
+              "body": "{\n    \"invalid\": \"something\"\n}"
+            },
+            "name": "Create item (400 - Invalid attributes)",
+            "endpoint": "<<host>>/api/items",
+            "headers": [
+              {
+                "active": true,
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "preRequestScript": "",
+            "auth": {
+              "authActive": true,
+              "authType": "none"
+            },
+            "testScript": "// Check status code is 400\npw.test(\"Status code is 400\", ()=> {\n    pw.expect(pw.response.status).toBe(400);\n});",
+            "params": [],
+            "v": "1"
+          },
+          {
+            "v": "1",
+            "preRequestScript": "",
+            "headers": [
+              {
+                "value": "application/json",
+                "key": "accept",
+                "active": true
+              }
+            ],
+            "endpoint": "<<host>>/api/items",
+            "body": {
+              "contentType": "application/json",
+              "body": "{\n    \"text\": \"some text\",\n    \"tags\": [\n    {\n      \"text\": \"yet another tag\",\n      \"color\": \"#FFFFFF\"\n    }\n  ]\n}"
+            },
+            "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\n// Check JSON response property\npw.test(\"Check JSON response property\", ()=> {\n    pw.expect(pw.response.body.id).toBeType(\"number\");\n});",
+            "method": "POST",
+            "name": "Create item with tags",
+            "params": [],
+            "auth": {
+              "authActive": true,
+              "authType": "none"
+            }
+          },
+          {
+            "name": "Create item with tags (400 - Tag already exists)",
+            "headers": [
+              {
+                "value": "application/json",
+                "key": "accept",
+                "active": true
+              }
+            ],
+            "endpoint": "<<host>>/api/items",
+            "testScript": "// Check status code is 400\npw.test(\"Status code is 400\", ()=> {\n    pw.expect(pw.response.status).toBe(400);\n});",
+            "params": [],
+            "method": "POST",
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "preRequestScript": "",
+            "v": "1",
+            "body": {
+              "body": "{\n    \"text\": \"some text\",\n    \"tags\": [\n    {\n      \"text\": \"yet another tag\",\n      \"color\": \"#FFFFFF\"\n    }\n  ]\n}",
+              "contentType": "application/json"
+            }
+          },
+          {
+            "endpoint": "<<host>>/api/items",
+            "name": "Create item with tags (400 - Tag is malformed)",
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "headers": [
+              {
+                "value": "application/json",
+                "key": "accept",
+                "active": true
+              }
+            ],
+            "testScript": "// Check status code is 400\npw.test(\"Status code is 400\", ()=> {\n    pw.expect(pw.response.status).toBe(400);\n});",
+            "params": [],
+            "method": "POST",
+            "v": "1",
+            "body": {
+              "contentType": "application/json",
+              "body": "{\n    \"text\": \"some text\",\n    \"tags\": [\n    {\n      \"text\": \"yet another tag\",\n      \"color\": \"#FFFFFF\"\n    }\n  ]\n}"
+            },
+            "preRequestScript": ""
+          },
+          {
+            "name": "Create item with tags (400 - Tag is malformed)",
+            "preRequestScript": "",
+            "method": "POST",
+            "params": [],
+            "testScript": "// Check status code is 400\npw.test(\"Status code is 400\", ()=> {\n    pw.expect(pw.response.status).toBe(400);\n});",
+            "headers": [
+              {
+                "value": "application/json",
+                "key": "accept",
+                "active": true
+              }
+            ],
+            "body": {
+              "contentType": "application/json",
+              "body": "{\n    \"text\": \"some text\",\n    \"tags\": [\n    {\n      \"invalid\": \"yet another tag\"\n    }\n  ]\n}"
+            },
+            "endpoint": "<<host>>/api/items",
+            "v": "1",
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            }
+          },
+          {
+            "params": [],
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "name": "Update item",
+            "endpoint": "<<host>>/api/items/<<item_id>>",
+            "headers": [
+              {
+                "value": "application/json",
+                "active": true,
+                "key": "accept"
+              }
+            ],
+            "body": {
+              "body": "{\n    \"text\": \"new updated text\"\n}",
+              "contentType": "application/json"
+            },
+            "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\n\n// Check JSON response property\npw.test(\"Check JSON response property\", ()=> {\n    pw.expect(pw.response.body.person_id).toBeType(\"number\");\n    pw.expect(pw.response.body.status).toBeType(\"number\");\n});",
+            "method": "PUT",
+            "v": "1",
+            "preRequestScript": ""
+          },
+          {
+            "method": "PUT",
+            "headers": [
+              {
+                "active": true,
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "authActive": true,
+              "authType": "none"
+            },
+            "v": "1",
+            "body": {
+              "body": "{\n    \"text\": \"new updated text\"\n}",
+              "contentType": "application/json"
+            },
+            "preRequestScript": "",
+            "params": [],
+            "name": "Update item (404 - Item not found)",
+            "testScript": "// Check status code is 404\npw.test(\"Status code is 404\", ()=> {\n    pw.expect(pw.response.status).toBe(404);\n});",
+            "endpoint": "<<host>>/api/items/<<notfound_item_id>>"
           }
-        },
-        {
-          "name": "Create item (400 - Invalid attributes)",
-          "endpoint": "<<host>>/api/items",
-          "method": "POST",
-          "auth": { "authActive": true, "authType": "none" },
-          "params": [],
-          "preRequestScript": "",
-          "v": "1",
-          "testScript": "// Check status code is 400\npw.test(\"Status code is 400\", ()=> {\n    pw.expect(pw.response.status).toBe(400);\n});",
-          "body": {
-            "contentType": "application/json",
-            "body": "{\n    \"invalid\": \"something\"\n}"
+        ]
+      },
+      {
+        "requests": [
+          {
+            "endpoint": "<<host>>/api/items/<<timer_id>>/timers",
+            "v": "1",
+            "params": [],
+            "name": "Get timers",
+            "preRequestScript": "",
+            "method": "GET",
+            "headers": [
+              {
+                "key": "accept",
+                "active": true,
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "contentType": null,
+              "body": null
+            },
+            "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});",
+            "auth": {
+              "authActive": true,
+              "authType": "none"
+            }
           },
-          "headers": [
-            { "value": "application/json", "active": true, "key": "accept" }
-          ]
-        },
-        {
-          "v": "1",
-          "endpoint": "<<host>>/api/items/<<item_id>>",
-          "name": "Update item",
-          "params": [],
-          "headers": [
-            { "active": true, "value": "application/json", "key": "accept" }
-          ],
-          "method": "PUT",
-          "auth": { "authActive": true, "authType": "none" },
-          "preRequestScript": "",
-          "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\n\n// Check JSON response property\npw.test(\"Check JSON response property\", ()=> {\n    pw.expect(pw.response.body.person_id).toBeType(\"number\");\n    pw.expect(pw.response.body.status).toBeType(\"number\");\n});",
-          "body": {
-            "body": "{\n    \"text\": \"new updated text\"\n}",
-            "contentType": "application/json"
+          {
+            "preRequestScript": "",
+            "auth": {
+              "authActive": true,
+              "authType": "none"
+            },
+            "headers": [
+              {
+                "value": "application/json",
+                "key": "accept",
+                "active": true
+              }
+            ],
+            "params": [],
+            "v": "1",
+            "body": {
+              "body": null,
+              "contentType": null
+            },
+            "name": "Get timer",
+            "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});",
+            "endpoint": "<<host>>/api/items/<<item_id>>/timers/<<timer_id>>",
+            "method": "GET"
+          },
+          {
+            "headers": [
+              {
+                "active": true,
+                "value": "application/json",
+                "key": "accept"
+              }
+            ],
+            "name": "Get timer (404 - Timer not found)",
+            "preRequestScript": "",
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "v": "1",
+            "testScript": "// Check status code is 404\npw.test(\"Status code is 404\", ()=> {\n    pw.expect(pw.response.status).toBe(404);\n});",
+            "body": {
+              "body": null,
+              "contentType": null
+            },
+            "method": "GET",
+            "endpoint": "<<host>>/api/items/<<item_id>>/timers/<<notfound_timer_id>>",
+            "params": []
+          },
+          {
+            "preRequestScript": "",
+            "body": {
+              "contentType": null,
+              "body": null
+            },
+            "endpoint": "<<host>>/api/items/<<item_id>>/timers/<<invalid_id>>",
+            "method": "GET",
+            "params": [],
+            "name": "Get timer (400 - Invalid ID)",
+            "testScript": "// Check status code is 400\npw.test(\"Status code is 400\", ()=> {\n    pw.expect(pw.response.status).toBe(400);\n});",
+            "v": "1",
+            "auth": {
+              "authActive": true,
+              "authType": "none"
+            },
+            "headers": [
+              {
+                "key": "accept",
+                "active": true,
+                "value": "application/json"
+              }
+            ]
+          },
+          {
+            "auth": {
+              "authActive": true,
+              "authType": "none"
+            },
+            "method": "POST",
+            "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\n// Check JSON response property\npw.test(\"Check JSON response property\", ()=> {\n    pw.expect(pw.response.body.id).toBeType(\"number\");\n});",
+            "body": {
+              "contentType": "application/json",
+              "body": "{\n    \"start\": \"2023-01-11T17:40:44\"\n}"
+            },
+            "name": "Create timer (custom start)",
+            "preRequestScript": "",
+            "headers": [
+              {
+                "key": "accept",
+                "value": "application/json",
+                "active": true
+              }
+            ],
+            "endpoint": "<<host>>/api/items/<<item_id>>/timers",
+            "params": [],
+            "v": "1"
+          },
+          {
+            "params": [],
+            "v": "1",
+            "headers": [
+              {
+                "active": true,
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\n\n// Check JSON response property\npw.test(\"Check JSON response property\", ()=> {\n    pw.expect(pw.response.body.id).toBeType(\"number\");\n});",
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "name": "Create timer (no start)",
+            "preRequestScript": "",
+            "endpoint": "<<host>>/api/items/<<item_id>>/timers",
+            "body": {
+              "contentType": null,
+              "body": null
+            },
+            "method": "POST"
+          },
+          {
+            "body": {
+              "contentType": "application/json",
+              "body": "{\n    \"start\": \"2023-01-11T17:40:44\",\n    \"stop\": \"2023-01-11T17:40:40\"\n}"
+            },
+            "preRequestScript": "",
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "v": "1",
+            "params": [],
+            "method": "POST",
+            "endpoint": "<<host>>/api/items/<<item_id>>/timers",
+            "headers": [
+              {
+                "key": "accept",
+                "active": true,
+                "value": "application/json"
+              }
+            ],
+            "name": "Create timer (400 - Stop is after start) ",
+            "testScript": "// Check status code is 400\npw.test(\"Status code is 400\", ()=> {\n    pw.expect(pw.response.status).toBe(400);\n});"
+          },
+          {
+            "params": [],
+            "body": {
+              "contentType": "application/json",
+              "body": "{\n    \"start\": \"2023-invalid-01\"\n}"
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "endpoint": "<<host>>/api/items/<<item_id>>/timers",
+            "name": "Create timer (400 - Invalid date format) ",
+            "testScript": "// Check status code is 400\npw.test(\"Status code is 400\", ()=> {\n    pw.expect(pw.response.status).toBe(400);\n});",
+            "method": "POST",
+            "headers": [
+              {
+                "key": "accept",
+                "active": true,
+                "value": "application/json"
+              }
+            ],
+            "preRequestScript": "",
+            "v": "1"
+          },
+          {
+            "endpoint": "<<host>>/api/items/<<item_id>>/timers/<<timer_id>>",
+            "body": {
+              "body": "{\n    \"start\": \"2023-01-11T17:40:44\",\n    \"stop\": \"2023-01-11T17:40:48\"\n}",
+              "contentType": "application/json"
+            },
+            "headers": [
+              {
+                "value": "application/json",
+                "active": true,
+                "key": "accept"
+              }
+            ],
+            "name": "Update timer",
+            "params": [],
+            "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\n// Check JSON response property\npw.test(\"Check JSON response property\", ()=> {\n    pw.expect(pw.response.body.start).toBeType(\"string\");\n    pw.expect(pw.response.body.stop).toBeType(\"string\");\n});",
+            "v": "1",
+            "auth": {
+              "authActive": true,
+              "authType": "none"
+            },
+            "preRequestScript": "",
+            "method": "PUT"
+          },
+          {
+            "v": "1",
+            "endpoint": "<<host>>/api/items/<<item_id>>/timers/<<timer_id>>",
+            "params": [],
+            "body": {
+              "body": "{\n    \"start\": \"2023-invalid-01\"\n}",
+              "contentType": "application/json"
+            },
+            "auth": {
+              "authActive": true,
+              "authType": "none"
+            },
+            "preRequestScript": "",
+            "name": "Update timer (400 - Invalid date format)",
+            "headers": [
+              {
+                "active": true,
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "PUT",
+            "testScript": "// Check status code is 400\npw.test(\"Status code is 400\", ()=> {\n    pw.expect(pw.response.status).toBe(400);\n});"
+          },
+          {
+            "endpoint": "<<host>>/api/items/<<item_id>>/timers/<<timer_id>>",
+            "testScript": "// Check status code is 400\npw.test(\"Status code is 400\", ()=> {\n    pw.expect(pw.response.status).toBe(400);\n});",
+            "v": "1",
+            "body": {
+              "body": "{\n    \"start\": \"2023-01-11T17:40:44\",\n    \"stop\": \"2023-01-11T17:40:40\"\n}",
+              "contentType": "application/json"
+            },
+            "headers": [
+              {
+                "key": "accept",
+                "value": "application/json",
+                "active": true
+              }
+            ],
+            "params": [],
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "name": "Update timer (400 - Stop is after start)",
+            "method": "PUT",
+            "preRequestScript": ""
+          },
+          {
+            "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});",
+            "body": {
+              "body": null,
+              "contentType": null
+            },
+            "preRequestScript": "",
+            "endpoint": "<<host>>/api/timers/<<timer_id_to_stop>>",
+            "v": "1",
+            "method": "PUT",
+            "params": [],
+            "name": "Stop timer",
+            "headers": [
+              {
+                "active": true,
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "authActive": true,
+              "authType": "none"
+            }
+          },
+          {
+            "name": "Stop timer (403 - Timer has already been stopped)",
+            "params": [],
+            "endpoint": "<<host>>/api/timers/<<timer_id>>",
+            "preRequestScript": "",
+            "method": "PUT",
+            "body": {
+              "contentType": null,
+              "body": null
+            },
+            "headers": [
+              {
+                "active": true,
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "testScript": "\n\n// Check status code is 403\npw.test(\"Status code is 403\", ()=> {\n    pw.expect(pw.response.status).toBe(403);\n});",
+            "v": "1",
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            }
+          },
+          {
+            "method": "PUT",
+            "v": "1",
+            "testScript": "// Check status code is 404\npw.test(\"Status code is 404\", ()=> {\n    pw.expect(pw.response.status).toBe(404);\n});",
+            "name": "Stop timer (404 - Timer not found)",
+            "body": {
+              "contentType": null,
+              "body": null
+            },
+            "headers": [
+              {
+                "key": "accept",
+                "value": "application/json",
+                "active": true
+              }
+            ],
+            "endpoint": "<<host>>/api/timers/<<notfound_timer_id>>",
+            "params": [],
+            "preRequestScript": "",
+            "auth": {
+              "authActive": true,
+              "authType": "none"
+            }
           }
-        },
-        {
-          "preRequestScript": "",
-          "params": [],
-          "body": {
-            "contentType": "application/json",
-            "body": "{\n    \"text\": \"new updated text\"\n}"
+        ],
+        "folders": [],
+        "v": 1,
+        "name": "Timers"
+      },
+      {
+        "v": 1,
+        "folders": [],
+        "requests": [
+          {
+            "testScript": "// Check status code is 2xx\npw.test(\"Status code is 2xx\", ()=> {\n    pw.expect(pw.response.status).toBeLevel2xx();\n});\n\n// Check JSON response property\npw.test(\"Check JSON response property\", ()=> {\n    pw.expect(pw.response.body.person_id).toBeType(\"number\");\n    pw.expect(pw.response.body.text).toBeType(\"string\");\n\n  \t// Color must be an hex color\n    pw.expect(pw.response.body.color).toBeType(\"string\");\n    pw.expect(pw.response.body.color).toHaveLength(7);\n    pw.expect(pw.response.body.color).toInclude(\"#\");\n  \n});",
+            "auth": {
+              "addTo": "Headers",
+              "value": "",
+              "authActive": true,
+              "key": "",
+              "authType": "none"
+            },
+            "params": [],
+            "endpoint": "<<host>>/api/tags/<<tag_id>>",
+            "name": "Get tag",
+            "v": "1",
+            "method": "GET",
+            "headers": [
+              {
+                "value": "application/json",
+                "active": true,
+                "key": "accept"
+              }
+            ],
+            "body": {
+              "body": null,
+              "contentType": null
+            },
+            "preRequestScript": ""
           },
-          "v": "1",
-          "name": "Update item (404 - Item not found)",
-          "headers": [
-            { "active": true, "value": "application/json", "key": "accept" }
-          ],
-          "method": "PUT",
-          "auth": { "authType": "none", "authActive": true },
-          "endpoint": "<<host>>/api/items/<<notfound_item_id>>",
-          "testScript": "// Check status code is 404\npw.test(\"Status code is 404\", ()=> {\n    pw.expect(pw.response.status).toBe(404);\n});"
-        },
-        {
-          "v": "1",
-          "method": "PUT",
-          "body": {
-            "contentType": "application/json",
-            "body": "{\n    \"invalid\": \"invalid\"\n}"
+          {
+            "body": {
+              "body": null,
+              "contentType": null
+            },
+            "endpoint": "<<host>>/api/tags/<<notfound_tag_id>>",
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "headers": [
+              {
+                "value": "application/json",
+                "key": "accept",
+                "active": true
+              }
+            ],
+            "method": "GET",
+            "testScript": "// Check status code is 404\npw.test(\"Status code is 404\", ()=> {\n    pw.expect(pw.response.status).toBe(404);\n});",
+            "preRequestScript": "",
+            "name": "Get tag (404 - Tag not found)",
+            "params": [],
+            "v": "1"
           },
-          "endpoint": "<<host>>/api/items/<<item_id>>",
-          "headers": [
-            { "active": true, "key": "accept", "value": "application/json" }
-          ],
-          "params": [],
-          "preRequestScript": "",
-          "testScript": "// Check status code is 400\npw.test(\"Status code is 400\", ()=> {\n    pw.expect(pw.response.status).toBe(400);\n});",
-          "name": "Update item (400 - Invalid attributes)",
-          "auth": { "authActive": true, "authType": "none" }
-        }
-      ],
-      "name": "Items",
-      "v": 1,
-      "folders": []
-    },
-    {
-      "v": 1,
-      "folders": [],
-      "name": "Timers",
-      "requests": [
-        {
-          "body": { "body": null, "contentType": null },
-          "method": "GET",
-          "name": "Get timers",
-          "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});",
-          "preRequestScript": "",
-          "v": "1",
-          "auth": { "authType": "none", "authActive": true },
-          "params": [],
-          "headers": [
-            { "key": "accept", "active": true, "value": "application/json" }
-          ],
-          "endpoint": "<<host>>/api/items/<<timer_id>>/timers"
-        },
-        {
-          "auth": { "authActive": true, "authType": "none" },
-          "headers": [
-            { "key": "accept", "active": true, "value": "application/json" }
-          ],
-          "endpoint": "<<host>>/api/items/<<item_id>>/timers/<<timer_id>>",
-          "preRequestScript": "",
-          "name": "Get timer",
-          "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});",
-          "body": { "contentType": null, "body": null },
-          "params": [],
-          "v": "1",
-          "method": "GET"
-        },
-        {
-          "headers": [
-            { "active": true, "value": "application/json", "key": "accept" }
-          ],
-          "method": "GET",
-          "name": "Get timer (404 - Timer not found)",
-          "auth": { "authType": "none", "authActive": true },
-          "params": [],
-          "v": "1",
-          "body": { "contentType": null, "body": null },
-          "testScript": "// Check status code is 404\npw.test(\"Status code is 404\", ()=> {\n    pw.expect(pw.response.status).toBe(404);\n});",
-          "preRequestScript": "",
-          "endpoint": "<<host>>/api/items/<<item_id>>/timers/<<notfound_timer_id>>"
-        },
-        {
-          "testScript": "// Check status code is 400\npw.test(\"Status code is 400\", ()=> {\n    pw.expect(pw.response.status).toBe(400);\n});",
-          "endpoint": "<<host>>/api/items/<<item_id>>/timers/<<invalid_id>>",
-          "v": "1",
-          "method": "GET",
-          "body": { "contentType": null, "body": null },
-          "auth": { "authType": "none", "authActive": true },
-          "params": [],
-          "preRequestScript": "",
-          "headers": [
-            { "value": "application/json", "key": "accept", "active": true }
-          ],
-          "name": "Get timer (400 - Invalid ID)"
-        },
-        {
-          "endpoint": "<<host>>/api/items/<<item_id>>/timers",
-          "headers": [
-            { "key": "accept", "value": "application/json", "active": true }
-          ],
-          "body": {
-            "body": "{\n    \"start\": \"2023-01-11T17:40:44\"\n}",
-            "contentType": "application/json"
+          {
+            "body": {
+              "body": null,
+              "contentType": null
+            },
+            "v": "1",
+            "headers": [
+              {
+                "key": "accept",
+                "value": "application/json",
+                "active": true
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "authActive": true,
+              "authType": "none"
+            },
+            "preRequestScript": "",
+            "params": [],
+            "endpoint": "<<host>>/api/tags/<<invalid_id>>",
+            "testScript": "// Check status code is 400\npw.test(\"Status code is 400\", ()=> {\n    pw.expect(pw.response.status).toBe(400);\n});",
+            "name": "Get tag (400 - Invalid ID)"
           },
-          "preRequestScript": "",
-          "v": "1",
-          "name": "Create timer (custom start)",
-          "auth": { "authActive": true, "authType": "none" },
-          "method": "POST",
-          "params": [],
-          "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\n// Check JSON response property\npw.test(\"Check JSON response property\", ()=> {\n    pw.expect(pw.response.body.id).toBeType(\"number\");\n});"
-        },
-        {
-          "auth": { "authActive": true, "authType": "none" },
-          "endpoint": "<<host>>/api/items/<<item_id>>/timers",
-          "v": "1",
-          "method": "POST",
-          "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\n\n// Check JSON response property\npw.test(\"Check JSON response property\", ()=> {\n    pw.expect(pw.response.body.id).toBeType(\"number\");\n});",
-          "params": [],
-          "name": "Create timer (no start)",
-          "preRequestScript": "",
-          "headers": [
-            { "key": "accept", "active": true, "value": "application/json" }
-          ],
-          "body": { "contentType": null, "body": null }
-        },
-        {
-          "headers": [
-            { "key": "accept", "value": "application/json", "active": true }
-          ],
-          "endpoint": "<<host>>/api/items/<<item_id>>/timers",
-          "testScript": "// Check status code is 400\npw.test(\"Status code is 400\", ()=> {\n    pw.expect(pw.response.status).toBe(400);\n});",
-          "params": [],
-          "v": "1",
-          "body": {
-            "body": "{\n    \"start\": \"2023-01-11T17:40:44\",\n    \"stop\": \"2023-01-11T17:40:40\"\n}",
-            "contentType": "application/json"
+          {
+            "endpoint": "<<host>>/api/tags",
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "headers": [
+              {
+                "active": true,
+                "key": "accept",
+                "value": "application/json"
+              }
+            ],
+            "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\n// Check JSON response property\npw.test(\"Check JSON response property\", ()=> {\n    pw.expect(pw.response.body.id).toBeType(\"number\");\n});",
+            "body": {
+              "contentType": "application/json",
+              "body": "{\n  \"text\": \"tag text\",\n  \"person_id\": 0,\n  \"color\": \"#FFFFFF\"\n}"
+            },
+            "preRequestScript": "",
+            "v": "1",
+            "params": [],
+            "name": "Create tag",
+            "method": "POST"
           },
-          "name": "Create timer (400 - Stop is after start) ",
-          "method": "POST",
-          "auth": { "authType": "none", "authActive": true },
-          "preRequestScript": ""
-        },
-        {
-          "name": "Create timer (400 - Invalid date format) ",
-          "body": {
-            "contentType": "application/json",
-            "body": "{\n    \"start\": \"2023-invalid-01\"\n}"
+          {
+            "endpoint": "<<host>>/api/tags",
+            "headers": [
+              {
+                "value": "application/json",
+                "active": true,
+                "key": "accept"
+              }
+            ],
+            "v": "1",
+            "method": "POST",
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "params": [],
+            "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\n// Check JSON response property\npw.test(\"Check JSON response property\", ()=> {\n    pw.expect(pw.response.body.id).toBeType(\"number\");\n});",
+            "name": "Create tag (no color provided)",
+            "preRequestScript": "",
+            "body": {
+              "contentType": "application/json",
+              "body": "{\n  \"text\": \"another tag text\",\n  \"person_id\": 0\n}"
+            }
           },
-          "headers": [
-            { "active": true, "value": "application/json", "key": "accept" }
-          ],
-          "params": [],
-          "method": "POST",
-          "testScript": "// Check status code is 400\npw.test(\"Status code is 400\", ()=> {\n    pw.expect(pw.response.status).toBe(400);\n});",
-          "v": "1",
-          "endpoint": "<<host>>/api/items/<<item_id>>/timers",
-          "preRequestScript": "",
-          "auth": { "authType": "none", "authActive": true }
-        },
-        {
-          "v": "1",
-          "endpoint": "<<host>>/api/items/<<item_id>>/timers/<<timer_id>>",
-          "name": "Update timer",
-          "params": [],
-          "headers": [
-            { "active": true, "key": "accept", "value": "application/json" }
-          ],
-          "method": "PUT",
-          "auth": { "authType": "none", "authActive": true },
-          "preRequestScript": "",
-          "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\n// Check JSON response property\npw.test(\"Check JSON response property\", ()=> {\n    pw.expect(pw.response.body.start).toBeType(\"string\");\n    pw.expect(pw.response.body.stop).toBeType(\"string\");\n});",
-          "body": {
-            "contentType": "application/json",
-            "body": "{\n    \"start\": \"2023-01-11T17:40:44\",\n    \"stop\": \"2023-01-11T17:40:48\"\n}"
+          {
+            "testScript": "// Check status code is 400\npw.test(\"Status code is 400\", ()=> {\n    pw.expect(pw.response.status).toBe(400);\n});",
+            "headers": [
+              {
+                "key": "accept",
+                "value": "application/json",
+                "active": true
+              }
+            ],
+            "body": {
+              "contentType": "application/json",
+              "body": "{\n  \"text\": \"tag text\",\n  \"color\": \"invalid color\"\n}"
+            },
+            "params": [],
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "preRequestScript": "",
+            "name": "Create tag (400 - Invalid attributes)",
+            "endpoint": "<<host>>/api/tags",
+            "method": "POST",
+            "v": "1"
+          },
+          {
+            "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\n\n// Check JSON response property\npw.test(\"Check JSON response property\", ()=> {\n    pw.expect(pw.response.body.person_id).toBeType(\"number\");\n    pw.expect(pw.response.body.text).toBeType(\"string\");\n\n    \t\n  \t// Color must be an hex color\n    pw.expect(pw.response.body.color).toBeType(\"string\");\n    pw.expect(pw.response.body.color).toHaveLength(7);\n    pw.expect(pw.response.body.color).toInclude(\"#\");\n});",
+            "name": "Update tag",
+            "body": {
+              "body": "{\n    \"text\": \"new updated tag text\"\n}",
+              "contentType": "application/json"
+            },
+            "v": "1",
+            "headers": [
+              {
+                "value": "application/json",
+                "key": "accept",
+                "active": true
+              }
+            ],
+            "auth": {
+              "authActive": true,
+              "authType": "none"
+            },
+            "endpoint": "<<host>>/api/tags/<<tag_id>>",
+            "method": "PUT",
+            "params": [],
+            "preRequestScript": ""
+          },
+          {
+            "preRequestScript": "",
+            "testScript": "// Check status code is 404\npw.test(\"Status code is 404\", ()=> {\n    pw.expect(pw.response.status).toBe(404);\n});",
+            "name": "Update tag (404 - Tag not found)",
+            "headers": [
+              {
+                "value": "application/json",
+                "active": true,
+                "key": "accept"
+              }
+            ],
+            "body": {
+              "contentType": "application/json",
+              "body": "{\n    \"text\": \"new updated text\"\n}"
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "params": [],
+            "method": "PUT",
+            "endpoint": "<<host>>/api/tags/<<notfound_tag_id>>",
+            "v": "1"
+          },
+          {
+            "name": "Update tag (400 - Invalid attributes)",
+            "endpoint": "<<host>>/api/tags/<<tag_id>>",
+            "testScript": "// Check status code is 400\npw.test(\"Status code is 400\", ()=> {\n    pw.expect(pw.response.status).toBe(400);\n});",
+            "preRequestScript": "",
+            "v": "1",
+            "headers": [
+              {
+                "key": "accept",
+                "active": true,
+                "value": "application/json"
+              }
+            ],
+            "method": "PUT",
+            "body": {
+              "contentType": "application/json",
+              "body": "{\n  \"text\": \"tag text\",\n  \"color\": \"invalid color\"\n}"
+            },
+            "auth": {
+              "authType": "none",
+              "authActive": true
+            },
+            "params": []
           }
-        },
-        {
-          "preRequestScript": "",
-          "endpoint": "<<host>>/api/items/<<item_id>>/timers/<<timer_id>>",
-          "params": [],
-          "v": "1",
-          "headers": [
-            { "active": true, "value": "application/json", "key": "accept" }
-          ],
-          "testScript": "// Check status code is 400\npw.test(\"Status code is 400\", ()=> {\n    pw.expect(pw.response.status).toBe(400);\n});",
-          "body": {
-            "body": "{\n    \"start\": \"2023-invalid-01\"\n}",
-            "contentType": "application/json"
-          },
-          "name": "Update timer (400 - Invalid date format)",
-          "method": "PUT",
-          "auth": { "authType": "none", "authActive": true }
-        },
-        {
-          "preRequestScript": "",
-          "endpoint": "<<host>>/api/items/<<item_id>>/timers/<<timer_id>>",
-          "body": {
-            "contentType": "application/json",
-            "body": "{\n    \"start\": \"2023-01-11T17:40:44\",\n    \"stop\": \"2023-01-11T17:40:40\"\n}"
-          },
-          "auth": { "authActive": true, "authType": "none" },
-          "headers": [
-            { "key": "accept", "active": true, "value": "application/json" }
-          ],
-          "v": "1",
-          "testScript": "// Check status code is 400\npw.test(\"Status code is 400\", ()=> {\n    pw.expect(pw.response.status).toBe(400);\n});",
-          "name": "Update timer (400 - Stop is after start)",
-          "params": [],
-          "method": "PUT"
-        },
-        {
-          "name": "Stop timer",
-          "method": "PUT",
-          "auth": { "authType": "none", "authActive": true },
-          "params": [],
-          "v": "1",
-          "testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});",
-          "headers": [
-            { "key": "accept", "value": "application/json", "active": true }
-          ],
-          "body": { "body": null, "contentType": null },
-          "preRequestScript": "",
-          "endpoint": "<<host>>/api/timers/<<timer_id_to_stop>>"
-        },
-        {
-          "preRequestScript": "",
-          "headers": [
-            { "active": true, "key": "accept", "value": "application/json" }
-          ],
-          "endpoint": "<<host>>/api/timers/<<timer_id>>",
-          "body": { "body": null, "contentType": null },
-          "method": "PUT",
-          "name": "Stop timer (403 - Timer has already been stopped)",
-          "v": "1",
-          "params": [],
-          "testScript": "\n\n// Check status code is 403\npw.test(\"Status code is 403\", ()=> {\n    pw.expect(pw.response.status).toBe(403);\n});",
-          "auth": { "authType": "none", "authActive": true }
-        },
-        {
-          "preRequestScript": "",
-          "body": { "contentType": null, "body": null },
-          "v": "1",
-          "method": "PUT",
-          "name": "Stop timer (404 - Timer not found)",
-          "endpoint": "<<host>>/api/timers/<<notfound_timer_id>>",
-          "auth": { "authActive": true, "authType": "none" },
-          "testScript": "// Check status code is 404\npw.test(\"Status code is 404\", ()=> {\n    pw.expect(pw.response.status).toBe(404);\n});",
-          "headers": [
-            { "value": "application/json", "key": "accept", "active": true }
-          ],
-          "params": []
-        }
-      ]
-    }
-  ],
-  "v": 1,
-  "name": "MVP",
-  "requests": []
-}
+        ],
+        "name": "Tags"
+      }
+    ],
+    "name": "MVP",
+    "v": 1,
+    "requests": []
+  }
+]
