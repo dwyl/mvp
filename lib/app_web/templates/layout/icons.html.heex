@@ -3,11 +3,11 @@
 <meta
   http-equiv="Content-Security-Policy"
   content="
-        default-src 'self' dwyl.com https://*.cloudflare.com; 
-        connect-src 'self' wss://mvp.fly.dev;
+        default-src 'self' dwyl.com https://*.cloudflare.com plausible.io; 
+        connect-src 'self' wss://mvp.fly.dev plausible.io;
         form-action 'self';
         img-src *; child-src 'none';
-        script-src 'self' https://cdnjs.cloudflare.com 'unsafe-eval' 'unsafe-inline';
+        script-src 'self' https://cdnjs.cloudflare.com plausible.io 'unsafe-eval' 'unsafe-inline';
         style-src 'self' 'unsafe-inline';
       "
 />
