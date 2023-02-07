@@ -1785,6 +1785,17 @@ file and replace the contents with the following:
     <meta charset="utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="csrf-token" content={csrf_token_value()}>
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="
+        default-src 'self' dwyl.com https://*.cloudflare.com plausible.io; 
+        connect-src 'self' wss://mvp.fly.dev plausible.io;
+        form-action 'self';
+        img-src *; child-src 'none';
+        script-src 'self' https://cdnjs.cloudflare.com plausible.io 'unsafe-eval' 'unsafe-inline';
+        style-src 'self' 'unsafe-inline';
+      "
+    />
     <%= live_title_tag assigns[:page_title] || "dwyl mvp"%>
     <%= render "icons.html" %>
     <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/assets/app.css")}/> 
@@ -1826,6 +1837,34 @@ file and replace the contents with the following:
   </body>
 </html>
 ```
+
+Note that we are defining a content security policy with:
+
+```html
+<meta
+  http-equiv="Content-Security-Policy"
+  content="
+    default-src 'self' dwyl.com https://*.cloudflare.com plausible.io; 
+    connect-src 'self' wss://mvp.fly.dev plausible.io;
+    form-action 'self';
+    img-src *; child-src 'none';
+    script-src 'self' https://cdnjs.cloudflare.com plausible.io 'unsafe-eval' 'unsafe-inline';
+    style-src 'self' 'unsafe-inline';
+  "
+/>
+```
+
+This defines who can run scripts, forms, style css and images on the browser.
+
+The `default-src` value is used by default when the [fetch directives](https://developer.mozilla.org/en-US/docs/Glossary/Fetch_directive)
+are not specified.
+
+For scripts we want to allow `cloudfare` (used for cdn) and [`plausible`](https://plausible.io/) used 
+as an alternative to Google Analytics, to run javascript scripts.
+
+The `self` value allows the server itself (the Phoenix application) to run scripts.
+
+Read more about content security policy at https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP
 
 ## 8.2 Create the `icons` template
 
