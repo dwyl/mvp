@@ -29,7 +29,7 @@
       x-init="$el.selectionStart= $el.value.length;
       $el.selectionEnd= $el.value.length;
       $el.focus();
-      resize"
+      resize();"
       x-on:input="resize"
     ><%= @text_value %></textarea>
     <!-- Display the selected tags -->
