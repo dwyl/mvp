@@ -90,7 +90,7 @@ defmodule App.MixProject do
 
       # Ref: github.com/dwyl/learn-tailwind
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
-      {:petal_components, "~> 0.18"}
+      {:petal_components, "~> 1.0"}
     ]
   end
 
