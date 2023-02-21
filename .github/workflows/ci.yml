@@ -106,7 +106,7 @@ jobs:
         AUTH_API_KEY: ${{ secrets.AUTH_API_KEY }}
 
     - name: Running server and Hoppscotch Tests
-      run: mix phx.server & sleep 5 && hopp test -e ./lib/api/localhost.json ./lib/api/MVP.json
+      run: mix phx.server & sleep 10 && hopp test -e ./lib/api/localhost.json ./lib/api/MVP.json
 
   # Continuous Deployment to Fly.io
   # https://fly.io/docs/app-guides/continuous-deployment-with-github-actions/
