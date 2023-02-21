@@ -96,7 +96,7 @@ jobs:
       run: mix deps.get
 
     - name: Install Hoppscotch CLI
-      run: npm i -g @hoppscotch/cli
+      run: npm i -g @hoppscotch/cli@0.3.0
 
     # Setups database and adds seed data for API definition tests
     - name: Run mix setup
