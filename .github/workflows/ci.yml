@@ -73,11 +73,11 @@ jobs:
           args: "deploy"
     # has to run 
         # Setups database and adds seed data for API definition tests
-    - name: Run mix setup
-      run: mix ecto.setup
-      env:
-        MIX_ENV: dev
-        AUTH_API_KEY: ${{ secrets.AUTH_API_KEY }}
+    #- name: Run mix setup
+    #  run: mix ecto.setup
+    #  env:
+    #    MIX_ENV: dev
+    #    AUTH_API_KEY: ${{ secrets.AUTH_API_KEY }}
 
 
   # API Definition testing
