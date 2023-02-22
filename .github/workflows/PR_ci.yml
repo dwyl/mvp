@@ -107,6 +107,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [review_app]
     steps:
+    - uses: actions/checkout@v2
     - name: Install Hoppscotch CLI
       run: npm i -g @hoppscotch/cli@0.3.0
 
