@@ -78,8 +78,7 @@ jobs:
     #  env:
     #    MIX_ENV: dev
     #    AUTH_API_KEY: ${{ secrets.AUTH_API_KEY }}
-
-
+  
   # API Definition testing
   # https://docs.hoppscotch.io/cli 
   api_definition:
