@@ -7,7 +7,7 @@ on:
 
 jobs:
 
-  # Build and testing
+  # BUILD AND UNIT TESTING
   build:
 
     # Only run when not closed
@@ -61,7 +61,8 @@ jobs:
 
 
 
-  # Deploy the review app
+  # DEPLOY THE REVIEW APP
+  # This will deploy an app to fly.io with the name 'mvp-pr-$PR_NUMBER' (check `review-apps.sh` script).
   review_app:
 
     # Only run when it's not a dependabot PR
@@ -97,7 +98,10 @@ jobs:
   
   
 
-  # API Definition testing - https://docs.hoppscotch.io/cli 
+  # API DEFINITION TESTING - https://docs.hoppscotch.io/cli 
+  # NOTE: The tests are executed sequentially in each folder
+  # but all the sequence of folders are run in reverse order of what's displayed in the GUI.
+  # We've made use of env variables to make it work. Take this into account if you want to add more requests.
   api_definition:
 
     # Only run when not closed
