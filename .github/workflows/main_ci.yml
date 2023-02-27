@@ -70,17 +70,3 @@ jobs:
       - uses: superfly/flyctl-actions@1.1
         with:
           args: "deploy"
-  
-
-#  # API Definition testing
-#  # https://docs.hoppscotch.io/cli 
-#  api_definition:
-#    name: API Definition Tests
-#    runs-on: ubuntu-latest
-#    needs: [deploy]
-#    steps:
-#    - name: Install Hoppscotch CLI
-#      run: npm i -g @hoppscotch/cli@0.3.0
-#
-#    - name: Running server and Hoppscotch Tests
-#      run: hopp test -e ./lib/api/fly_dev.json ./lib/api/MVP.json
