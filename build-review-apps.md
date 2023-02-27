@@ -9,7 +9,7 @@ throughout the development cycle.
 
 We are going to be focusing
 on the job that **deploys the app to `fly.io`**,
-which constitutes as the **"Review App"**.
+which constitutes the **"Review App"**.
 
 - [Fly Review Apps with Github Actions](#fly-review-apps-with-github-actions)
   - [Setup](#setup)
@@ -27,24 +27,29 @@ and how to properly have them executed.
 
 Now we can start building our own Github actions 
 that create **"Review Apps"** when a PR is created.
-"Review Apps" pertain to the code of the PR
+**"Review Apps"** pertain to the code of the PR
 that is deployed automatically to 
-[`fly.io`](https://fly.io/),
-making it easy to see how different the app is
-after the changes made in the PR
-and also being useful to run API definition tests against them.
+[`fly.io`](https://fly.io/).
+With this app deployed, 
+it is easy to see how different the app is
+with the changes made in the PR
+*and* is extremely useful to also run API definition tests against it.
 
 Because we are going to use `flyctl` to create and deploy the applications
-based on the PRs, we need first to create a `fly auth token`.
+based on the PRs, 
+we first need to create a `fly auth token`.
 
 Run `flyctl auth token`. 
 This will create and show the token in your terminal.
-see: https://fly.io/docs/flyctl/auth-token/
+see: https://fly.io/docs/flyctl/auth-token/.
 
 In your Github repository, create a new secret named `FLY_API_TOKEN`
 and associate to it the token: 
 go to `Settings` then `Secrets` and finally `Actions`.
 At the top right corner you should see the `New repository secret` button.
+
+<img width="1138" alt="secret" src="https://user-images.githubusercontent.com/17494745/221608821-880580f2-6fb0-4aee-9735-1c44253e3ef2.png">
+
 
 `flyctl` will check if the `FLY_API_TOKEN` environment variable is defined, 
 and use it to manage the Fly applications.
@@ -189,8 +194,7 @@ steps:
     run: ./.github/scripts/review-app.sh
 ```
 
-refs:
-- [Using jobs in a workflow](https://docs.github.com/en/actions/using-jobs/using-jobs-in-a-workflow)
+ref: [Using jobs in a workflow](https://docs.github.com/en/actions/using-jobs/using-jobs-in-a-workflow)
 
 ## Create script
 
