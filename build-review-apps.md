@@ -57,7 +57,7 @@ and use it to manage the Fly applications.
 ## Workflow
 
 If you open the file
-[`.github/workflows/PR_ci.yml`](./.github/workflows/PR_ci.yml),
+[`.github/workflows/pr.yml`](./.github/workflows/pr.yml),
 you will see how the "Review App" is deployed.
 This file is executed on all the PRs
 that target the `main` branch.
@@ -337,7 +337,8 @@ that uses a *script* to deploy
 a "Review App"!
 
 If you take a look at the 
-rest of [`.github/workflows/PR_ci.yml`](./.github/workflows/PR_ci.yml),
+rest of 
+[`.github/workflows/pr.yml`](./.github/workflows/pr.yml),
 you will notice there are two other jobs:
 
 - **`build`**: builds and runs the unit tests
