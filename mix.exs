@@ -42,7 +42,7 @@ defmodule App.MixProject do
   defp deps do
     [
       # Phoenix deps:
-      {:phoenix, "~> 1.6.10"},
+      {:phoenix, "~> 1.7.0"},
       {:phoenix_ecto, "~> 4.4"},
       {:ecto_sql, "~> 3.6"},
       {:postgrex, ">= 0.0.0"},
