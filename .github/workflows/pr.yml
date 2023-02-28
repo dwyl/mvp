@@ -89,7 +89,7 @@ jobs:
         env:
           ENCRYPTION_KEYS: ${{ secrets. ENCRYPTION_KEYS }}
           AUTH_API_KEY: ${{ secrets.FLY_AUTH_API_KEY }}
-          APP_NAME: ${{ join(['mvp-pr-', github.event.number]) }}
+          APP_NAME: ${{ format('mvp-pr-{0}', github.event.number) }}
           EVENT_ACTION: ${{ github.event.action }}
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
           FLY_ORG: dwyl-mvp
@@ -103,7 +103,7 @@ jobs:
         with:
           file: lib/api/fly_dev.json
           field: host
-          value: ${{ join(['mvp-pr-', github.event.number]) }}
+          value: ${{ format('mvp-pr-{0}', github.event.number) }}
   
   
 
