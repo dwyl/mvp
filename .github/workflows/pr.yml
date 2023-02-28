@@ -103,7 +103,7 @@ jobs:
         with:
           file: lib/api/fly_dev.json
           field: host
-          value: ${{ format('mvp-pr-{0}', github.event.number) }}
+          value: ${{ format('https://mvp-pr-{0}.fly.dev', github.event.number) }}
   
   
 
