@@ -101,7 +101,7 @@ jobs:
       - name: Update lib/api/fly_dev.json description
         uses: jossef/action-set-json-field@v2.1
         with:
-          file: lib/api/fly_dev.json
+          file: ./lib/api/fly_dev.json
           field: host
           value: ${{ format('https://mvp-pr-{0}.fly.dev', github.event.number) }}
   
