@@ -1,5 +1,5 @@
 {
-  "host": "http://localhost:4000",
+  "host": "deployed_app_host",
   "item_id": "1",
   "notfound_item_id": "-1",
   "invalid_id": "invalid_id",
