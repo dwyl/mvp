@@ -2,7 +2,7 @@ set -e
 
 echo "Review App Script"
 # create "unique" name for fly review app
-app="mvp-pr-$PR_NUMBER"
+app=$APP_NAME
 secrets="AUTH_API_KEY=$AUTH_API_KEY ENCRYPTION_KEYS=$ENCRYPTION_KEYS"
 
 if [ "$EVENT_ACTION" = "closed" ]; then

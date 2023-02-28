@@ -11,20 +11,20 @@
         "key": "item_id"
       },
       {
-        "value": "-1",
-        "key": "notfound_item_id"
+        "key": "notfound_item_id",
+        "value": "-1"
       },
       {
-        "key": "invalid_id",
-        "value": "invalid_id"
+        "value": "invalid_id",
+        "key": "invalid_id"
       },
       {
-        "key": "timer_id",
-        "value": "1"
+        "value": "1",
+        "key": "timer_id"
       },
       {
-        "value": "-1",
-        "key": "notfound_timer_id"
+        "key": "notfound_timer_id",
+        "value": "-1"
       },
       {
         "key": "timer_id_to_stop",
@@ -32,15 +32,23 @@
       },
       {
         "key": "tag_id",
-        "value": "1"
+        "value": "9"
       },
       {
         "value": "-1",
         "key": "notfound_tag_id"
       },
       {
-        "value": "1",
-        "key": "item_id_with_tag"
+        "key": "item_id_with_tag",
+        "value": "1"
+      },
+      {
+        "value": "1677500147391_nocolor",
+        "key": "random_string"
+      },
+      {
+        "key": "tag_text_to_be_repeated",
+        "value": "yet another tag"
       }
     ]
   }

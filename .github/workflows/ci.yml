@@ -3,8 +3,6 @@ name: Elixir CI
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
 
@@ -56,64 +54,13 @@ jobs:
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
 
-  # API Definition testing
-  # https://docs.hoppscotch.io/cli 
-  api_definition:
-    name: API Definition Tests
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:12
-        ports: ['5432:5432']
-        env:
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-    strategy:
-      matrix:
-        otp: ['25.1.2']
-        elixir: ['1.14.2']
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up Elixir
-      uses: erlef/setup-beam@v1
-      with:
-        otp-version: ${{ matrix.otp }}
-        elixir-version: ${{ matrix.elixir }} 
-    - name: Restore deps and _build cache
-      uses: actions/cache@v3
-      with:
-        path: |
-          deps
-          _build
-        key: deps-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles('**/mix.lock') }}
-        restore-keys: |
-          deps-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}
-    - name: Install dependencies
-      run: mix deps.get
-
-    - name: Install Hoppscotch CLI
-      run: npm i -g @hoppscotch/cli
-
-    # Setups database and adds seed data for API definition tests
-    - name: Run mix setup
-      run: mix ecto.setup
-      env:
-        MIX_ENV: dev
-        AUTH_API_KEY: ${{ secrets.AUTH_API_KEY }}
-
-    - name: Running server and Hoppscotch Tests
-      run: mix phx.server & sleep 5 && hopp test -e ./lib/api/localhost.json ./lib/api/MVP.json
 
   # Continuous Deployment to Fly.io
   # https://fly.io/docs/app-guides/continuous-deployment-with-github-actions/
   deploy:
     name: Deploy app
     runs-on: ubuntu-latest
-    needs: [build, api_definition]
+    needs: [build]
     # https://stackoverflow.com/questions/58139406/only-run-job-on-specific-branch-with-github-actions
     if: github.ref == 'refs/heads/main'
     env:
