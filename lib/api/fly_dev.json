@@ -1,5 +1,5 @@
 {
-  "host": "https://mvp-pr-314.fly.dev",
+  "host": "deployed_app_host",
   "item_id": "1",
   "notfound_item_id": "-1",
   "invalid_id": "invalid_id",

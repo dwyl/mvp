@@ -89,12 +89,21 @@ jobs:
         env:
           ENCRYPTION_KEYS: ${{ secrets. ENCRYPTION_KEYS }}
           AUTH_API_KEY: ${{ secrets.FLY_AUTH_API_KEY }}
-          PR_NUMBER: ${{ github.event.number}}
+          APP_NAME: ${{ join("mvp-pr-", github.event.number) }}
           EVENT_ACTION: ${{ github.event.action }}
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
           FLY_ORG: dwyl-mvp
           FLY_REGION: lhr
           FLY_POSTGRES_NAME: mvp-db
+      
+      # After the app is deployed, we need to change the host
+      # in the `lib/api/fly_dev.json` so the API tests work and target the deployed app.
+      - name: Update lib/api/fly_dev.json description
+        uses: jossef/action-set-json-field@v2.1
+        with:
+          file: lib/api/fly_dev.json
+          field: host
+          value: ${{ join("mvp-pr-", github.event.number) }}
   
   
 
