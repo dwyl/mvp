@@ -7,7 +7,6 @@ defmodule App.MixProject do
       version: "1.0.0",
       elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
-      compilers: Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
@@ -42,13 +41,14 @@ defmodule App.MixProject do
   defp deps do
     [
       # Phoenix deps:
-      {:phoenix, "~> 1.6.10"},
+      {:phoenix, "~> 1.7.0"},
       {:phoenix_ecto, "~> 4.4"},
       {:ecto_sql, "~> 3.6"},
       {:postgrex, ">= 0.0.0"},
       {:phoenix_html, "~> 3.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_live_view, "~> 0.18.3"},
+      {:phoenix_view, "~> 2.0"},
       {:floki, ">= 0.30.0", only: :test},
       {:esbuild, "~> 0.4", runtime: Mix.env() == :dev},
       {:telemetry_metrics, "~> 0.6"},

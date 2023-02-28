@@ -104,30 +104,6 @@
             "params": []
           },
           {
-            "body": {
-              "body": "{\n    \"text\": \"some text\",\n    \"tags\": [\n    {\n      \"text\": \"yet another tag\",\n      \"color\": \"#FFFFFF\"\n    }\n  ]\n}",
-              "contentType": "application/json"
-            },
-            "method": "POST",
-            "testScript": "// Check status code is 400\npw.test(\"Status code is 400\", ()=> {\n    pw.expect(pw.response.status).toBe(400);\n});",
-            "endpoint": "<<host>>/api/items",
-            "preRequestScript": "",
-            "auth": {
-              "authType": "none",
-              "authActive": true
-            },
-            "v": "1",
-            "headers": [
-              {
-                "key": "accept",
-                "value": "application/json",
-                "active": true
-              }
-            ],
-            "params": [],
-            "name": "Create item with tags (400 - Tag is malformed)"
-          },
-          {
             "name": "Create item with tags (400 - Tag is malformed)",
             "auth": {
               "authType": "none",

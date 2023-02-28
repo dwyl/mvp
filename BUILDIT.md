@@ -225,14 +225,17 @@ You should see output similar to the following:
 
 ## 1.3 Setup `Tailwind`
 
-As we're using **`Tailwind CSS`**
-for the **UI** in this project
-we need to enable it.
+With the release of 
+[**`Phoenix 1.7`**](https://phoenixframework.org/blog/phoenix-1.7-final-released),
+**`Tailwind CSS`** is automatically built-in.
+So if you are starting the project with the new
+`phx.new` generator,
+you don't need to follow any steps.
 
-We are not duplicating the instructions here,
+Otherwise,
 please refer to:
 [Tailwind in Phoenix](https://github.com/dwyl/learn-tailwind#part-2-tailwind-in-phoenix).
-Should only take **`~1 minute`**.
+Setting up should only take **`~1 minute`**.
 
 By the end of this step you should have **`Tailwind`** working.
 When you visit 
