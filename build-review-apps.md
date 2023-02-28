@@ -102,7 +102,7 @@ jobs:
         env:
           ENCRYPTION_KEYS: ${{ secrets. ENCRYPTION_KEYS }}
           AUTH_API_KEY: ${{ secrets.FLY_AUTH_API_KEY }}
-          PR_NUMBER: ${{ github.event.number}}
+          APP_NAME: ${{ format('mvp-pr-{0}', github.event.number) }}
           EVENT_ACTION: ${{ github.event.action }}
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
           FLY_ORG: dwyl-mvp
@@ -210,7 +210,7 @@ set -e
 
 echo "Review App Script"
 # create "unique" name for fly review app
-app="mvp-pr-$PR_NUMBER"
+app=$APP_NAME
 secrets="AUTH_API_KEY=$AUTH_API_KEY ENCRYPTION_KEYS=$ENCRYPTION_KEYS"
 
 if [ "$EVENT_ACTION" = "closed" ]; then
@@ -249,7 +249,7 @@ You can see the documentation with `help set`:
 variables we're going to add to the Fly application:
 
 ```sh
-app="mvp-pr-$PR_NUMBER"
+app=$APP_NAME
 secrets="AUTH_API_KEY=$AUTH_API_KEY ENCRYPTION_KEYS=$ENCRYPTION_KEYS"
 ```
 
