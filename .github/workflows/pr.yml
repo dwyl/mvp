@@ -95,16 +95,6 @@ jobs:
           FLY_ORG: dwyl-mvp
           FLY_REGION: lhr
           FLY_POSTGRES_NAME: mvp-db
-      
-      # After the app is deployed, we need to change the host
-      # in the `lib/api/fly_dev.json` so the API tests work and target the deployed app.
-      - name: Update lib/api/fly_dev.json description
-        uses: jossef/action-set-json-field@v2.1
-        with:
-          file: ./lib/api/fly_dev.json
-          field: host
-          value: ${{ format('https://mvp-pr-{0}.fly.dev', github.event.number) }}
-  
   
 
   # API DEFINITION TESTING - https://docs.hoppscotch.io/cli 
@@ -121,6 +111,16 @@ jobs:
     needs: [review_app]
     steps:
     - uses: actions/checkout@v2
+
+    # After the app is deployed, we need to change the host
+    # in the `lib/api/fly_dev.json` so the API tests work and target the deployed app.
+    - name: Update lib/api/fly_dev.json description
+      uses: jossef/action-set-json-field@v2.1
+      with:
+        file: ./lib/api/fly_dev.json
+        field: host
+        value: ${{ format('https://mvp-pr-{0}.fly.dev', github.event.number) }}
+
     - name: Install Hoppscotch CLI
       run: npm i -g @hoppscotch/cli@0.3.0
 
