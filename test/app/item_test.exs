@@ -90,7 +90,7 @@ defmodule App.ItemTest do
   end
 
   describe "accumulate timers for a list of items #103" do
-    test "accummulate_item_timers/1 to display cummulative timer" do
+    test "accummulate_item_timers/1 to display cumulative timer" do
       # https://hexdocs.pm/elixir/1.13/NaiveDateTime.html#new/2
       # "Add" -7 seconds: https://hexdocs.pm/elixir/1.13/Time.html#add/3
       {:ok, seven_seconds_ago} =
