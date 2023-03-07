@@ -327,7 +327,7 @@ defmodule App.Item do
 
   If you can think of a better way of achieving the same result,
   please share: https://github.com/dwyl/app-mvp-phoenix/issues/103
-  This function *relies* on the list of items being orderd by timer_id ASC
+  This function *relies* on the list of items being ordered by timer_id ASC
   because it "pops" the last timer and ignores it to avoid double-counting.
   """
   def accumulate_item_timers(items_with_timers) do

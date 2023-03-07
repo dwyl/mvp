@@ -17,7 +17,6 @@ which constitutes the **"Review App"**.
   - [Create script](#create-script)
   - [You're done! 🎉](#youre-done-)
 
-
 ## Setup
 
 Firstly,
@@ -218,7 +217,7 @@ if [ "$EVENT_ACTION" = "closed" ]; then
   exit 0
 elif ! flyctl status --app "$app"; then
   # create application
-  echo "lauch application"
+  echo "launch application"
   flyctl launch --no-deploy --copy-config --name "$app" --region "$FLY_REGION" --org "$FLY_ORG"
 
   # attach existing posgres
@@ -290,7 +289,7 @@ echo $secrets | tr " " "\n" | flyctl secrets import --app "$app"
 ```
 
 The `tr` command replaces the spaces by new lines. The values are then piped
-to the `flyctl secrets inport` command.
+to the `flyctl secrets import` command.
 
 
 Finally we deploy the application!

@@ -987,7 +987,7 @@ to also return a `json` response,
 instead of `HTML` (which Phoenix by default does).
 
 For this, 
-add the following funciton
+add the following function
 inside `lib/app_web/views/error_view.ex`.
 
 ```elixir

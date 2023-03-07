@@ -499,7 +499,7 @@ for what we are building later on.
 > **Note**: The keen-eyed observer 
 (with PostgreSQL experience)
 will have noticed that `items.person_id` is an `Integer` (`int4`) data type.
-This means we are _limted_ to **`2147483647` people** using the MVP.
+This means we are _limited_ to **`2147483647` people** using the MVP.
 See:
 [/datatype-numeric.html](https://www.postgresql.org/docs/current/datatype-numeric.html)
 We aren't expecting more than 
@@ -2165,7 +2165,7 @@ function timer_text(start, current) {
 </script>
 ```
 
-The bulk of the App is containted in this one template file. <br />
+The bulk of the App is contained in this one template file. <br />
 Work your way through it and if anything is unclear,
 let us know!
 
@@ -2232,7 +2232,7 @@ in our `AppWeb.AppLive` module. If we check the
   end
 ```
 
-For each of the possible filters the function assigns to the socket the filterd
+For each of the possible filters the function assigns to the socket the filtered
 list of items. Similar to our `done?` function we have created the `active?` and
 `archived?` functions which check the status value of an item
 (**don't copy this code, it's already inside the file**):
@@ -2331,7 +2331,7 @@ as we expect:
   end
 ```
 
-We are creating 3 items and testing depeding on the filter selected that the 
+We are creating 3 items and testing depending on the filter selected that the 
 items are properly displayed and removed from the view.
 
 See also the [Live Navigation](https://hexdocs.pm/phoenix_live_view/live-navigation.html)
@@ -2706,7 +2706,7 @@ for example we can test the changeset for `Tag`:
 ```
 
 
-see https://hexdocs.pm/phoenix/1.3.2/testing_schemas.html for more inforamtion
+see https://hexdocs.pm/phoenix/1.3.2/testing_schemas.html for more information
 about testing schemas.
 
 ## 11.4  Items-Tags association
@@ -2799,7 +2799,7 @@ The function makes to parse the tags properly by removing any unwanted value
 
 This function uses `Repo.insert_all` to only send one request to insert all the tags.
 We need to "build" the tags timestamp as `insert_all` doesn't do this automatically
-unline `Repo.insert`.
+unlike `Repo.insert`.
 
 The other important information is the `on_conlict` option defined to `:nothing`
 in `insert_all`. This means that if we attempt to create a tag which already
@@ -2810,7 +2810,7 @@ This function is heavily inspired by: https://hexdocs.pm/ecto/constraints-and-up
 
 
 
-Learn more about Ecto with the guides documention, especially the How to section: 
+Learn more about Ecto with the guides documentation, especially the How to section: 
 https://hexdocs.pm/ecto/getting-started.html (taken from: https://dashbit.co/ebooks/the-little-ecto-cookbook)
 
 
@@ -3323,7 +3323,7 @@ We first get the *timer changeset* being edited
 by using the `index` parameter and the passed changeset list.
 After this, we try to parse the field using `Timex`.
 If this doesn't work, we **throw an error**. 
-All of errors thrown are later catched.
+All of errors thrown are later caught.
 
 If the parse is successful, we compare the
 `start` and `stop` fields and check if the `start`
@@ -4213,7 +4213,7 @@ Add this code to the file.
 
 We are simply creating a table with four columns,
 one for `person_id`, person `name`, number of `items` and number of `timers`.
-We are acessing the `@metrics` array 
+We are accessing the `@metrics` array 
 that is fetched and assigned on `mount/3` inside `stats_live.ex`.
 
 
@@ -4714,7 +4714,7 @@ update the `@update_attrs` to the following:
 @update_attrs %{text: "some updated text", person_id: 1}
 ```
 
-This will make sure the isolated tests pass successfuly.
+This will make sure the isolated tests pass successfully.
 
 You can see the updated files in:
 - [test/app/item_test.exs](https://github.com/dwyl/mvp/blob/732f2518d792048a38449058a6d7efb088b3d26f/test/app/item_test.exs)
@@ -4792,7 +4792,7 @@ Open the app
 in two or more web browsers
 (so that you can see the realtime sync)
 and perform the actions
-listed in the `REAMDE.md`.
+listed in the `README.md`.
 
 e.g: 
 

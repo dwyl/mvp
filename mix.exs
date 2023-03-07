@@ -68,7 +68,7 @@ defmodule App.MixProject do
       # Auth with ONE Environment Variable™: github.com/dwyl/auth_plug
       {:auth_plug, "~> 1.5.1"},
 
-      # Easily Encrypt Senstive Data: github.com/dwyl/fields
+      # Easily Encrypt Sensitive Data: github.com/dwyl/fields
       {:fields, "~> 2.10.3"},
 
       # Useful functions: github.com/dwyl/useful
