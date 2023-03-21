@@ -86,7 +86,7 @@ defmodule App.MixProject do
 
       # git pre-commit hook runs tests before allowing commits
       {:pre_commit, "~> 0.3.4"},
-      {:credo, "~> 1.6.4", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.7.0", only: [:dev, :test], runtime: false},
 
       # Ref: github.com/dwyl/learn-tailwind
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
