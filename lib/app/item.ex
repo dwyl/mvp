@@ -13,6 +13,7 @@ defmodule App.Item do
     field :person_id, :integer
     field :status, :integer
     field :text, :string
+    field :position, :integer
 
     has_many :timer, Timer
     many_to_many(:tags, Tag, join_through: ItemTag, on_replace: :delete)
@@ -51,7 +52,11 @@ defmodule App.Item do
 
   """
   def create_item(attrs) do
-    %Item{}
+
+    ## Make room at beginning of list first.
+    reorder_list_after_adding_item(%Item{position: -1})
+
+    %Item{position: 0}
     |> changeset(attrs)
     |> PaperTrail.insert(originator: %{id: Map.get(attrs, :person_id, 0)})
   end
@@ -68,7 +73,11 @@ defmodule App.Item do
       {:error, %Ecto.Changeset{}}
   """
   def create_item_with_tags(attrs) do
-    %Item{}
+
+    ## Make room at beginning of list first.
+    reorder_list_after_adding_item(%Item{position: -1})
+
+    %Item{position: 0}
     |> changeset_with_tags(attrs)
     |> PaperTrail.insert(originator: %{id: Map.get(attrs, :person_id, 0)})
   end
@@ -185,6 +194,48 @@ defmodule App.Item do
     |> Item.changeset(%{status: 6})
     |> Repo.update()
   end
+
+
+  @doc """
+  Moves the item from a X position to Y position.
+  It does this by reordering the list.
+
+  Please see method #1 of
+  https://betterprogramming.pub/the-best-way-to-update-a-drag-and-drop-sorting-list-through-database-schemas-31bed7371cd0
+  """
+  def move_item(item_id, to_position) do
+    item = get_item!(item_id)
+    placeholder = %Item{item | position: to_position}
+
+    Repo.transaction(fn ->
+      reorder_list_after_removing_item(item)
+      reorder_list_after_adding_item(placeholder)
+      update_item(item, %{position: to_position})
+    end)
+  end
+
+  defp reorder_list_after_adding_item(%Item{position: position}) do
+    # Increments the positions above a given position.
+    # We are making space for the item to be added.
+
+    from(i in Item,
+      where: i.position > ^position,
+      update: [inc: [position: 1]]
+    )
+    |> Repo.update_all([])
+  end
+
+  defp reorder_list_after_removing_item(%Item{position: position}) do
+    # Decrements the positions above a given position.
+    # We are making all the positions above the given position decrement so they stay sequential.
+
+    from(i in Item,
+      where: i.position > ^position,
+      update: [inc: [position: -1]]
+    )
+    |> Repo.update_all([])
+  end
+
 
   #  🐲       H E R E   B E   D R A G O N S!     🐉
   #  ⏳     Working with Time is all Dragons!    🙄
