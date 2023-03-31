@@ -3,9 +3,12 @@ defmodule AppWeb.AppLive do
   use AppWeb, :live_view
   use Timex
   alias App.{Item, Tag, Timer}
+  alias Phoenix.PubSub
+  alias Phoenix.Socket.Broadcast
+  alias Phoenix.LiveView.JS
+
   # run authentication on mount
   on_mount(AppWeb.AuthController)
-  alias Phoenix.Socket.Broadcast
 
   @topic "live"
   @stats_topic "stats"
@@ -221,6 +224,55 @@ defmodule AppWeb.AppLive do
   end
 
   @impl true
+  def handle_event("highlight", %{"id" => id}, socket) do
+    AppWeb.Endpoint.broadcast(@topic, "liveview_items", {:drag_item, id})
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("remove-highlight", %{"id" => id}, socket) do
+    AppWeb.Endpoint.broadcast(@topic, "liveview_items", {:drop_item, id})
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event(
+        "dragoverItem",
+        %{"currentItemId" => current_item_id, "selectedItemId" => selected_item_id},
+        socket
+      ) do
+
+    AppWeb.Endpoint.broadcast(@topic, "liveview_items", {:dragover_item, {current_item_id, selected_item_id }})
+    {:noreply, socket}
+  end
+
+
+  @impl true
+  def handle_info(%Broadcast{event: "liveview_items", payload: {:dragover_item, {current_item_id, selected_item_id}}}, socket) do
+    {:noreply,
+    push_event(socket, "dragover-item", %{
+      current_item_id: current_item_id,
+      selected_item_id: selected_item_id
+    })}
+  end
+
+  @impl true
+  def handle_info(%Broadcast{event: "liveview_items", payload: {:drag_item, item_id}}, socket) do
+    {:noreply, push_event(socket, "highlight", %{id: item_id})}
+  end
+
+  @impl true
+  def handle_info(%Broadcast{event: "liveview_items", payload: {:drop_item, item_id}}, socket) do
+    {:noreply, push_event(socket, "remove-highlight", %{id: item_id})}
+  end
+
+  @impl true
+  def handle_event("updateIndexes", %{"ids" => ids}, socket) do
+    #Tasks.update_items_index(ids)
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_info(%Broadcast{event: "update", payload: payload}, socket) do
     person_id = get_person_id(socket.assigns)
     items = Item.items_with_timers(person_id)
@@ -267,6 +319,7 @@ defmodule AppWeb.AppLive do
       ) do
     {:noreply, socket}
   end
+
 
   # only show certain UI elements (buttons) if there are items:
   def has_items?(items), do: length(items) > 1

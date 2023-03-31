@@ -143,13 +143,14 @@ defmodule App.Item do
   """
   def list_items do
     Item
-    |> order_by(desc: :inserted_at)
+    |> order_by(desc: :position)
     |> where([i], is_nil(i.status) or i.status != 6)
     |> Repo.all()
   end
 
   def list_person_items(person_id) do
     Item
+    |> order_by(desc: :position)
     |> where(person_id: ^person_id)
     |> Repo.all()
     |> Repo.preload(tags: from(t in Tag, order_by: t.text))
