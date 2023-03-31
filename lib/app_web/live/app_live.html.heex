@@ -138,7 +138,7 @@
       <li
         id={"item-#{item.id}"}
         data-id={item.id}
-        class="mt-2 flex w-full border-t border-slate-200 py-2 item"
+        class="mt-2 flex flex-col w-full border-t border-slate-200 py-2 item"
         draggable="true"
         x-data="{selected: false}"
         x-on:dragstart="selected = true; $dispatch('highlight', {id: $el.id}); selectedItem = $el"
@@ -148,75 +148,30 @@
         data-highlight={JS.add_class("bg-yellow-300")}
         data-remove-highlight={JS.remove_class("bg-yellow-300")}
       >
-        <%= if archived?(item) do %>
-          <label>
-            <div class="hidden">
-              Toggle the checkbox to set an item's status to done.
-            </div>
-            <input
-              type="checkbox"
-              checked
-              phx-value-id={item.id}
-              phx-click="toggle"
-              class="flex-none p-4 m-2 form-checkbox text-slate-400 cursor-not-allowed"
-            />
-          </label>
-          <label class="w-full text-slate-400 m-1 line-through">
-            <%= item.text %>
-          </label>
-
-          <div class="flex flex-col">
-            <div class="flex flex-col justify-end mr-1">
-              <button
-                disabled
-                class="cursor-not-allowed inline-flex items-center px-2 py-1 h-9
-          bg-gray-200 text-gray-800 rounded-md"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-5 w-5 mr-2"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
-                  />
-                </svg>
-                Archived
-              </button>
-            </div>
-          </div>
-        <% else %>
-          <!-- if item is "done" (status: 4) strike-through and show "Archive" button -->
-          <%= if done?(item) do %>
+        <div class="flex flex-row">
+          <%= if archived?(item) do %>
             <label>
               <div class="hidden">
                 Toggle the checkbox to set an item's status to done.
               </div>
               <input
                 type="checkbox"
+                checked
                 phx-value-id={item.id}
                 phx-click="toggle"
-                class="flex-none p-4 m-2 form-checkbox text-slate-400"
-                checked
+                class="flex-none p-4 m-2 form-checkbox text-slate-400 cursor-not-allowed"
               />
             </label>
-            <label class="w-full text-slate-400  m-2 line-through">
+            <label class="w-full text-slate-400 m-1 line-through">
               <%= item.text %>
             </label>
 
             <div class="flex flex-col">
               <div class="flex flex-col justify-end mr-1">
-                <!-- "Archive" button with icon see: https://github.com/dwyl/app-mvp-phoenix/issues/101 -->
                 <button
-                  class="inline-flex items-center px-2 py-1 mr-2 h-9
-          bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md"
-                  phx-click="delete"
-                  phx-value-id={item.id}
+                  disabled
+                  class="cursor-not-allowed inline-flex items-center px-2 py-1 h-9
+            bg-gray-200 text-gray-800 rounded-md"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -232,225 +187,218 @@
                       d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
                     />
                   </svg>
-                  Archive
+                  Archived
                 </button>
-                <p>
-                  <span class="text-sm font-mono font-semibold flex flex-col justify-end text-right mr-2 mt-1">
-                    <%= timer_text(item) %>
-                  </span>
-                </p>
               </div>
             </div>
-            <!-- else render the buttons for start|stop timer -->
           <% else %>
-            <!-- Show checkbox so the item can be marked as "done" -->
-            <label>
-              <div class="hidden">
-                Toggle the checkbox to set an item's status to done.
-              </div>
-              <input
-                type="checkbox"
-                phx-value-id={item.id}
-                phx-click="toggle"
-                class="flex-none p-4 m-2 form-checkbox hover:text-slate-600"
-              />
-            </label>
-            <!-- Editing renders the textarea and "save" button - near identical (duplicate) code from above
-          Help wanted DRY-ing this ... see: https://github.com/dwyl/app-mvp-phoenix/issues/105 -->
-            <%= if item.id == @editing do %>
-              <div class="flex flex-col grow">
-                <form
-                  phx-submit="update-item"
-                  id={"form-update-item-#{item.id}"}
-                  class="w-full pr-2"
-                >
-                  <textarea
-                    id={"textarea-editing-of-item-#{item.id}"}
-                    class="w-full flex-auto text-slate-800
-                  bg-white bg-clip-padding
-                  transition ease-in-out
-                  border border-b border-slate-200
-                  focus:border-none focus:outline-none"
-                    name="text"
-                    placeholder="What is on your mind?"
-                    autofocus
-                    required="required"
-                    value={item.text}
-                  ><%= item.text %></textarea>
-                  <!--<input
-                    id={"tag-of-item-#{item.id}"}
-                    type="text"
-                    name="tags"
-                    value={tags_to_string(item.tags)}
-                    placeholder="tag1, tag2..."
-                  />-->
-                  <input type="hidden" name="id" value={item.id} />
-
-                  <div
-                    class="flex justify-end mr-1"
-                    id={"save-button-item-#{item.id}"}
-                  >
-                    <button class="inline-flex items-center px-2 py-1 mt-1 h-9
-                  bg-green-700 hover:bg-green-800 text-white rounded-md">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-5 w-5 mr-2"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M15 13l-3 3m0 0l-3-3m3 3V8m0 13a9 9 0 110-18 9 9 0 010 18z"
-                        />
-                      </svg>
-                      Save
-                    </button>
-                  </div>
-                </form>
-
-                <div>
-                  <%= if (length @editing_timers) > 0 do %>
-                    <h1 class="text-4xl font-bold">Timers</h1>
-                  <% else %>
-                    <h1 class="text-2xl text-center font-semibold text-slate-400">
-                      No timers associated with this item.
-                    </h1>
-                  <% end %>
-
-                  <div class="flex flex-col w-full mt-2">
-                    <%= @editing_timers |> Enum.with_index |> Enum.map(fn({changeset, index}) -> %>
-                      <.form
-                        :let={f}
-                        for={changeset}
-                        phx-submit="update-item-timer"
-                        id={"form-update-timer-#{changeset.data.id}"}
-                        class="w-full pr-2"
-                      >
-                        <div class="flex flex-row w-full justify-between">
-                          <div class="flex flex-row items-center">
-                            <h3 class="mr-3">Start:</h3>
-                            <input
-                              type="text"
-                              required="required"
-                              name="timer_start"
-                              id={"#{changeset.data.id}_start"}
-                              value={changeset.data.start}
-                            />
-                          </div>
-                          <div class="flex flex-row items-center">
-                            <h3 class="mr-3">Stop:</h3>
-                            <input
-                              type="text"
-                              name="timer_stop"
-                              id={"#{changeset.data.id}_stop"}
-                              value={changeset.data.stop}
-                            />
-                          </div>
-                          <input
-                            type="hidden"
-                            name="timer_id"
-                            value={changeset.data.id}
-                          />
-                          <input type="hidden" name="index" value={index} />
-
-                          <button
-                            type="submit"
-                            id={"button_timer-update-#{changeset.data.id}"}
-                            class="text-white bg-blue-700
-                              hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300
-                              font-medium rounded-full text-sm px-5 py-2.5 text-center
-                              mr-2 mb-2
-                                dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                          >
-                            Update
-                          </button>
-                        </div>
-                        <span class="text-red-700">
-                          <%= error_tag(f, :id) %>
-                        </span>
-                      </.form>
-                    <% end) %>
-                  </div>
+            <!-- if item is "done" (status: 4) strike-through and show "Archive" button -->
+            <%= if done?(item) do %>
+              <label>
+                <div class="hidden">
+                  Toggle the checkbox to set an item's status to done.
                 </div>
-              </div>
-            <% else %>
-              <!-- Render item.text as click-able label -->
-              <label
-                class="w-full flex-auto text-slate-800 m-2"
-                phx-click="edit-item"
-                phx-value-id={item.id}
-              >
+                <input
+                  type="checkbox"
+                  phx-value-id={item.id}
+                  phx-click="toggle"
+                  class="flex-none p-4 m-2 form-checkbox text-slate-400"
+                  checked
+                />
+              </label>
+              <label class="w-full text-slate-400  m-2 line-through">
                 <%= item.text %>
               </label>
-            <% end %>
 
-            <%= if timers_any?(item) do %>
-              <!-- always display the time elapsed in the UI https://github.com/dwyl/app-mvp-phoenix/issues/106 -->
-              <%= if timer_stopped?(item) do %>
-                <div class="flex flex-col">
-                  <div class="flex flex-col justify-end mr-1">
-                    <!-- render "continue" button -->
-                    <button
-                      phx-click="start"
-                      phx-value-id={item.id}
-                      class="inline-flex items-center px-2 py-2 h-9
-                  bg-teal-600 hover:bg-teal-800 text-white rounded-md"
+              <div class="flex flex-col">
+                <div class="flex flex-col justify-end mr-1">
+                  <!-- "Archive" button with icon see: https://github.com/dwyl/app-mvp-phoenix/issues/101 -->
+                  <button
+                    class="inline-flex items-center px-2 py-1 mr-2 h-9
+            bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md"
+                    phx-click="delete"
+                    phx-value-id={item.id}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-5 w-5 mr-2"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-5 w-5 mr-1"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                      Resume
-                    </button>
-                    <p>
-                      <span class="text-sm font-mono font-semibold flex flex-col justify-end text-right mr-2 mt-1">
-                        <%= timer_text(item) %>
-                      </span>
-                    </p>
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
+                      />
+                    </svg>
+                    Archive
+                  </button>
+                  <p>
+                    <span class="text-sm font-mono font-semibold flex flex-col justify-end text-right mr-2 mt-1">
+                      <%= timer_text(item) %>
+                    </span>
+                  </p>
+                </div>
+              </div>
+              <!-- else render the buttons for start|stop timer -->
+            <% else %>
+              <!-- Show checkbox so the item can be marked as "done" -->
+              <label>
+                <div class="hidden">
+                  Toggle the checkbox to set an item's status to done.
+                </div>
+                <input
+                  type="checkbox"
+                  phx-value-id={item.id}
+                  phx-click="toggle"
+                  class="flex-none p-4 m-2 form-checkbox hover:text-slate-600"
+                />
+              </label>
+              <!-- Editing renders the textarea and "save" button - near identical (duplicate) code from above
+            Help wanted DRY-ing this ... see: https://github.com/dwyl/app-mvp-phoenix/issues/105 -->
+              <%= if item.id == @editing do %>
+                <div class="flex flex-col grow">
+                  <form
+                    phx-submit="update-item"
+                    id={"form-update-item-#{item.id}"}
+                    class="w-full pr-2"
+                  >
+                    <textarea
+                      id={"textarea-editing-of-item-#{item.id}"}
+                      class="w-full flex-auto text-slate-800
+                    bg-white bg-clip-padding
+                    transition ease-in-out
+                    border border-b border-slate-200
+                    focus:border-none focus:outline-none"
+                      name="text"
+                      placeholder="What is on your mind?"
+                      autofocus
+                      required="required"
+                      value={item.text}
+                    ><%= item.text %></textarea>
+                    <!--<input
+                      id={"tag-of-item-#{item.id}"}
+                      type="text"
+                      name="tags"
+                      value={tags_to_string(item.tags)}
+                      placeholder="tag1, tag2..."
+                    />-->
+                    <input type="hidden" name="id" value={item.id} />
+
+                    <div
+                      class="flex justify-end mr-1"
+                      id={"save-button-item-#{item.id}"}
+                    >
+                      <button class="inline-flex items-center px-2 py-1 mt-1 h-9
+                    bg-green-700 hover:bg-green-800 text-white rounded-md">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="h-5 w-5 mr-2"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M15 13l-3 3m0 0l-3-3m3 3V8m0 13a9 9 0 110-18 9 9 0 010 18z"
+                          />
+                        </svg>
+                        Save
+                      </button>
+                    </div>
+                  </form>
+
+                  <div>
+                    <%= if (length @editing_timers) > 0 do %>
+                      <h1 class="text-4xl font-bold">Timers</h1>
+                    <% else %>
+                      <h1 class="text-2xl text-center font-semibold text-slate-400">
+                        No timers associated with this item.
+                      </h1>
+                    <% end %>
+
+                    <div class="flex flex-col w-full mt-2">
+                      <%= @editing_timers |> Enum.with_index |> Enum.map(fn({changeset, index}) -> %>
+                        <.form
+                          :let={f}
+                          for={changeset}
+                          phx-submit="update-item-timer"
+                          id={"form-update-timer-#{changeset.data.id}"}
+                          class="w-full pr-2"
+                        >
+                          <div class="flex flex-row w-full justify-between">
+                            <div class="flex flex-row items-center">
+                              <h3 class="mr-3">Start:</h3>
+                              <input
+                                type="text"
+                                required="required"
+                                name="timer_start"
+                                id={"#{changeset.data.id}_start"}
+                                value={changeset.data.start}
+                              />
+                            </div>
+                            <div class="flex flex-row items-center">
+                              <h3 class="mr-3">Stop:</h3>
+                              <input
+                                type="text"
+                                name="timer_stop"
+                                id={"#{changeset.data.id}_stop"}
+                                value={changeset.data.stop}
+                              />
+                            </div>
+                            <input
+                              type="hidden"
+                              name="timer_id"
+                              value={changeset.data.id}
+                            />
+                            <input type="hidden" name="index" value={index} />
+
+                            <button
+                              type="submit"
+                              id={"button_timer-update-#{changeset.data.id}"}
+                              class="text-white bg-blue-700
+                                hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300
+                                font-medium rounded-full text-sm px-5 py-2.5 text-center
+                                mr-2 mb-2
+                                  dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                            >
+                              Update
+                            </button>
+                          </div>
+                          <span class="text-red-700">
+                            <%= error_tag(f, :id) %>
+                          </span>
+                        </.form>
+                      <% end) %>
+                    </div>
                   </div>
                 </div>
               <% else %>
-                <%= if started?(item) do %>
-                  <!-- render the counting timer with Apline.js! see: github.com/dwyl/learn-alpine.js -->
-                  <div
-                    class="flex flex-col"
-                    x-data="{
-                  start: parseInt($refs.timer_start.innerHTML, 10),
-                  current: null,
-                  stop: null,
-                  interval: null
-                }"
-                    x-init="
-                  start = parseInt($refs.timer_start.innerHTML, 10);
-                  current = start;
-                  interval = setInterval(() => { current = Date.now() }, 500)
-                "
-                  >
-                    <!-- this is how we pass the start|stop time from Elixir (server) to Alping (client) -->
-                    <span x-ref="timer_start" class="hidden">
-                      <%= timestamp(item.start) %>
-                    </span>
+                <!-- Render item.text as click-able label -->
+                <label
+                  class="w-full flex-auto text-slate-800 m-2"
+                  phx-click="edit-item"
+                  phx-value-id={item.id}
+                >
+                  <%= item.text %>
+                </label>
+              <% end %>
 
+              <%= if timers_any?(item) do %>
+                <!-- always display the time elapsed in the UI https://github.com/dwyl/app-mvp-phoenix/issues/106 -->
+                <%= if timer_stopped?(item) do %>
+                  <div class="flex flex-col">
                     <div class="flex flex-col justify-end mr-1">
+                      <!-- render "continue" button -->
                       <button
-                        phx-click="stop"
+                        phx-click="start"
                         phx-value-id={item.id}
-                        phx-value-timerid={item.timer_id}
-                        class="inline-flex items-center px-2 py-2 h-9 mr-1
-                    bg-red-500 hover:bg-red-700 text-white rounded-md"
+                        class="inline-flex items-center px-2 py-2 h-9
+                    bg-teal-600 hover:bg-teal-800 text-white rounded-md"
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -466,67 +414,122 @@
                             d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                           />
                         </svg>
-                        Stop
+                        Resume
                       </button>
-
                       <p>
-                        <span
-                          x-text="timer_text(start, current || stop)"
-                          class="text-sm font-mono font-semibold text-right mr-1"
-                        >
-                          00:00:00
+                        <span class="text-sm font-mono font-semibold flex flex-col justify-end text-right mr-2 mt-1">
+                          <%= timer_text(item) %>
                         </span>
                       </p>
                     </div>
                   </div>
-                <% end %>
-                <!-- end if started?(item) -->
-              <% end %>
-            <% else %>
-              <!-- render start button -->
-              <button
-                phx-click="start"
-                phx-value-id={item.id}
-                class="inline-flex items-center px-2 py-2 h-9 mr-1
-            bg-teal-700 hover:bg-teal-800 text-white rounded-md"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-5 w-5 mr-1"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                Start
-              </button>
-            <% end %>
-            <!-- end timers_any?(item) -->
-          <% end %>
-        <% end %>
-      </li>
+                <% else %>
+                  <%= if started?(item) do %>
+                    <!-- render the counting timer with Apline.js! see: github.com/dwyl/learn-alpine.js -->
+                    <div
+                      class="flex flex-col"
+                      x-data="{
+                    start: parseInt($refs.timer_start.innerHTML, 10),
+                    current: null,
+                    stop: null,
+                    interval: null
+                  }"
+                      x-init="
+                    start = parseInt($refs.timer_start.innerHTML, 10);
+                    current = start;
+                    interval = setInterval(() => { current = Date.now() }, 500)
+                  "
+                    >
+                      <!-- this is how we pass the start|stop time from Elixir (server) to Alping (client) -->
+                      <span x-ref="timer_start" class="hidden">
+                        <%= timestamp(item.start) %>
+                      </span>
 
-      <%= if item.id != @editing do %>
-        <div class="ml-2">
-          <%= for tag <- item.tags do %>
-            <%= live_patch(tag.text,
-              to:
-                Routes.live_path(@socket, AppWeb.AppLive, %{
-                  filter_by: @filter,
-                  filter_by_tag: tag.text
-                }),
-              style: "background-color:#{tag.color}",
-              class: " text-white font-bold py-1 px-2 rounded-full"
-            ) %>
+                      <div class="flex flex-col justify-end mr-1">
+                        <button
+                          phx-click="stop"
+                          phx-value-id={item.id}
+                          phx-value-timerid={item.timer_id}
+                          class="inline-flex items-center px-2 py-2 h-9 mr-1
+                      bg-red-500 hover:bg-red-700 text-white rounded-md"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-5 w-5 mr-1"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                          Stop
+                        </button>
+
+                        <p>
+                          <span
+                            x-text="timer_text(start, current || stop)"
+                            class="text-sm font-mono font-semibold text-right mr-1"
+                          >
+                            00:00:00
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                  <% end %>
+                  <!-- end if started?(item) -->
+                <% end %>
+              <% else %>
+                <!-- render start button -->
+                <button
+                  phx-click="start"
+                  phx-value-id={item.id}
+                  class="inline-flex items-center px-2 py-2 h-9 mr-1
+              bg-teal-700 hover:bg-teal-800 text-white rounded-md"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5 mr-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  Start
+                </button>
+              <% end %>
+              <!-- end timers_any?(item) -->
+            <% end %>
           <% end %>
         </div>
-      <% end %>
+
+        <%= if item.id != @editing do %>
+          <div class="ml-2">
+            <%= for tag <- item.tags do %>
+              <%= live_patch(tag.text,
+                to:
+                  Routes.live_path(@socket, AppWeb.AppLive, %{
+                    filter_by: @filter,
+                    filter_by_tag: tag.text
+                  }),
+                style: "background-color:#{tag.color}",
+                class: " text-white font-bold py-1 px-2 rounded-full"
+              ) %>
+            <% end %>
+          </div>
+        <% end %>
+
+      </li>
     <% end %>
     <!-- end for item <- @items -->
   </ul>
