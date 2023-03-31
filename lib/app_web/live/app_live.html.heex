@@ -138,7 +138,7 @@
       <li
         id={"item-#{item.id}"}
         data-id={item.id}
-        class="mt-2 flex w-full border-t border-slate-200 py-2"
+        class="mt-2 flex w-full border-t border-slate-200 py-2 item"
         draggable="true"
         x-data="{selected: false}"
         x-on:dragstart="selected = true; $dispatch('highlight', {id: $el.id}); selectedItem = $el"
