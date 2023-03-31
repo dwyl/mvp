@@ -24,7 +24,7 @@ defmodule App.Item do
   @doc false
   def changeset(item, attrs) do
     item
-    |> cast(attrs, [:person_id, :status, :text])
+    |> cast(attrs, [:person_id, :status, :text, :position])
     |> validate_required([:text, :person_id])
   end
 
@@ -35,7 +35,7 @@ defmodule App.Item do
 
   def draft_changeset(item, attrs) do
     item
-    |> cast(attrs, [:person_id, :status, :text])
+    |> cast(attrs, [:person_id, :status, :text, :position])
     |> validate_required([:person_id])
   end
 
@@ -54,7 +54,7 @@ defmodule App.Item do
   def create_item(attrs) do
 
     ## Make room at beginning of list first.
-    reorder_list_after_adding_item(%Item{position: -1})
+    reorder_list_to_add_item(%Item{position: -1})
 
     %Item{position: 0}
     |> changeset(attrs)
@@ -74,8 +74,9 @@ defmodule App.Item do
   """
   def create_item_with_tags(attrs) do
 
-    ## Make room at beginning of list first.
-    reorder_list_after_adding_item(%Item{position: -1})
+    # Make room at beginning of list first.
+    # This increments the positions of the items.
+    reorder_list_to_add_item(%Item{position: -1})
 
     %Item{position: 0}
     |> changeset_with_tags(attrs)
@@ -143,14 +144,12 @@ defmodule App.Item do
   """
   def list_items do
     Item
-    |> order_by(desc: :position)
     |> where([i], is_nil(i.status) or i.status != 6)
     |> Repo.all()
   end
 
   def list_person_items(person_id) do
     Item
-    |> order_by(desc: :position)
     |> where(person_id: ^person_id)
     |> Repo.all()
     |> Repo.preload(tags: from(t in Tag, order_by: t.text))
@@ -198,41 +197,27 @@ defmodule App.Item do
 
 
   @doc """
-  Moves the item from a X position to Y position.
-  It does this by reordering the list.
-
-  Please see method #1 of
-  https://betterprogramming.pub/the-best-way-to-update-a-drag-and-drop-sorting-list-through-database-schemas-31bed7371cd0
+  Switches the position of two items.
+  This is used for drag and drop.
   """
-  def move_item(item_id, to_position) do
-    item = get_item!(item_id)
-    placeholder = %Item{item | position: to_position}
+  def move_item(id_from, id_to) do
+    item_from = get_item!(id_from)
+    itemPosition_from = Map.get(item_from, :position)
 
-    Repo.transaction(fn ->
-      reorder_list_after_removing_item(item)
-      reorder_list_after_adding_item(placeholder)
-      update_item(item, %{position: to_position})
-    end)
+    item_to = get_item!(id_to)
+    itemPosition_to = Map.get(item_to, :position)
+
+    {:ok, %{model: _item, version: _version}} = update_item(item_from, %{position: itemPosition_to})
+    {:ok, %{model: _item, version: _version}} = update_item(item_to, %{position: itemPosition_from})
   end
 
-  defp reorder_list_after_adding_item(%Item{position: position}) do
+  defp reorder_list_to_add_item(%Item{position: position}) do
     # Increments the positions above a given position.
     # We are making space for the item to be added.
 
     from(i in Item,
       where: i.position > ^position,
       update: [inc: [position: 1]]
-    )
-    |> Repo.update_all([])
-  end
-
-  defp reorder_list_after_removing_item(%Item{position: position}) do
-    # Decrements the positions above a given position.
-    # We are making all the positions above the given position decrement so they stay sequential.
-
-    from(i in Item,
-      where: i.position > ^position,
-      update: [inc: [position: -1]]
     )
     |> Repo.update_all([])
   end
@@ -244,6 +229,7 @@ defmodule App.Item do
 
   @doc """
   `items_with_timers/1` Returns a List of items with the latest associated timers.
+  This list is ordered with the position that is detailed inside the Items schema.
 
   ## Examples
 
@@ -256,10 +242,10 @@ defmodule App.Item do
   #
   def items_with_timers(person_id \\ 0) do
     sql = """
-    SELECT i.id, i.text, i.status, i.person_id, t.start, t.stop, t.id as timer_id FROM items i
+    SELECT i.id, i.text, i.status, i.person_id, i.position, t.start, t.stop, t.id as timer_id FROM items i
     FULL JOIN timers as t ON t.item_id = i.id
     WHERE i.person_id = $1 AND i.status IS NOT NULL
-    ORDER BY timer_id ASC;
+    ORDER BY i.position ASC;
     """
 
     values =
@@ -274,6 +260,7 @@ defmodule App.Item do
     |> Enum.map(fn t ->
       Map.put(t, :tags, items_tags[t.id].tags)
     end)
+    |> Enum.sort_by(&(&1.position))
   end
 
   @doc """

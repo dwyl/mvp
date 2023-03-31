@@ -142,9 +142,9 @@
         draggable="true"
         x-data="{selected: false}"
         x-on:dragstart="selected = true; $dispatch('highlight', {id: $el.id}); selectedItem = $el"
-        x-on:dragend="selected = false; $dispatch('remove-highlight', {id: $el.id}); selectedItem = null; $dispatch('update-indexes')"
+        x-on:dragend="selected = false; $dispatch('remove-highlight', {id: $el.id}); selectedItem = null; $dispatch('update-indexes', {fromItemId: $el.dataset.id})"
         x-bind:class="selected ? 'cursor-grabbing' : 'cursor-grab'"
-        x-on:dragover.throttle="$dispatch('dragoverItem', {selectedItemId: selectedItem.id, currentItemId: $el.id})"
+        x-on:dragover.throttle="$dispatch('dragoverItem', {selectedItemId: selectedItem.id, currentItem: $el})"
         data-highlight={JS.add_class("bg-yellow-300")}
         data-remove-highlight={JS.remove_class("bg-yellow-300")}
       >

@@ -5,6 +5,8 @@ import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 
+// Item id of the destination id to switch
+let itemId_to;
 
 let Hooks = {}
 Hooks.Items = {
@@ -20,16 +22,18 @@ Hooks.Items = {
     })
 
     this.el.addEventListener("dragoverItem", e => {
-      const currentItemId = e.detail.currentItemId
+      const currentItemId = e.detail.currentItem.id
       const selectedItemId = e.detail.selectedItemId
       if( currentItemId != selectedItemId) {
         hook.pushEventTo("#items", "dragoverItem", {currentItemId: currentItemId, selectedItemId: selectedItemId})
+        itemId_to = e.detail.currentItem.dataset.id
       }
     })
 
     this.el.addEventListener("update-indexes", e => {
-        const ids = [...document.querySelectorAll(".item")].map( i => i.dataset.id)
-        hook.pushEventTo("#items", "updateIndexes", {ids: ids})
+        const itemId_from = e.detail.fromItemId 
+        hook.pushEventTo("#items", "updateIndexes", {itemId_from: itemId_from, itemId_to: itemId_to})
+        itemId_to = null;
     })
   }
 }

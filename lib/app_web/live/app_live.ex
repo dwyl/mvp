@@ -267,8 +267,8 @@ defmodule AppWeb.AppLive do
   end
 
   @impl true
-  def handle_event("updateIndexes", %{"ids" => ids}, socket) do
-    #Tasks.update_items_index(ids)
+  def handle_event("updateIndexes", %{"itemId_from" => itemId_from, "itemId_to" => itemId_to}, socket) do
+    Item.move_item(itemId_from, itemId_to)
     {:noreply, socket}
   end
 
