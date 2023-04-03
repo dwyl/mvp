@@ -246,6 +246,11 @@ defmodule AppWeb.AppLive do
     {:noreply, socket}
   end
 
+  @impl true
+  def handle_event("updateIndexes", %{"itemId_from" => itemId_from, "itemId_to" => itemId_to}, socket) do
+    Item.move_item(itemId_from, itemId_to)
+    {:noreply, socket}
+  end
 
   @impl true
   def handle_info(%Broadcast{event: "liveview_items", payload: {:dragover_item, {current_item_id, selected_item_id}}}, socket) do
@@ -264,12 +269,6 @@ defmodule AppWeb.AppLive do
   @impl true
   def handle_info(%Broadcast{event: "liveview_items", payload: {:drop_item, item_id}}, socket) do
     {:noreply, push_event(socket, "remove-highlight", %{id: item_id})}
-  end
-
-  @impl true
-  def handle_event("updateIndexes", %{"itemId_from" => itemId_from, "itemId_to" => itemId_to}, socket) do
-    Item.move_item(itemId_from, itemId_to)
-    {:noreply, socket}
   end
 
   @impl true

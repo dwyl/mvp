@@ -32,7 +32,12 @@ Hooks.Items = {
 
     this.el.addEventListener("update-indexes", e => {
         const itemId_from = e.detail.fromItemId 
-        hook.pushEventTo("#items", "updateIndexes", {itemId_from: itemId_from, itemId_to: itemId_to})
+
+        // Check if both "from" and "to" are defined
+        if(itemId_from && itemId_to) {
+          hook.pushEventTo("#items", "updateIndexes", {itemId_from: itemId_from, itemId_to: itemId_to})
+        }
+        
         itemId_to = null;
     })
   }
