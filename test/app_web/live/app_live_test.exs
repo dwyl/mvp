@@ -712,17 +712,26 @@ defmodule AppWeb.AppLiveTest do
     # Render liveview
     {:ok, view, _html} = live(conn, "/")
 
-
     # Highlight broadcast should have occurred
     assert render_hook(view, "highlight", %{"id" => item.id})
-    |> String.split("bg-yellow-300") |> Enum.drop(1) |> length() > 0
+           |> String.split("bg-yellow-300")
+           |> Enum.drop(1)
+           |> length() > 0
 
     # Dragover and remove highlight
-    render_hook(view, "dragoverItem", %{"currentItemId" => item2.id, "selectedItemId" => item.id})
+    render_hook(view, "dragoverItem", %{
+      "currentItemId" => item2.id,
+      "selectedItemId" => item.id
+    })
+
     assert render_hook(view, "removeHighlight", %{"id" => item.id})
 
     # Switch items (update indexes)
-    render_hook(view, "updateIndexes", %{"itemId_from" => item.id, "itemId_to" => item2.id})
+    render_hook(view, "updateIndexes", %{
+      "itemId_from" => item.id,
+      "itemId_to" => item2.id
+    })
+
     assert item.position == pre_item2_position
     assert item2.position == pre_item_position
   end

@@ -149,8 +149,22 @@
         data-remove-highlight={JS.remove_class("bg-yellow-300")}
       >
         <div class="flex flex-row">
-          <svg class="max-w-[15px] dragDrop-icon" data-darkreader-inline-stroke="" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z"></path>
+          <svg
+            class="max-w-[15px] dragDrop-icon"
+            data-darkreader-inline-stroke=""
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z"
+            >
+            </path>
           </svg>
           <%= if archived?(item) do %>
             <label>
@@ -531,7 +545,6 @@
             <% end %>
           </div>
         <% end %>
-
       </li>
     <% end %>
     <!-- end for item <- @items -->

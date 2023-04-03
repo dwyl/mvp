@@ -52,7 +52,6 @@ defmodule App.Item do
 
   """
   def create_item(attrs) do
-
     ## Make room at beginning of list first.
     reorder_list_to_add_item(%Item{position: -1})
 
@@ -73,7 +72,6 @@ defmodule App.Item do
       {:error, %Ecto.Changeset{}}
   """
   def create_item_with_tags(attrs) do
-
     # Make room at beginning of list first.
     # This increments the positions of the items.
     reorder_list_to_add_item(%Item{position: -1})
@@ -195,7 +193,6 @@ defmodule App.Item do
     |> Repo.update()
   end
 
-
   @doc """
   Switches the position of two items.
   This is used for drag and drop.
@@ -207,8 +204,11 @@ defmodule App.Item do
     item_to = get_item!(id_to)
     itemPosition_to = Map.get(item_to, :position)
 
-    {:ok, %{model: _item, version: _version}} = update_item(item_from, %{position: itemPosition_to})
-    {:ok, %{model: _item, version: _version}} = update_item(item_to, %{position: itemPosition_from})
+    {:ok, %{model: _item, version: _version}} =
+      update_item(item_from, %{position: itemPosition_to})
+
+    {:ok, %{model: _item, version: _version}} =
+      update_item(item_to, %{position: itemPosition_from})
   end
 
   defp reorder_list_to_add_item(%Item{position: position}) do
@@ -221,7 +221,6 @@ defmodule App.Item do
     )
     |> Repo.update_all([])
   end
-
 
   #  🐲       H E R E   B E   D R A G O N S!     🐉
   #  ⏳     Working with Time is all Dragons!    🙄
@@ -260,7 +259,7 @@ defmodule App.Item do
     |> Enum.map(fn t ->
       Map.put(t, :tags, items_tags[t.id].tags)
     end)
-    |> Enum.sort_by(&(&1.position))
+    |> Enum.sort_by(& &1.position)
   end
 
   @doc """

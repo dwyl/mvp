@@ -237,36 +237,59 @@ defmodule AppWeb.AppLive do
   @impl true
   def handle_event(
         "dragoverItem",
-        %{"currentItemId" => current_item_id, "selectedItemId" => selected_item_id},
+        %{
+          "currentItemId" => current_item_id,
+          "selectedItemId" => selected_item_id
+        },
         socket
       ) do
+    AppWeb.Endpoint.broadcast(
+      @topic,
+      "move_items",
+      {:dragover_item, {current_item_id, selected_item_id}}
+    )
 
-    AppWeb.Endpoint.broadcast(@topic, "move_items", {:dragover_item, {current_item_id, selected_item_id }})
     {:noreply, socket}
   end
 
   @impl true
-  def handle_event("updateIndexes", %{"itemId_from" => itemId_from, "itemId_to" => itemId_to}, socket) do
+  def handle_event(
+        "updateIndexes",
+        %{"itemId_from" => itemId_from, "itemId_to" => itemId_to},
+        socket
+      ) do
     Item.move_item(itemId_from, itemId_to)
     {:noreply, socket}
   end
 
   @impl true
-  def handle_info(%Broadcast{event: "move_items", payload: {:dragover_item, {current_item_id, selected_item_id}}}, socket) do
+  def handle_info(
+        %Broadcast{
+          event: "move_items",
+          payload: {:dragover_item, {current_item_id, selected_item_id}}
+        },
+        socket
+      ) do
     {:noreply,
-    push_event(socket, "dragover-item", %{
-      current_item_id: current_item_id,
-      selected_item_id: selected_item_id
-    })}
+     push_event(socket, "dragover-item", %{
+       current_item_id: current_item_id,
+       selected_item_id: selected_item_id
+     })}
   end
 
   @impl true
-  def handle_info(%Broadcast{event: "move_items", payload: {:drag_item, item_id}}, socket) do
+  def handle_info(
+        %Broadcast{event: "move_items", payload: {:drag_item, item_id}},
+        socket
+      ) do
     {:noreply, push_event(socket, "highlight", %{id: item_id})}
   end
 
   @impl true
-  def handle_info(%Broadcast{event: "move_items", payload: {:drop_item, item_id}}, socket) do
+  def handle_info(
+        %Broadcast{event: "move_items", payload: {:drop_item, item_id}},
+        socket
+      ) do
     {:noreply, push_event(socket, "remove-highlight", %{id: item_id})}
   end
 
@@ -317,7 +340,6 @@ defmodule AppWeb.AppLive do
       ) do
     {:noreply, socket}
   end
-
 
   # only show certain UI elements (buttons) if there are items:
   def has_items?(items), do: length(items) > 1
