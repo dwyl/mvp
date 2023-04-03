@@ -2,7 +2,6 @@ defmodule AppWeb.AppLiveTest do
   use AppWeb.ConnCase, async: true
   alias App.{Item, Timer, Tag}
   import Phoenix.LiveViewTest
-  import Phoenix.ChannelTest
   alias Phoenix.Socket.Broadcast
 
   test "disconnected and connected render", %{conn: conn} do
@@ -720,10 +719,10 @@ defmodule AppWeb.AppLiveTest do
 
     # Dragover and remove highlight
     render_hook(view, "dragoverItem", %{"currentItemId" => item2.id, "selectedItemId" => item.id})
-    assert render_hook(view, "remove-highlight", %{"id" => item.id})
+    assert render_hook(view, "removeHighlight", %{"id" => item.id})
 
     # Switch items (update indexes)
-    switched_view = render_hook(view, "updateIndexes", %{"itemId_from" => item.id, "itemId_to" => item2.id})
+    render_hook(view, "updateIndexes", %{"itemId_from" => item.id, "itemId_to" => item2.id})
     assert item.position == pre_item2_position
     assert item2.position == pre_item_position
   end

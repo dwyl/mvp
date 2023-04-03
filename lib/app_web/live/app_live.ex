@@ -3,7 +3,6 @@ defmodule AppWeb.AppLive do
   use AppWeb, :live_view
   use Timex
   alias App.{Item, Tag, Timer}
-  alias Phoenix.PubSub
   alias Phoenix.Socket.Broadcast
   alias Phoenix.LiveView.JS
 
@@ -225,13 +224,13 @@ defmodule AppWeb.AppLive do
 
   @impl true
   def handle_event("highlight", %{"id" => id}, socket) do
-    AppWeb.Endpoint.broadcast(@topic, "liveview_items", {:drag_item, id})
+    AppWeb.Endpoint.broadcast(@topic, "move_items", {:drag_item, id})
     {:noreply, socket}
   end
 
   @impl true
-  def handle_event("remove-highlight", %{"id" => id}, socket) do
-    AppWeb.Endpoint.broadcast(@topic, "liveview_items", {:drop_item, id})
+  def handle_event("removeHighlight", %{"id" => id}, socket) do
+    AppWeb.Endpoint.broadcast(@topic, "move_items", {:drop_item, id})
     {:noreply, socket}
   end
 
@@ -242,7 +241,7 @@ defmodule AppWeb.AppLive do
         socket
       ) do
 
-    AppWeb.Endpoint.broadcast(@topic, "liveview_items", {:dragover_item, {current_item_id, selected_item_id }})
+    AppWeb.Endpoint.broadcast(@topic, "move_items", {:dragover_item, {current_item_id, selected_item_id }})
     {:noreply, socket}
   end
 
@@ -253,7 +252,7 @@ defmodule AppWeb.AppLive do
   end
 
   @impl true
-  def handle_info(%Broadcast{event: "liveview_items", payload: {:dragover_item, {current_item_id, selected_item_id}}}, socket) do
+  def handle_info(%Broadcast{event: "move_items", payload: {:dragover_item, {current_item_id, selected_item_id}}}, socket) do
     {:noreply,
     push_event(socket, "dragover-item", %{
       current_item_id: current_item_id,
@@ -262,12 +261,12 @@ defmodule AppWeb.AppLive do
   end
 
   @impl true
-  def handle_info(%Broadcast{event: "liveview_items", payload: {:drag_item, item_id}}, socket) do
+  def handle_info(%Broadcast{event: "move_items", payload: {:drag_item, item_id}}, socket) do
     {:noreply, push_event(socket, "highlight", %{id: item_id})}
   end
 
   @impl true
-  def handle_info(%Broadcast{event: "liveview_items", payload: {:drop_item, item_id}}, socket) do
+  def handle_info(%Broadcast{event: "move_items", payload: {:drop_item, item_id}}, socket) do
     {:noreply, push_event(socket, "remove-highlight", %{id: item_id})}
   end
 

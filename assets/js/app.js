@@ -18,7 +18,7 @@ Hooks.Items = {
     })
 
     this.el.addEventListener("remove-highlight", e => {
-      hook.pushEventTo("#items", "remove-highlight", {id: e.detail.id})
+      hook.pushEventTo("#items", "removeHighlight", {id: e.detail.id})
     })
 
     this.el.addEventListener("dragoverItem", e => {
