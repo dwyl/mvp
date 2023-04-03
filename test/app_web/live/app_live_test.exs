@@ -2,6 +2,7 @@ defmodule AppWeb.AppLiveTest do
   use AppWeb.ConnCase, async: true
   alias App.{Item, Timer, Tag}
   import Phoenix.LiveViewTest
+  import Phoenix.ChannelTest
   alias Phoenix.Socket.Broadcast
 
   test "disconnected and connected render", %{conn: conn} do
@@ -696,5 +697,34 @@ defmodule AppWeb.AppLiveTest do
 
     {:ok, view, _html} = live(conn, "/")
     assert render_hook(view, "filter-tags", %{"key" => "t", "value" => "t"})
+  end
+
+  test "drag and drop item", %{conn: conn} do
+    # Creating two items
+    {:ok, %{model: item, version: _version}} =
+      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+
+    {:ok, %{model: item2, version: _version}} =
+      Item.create_item(%{text: "Learn Elixir 2", person_id: 0, status: 2})
+
+    pre_item_position = item.position
+    pre_item2_position = item2.position
+
+    # Render liveview
+    {:ok, view, _html} = live(conn, "/")
+
+
+    # Highlight broadcast should have occurred
+    assert render_hook(view, "highlight", %{"id" => item.id})
+    |> String.split("bg-yellow-300") |> Enum.drop(1) |> length() > 0
+
+    # Dragover and remove highlight
+    render_hook(view, "dragoverItem", %{"currentItemId" => item2.id, "selectedItemId" => item.id})
+    assert render_hook(view, "remove-highlight", %{"id" => item.id})
+
+    # Switch items (update indexes)
+    switched_view = render_hook(view, "updateIndexes", %{"itemId_from" => item.id, "itemId_to" => item2.id})
+    assert item.position == pre_item2_position
+    assert item2.position == pre_item_position
   end
 end
