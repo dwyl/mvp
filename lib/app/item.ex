@@ -198,7 +198,6 @@ defmodule App.Item do
   This is used for drag and drop.
   """
   def move_item(id_from, id_to) do
-
     #  Get information of the two items
     item_from = get_item!(id_from)
     itemPosition_from = Map.get(item_from, :position)
