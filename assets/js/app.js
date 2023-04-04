@@ -34,7 +34,7 @@ Hooks.Items = {
         const itemId_from = e.detail.fromItemId 
 
         // Check if both "from" and "to" are defined
-        if(itemId_from && itemId_to) {
+        if(itemId_from && itemId_to && itemId_from != itemId_to) {
           hook.pushEventTo("#items", "updateIndexes", {itemId_from: itemId_from, itemId_to: itemId_to})
         }
         
