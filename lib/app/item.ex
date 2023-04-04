@@ -198,12 +198,15 @@ defmodule App.Item do
   This is used for drag and drop.
   """
   def move_item(id_from, id_to) do
+
+    #  Get information of the two items
     item_from = get_item!(id_from)
     itemPosition_from = Map.get(item_from, :position)
 
     item_to = get_item!(id_to)
     itemPosition_to = Map.get(item_to, :position)
 
+    # Switching the `position` field of both items
     {:ok, %{model: _item, version: _version}} =
       update_item(item_from, %{position: itemPosition_to})
 

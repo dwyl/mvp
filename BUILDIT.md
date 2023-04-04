@@ -4774,10 +4774,10 @@ by using `Phoenix Liveview`,
 ##  15.1 `Item` schema changes
 
 By introducing this feature 
-and so everyone sees the correct positioning of each item,
+(and so everyone sees the correct positioning of each item),
 we ought to add a new field:
 **`position`**.
-This new field will be an `integer`,
+This new field called **`position`** will be an `integer`,
 referencing the *index of the item within the list*.
 
 The `position` field can't be under `0` 
@@ -4933,7 +4933,7 @@ that is being created.
 
 ## 15.3 Return `position` in `items_with_timers` function
 
-Sicne we are calling the `items_with_timers/1` function
+Since we are calling the `items_with_timers/1` function
 (located in `lib/app/item.ex`)
 on startup to fetch the item list,
 we need to change it so it *also returns the `position` field*.
