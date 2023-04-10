@@ -113,7 +113,7 @@ With that in place, let's get building!
   - [14.3 Building the Stats Page](#143-building-the-stats-page)
   - [14.4 Broadcasting to `stats` channel](#144-broadcasting-to-stats-channel)
   - [14.5 Adding tests](#145-adding-tests)
-- [15. Reorganizing items by drag n' drop](#15-reorganizing-items-by-drag-n-drop)
+- [15. Reordering `items` Using Drag \& Drop](#15-reordering-items-using-drag--drop)
   - [15.1 `Item` schema changes](#151-item-schema-changes)
   - [15.2 Changing the Item's `position` field in the database](#152-changing-the-items-position-field-in-the-database)
   - [15.3 Return `position` in `items_with_timers` function](#153-return-position-in-items_with_timers-function)
@@ -4739,7 +4739,7 @@ which is a PostgreSQL GUI.
 If you don't have this installed, 
 [we highly recommend you doing so](https://github.com/dwyl/learn-postgresql/issues/43#issuecomment-469000357).
 
-<img width="1824" alt="dbeaver" src="https://user-images.githubusercontent.com/17494745/211629270-996e6c4a-8322-49b4-9ef6-7be2335ccfb7.png">
+<img width="1824" alt="papertrail_versions" src="https://user-images.githubusercontent.com/17494745/211629270-996e6c4a-8322-49b4-9ef6-7be2335ccfb7.png">
 
 As you can see, update/insert events are being tracked,
 with the corresponding `person_id` (in `originator_id`),
@@ -4754,22 +4754,24 @@ and the corresponding changes.
 ## 14.5 Adding tests
 
 
-# 15. Reorganizing items by drag n' drop
+# 15. Reordering `items` Using Drag & Drop
 
-It would be *awesome* for the person using our app
-to be able to organize their items however they want.
-Right now, they can only create new items.
-Without organization, 
-people will sometimes have to scroll down 
-(which gets *worse* when there are *multiple items*)
-to complete a todo item.
+At present `people` using the `App`
+can only add new `items` to a stack
+where the newest is on top; no ordering.
 
-To mitigate this issue,
-we will implement a 
-**drag and drop system**!
-And get this,
-by using `Phoenix Liveview`,
-**other people will *also* be able to see these changes in real time!**
+People who tested the `MVP`
+noted that the ability to **reorder `items`**
+was an **_essential_ feature**:
+[dwyl/mvp/**issues/145**](https://github.com/dwyl/mvp/issues/145)
+
+So in this step we are going to 
+add the ability to organize `items`.
+We will implement reordering using 
+**drag and drop**!
+And by using `Phoenix Liveview`,
+**other people** will also be able 
+to **see the changes in real time**!
 
 ##  15.1 `Item` schema changes
 
