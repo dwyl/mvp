@@ -4797,7 +4797,6 @@ defmodule AppWeb.StatsLive do
 
   @impl true
   def mount(_params, _session, socket) do
-
     # subscribe to the channel
     if connected?(socket), do: AppWeb.Endpoint.subscribe(@stats_topic)
 
@@ -4810,47 +4809,56 @@ defmodule AppWeb.StatsLive do
   end
 
   @impl true
-  def handle_info(%Broadcast{topic: @stats_topic, event: "item", payload: payload}, socket) do
-
+  def handle_info(
+        %Broadcast{topic: @stats_topic, event: "item", payload: payload},
+        socket
+      ) do
     metrics = socket.assigns.metrics
 
     case payload do
       {:create, payload: payload} ->
         updated_metrics =
-          Enum.map(metrics, fn row ->
-            if row.person_id == payload.person_id do
-              Map.put(row, :num_items, row.num_items + 1)
-            else
-              row
-            end
-          end)
+          Enum.map(metrics, fn row -> add_row(row, payload, :num_items) end)
 
         {:noreply, assign(socket, metrics: updated_metrics)}
+
       _ ->
         {:noreply, socket}
     end
   end
 
   @impl true
-  def handle_info(%Broadcast{topic: @stats_topic, event: "timer", payload: payload}, socket) do
-
+  def handle_info(
+        %Broadcast{topic: @stats_topic, event: "timer", payload: payload},
+        socket
+      ) do
     metrics = socket.assigns.metrics
+
     case payload do
       {:create, payload: payload} ->
-
         updated_metrics =
-          Enum.map(metrics, fn row ->
-            if row.person_id == payload.person_id do
-              Map.put(row, :num_timers, row.num_timers + 1)
-            else
-              row
-            end
-          end)
+          Enum.map(metrics, fn row -> add_row(row, payload, :num_timers) end)
 
         {:noreply, assign(socket, metrics: updated_metrics)}
+
       _ ->
         {:noreply, socket}
     end
+  end
+
+  def add_row(row, payload, key) do
+    row =
+      if row.person_id == payload.person_id do
+        Map.put(row, key, Map.get(row, key) + 1)
+      else
+        row
+      end
+
+    row
+  end
+
+  def person_link(person_id) do
+    "https://auth.dwyl.com/people/#{person_id}"
   end
 end
 ```
@@ -4879,17 +4887,17 @@ add the following function.
 ```elixir
   def person_with_item_and_timer_count() do
     sql = """
-    select p.person_id, p.name, COUNT(distinct i.id) as "num_items", count(distinct t.id) as "num_timers"
-    from people p
-    left join items i on i.person_id = p.person_id
-    left join timers t on t.item_id = i.id
-    group by p.person_id, p.name
-    order by person_id
+    SELECT i.person_id,
+    COUNT(distinct i.id) AS "num_items",
+    COUNT(distinct t.id) AS "num_timers"
+    FROM items i
+    LEFT JOIN timers t ON t.item_id = i.id
+    GROUP BY i.person_id
+    ORDER BY i.person_id
     """
 
     Ecto.Adapters.SQL.query!(Repo, sql)
     |> map_columns_to_values()
-
   end
 ```
 
@@ -4917,41 +4925,43 @@ Add this code to the file.
 
 ```html
 <main class="font-sans container mx-auto">
-    <div class="relative overflow-x-auto mt-12">
-        <h1 class="mb-12 text-xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl dark:text-white">
-            User metrics
-        </h1>
-        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-          <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-            <tr>
-              <th scope="col" class="px-6 py-3">
-                Id
-              </th>
-              <th scope="col" class="px-6 py-3">
-                Number of items
-              </th>
-              <th scope="col" class="px-6 py-3">
-                Number of timers
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-          <%= for metric <- @metrics do %>
-            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-              <td class="px-6 py-4">
+  <div class="relative overflow-x-auto mt-12">
+    <h1 class="mb-2 text-xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl dark:text-white">
+      Stats
+    </h1>
+    <table class="text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
+      <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <tr>
+          <th scope="col" class="px-6 py-3">
+            Id
+          </th>
+          <th scope="col" class="px-6 py-3 text-center">
+            Items
+          </th>
+          <th scope="col" class="px-6 py-3 text-center">
+            Timers
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <%= for metric <- @metrics do %>
+          <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+            <td class="px-6 py-4">
+              <a href={person_link(metric.person_id)}>
                 <%= metric.person_id %>
-              </td>
-              <td class="px-6 py-4">
-                <%= metric.num_items %>
-              </td>
-              <td class="px-6 py-4">
-                <%= metric.num_timers %>
-              </td>
-            </tr>
-          <% end %>
-          </tbody>
-        </table>
-    </div>
+              </a>
+            </td>
+            <td class="px-6 py-4 text-center">
+              <%= metric.num_items %>
+            </td>
+            <td class="px-6 py-4 text-center">
+              <%= metric.num_timers %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
 </main>
 ```
 
@@ -5068,29 +5078,24 @@ and add the following code to it.
 
 ```elixir
 defmodule AppWeb.StatsLiveTest do
-  use AppWeb.ConnCase
-  alias App.{Item, Person, Timer, Tag}
+  use AppWeb.ConnCase, async: true
+  alias App.{Item, Timer}
   import Phoenix.LiveViewTest
-  alias Phoenix.Socket.Broadcast
 
   @person_id 55
 
-  setup [:create_person]
-
   test "disconnected and connected render", %{conn: conn} do
     {:ok, page_live, disconnected_html} = live(conn, "/stats")
-    assert disconnected_html =~ "User metrics"
-    assert render(page_live) =~ "User metrics"
+    assert disconnected_html =~ "Stats"
+    assert render(page_live) =~ "Stats"
   end
 
   test "display metrics on mount", %{conn: conn} do
-    {:ok, page_live, _html} = live(conn, "/stats")
-
     # Creating two items
-    {:ok, item} =
+    {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Learn Elixir", status: 2, person_id: @person_id})
 
-    {:ok, _item2} =
+    {:ok, %{model: _item2, version: _version}} =
       Item.create_item(%{text: "Learn Elixir", status: 4, person_id: @person_id})
 
     assert item.status == 2
@@ -5099,53 +5104,95 @@ defmodule AppWeb.StatsLiveTest do
     started = NaiveDateTime.utc_now()
     {:ok, _timer} = Timer.start(%{item_id: item.id, start: started})
 
-    assert render(page_live) =~ "User metrics"
-    assert render(page_live) =~ "2"   # num of items
-    assert render(page_live) =~ "1"   # num of timers
+    {:ok, page_live, _html} = live(conn, "/stats")
+
+    assert render(page_live) =~ "Stats"
+    # two items and one timer expected
+    assert render(page_live) =~
+             "<td class=\"px-6 py-4 text-center\">\n2\n            </td><td class=\"px-6 py-4 text-center\">\n1\n            </td>"
   end
 
   test "handle broadcast when item is created", %{conn: conn} do
     # Creating an item
-    {:ok, item} =
+    {:ok, %{model: _item, version: _version}} =
       Item.create_item(%{text: "Learn Elixir", status: 2, person_id: @person_id})
 
     {:ok, page_live, _html} = live(conn, "/stats")
 
-    assert render(page_live) =~ "User metrics"
-    assert render(page_live) =~ "1"   # num of items
-
+    assert render(page_live) =~ "Stats"
+    # num of items
+    assert render(page_live) =~
+             "<td class=\"px-6 py-4 text-center\">\n1\n            </td><td class=\"px-6 py-4 text-center\">\n0\n            </td>"
 
     # Creating another item.
-    AppWeb.Endpoint.broadcast("stats", "item", {:create, payload: %{person_id: @person_id}})
-    assert render(page_live) =~ "2"   # num of items
+    AppWeb.Endpoint.broadcast(
+      "stats",
+      "item",
+      {:create, payload: %{person_id: @person_id}}
+    )
+
+    # num of items
+    assert render(page_live) =~
+             "<td class=\"px-6 py-4 text-center\">\n2\n            </td><td class=\"px-6 py-4 text-center\">\n0\n            </td>"
 
     # Broadcasting update. Shouldn't effect anything in the page
-    AppWeb.Endpoint.broadcast("stats", "item", {:update, payload: %{person_id: @person_id}})
-    assert render(page_live) =~ "2"   # num of items
+    AppWeb.Endpoint.broadcast(
+      "stats",
+      "item",
+      {:update, payload: %{person_id: @person_id}}
+    )
+
+    # num of items
+    assert render(page_live) =~
+             "<td class=\"px-6 py-4 text-center\">\n2\n            </td><td class=\"px-6 py-4 text-center\">\n0\n            </td>"
   end
 
   test "handle broadcast when timer is created", %{conn: conn} do
     # Creating an item
-    {:ok, item} =
+    {:ok, %{model: _item, version: _version}} =
       Item.create_item(%{text: "Learn Elixir", status: 2, person_id: @person_id})
 
     {:ok, page_live, _html} = live(conn, "/stats")
 
-    assert render(page_live) =~ "User metrics"
-    assert render(page_live) =~ "0"   # num of timers
+    assert render(page_live) =~ "Stats"
+    # num of timers
+    assert render(page_live) =~
+             "<td class=\"px-6 py-4 text-center\">\n1\n            </td><td class=\"px-6 py-4 text-center\">\n0\n            </td>"
 
     # Creating a timer.
-    AppWeb.Endpoint.broadcast("stats", "timer", {:create, payload: %{person_id: @person_id}})
-    assert render(page_live) =~ "1"   # num of timers
+    AppWeb.Endpoint.broadcast(
+      "stats",
+      "timer",
+      {:create, payload: %{person_id: @person_id}}
+    )
+
+    # num of timers
+    assert render(page_live) =~
+             "<td class=\"px-6 py-4 text-center\">\n1\n            </td><td class=\"px-6 py-4 text-center\">\n1\n            </td>"
 
     # Broadcasting update. Shouldn't effect anything in the page
-    AppWeb.Endpoint.broadcast("stats", "timer", {:update, payload: %{person_id: @person_id}})
-    assert render(page_live) =~ "1"   # num of timers
+    AppWeb.Endpoint.broadcast(
+      "stats",
+      "timer",
+      {:update, payload: %{person_id: @person_id}}
+    )
+
+    # num of timers
+    assert render(page_live) =~
+             "<td class=\"px-6 py-4 text-center\">\n1\n            </td><td class=\"px-6 py-4 text-center\">\n1\n            </td>"
   end
 
-  defp create_person(_) do
-    person = Person.create_person(%{"person_id" => @person_id, "name" => "guest"})
-    %{person: person}
+  test "add_row/3 adds 1 to row.num_timers" do
+    row = %{person_id: 1, num_items: 1, num_timers: 1}
+    payload = %{person_id: 1}
+
+    # expect row.num_timers to be incremented by 1:
+    row_updated = AppWeb.StatsLive.add_row(row, payload, :num_timers)
+    assert row_updated == %{person_id: 1, num_items: 1, num_timers: 2}
+
+    # no change expected:
+    row2 = %{person_id: 2, num_items: 1, num_timers: 42}
+    assert row2 == AppWeb.StatsLive.add_row(row2, payload, :num_timers)
   end
 end
 ```
