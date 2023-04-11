@@ -2,16 +2,21 @@ defmodule App.Item do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
-  alias App.{Repo, Tag, ListItem, ItemTag, Person}
   alias App.List, as: L
+  alias PaperTrail
+  alias App.{Repo, Tag, ItemTag, Timer}
   alias __MODULE__
+  require Logger
 
+  @derive {Jason.Encoder,
+           except: [:__meta__, :__struct__, :timer, :inserted_at, :updated_at]}
   schema "items" do
+    field :person_id, :integer
     field :status, :integer
     field :text, :string
     field :item_lists, {:array, :string}, virtual: true
 
-    belongs_to :people, Person, references: :person_id, foreign_key: :person_id
+    has_many :timer, Timer
     many_to_many(:tags, Tag, join_through: ItemTag, on_replace: :delete)
     many_to_many(:lists, L, join_through: ListItem, on_replace: :delete)
 
@@ -27,7 +32,13 @@ defmodule App.Item do
 
   def changeset_with_tags(item, attrs) do
     changeset(item, attrs)
-    |> put_assoc(:tags, Tag.parse_and_create_tags(attrs))
+    |> put_assoc(:tags, attrs.tags)
+  end
+
+  def draft_changeset(item, attrs) do
+    item
+    |> cast(attrs, [:person_id, :status, :text])
+    |> validate_required([:person_id])
   end
 
   def changeset_with_lists(item, list_ids) do
@@ -53,17 +64,28 @@ defmodule App.Item do
   def create_item(attrs) do
     %Item{}
     |> changeset(attrs)
-    |> Repo.insert()
-  end
-
-  def create_item_with_tags(attrs) do
-    %Item{}
-    |> changeset_with_tags(attrs)
-    |> Repo.insert()
+    |> PaperTrail.insert(originator: %{id: Map.get(attrs, :person_id, 0)})
   end
 
   @doc """
-  Gets a single item.
+  Creates an `item` with tags.
+
+  ## Examples
+
+      iex> create_item_with_tags(%{text: "Learn LiveView", tags: [tag1, tag2]})
+      {:ok, %Item{}}
+
+      iex> create_item_with_tags(%{text: nil})
+      {:error, %Ecto.Changeset{}}
+  """
+  def create_item_with_tags(attrs) do
+    %Item{}
+    |> changeset_with_tags(attrs)
+    |> PaperTrail.insert(originator: %{id: Map.get(attrs, :person_id, 0)})
+  end
+
+  @doc """
+  `get_item!/1` gets a single Item.
 
   Raises `Ecto.NoResultsError` if the Item does not exist.
 
@@ -81,6 +103,36 @@ defmodule App.Item do
     |> Repo.get!(id)
     |> Repo.preload(tags: from(t in Tag, order_by: t.text))
     |> Repo.preload(lists: from(l in L, order_by: l.name))
+  end
+
+  def get_draft_item(person_id) do
+    Repo.get_by(Item, status: 7, person_id: person_id) ||
+      Repo.insert!(%Item{person_id: person_id, status: 7})
+  end
+
+  @doc """
+  `get_item/1` gets a single Item.
+
+  Returns nil if the Item does not exist
+
+  ## Examples
+
+      iex> get_item(1)
+      %Timer{}
+
+      iex> get_item(1313)
+      nil
+  """
+  def get_item(id, preload_tags \\ false) do
+    item =
+      Item
+      |> Repo.get(id)
+
+    if(preload_tags == true) do
+      item |> Repo.preload(tags: from(t in Tag, order_by: t.text))
+    else
+      item
+    end
   end
 
   @doc """
@@ -122,17 +174,24 @@ defmodule App.Item do
   def update_item(%Item{} = item, attrs) do
     item
     |> Item.changeset(attrs)
+    |> PaperTrail.update(originator: %{id: Map.get(attrs, :person_id, 0)})
+  end
+
+  def update_draft(%Item{} = item, attrs) do
+    item
+    |> Item.draft_changeset(attrs)
     |> Repo.update()
   end
 
   @doc """
   Update an item and its associated tags
   """
-  def update_item_with_tags(%Item{} = item, attrs) do
-    item
-    |> Item.changeset_with_tags(attrs)
-    |> Repo.update()
-  end
+
+  # def update_item_with_tags(%Item{} = item, attrs) do
+  #  item
+  #  |> Item.changeset_with_tags(attrs)
+  #  |> Repo.update()
+  # end
 
   def update_item_with_lists(%Item{} = item, list_ids) do
     item
@@ -185,6 +244,33 @@ defmodule App.Item do
     |> Enum.map(fn t ->
       Map.put(t, :lists, items_tags[t.id].lists)
     end)
+  end
+
+  @doc """
+  `person_with_item_and_timer_count/0` returns a list of number of timers and items per person.
+  Used mainly for metric-tracking purposes.
+
+  ## Examples
+
+  iex> person_with_item_and_timer_count()
+  [
+    %{name: nil, num_items: 3, num_timers: 8, person_id: 0}
+    %{name: username, num_items: 1, num_timers: 3, person_id: 1}
+  ]
+  """
+  def person_with_item_and_timer_count() do
+    sql = """
+    SELECT i.person_id,
+    COUNT(distinct i.id) AS "num_items",
+    COUNT(distinct t.id) AS "num_timers"
+    FROM items i
+    LEFT JOIN timers t ON t.item_id = i.id
+    GROUP BY i.person_id
+    ORDER BY i.person_id
+    """
+
+    Ecto.Adapters.SQL.query!(Repo, sql)
+    |> map_columns_to_values()
   end
 
   @doc """
@@ -263,7 +349,7 @@ defmodule App.Item do
 
   If you can think of a better way of achieving the same result,
   please share: https://github.com/dwyl/app-mvp-phoenix/issues/103
-  This function *relies* on the list of items being orderd by timer_id ASC
+  This function *relies* on the list of items being ordered by timer_id ASC
   because it "pops" the last timer and ignores it to avoid double-counting.
   """
   def accumulate_item_timers(items_with_timers) do

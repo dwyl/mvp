@@ -3,13 +3,12 @@ name: Elixir CI
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
+
+  # Build and testing
   build:
     name: Build and test
-    environment: dwylauth
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -22,21 +21,30 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+    strategy:
+      matrix:
+        otp: ['25.1.2']
+        elixir: ['1.14.2']
     steps:
     - uses: actions/checkout@v2
     - name: Set up Elixir
-      uses: erlef/setup-elixir@885971a72ed1f9240973bd92ab57af8c1aa68f24
+      uses: erlef/setup-beam@v1
       with:
-        elixir-version: '1.12.3' # Define the elixir version [required]
-        otp-version: '24.1.5' # Define the OTP version [required]
-    - name: Restore dependencies cache
-      uses: actions/cache@v2
+        otp-version: ${{ matrix.otp }}
+        elixir-version: ${{ matrix.elixir }} 
+    - name: Restore deps and _build cache
+      uses: actions/cache@v3
       with:
-        path: deps
-        key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
-        restore-keys: ${{ runner.os }}-mix-
+        path: |
+          deps
+          _build
+        key: deps-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles('**/mix.lock') }}
+        restore-keys: |
+          deps-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}
     - name: Install dependencies
       run: mix deps.get
+    - name: Check code is formatted
+      run: mix format --check-formatted
     - name: Run Tests
       run: mix coveralls.json
       env:
@@ -46,12 +54,13 @@ jobs:
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
 
+
   # Continuous Deployment to Fly.io
   # https://fly.io/docs/app-guides/continuous-deployment-with-github-actions/
   deploy:
     name: Deploy app
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build]
     # https://stackoverflow.com/questions/58139406/only-run-job-on-specific-branch-with-github-actions
     if: github.ref == 'refs/heads/main'
     env:

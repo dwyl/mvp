@@ -1,0 +1,14 @@
+{
+  "host": "deployed_app_host",
+  "item_id": "1",
+  "notfound_item_id": "-1",
+  "invalid_id": "invalid_id",
+  "timer_id": "1",
+  "notfound_timer_id": "-1",
+  "timer_id_to_stop": "2",
+  "tag_id": "1",
+  "notfound_tag_id": "-1",
+  "item_id_with_tag": "1",
+  "random_string": "random_string",
+  "tag_text_to_be_repeated": "yet another tag"
+}

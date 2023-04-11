@@ -11,6 +11,9 @@ config :app, AppWeb.Endpoint,
   live_view: [signing_salt: "IJG3BS8I"],
   secret_key_base: System.get_env("SECRET_KEY_BASE")
 
+# Configure PaperTrail
+config :paper_trail, repo: App.Repo
+
 # Configure esbuild (the version is required)
 config :esbuild,
   version: "0.14.29",
@@ -30,7 +33,7 @@ config :logger, :console,
 config :phoenix, :json_library, Jason
 
 config :tailwind,
-  version: "3.1.8",
+  version: "3.2.4",
   default: [
     args: ~w(
       --config=tailwind.config.js
@@ -47,6 +50,6 @@ import_config "#{config_env()}.exs"
 # https://hexdocs.pm/joken/introduction.html#usage
 config :joken, default_signer: System.get_env("SECRET_KEY_BASE")
 
-# 
+#
 config :auth_plug,
   api_key: System.get_env("AUTH_API_KEY")

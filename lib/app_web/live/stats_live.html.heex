@@ -1,0 +1,39 @@
+<main class="font-sans container mx-auto">
+  <div class="relative overflow-x-auto mt-12">
+    <h1 class="mb-2 text-xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl dark:text-white">
+      Stats
+    </h1>
+    <table class="text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
+      <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <tr>
+          <th scope="col" class="px-6 py-3">
+            Id
+          </th>
+          <th scope="col" class="px-6 py-3 text-center">
+            Items
+          </th>
+          <th scope="col" class="px-6 py-3 text-center">
+            Timers
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <%= for metric <- @metrics do %>
+          <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+            <td class="px-6 py-4">
+              <a href={person_link(metric.person_id)}>
+                <%= metric.person_id %>
+              </a>
+            </td>
+            <td class="px-6 py-4 text-center">
+              <%= metric.num_items %>
+            </td>
+            <td class="px-6 py-4 text-center">
+              <%= metric.num_timers %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</main>

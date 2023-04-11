@@ -1,5 +1,5 @@
 defmodule App.ItemTagTest do
-  use App.DataCase
+  use App.DataCase, async: true
   alias App.ItemTag
 
   test "valid tag changeset" do

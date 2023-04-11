@@ -2,14 +2,15 @@ defmodule App.Tag do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
-  alias App.{Item, ItemTag, Person, Repo}
+  alias App.{Item, ItemTag, Repo}
   alias __MODULE__
 
+  @derive {Jason.Encoder, only: [:id, :text, :person_id, :color]}
   schema "tags" do
-    field :text, :string
     field :color, :string
+    field :person_id, :integer
+    field :text, :string
 
-    belongs_to :people, Person, references: :person_id, foreign_key: :person_id
     many_to_many(:items, Item, join_through: ItemTag)
     timestamps()
   end
@@ -19,6 +20,7 @@ defmodule App.Tag do
     tag
     |> cast(attrs, [:person_id, :text, :color])
     |> validate_required([:person_id, :text, :color])
+    |> validate_format(:color, ~r/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/)
     |> unique_constraint([:text, :person_id], name: :tags_text_person_id_index)
   end
 
@@ -28,13 +30,13 @@ defmodule App.Tag do
     |> Repo.insert()
   end
 
-  def parse_and_create_tags(attrs) do
-    (attrs[:tags] || "")
-    |> String.split(",")
-    |> Enum.map(&String.trim/1)
-    |> Enum.reject(&(&1 == ""))
-    |> create_tags(attrs[:person_id])
-  end
+  #  def parse_and_create_tags(attrs) do
+  #    (attrs[:tags] || "")
+  #    |> String.split(",")
+  #    |> Enum.map(&String.trim/1)
+  #    |> Enum.reject(&(&1 == ""))
+  #    |> create_tags(attrs[:person_id])
+  #  end
 
   @doc """
   Insert the list of tag names given as argument.
@@ -77,10 +79,20 @@ defmodule App.Tag do
 
   def get_tag!(id), do: Repo.get!(Tag, id)
 
+  def get_tag(id), do: Repo.get(Tag, id)
+
   def list_person_tags(person_id) do
     Tag
     |> where(person_id: ^person_id)
     |> order_by(:text)
+    |> Repo.all()
+  end
+
+  def list_person_tags_text(person_id) do
+    Tag
+    |> where(person_id: ^person_id)
+    |> order_by(:text)
+    |> select([t], t.text)
     |> Repo.all()
   end
 

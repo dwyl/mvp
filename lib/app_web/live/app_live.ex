@@ -1,11 +1,14 @@
 defmodule AppWeb.AppLive do
+  require Logger
   use AppWeb, :live_view
-  alias App.{Item, Timer}
+  use Timex
+  alias App.{Item, Tag, Timer}
   # run authentication on mount
-  on_mount AppWeb.AuthController
+  on_mount(AppWeb.AuthController)
   alias Phoenix.Socket.Broadcast
 
   @topic "live"
+  @stats_topic "stats"
 
   defp get_person_id(assigns), do: assigns[:person][:id] || 0
 
@@ -13,46 +16,106 @@ defmodule AppWeb.AppLive do
   def mount(_params, _session, socket) do
     # subscribe to the channel
     if connected?(socket), do: AppWeb.Endpoint.subscribe(@topic)
+    AppWeb.Endpoint.subscribe(@stats_topic)
 
     person_id = get_person_id(socket.assigns)
     items = Item.items_with_timers(person_id)
+    tags = Tag.list_person_tags(person_id)
+    selected_tags = []
+    draft_item = Item.get_draft_item(person_id)
 
     {:ok,
      assign(socket,
        items: items,
+       editing_timers: [],
        editing: nil,
        filter: "active",
-       filter_tag: nil
+       filter_tag: nil,
+       tags: tags,
+       selected_tags: selected_tags,
+       text_value: draft_item.text || ""
      )}
   end
 
   @impl true
-  def handle_event("create", %{"text" => text, "tags" => tags}, socket) do
+  def handle_event("validate", %{"text" => text}, socket) do
+    person_id = get_person_id(socket.assigns)
+    draft = Item.get_draft_item(person_id)
+    Item.update_draft(draft, %{text: text})
+    # only save draft if person id != 0 (ie not guest)
+    {:noreply, assign(socket, text_value: text)}
+  end
+
+  @impl true
+  def handle_event("create", %{"text" => text}, socket) do
     person_id = get_person_id(socket.assigns)
 
     Item.create_item_with_tags(%{
       text: text,
       person_id: person_id,
       status: 2,
-      tags: tags
+      tags: socket.assigns.selected_tags
     })
 
+    draft = Item.get_draft_item(person_id)
+    Item.update_draft(draft, %{text: ""})
+
     AppWeb.Endpoint.broadcast(@topic, "update", :create)
-    {:noreply, socket}
+
+    AppWeb.Endpoint.broadcast(
+      @stats_topic,
+      "item",
+      {:create, payload: %{person_id: person_id}}
+    )
+
+    {:noreply, assign(socket, text_value: "", selected_tags: [])}
   end
 
   @impl true
   def handle_event("toggle", data, socket) do
+    person_id = get_person_id(socket.assigns)
+
     # Toggle the status of the item between 3 (:active) and 4 (:done)
     status = if Map.has_key?(data, "value"), do: 4, else: 3
 
     # need to restrict getting items to the people who own or have rights to access them!
     item = Item.get_item!(Map.get(data, "id"))
-    Item.update_item(item, %{status: status})
+    Item.update_item(item, %{status: status, person_id: person_id})
     Timer.stop_timer_for_item_id(item.id)
 
     AppWeb.Endpoint.broadcast(@topic, "update", :toggle)
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("toggle_tag", value, socket) do
+    person_id = get_person_id(socket.assigns)
+    selected_tags = socket.assigns.selected_tags
+    tag = Tag.get_tag!(value["tag_id"])
+    tags = Tag.list_person_tags(person_id)
+
+    selected_tags =
+      if Enum.member?(selected_tags, tag) do
+        List.delete(selected_tags, tag)
+      else
+        [tag | selected_tags]
+      end
+      |> Enum.sort_by(& &1.text)
+
+    {:noreply, assign(socket, tags: tags, selected_tags: selected_tags)}
+  end
+
+  @impl true
+  def handle_event("filter-tags", %{"key" => _key, "value" => value}, socket) do
+    person_id = get_person_id(socket.assigns)
+
+    tags =
+      Tag.list_person_tags(person_id)
+      |> Enum.filter(fn t ->
+        String.contains?(String.downcase(t.text), String.downcase(value))
+      end)
+
+    {:noreply, assign(socket, tags: tags)}
   end
 
   @impl true
@@ -74,7 +137,14 @@ defmodule AppWeb.AppLive do
         start: NaiveDateTime.utc_now()
       })
 
-    AppWeb.Endpoint.broadcast(@topic, "update", :start)
+    AppWeb.Endpoint.broadcast(@topic, "update", {:start, item.id})
+
+    AppWeb.Endpoint.broadcast(
+      @stats_topic,
+      "timer",
+      {:create, payload: %{person_id: person_id}}
+    )
+
     {:noreply, socket}
   end
 
@@ -83,40 +153,119 @@ defmodule AppWeb.AppLive do
     timer_id = Map.get(data, "timerid")
     {:ok, _timer} = Timer.stop(%{id: timer_id})
 
-    AppWeb.Endpoint.broadcast(@topic, "update", :stop)
+    AppWeb.Endpoint.broadcast(@topic, "update", {:stop, Map.get(data, "id")})
     {:noreply, socket}
   end
 
   @impl true
   def handle_event("edit-item", data, socket) do
-    {:noreply, assign(socket, editing: String.to_integer(data["id"]))}
+    item_id = String.to_integer(data["id"])
+
+    timers_list_changeset = Timer.list_timers_changesets(item_id)
+
+    {:noreply,
+     assign(socket, editing: item_id, editing_timers: timers_list_changeset)}
   end
 
   @impl true
   def handle_event(
         "update-item",
-        %{"id" => item_id, "text" => text, "tags" => tags},
+        %{"id" => item_id, "text" => text},
         socket
       ) do
     person_id = get_person_id(socket.assigns)
     current_item = Item.get_item!(item_id)
 
-    Item.update_item_with_tags(current_item, %{
+    Item.update_item(current_item, %{
       text: text,
-      tags: tags,
       person_id: person_id
     })
 
     AppWeb.Endpoint.broadcast(@topic, "update", :update)
-    {:noreply, assign(socket, editing: nil)}
+    {:noreply, assign(socket, editing: nil, editing_timers: [])}
   end
 
   @impl true
-  def handle_info(%Broadcast{event: "update", payload: _message}, socket) do
+  def handle_event(
+        "update-item-timer",
+        %{
+          "timer_id" => id,
+          "index" => index,
+          "timer_start" => timer_start,
+          "timer_stop" => timer_stop
+        },
+        socket
+      ) do
+    timer_changeset_list = socket.assigns.editing_timers
+    index = String.to_integer(index)
+
+    timer = %{
+      id: id,
+      start: timer_start,
+      stop: timer_stop
+    }
+
+    case Timer.update_timer_inside_changeset_list(
+           timer,
+           index,
+           timer_changeset_list
+         ) do
+      {:ok, _list} ->
+        # Updates item list and broadcast to other users
+        AppWeb.Endpoint.broadcast(@topic, "update", :update)
+        {:noreply, assign(socket, editing: nil, editing_timers: [])}
+
+      {:error, updated_errored_list} ->
+        {:noreply, assign(socket, editing_timers: updated_errored_list)}
+    end
+  end
+
+  @impl true
+  def handle_info(%Broadcast{event: "update", payload: payload}, socket) do
     person_id = get_person_id(socket.assigns)
     items = Item.items_with_timers(person_id)
 
-    {:noreply, assign(socket, items: items)}
+    isEditingItem = socket.assigns.editing
+
+    # If the item is being edited, we update the timer list of the item being edited.
+    if isEditingItem do
+      case payload do
+        {:start, item_id} ->
+          timers_list_changeset = Timer.list_timers_changesets(item_id)
+
+          {:noreply,
+           assign(socket,
+             items: items,
+             editing: item_id,
+             editing_timers: timers_list_changeset
+           )}
+
+        {:stop, item_id} ->
+          timers_list_changeset = Timer.list_timers_changesets(item_id)
+
+          {:noreply,
+           assign(socket,
+             items: items,
+             editing: item_id,
+             editing_timers: timers_list_changeset
+           )}
+
+        _ ->
+          {:noreply, assign(socket, items: items)}
+      end
+
+      # If not, just update the item list.
+    else
+      {:noreply, assign(socket, items: items)}
+    end
+  end
+
+  @impl true
+  def handle_info(
+        %Broadcast{topic: @stats_topic, event: _event, payload: _payload},
+        socket
+      ) do
+    {:noreply, socket}
   end
 
   # only show certain UI elements (buttons) if there are items:
@@ -242,10 +391,10 @@ defmodule AppWeb.AppLive do
 
   @doc """
   Convert a list of tags to a string where
-  the tag names are seperated by commas
+  the tag names are separated by commas
 
   ## Examples
-    
+
     tags_to_string([%Tag{text: "Learn"}, %Tag{text: "Elixir"}])
     "Learn, Elixir"
 

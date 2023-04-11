@@ -1,0 +1,55 @@
+[
+  {
+    "name": "Localhost",
+    "variables": [
+      {
+        "value": "http://localhost:4000",
+        "key": "host"
+      },
+      {
+        "value": "1",
+        "key": "item_id"
+      },
+      {
+        "key": "notfound_item_id",
+        "value": "-1"
+      },
+      {
+        "value": "invalid_id",
+        "key": "invalid_id"
+      },
+      {
+        "value": "1",
+        "key": "timer_id"
+      },
+      {
+        "key": "notfound_timer_id",
+        "value": "-1"
+      },
+      {
+        "key": "timer_id_to_stop",
+        "value": "2"
+      },
+      {
+        "key": "tag_id",
+        "value": "9"
+      },
+      {
+        "value": "-1",
+        "key": "notfound_tag_id"
+      },
+      {
+        "key": "item_id_with_tag",
+        "value": "1"
+      },
+      {
+        "value": "1677500147391_nocolor",
+        "key": "random_string"
+      },
+      {
+        "key": "tag_text_to_be_repeated",
+        "value": "yet another tag"
+      }
+    ]
+  }
+]
