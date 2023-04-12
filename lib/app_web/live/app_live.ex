@@ -33,7 +33,10 @@ defmodule AppWeb.AppLive do
        filter_tag: nil,
        tags: tags,
        selected_tags: selected_tags,
-       text_value: draft_item.text || ""
+       text_value: draft_item.text || "",
+
+       # Offset from the client to UTC. If it's "1", it means we are one hour ahead of UTC.
+       hours_offset_fromUTC: get_connect_params(socket)["hours_offset_fromUTC"] || 0
      )}
   end
 
@@ -196,6 +199,8 @@ defmodule AppWeb.AppLive do
         },
         socket
       ) do
+
+    # Fetching the list of timer changesets to update
     timer_changeset_list = socket.assigns.editing_timers
     index = String.to_integer(index)
 
@@ -205,10 +210,12 @@ defmodule AppWeb.AppLive do
       stop: timer_stop
     }
 
+    # Update the timer object we've created inside the changeset list
     case Timer.update_timer_inside_changeset_list(
            timer,
            index,
-           timer_changeset_list
+           timer_changeset_list,
+           socket.assigns.hours_offset_fromUTC
          ) do
       {:ok, _list} ->
         # Updates item list and broadcast to other users
