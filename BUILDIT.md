@@ -4754,6 +4754,8 @@ and the corresponding changes.
 ## 14.5 Adding tests
 
 
+
+
 # 15. Reordering `items` Using Drag & Drop
 
 At present `people` using the `App`
@@ -4772,6 +4774,9 @@ We will implement reordering using
 And by using `Phoenix Liveview`,
 **other people** will also be able 
 to **see the changes in real time**!
+
+
+
 
 ##  15.1 `Item` schema changes
 
