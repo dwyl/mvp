@@ -113,9 +113,14 @@ With that in place, let's get building!
   - [14.3 Building the Stats Page](#143-building-the-stats-page)
   - [14.4 Broadcasting to `stats` channel](#144-broadcasting-to-stats-channel)
   - [14.5 Adding tests](#145-adding-tests)
-- [15. Run the _Finished_ MVP App!](#15-run-the-finished-mvp-app)
-  - [15.1 Run the Tests](#151-run-the-tests)
-  - [15.2 Run The App](#152-run-the-app)
+- [15. Users in different timezones](#15-users-in-different-timezones)
+  - [15.1 Getting the person's timezone](#151-getting-the-persons-timezone)
+  - [15.2 Changing how the timer datetime is displayed](#152-changing-how-the-timer-datetime-is-displayed)
+  - [15.3 Persisting the adjusted timezone](#153-persisting-the-adjusted-timezone)
+  - [15.4 Adding test](#154-adding-test)
+- [16. Run the _Finished_ MVP App!](#16-run-the-finished-mvp-app)
+  - [16.1 Run the Tests](#161-run-the-tests)
+  - [16.2 Run The App](#162-run-the-app)
 - [Thanks!](#thanks)
 
 
@@ -4746,11 +4751,306 @@ and the corresponding changes.
 ## 14.4 Broadcasting to `stats` channel
 ## 14.5 Adding tests
 
-# 15. Run the _Finished_ MVP App!
+
+
+# 15. Users in different timezones
+
+Our application works not only for ourselves
+but in a *collaborative environment*. 
+As you've previosuly witnessed, 
+each person can see the actions of others *in real-time*.
+
+*However*, not everyone lives within the same timezone.
+We might have a person living in UTC+9 
+in South Korea
+and others living in UTC-5 in the United States.
+
+The point is:
+**we need to deal with people living in different timezones**.
+As it stands, the server-side of the applicaiton 
+saves every timer according to the 
+[UTC timezone](https://en.wikipedia.org/wiki/Coordinated_Universal_Time)
+and this is shown to the person as well.
+This, of course, only makes sense to people living
+within this timezone.
+If you were to live on another one,
+the value of the `Datetime` of the timer 
+*wouldn't make sense to you*.
+
+This is an issue we ought to fix.
+Thankfully, 
+it's not a complicated process. 
+
+Let's roll! 🍣
+
+
+## 15.1 Getting the person's timezone
+
+The easiest way to solve this is
+to only change how the timers are displayed
+**according to the timezone of the client**.
+
+**The datetimes will still be saved as UTC within the database**.
+This makes it much easier not only to maintain consistency
+across collaborative environmnents 
+but to also better trail activity.
+
+Since we are going to be adjusting the dates shown
+on the client-side only,
+we need a way for the server to know the timezone as well,
+so we can adjust the updated timer values *back to UTC* 
+before persisting into the database.
+
+We can leverage 
+[`get_connect_params/1`](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#get_connect_params/1)
+to pass information from the client
+to the LiveView server during the mounting phase.
+
+Open `assets/js/app.js`
+and locate the 
+`let liveSocket = new LiveSocket()` variable.
+We are going to be changing the `params` attribute.
+Change it to the following:
+
+```js
+params: {
+  _csrf_token: csrfToken,
+  hours_offset_fromUTC: -new Date().getTimezoneOffset()/60
+}
+```
+
+We are passing a parameter called `hours_offset_fromUTC`
+that represents the amount of hours the client
+is from the UTC.
+By multiplying this value by `-1`, 
+we are calculating *our timezone's offset **from** UTC*.
+For more information,
+visit https://stackoverflow.com/questions/13/determine-a-users-timezone/1809974#1809974.
+
+To use this within LiveView,
+we are going to be assigning this value to the socket.
+For this, open `lib/app_web/live/app_live.ex`
+and locate the `mount/3` function at the top of the file.
+We are going to be adding this new value to the socket assigns,
+like so:
+
+```elixir
+  {:ok,
+    assign(socket,
+      items: items,
+      editing_timers: [],
+      editing: nil,
+      filter: "active",
+      filter_tag: nil,
+      tags: tags,
+      selected_tags: selected_tags,
+      text_value: draft_item.text || "",
+
+      # Offset from the client to UTC. If it's "1", it means we are one hour ahead of UTC.
+      hours_offset_fromUTC: get_connect_params(socket)["hours_offset_fromUTC"] || 0
+  )}
+```
+
+If `hours_offset_fromUTC` is not defined, 
+we assume the user is in the UTC timezone
+(it has a value of 0).
+
+Awesome! 🎉
+
+Now we can use this value to adjust the timezone 
+to adjust the timezone everytime we update a timer!
+But before that, 
+let's adjust how it is *displayed to the person*.
+
+
+## 15.2 Changing how the timer datetime is displayed
+
+Open `lib/app_web/live/app_live.html.heex`
+and locate the line
+`<%= @editing_timers |> Enum.with_index |> Enum.map(fn({changeset, index}) -> %>`.
+We are going to be changing the **Start** and **Stop** value
+of the timer.
+
+Inside this loop,
+locate the `<input>` tags pertaining to the `timer_start`
+and `timer_top` and change them.
+
+For `timer_start`, change it to:
+
+```html
+<input
+  type="text"
+  required="required"
+  name="timer_start"
+  id={"#{changeset.data.id}_start"}
+  value={NaiveDateTime.add(changeset.data.start, @hours_offset_fromUTC, :hour)}
+/>
+```
+
+And for `timer_stop`, make these changes:
+
+```html
+<input
+  type="text"
+  name="timer_stop"
+  id={"#{changeset.data.id}_stop"}
+  value={if is_nil(changeset.data.stop) do changeset.data.stop else NaiveDateTime.add(changeset.data.stop, @hours_offset_fromUTC, :hour) end}
+/>
+```
+
+We are changing the number of hours displayed
+according to the `@hours_offset_fromUTC` socket assigns
+we've declared previously.
+In the `timer_stop` case,
+we are checking if the value is `nil`
+(ongoing timers have the `stop` field as `nil`)
+so they are displayed properly.
+
+To see the changes needed,
+please check 
+[`lib/app_web/live/app_live.html.heex`](https://github.com/dwyl/mvp/blob/63d98958be8f858e6ebcd063fa022bb59964b612/lib/app_web/live/app_live.html.heex#L326-L341).
+
+
+## 15.3 Persisting the adjusted timezone
+
+Now that we are displaying the correct timezones,
+we need to make sure the adjusted updated timer
+is **converted *back* to UTC before persisting into the database**.
+
+For this, 
+we simply need to do this operation
+inside the `update_timer_inside_changeset_list/3` function
+inside `lib/app/timer.ex`.
+
+This function will now receive the adjusted timezone 
+and change the updated timer value(s) *back* to UTC.
+Now the function will receive a new parameter
+with the `hours_offset_fromUTC`.
+
+Locate the two pattern match functions called `update_timer_inside_changeset_list`
+and add a new parameter:
+
+```elixir
+def update_timer_inside_changeset_list(
+        %{
+          id: timer_id,
+          start: timer_start,
+          stop: timer_stop
+        },
+        index,
+        timer_changeset_list,
+        hours_offset_fromUTC      # add this line
+      )
+```
+
+In the first function 
+(with the guard `when timer_stop == "" or timer_stop == nil`),
+add the following line.
+
+```elixir
+ def update_timer_inside_changeset_list(
+        %{
+          id: timer_id,
+          start: timer_start,
+          stop: timer_stop
+        },
+        index,
+        timer_changeset_list,
+        hours_offset_fromUTC
+      )
+      when timer_stop == "" or timer_stop == nil do
+
+    changeset_obj = Enum.at(timer_changeset_list, index)
+    try do
+
+      {start_op, start} =
+        Timex.parse(timer_start, "%Y-%m-%dT%H:%M:%S", :strftime)
+
+      if start_op === :error do
+        throw(:error_invalid_start)
+      end
+
+      # Add this new line
+      start = NaiveDateTime.add(start, -hours_offset_fromUTC, :hour)
+
+      other_timers_list = List.delete_at(timer_changeset_list, index)
+```
+
+On the other pattern-matched function,
+add the following lines.
+
+```elixir
+  def update_timer_inside_changeset_list(
+        %{
+          id: timer_id,
+          start: timer_start,
+          stop: timer_stop
+        },
+        index,
+        timer_changeset_list,
+        hours_offset_fromUTC
+      ) do
+
+    changeset_obj = Enum.at(timer_changeset_list, index)
+    try do
+
+      {start_op, start} =
+        Timex.parse(timer_start, "%Y-%m-%dT%H:%M:%S", :strftime)
+      {stop_op, stop} = Timex.parse(timer_stop, "%Y-%m-%dT%H:%M:%S", :strftime)
+
+      if start_op === :error do
+        throw(:error_invalid_start)
+      end
+      if stop_op === :error do
+        throw(:error_invalid_stop)
+      end
+
+      # Add these two lines
+      start = NaiveDateTime.add(start, -hours_offset_fromUTC, :hour)
+      stop = NaiveDateTime.add(stop, -hours_offset_fromUTC, :hour)
+```
+
+If you want to see the changes you need to make,
+please check 
+[`lib/app/timer.ex`](https://github.com/dwyl/mvp/blob/63d98958be8f858e6ebcd063fa022bb59964b612/lib/app/timer.ex#L153-L260).
+
+The last thing we need to do is 
+pass this new parameter inside 
+`lib/app_web/live/app_live.ex`
+that *calls* this function.
+
+Locate 
+```elixir
+def handle_event("update-item-timer"
+```
+
+and pass the `hours_offset_fromUTC` assign from the socket
+to the `update_timer_inside_changeset_list/4`.
+
+```elixir
+case Timer.update_timer_inside_changeset_list(
+        timer,
+        index,
+        timer_changeset_list,
+        socket.assigns.hours_offset_fromUTC    # add this new line
+) do
+```
+
+If you're curious to see the change you ought to make,
+please check
+[`lib/app_web/live/app_live.ex`](https://github.com/dwyl/mvp/blob/63d98958be8f858e6ebcd063fa022bb59964b612/lib/app_web/live/app_live.ex#L218).
+
+
+## 15.4 Adding test
+
+
+
+
+# 16. Run the _Finished_ MVP App!
 
 With all the code saved, let's run the tests one more time.
 
-## 15.1 Run the Tests
+## 16.1 Run the Tests
 
 In your terminal window, run: 
 
@@ -4779,7 +5079,7 @@ COV    FILE                                        LINES RELEVANT   MISSED
 All tests pass and we have **`100%` Test Coverage**.
 This reminds us just how few _relevant_ lines of code there are in the MVP!
 
-## 15.2 Run The App
+## 16.2 Run The App
 
 In your second terminal tab/window, run:
 
