@@ -552,11 +552,11 @@ defmodule AppWeb.AppLiveTest do
     {:ok, persisted_stop} = NaiveDateTime.from_iso8601("2022-10-27T00:30:00")
 
     render_submit(view, "update-item-timer", %{
-             "timer_id" => timer.id,
-             "index" => 0,
-             "timer_start" => start,
-             "timer_stop" => stop
-           })
+      "timer_id" => timer.id,
+      "index" => 0,
+      "timer_start" => start,
+      "timer_stop" => stop
+    })
 
     updated_timer = Timer.get_timer!(timer.id)
 
