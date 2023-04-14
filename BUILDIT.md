@@ -5043,7 +5043,64 @@ please check
 
 ## 15.4 Adding test
 
+Let's add a test case that will check if the datetime 
+is shown with an offset that is mocked during testing.
+We expect the datetime to show a different datetime
+than the `Timer` object that is persisted in the database.
 
+Let's test it.
+Open `test/app_web/live/app_live_test.exs`
+and add the following unit test.
+
+```elixir
+  test "item\'s timer shows correct value (adjusted timezone)", %{conn: conn} do
+    {:ok, %{model: item, version: _version}} =
+      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+
+    {:ok, seven_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
+
+    # Start the timer 7 seconds ago:
+    {:ok, timer} =
+      Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
+
+    # Stop the timer based on its item_id
+    Timer.stop_timer_for_item_id(item.id)
+
+
+    # Adding timezone socket assign to simulate we're one hour ahead of UTC
+    hours_offset_fromUTC = 1
+    conn = put_connect_params(conn, %{"hours_offset_fromUTC" => hours_offset_fromUTC})
+
+    {:ok, view, _html} = live(conn, "/")
+
+
+    view = render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    # `Start` and `stop` of the timer in the database (in UTC)
+    # We expect the `start` and `stop` to be shown with one hour more in the view
+    updated_timer = Timer.get_timer!(timer.id)
+
+    expected_start = NaiveDateTime.add(updated_timer.start, hours_offset_fromUTC, :hour) |> NaiveDateTime.to_iso8601
+    expected_stop = NaiveDateTime.add(updated_timer.stop, hours_offset_fromUTC, :hour) |> NaiveDateTime.to_iso8601
+
+    # See if the timers are being shown correctly
+    assert view =~ expected_start
+    assert view =~ expected_stop
+  end
+```
+
+As you can see,
+since we are using `get_connect_params` when mounting
+in the LiveView to get the timezone,
+we are using 
+[`put_connect_params`](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveViewTest.html#put_connect_params/2)
+in our unit test to mock this value.
+
+We are passing with a value of `1`.
+With this, we expect the timer values
+in the view to be shown 
+the timer value with one hour incremented.
 
 
 # 16. Run the _Finished_ MVP App!
