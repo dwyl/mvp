@@ -523,24 +523,47 @@ defmodule AppWeb.AppLiveTest do
 
     {:ok, view, _html} = live(conn, "/")
 
-    view =
+    edit_timer_view =
       render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
 
     # `Start` and `stop` of the timer in the database (in UTC)
     # We expect the `start` and `stop` to be shown with one hour more in the view
+    timer = Timer.get_timer!(timer.id)
+
+    expected_start_in_view =
+      NaiveDateTime.add(timer.start, hours_offset_fromUTC, :hour)
+      |> NaiveDateTime.to_iso8601()
+
+    expected_stop_in_view =
+      NaiveDateTime.add(timer.stop, hours_offset_fromUTC, :hour)
+      |> NaiveDateTime.to_iso8601()
+
+    # Check if timers are being shown correctly.
+    # They should be adjusted to timezone.
+    assert edit_timer_view =~ expected_start_in_view
+    assert edit_timer_view =~ expected_stop_in_view
+
+    # Now let's update the timer with a new value.
+    # This is the value the user inputs in the client-side.
+    # Since the user is in UTC+1, the persisted value should be adjusted
+    start = "2022-10-27T01:00:00"
+    stop = "2022-10-27T01:30:00"
+    {:ok, persisted_start} = NaiveDateTime.from_iso8601("2022-10-27T00:00:00")
+    {:ok, persisted_stop} = NaiveDateTime.from_iso8601("2022-10-27T00:30:00")
+
+    render_submit(view, "update-item-timer", %{
+             "timer_id" => timer.id,
+             "index" => 0,
+             "timer_start" => start,
+             "timer_stop" => stop
+           })
+
     updated_timer = Timer.get_timer!(timer.id)
 
-    expected_start =
-      NaiveDateTime.add(updated_timer.start, hours_offset_fromUTC, :hour)
-      |> NaiveDateTime.to_iso8601()
-
-    expected_stop =
-      NaiveDateTime.add(updated_timer.stop, hours_offset_fromUTC, :hour)
-      |> NaiveDateTime.to_iso8601()
-
-    # See if the timers are being shown correctly
-    assert view =~ expected_start
-    assert view =~ expected_stop
+    # The persisted datetime in the database should be one hour less
+    # than what the user has input.
+    assert NaiveDateTime.compare(updated_timer.start, persisted_start) == :eq
+    assert NaiveDateTime.compare(updated_timer.stop, persisted_stop) == :eq
   end
 
   test "timer_text(start, stop) UNDER 1000s" do
