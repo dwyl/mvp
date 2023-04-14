@@ -501,6 +501,42 @@ defmodule AppWeb.AppLiveTest do
            }) =~ "This timer interval overlaps with other timers."
   end
 
+  test "item\'s timer shows correct value (adjusted timezone)", %{conn: conn} do
+    {:ok, %{model: item, version: _version}} =
+      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+
+    {:ok, seven_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
+
+    # Start the timer 7 seconds ago:
+    {:ok, timer} =
+      Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
+
+    # Stop the timer based on its item_id
+    Timer.stop_timer_for_item_id(item.id)
+
+
+    # Adding timezone socket assign to simulate we're one hour ahead of UTC
+    hours_offset_fromUTC = 1
+    conn = put_connect_params(conn, %{"hours_offset_fromUTC" => hours_offset_fromUTC})
+
+    {:ok, view, _html} = live(conn, "/")
+
+
+    view = render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    # `Start` and `stop` of the timer in the database (in UTC)
+    # We expect the `start` and `stop` to be shown with one hour more in the view
+    updated_timer = Timer.get_timer!(timer.id)
+
+    expected_start = NaiveDateTime.add(updated_timer.start, hours_offset_fromUTC, :hour) |> NaiveDateTime.to_iso8601
+    expected_stop = NaiveDateTime.add(updated_timer.stop, hours_offset_fromUTC, :hour) |> NaiveDateTime.to_iso8601
+
+    # See if the timers are being shown correctly
+    assert view =~ expected_start
+    assert view =~ expected_stop
+  end
+
   test "timer_text(start, stop) UNDER 1000s" do
     timer = %{
       start: ~N[2022-07-17 09:01:42.000000],
