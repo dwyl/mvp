@@ -1,6 +1,7 @@
 defmodule App.List do
   use Ecto.Schema
   import Ecto.Changeset
+  alias App.{Repo}
   alias PaperTrail
   alias __MODULE__
 
@@ -35,6 +36,26 @@ defmodule App.List do
     %List{}
     |> changeset(attrs)
     |> PaperTrail.insert()
+  end
+
+  @doc """
+  `get_list!/1` gets the `list` record.
+
+  Raises `Ecto.NoResultsError` if the List does not exist.
+
+  ## Examples
+
+      iex> get_list!(17)
+      %List{}
+
+      iex> get_list!(420)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_list!(id) do
+    List
+    |> Repo.get!(id)
+    # |> Repo.preload(tags: from(t in Tag, order_by: t.text))
   end
 
   @doc """
