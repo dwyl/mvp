@@ -6,6 +6,7 @@ defmodule App.Repo.Migrations.CreateItems do
       add(:text, :string)
       add(:person_id, :integer)
       add(:status, :integer)
+      add(:position, :integer)
 
       timestamps()
     end

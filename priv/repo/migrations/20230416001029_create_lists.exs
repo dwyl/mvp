@@ -3,9 +3,9 @@ defmodule App.Repo.Migrations.CreateLists do
 
   def change do
     create table(:lists) do
+      add :name, :string
       add :person_id, :integer
       add :status, :integer
-      add :text, :string
 
       timestamps()
     end
