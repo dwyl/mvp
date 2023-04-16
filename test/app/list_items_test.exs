@@ -11,7 +11,7 @@ defmodule App.ListItemsTest do
       assert {:ok, %{model: item, version: _version}} =
         Item.create_item(@valid_item_attrs)
       assert item.text == "some text"
-      dbg(item)
+      # dbg(item)
 
       # Create list
       assert {:ok, %{model: list, version: _version}} =
@@ -20,7 +20,10 @@ defmodule App.ListItemsTest do
 
       # Add the item to the list:
       assert {:ok, list_item} = ListItem.add_list_item(item, list, 42.0)
-      dbg(list_item)
+      # dbg(list_item)
+      assert list_item.item_id == item.id
+      assert list_item.list_id == list.id
+      assert list_item.person_id == item.person_id
     end
 
     # test "create_item/1 with long text" do
