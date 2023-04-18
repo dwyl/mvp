@@ -12,7 +12,6 @@ defmodule App.ListItemsTest do
                Item.create_item(@valid_item_attrs)
 
       assert item.text == "some text"
-      # dbg(item)
 
       # Create list
       assert {:ok, %{model: list, version: _version}} =
@@ -26,25 +25,20 @@ defmodule App.ListItemsTest do
       assert list_item.item_id == item.id
       assert list_item.list_id == list.id
       assert list_item.person_id == item.person_id
+
+      # Create SECOND list to confirm that an item
+      # can be added to multiple lists
+      list2_data = %{name: "Second List", person_id: 1, status: 2}
+
+      assert {:ok, %{model: list2, version: _version}} =
+               List.create_list(list2_data)
+
+      assert list2.name == list2_data.name
+
+      # Add the item to the list:
+      assert {:ok, list_item2} = ListItem.add_list_item(item, list2, 42.0)
+      assert list_item2.list_id !== list_item.list_id
     end
-
-    # test "create_item/1 with long text" do
-    #   attrs = %{
-    #     text: "This is a long text, This is a long text,
-    #             This is a long text,This is a long text,This is a long text,
-    #             This is a long text,This is a long text,This is a long text,
-    #             This is a long text,This is a long text,This is a long text,
-    #             This is a long text,This is a long text,This is a long text,
-    #             This is a long text,This is a long text,This is a long text,
-    #         ",
-    #     person_id: 1,
-    #     status: 2
-    #   }
-
-    #   assert {:ok, %{model: item, version: _version}} = Item.create_item(attrs)
-
-    #   assert item.text == attrs.text
-    # end
 
     # test "create_list/1 with invalid data returns error changeset" do
     #   assert {:error, %Ecto.Changeset{}} = List.create_list(@invalid_attrs)

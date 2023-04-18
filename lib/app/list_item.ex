@@ -1,6 +1,6 @@
 defmodule App.ListItem do
   use Ecto.Schema
-  # import Ecto.Changeset
+  import Ecto.Changeset
   alias App.{Repo}
   alias __MODULE__
 
@@ -15,12 +15,12 @@ defmodule App.ListItem do
     timestamps()
   end
 
-  # @doc false
-  # def changeset(list_item) do
-  #   %ListItem{}
-  #   |> cast(attrs.item, [:person_id])
-  #   |> validate_required([:person_id])
-  # end
+  @doc false
+  def changeset(list_item) do
+    list_item
+    |> cast(Map.from_struct(list_item), [:person_id, :position])
+    |> validate_required([:person_id])
+  end
 
   @doc """
   `add_list_item/3` adds an `item` to a `list`.
@@ -41,7 +41,7 @@ defmodule App.ListItem do
       position: position,
       person_id: item.person_id
     }
-    # |> changeset()
+    |> changeset()
     |> Repo.insert()
   end
 end

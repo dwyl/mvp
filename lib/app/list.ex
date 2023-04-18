@@ -17,7 +17,7 @@ defmodule App.List do
   def changeset(list, attrs) do
     list
     |> cast(attrs, [:name, :person_id, :status])
-    |> validate_required([:name, :person_id, :status])
+    |> validate_required([:name, :person_id])
   end
 
   @doc """
