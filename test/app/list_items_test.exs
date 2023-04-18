@@ -9,13 +9,15 @@ defmodule App.ListItemsTest do
     test "add_list_item/2 adds an item to a list" do
       # Create an item
       assert {:ok, %{model: item, version: _version}} =
-        Item.create_item(@valid_item_attrs)
+               Item.create_item(@valid_item_attrs)
+
       assert item.text == "some text"
       # dbg(item)
 
       # Create list
       assert {:ok, %{model: list, version: _version}} =
                List.create_list(@valid_list_attrs)
+
       assert list.name == "some text"
 
       # Add the item to the list:

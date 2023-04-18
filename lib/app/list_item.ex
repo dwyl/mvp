@@ -16,7 +16,7 @@ defmodule App.ListItem do
   end
 
   # @doc false
-  # def changeset(attrs) do
+  # def changeset(list_item) do
   #   %ListItem{}
   #   |> cast(attrs.item, [:person_id])
   #   |> validate_required([:person_id])
@@ -35,7 +35,12 @@ defmodule App.ListItem do
 
   """
   def add_list_item(item, list, position) do
-    %ListItem{item: item, list: list, position: position, person_id: item.person_id}
+    %ListItem{
+      item: item,
+      list: list,
+      position: position,
+      person_id: item.person_id
+    }
     # |> changeset()
     |> Repo.insert()
   end

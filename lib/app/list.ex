@@ -55,6 +55,7 @@ defmodule App.List do
   def get_list!(id) do
     List
     |> Repo.get!(id)
+
     # |> Repo.preload(tags: from(t in Tag, order_by: t.text))
   end
 
