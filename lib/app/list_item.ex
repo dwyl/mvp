@@ -48,7 +48,7 @@ defmodule App.ListItem do
       item: item,
       list: list,
       person_id: person_id,
-      position: 999999.999
+      position: 999_999.999
     }
     |> changeset()
     |> Repo.insert()
