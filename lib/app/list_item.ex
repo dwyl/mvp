@@ -23,25 +23,54 @@ defmodule App.ListItem do
   end
 
   @doc """
-  `add_list_item/3` adds an `item` to a `list`.
-
-  ## Examples
-
-      iex> create_list(%{text: "Personal Todo List"})
-      {:ok, %List{}}
-
-      iex> create_list(%{text: nil})
-      {:error, %Ecto.Changeset{}}
-
+  `add_list_item/4` adds an `item` to a `list`.
   """
-  def add_list_item(item, list, position) do
+  def add_list_item(item, list, person_id, position) do
     %ListItem{
       item: item,
       list: list,
-      position: position,
-      person_id: item.person_id
+      person_id: person_id,
+      position: position
     }
     |> changeset()
     |> Repo.insert()
   end
+
+  @doc """
+  `remove_list_item/3` "removes" an `item` from a `list`
+  by inserting a record where the position=999999.999
+  Given that `list_items` is an append-only to preserve history,
+  we need a way of ignoring an item that should no longer be on a list.
+  If you have a better suggestion, please share: github.com/dwyl/mvp/issues/356
+  """
+  def remove_list_item(item, list, person_id) do
+    %ListItem{
+      item: item,
+      list: list,
+      person_id: person_id,
+      position: 999999.999
+    }
+    |> changeset()
+    |> Repo.insert()
+  end
+
+  @doc """
+  `get_list_items/1` retrieves `list_items` in order for a given `list_id`.
+  Should only return one row per item + list combo (i.e. GROUP BY)
+  and should ignore items that have a position=999999.999
+  """
+  # def get_list_items(list_id) do
+  #   sql = """
+  #   SELECT i.person_id,
+  #   COUNT(distinct i.id) AS "num_items",
+  #   COUNT(distinct t.id) AS "num_timers"
+  #   FROM items i
+  #   LEFT JOIN timers t ON t.item_id = i.id
+  #   GROUP BY i.person_id
+  #   ORDER BY i.person_id
+  #   """
+
+  #   Ecto.Adapters.SQL.query!(Repo, sql)
+  #   |> map_columns_to_values()
+  # end
 end

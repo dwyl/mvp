@@ -19,10 +19,11 @@ config :app, AppWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
   secret_key_base:
     "aEkLhne04vW3X5PM63O85Ie57c+KoT1z5bl0TdtBE1veN8BbER7MpOgZ6FgD7dWu",
-  server: false
+  # github.com/dwyl/mvp/issues/359
+  server: true
 
 # Print only warnings and errors during test
-config :logger, level: :info
+config :logger, level: :warn
 
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime

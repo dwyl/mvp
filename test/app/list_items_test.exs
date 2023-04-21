@@ -4,23 +4,23 @@ defmodule App.ListItemsTest do
 
   describe "add items to list" do
     @valid_item_attrs %{text: "some text", person_id: 1, status: 2}
-    @valid_list_attrs %{name: "some text", person_id: 1, status: 2}
+    @valid_list_attrs %{name: "some list", person_id: 1, status: 2}
 
-    test "add_list_item/2 adds an item to a list" do
+    test "add_list_item/3 adds an item to a list" do
       # Create an item
       assert {:ok, %{model: item, version: _version}} =
                Item.create_item(@valid_item_attrs)
 
-      assert item.text == "some text"
+      assert item.text == @valid_item_attrs.text
 
       # Create list
       assert {:ok, %{model: list, version: _version}} =
                List.create_list(@valid_list_attrs)
 
-      assert list.name == "some text"
+      assert list.name == @valid_list_attrs.name
 
       # Add the item to the list:
-      assert {:ok, list_item} = ListItem.add_list_item(item, list, 42.0)
+      assert {:ok, list_item} = ListItem.add_list_item(item, list, 1, 42.0)
       # dbg(list_item)
       assert list_item.item_id == item.id
       assert list_item.list_id == list.id
@@ -36,8 +36,31 @@ defmodule App.ListItemsTest do
       assert list2.name == list2_data.name
 
       # Add the item to the list:
-      assert {:ok, list_item2} = ListItem.add_list_item(item, list2, 42.0)
+      assert {:ok, list_item2} = ListItem.add_list_item(item, list2, 1, 42.0)
       assert list_item2.list_id !== list_item.list_id
+    end
+
+    test "remove_list_item/2 removes an item from a list" do
+      # Create an item
+      assert {:ok, %{model: item, version: _version}} =
+               Item.create_item(@valid_item_attrs)
+
+      # Create list
+      assert {:ok, %{model: list, version: _version}} =
+               List.create_list(@valid_list_attrs)
+
+      assert list.name == @valid_list_attrs.name
+
+      # Add the item to the list:
+      assert {:ok, list_item} = ListItem.add_list_item(item, list, 1, 42.0)
+      # dbg(list_item)
+      assert list_item.item_id == item.id
+      assert list_item.list_id == list.id
+
+      # "REMOVE" the item from the list:
+      # See: github.com/dwyl/mvp/issues/357
+      assert {:ok, list_item_removed} = ListItem.remove_list_item(item, list, 1)
+      assert list_item_removed.position == 999_999.999
     end
 
     # test "create_list/1 with invalid data returns error changeset" do
