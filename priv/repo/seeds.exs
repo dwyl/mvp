@@ -37,11 +37,14 @@ if env == :test do
   Repo.insert!(%ItemTag{item_id: item3.id, tag_id: tag3.id})
 
   # Timers
-  {:ok, started} = NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -1))
+  {:ok, started} =
+    NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -1))
+
   {:ok, _timer1} =
     Timer.start(%{item_id: item1.id, person_id: person_id, start: started})
+
   {:ok, _timer2} =
-      Timer.start(%{item_id: item2.id, person_id: person_id, start: started})
+    Timer.start(%{item_id: item2.id, person_id: person_id, start: started})
 
   # List!
   list1_data = %{name: "Shopping List", person_id: person_id, status: 2}
