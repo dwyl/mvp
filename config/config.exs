@@ -1,7 +1,9 @@
 import Config
 
 config :app,
-  ecto_repos: [App.Repo]
+  ecto_repos: [App.Repo],
+  # rickaard.se/blog/how-to-only-run-some-code-in-production-with-phoenix-and-elixir
+  env: config_env()
 
 # Configures the endpoint
 config :app, AppWeb.Endpoint,

@@ -40,7 +40,7 @@ defmodule App.Item do
   end
 
   @doc """
-  Creates an `item`.
+  `create_item/1` creates an `item`.
 
   ## Examples
 

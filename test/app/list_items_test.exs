@@ -62,28 +62,5 @@ defmodule App.ListItemsTest do
       assert {:ok, list_item_removed} = ListItem.remove_list_item(item, list, 1)
       assert list_item_removed.position == 999_999.999
     end
-
-    # test "create_list/1 with invalid data returns error changeset" do
-    #   assert {:error, %Ecto.Changeset{}} = List.create_list(@invalid_attrs)
-    # end
-
-    # test "list_items/0 returns a list of items stored in the DB" do
-    #   {:ok, %{model: _item1, version: _version}} =
-    #     Item.create_item(@valid_attrs)
-
-    #   {:ok, %{model: _item2, version: _version}} =
-    #     Item.create_item(@valid_attrs)
-
-    #   assert Enum.count(Item.list_items()) == 2
-    # end
-
-    # test "update_item/2 with valid data updates the item" do
-    #   {:ok, %{model: list, version: _version}} = List.create_list(@valid_attrs)
-
-    #   assert {:ok, %{model: list, version: _version}} =
-    #            List.update_list(list, @update_attrs)
-
-    #   assert list.name == "some updated text"
-    # end
   end
 end
