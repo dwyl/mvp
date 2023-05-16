@@ -7,14 +7,6 @@ import topbar from "../vendor/topbar"
 
 
 let Hooks = {}
-Hooks.LocalTz = {
-  mounted() {
-    let localTz =
-      Intl.DateTimeFormat().resolvedOptions().timeZone
-    this.pushEvent("local-timezone", {local_timezone: localTz})
-  }
-}
-
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 
 let liveSocket = new LiveSocket("/live", Socket, {
