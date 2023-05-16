@@ -12,7 +12,6 @@ defmodule AppWeb.AppLive do
 
   defp get_person_id(assigns), do: assigns[:person][:id] || 0
 
-
   on_mount AppWeb.Hooks.LocalTimeZoneHook
 
   @impl true
