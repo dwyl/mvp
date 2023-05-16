@@ -12,6 +12,9 @@ defmodule AppWeb.AppLive do
 
   defp get_person_id(assigns), do: assigns[:person][:id] || 0
 
+
+  on_mount AppWeb.Hooks.LocalTimeZoneHook
+
   @impl true
   def mount(_params, _session, socket) do
     # subscribe to the channel
