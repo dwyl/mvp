@@ -184,10 +184,11 @@ defmodule App.Timer do
 
       # If there are other timers, we check if there are no overlap
       if(length(other_timers_list) > 0) do
-
         # Latest timer end
         max_end =
-          other_timers_list |> Enum.map(fn chs -> chs.data.stop end) |> Enum.max()
+          other_timers_list
+          |> Enum.map(fn chs -> chs.data.stop end)
+          |> Enum.max()
 
         case NaiveDateTime.compare(start, max_end) do
           :gt ->
@@ -199,14 +200,12 @@ defmodule App.Timer do
             throw(:error_not_after_others)
         end
 
-      # If there are no other timers, we can update the timer safely
+        # If there are no other timers, we can update the timer safely
       else
         timer = get_timer(timer_id)
         update_timer(timer, %{start: start, stop: nil})
         {:ok, []}
       end
-
-
     catch
       :error_invalid_start ->
         updated_changeset_timers_list =
