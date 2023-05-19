@@ -48,9 +48,14 @@ if env == :test || env == :dev do
   tag0 =
     Repo.insert!(%Tag{person_id: person_id, text: "start!", color: "#16A34A"})
 
-  tag1 = Repo.insert!(%Tag{person_id: person_id, text: "shopping", color: "#F59E0B"})
-  tag2 = Repo.insert!(%Tag{person_id: person_id, text: "baking", color: "#3B82F6"})
-  tag3 = Repo.insert!(%Tag{person_id: person_id, text: "breakfast", color: "#FACC15"})
+  tag1 =
+    Repo.insert!(%Tag{person_id: person_id, text: "shopping", color: "#F59E0B"})
+
+  tag2 =
+    Repo.insert!(%Tag{person_id: person_id, text: "baking", color: "#3B82F6"})
+
+  tag3 =
+    Repo.insert!(%Tag{person_id: person_id, text: "breakfast", color: "#FACC15"})
 
   # Associate items with tags:
   Repo.insert!(%ItemTag{item_id: item0.id, tag_id: tag0.id})
@@ -81,7 +86,6 @@ if env == :test || env == :dev do
   {:ok, _list_item} = ListItem.add_list_item(item4, list1, person_id, 1.0)
 
   # Re-order items:
-
 
   # Remove "Go to Shops" from list1:
   ListItem.remove_list_item(item4, list1, person_id)
