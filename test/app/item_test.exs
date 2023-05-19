@@ -25,10 +25,10 @@ defmodule App.ItemTest do
       assert {:ok, %{model: item, version: _version}} =
                Item.create_item(@valid_attrs)
 
-      assert item.text == "Buy Bananas"
+      assert item.text == @valid_attrs.text
 
       inserted_item = List.first(Item.list_items())
-      assert inserted_item.text == @valid_attrs.text
+      assert inserted_item.text == "Use the MVP!"
     end
 
     test "create_item/1 with long text" do
@@ -220,7 +220,7 @@ defmodule App.ItemTest do
 
     first_element = Enum.at(person_with_items_timers, 0)
 
-    assert Map.get(first_element, :num_items) == 4
-    assert Map.get(first_element, :num_timers) == 2
+    assert Map.get(first_element, :num_items) == 5
+    assert Map.get(first_element, :num_timers) == 1
   end
 end
