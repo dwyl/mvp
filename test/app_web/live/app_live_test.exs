@@ -270,6 +270,50 @@ defmodule AppWeb.AppLiveTest do
            }) =~ "Stop field has an invalid date format."
   end
 
+  test "update timer while it's ongoing for the first time", %{conn: conn} do
+    {:ok, %{model: item, version: _version}} =
+      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+
+    {:ok, seven_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
+
+    {:ok, now} = NaiveDateTime.new(Date.utc_today(), Time.utc_now())
+
+    # Start the timer 7 seconds ago:
+    {:ok, timer} =
+      Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
+
+    {:ok, view, _html} = live(conn, "/")
+
+    # Get string representation of current time
+    now_string =
+      NaiveDateTime.truncate(now, :second)
+      |> NaiveDateTime.to_string()
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.map(fn {value, index} ->
+        if index == 10 do
+          "T"
+        else
+          value
+        end
+      end)
+      |> List.to_string()
+
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer.id,
+             "index" => 0,
+             "timer_start" => now_string,
+             "timer_stop" => ""
+           })
+
+    # Timer should have updated value
+    updated_timer = Timer.get_timer!(timer.id)
+    assert updated_timer.start == NaiveDateTime.truncate(now, :second)
+  end
+
   test "update timer timer with ongoing timer ", %{conn: conn} do
     {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
