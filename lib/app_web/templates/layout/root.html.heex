@@ -76,8 +76,14 @@
           </div>
           <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
             <div class="flex flex-shrink-0 items-center">
-              <img class="block h-8 w-auto lg:hidden" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company">
-              <img class="hidden h-8 w-auto lg:block" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company">
+              <a href="/" class="flex items-center">
+                <img
+                  src="https://dwyl.com/img/common/dwyl-heart-only-logo.png"
+                  height="32"
+                  width="32"
+                  alt="dwyl logo"
+                />
+              </a>
             </div>
             <div class="hidden sm:ml-6 sm:block">
               <div class="flex space-x-4">
@@ -131,7 +137,7 @@
               </div>
             <% else %>
               <div class="flex-shrink-0">
-                <%= link to: "/login" , class: "relative inline-flex items-center gap-x-1.5 rounded-md bg-indigo-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500" do %>
+                <%= link to: "/login" , class: "relative inline-flex items-center gap-x-1.5 rounded-md bg-[#0F766E] px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500" do %>
                   Login
                 <% end %>
               </div>
