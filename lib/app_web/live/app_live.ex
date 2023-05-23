@@ -217,11 +217,13 @@ defmodule AppWeb.AppLive do
            timer_changeset_list,
            socket.assigns.hours_offset_fromUTC
          ) do
+      # list is empty if the changeset is valid
       {:ok, _list} ->
-        #timer_changeset_list = socket.assigns.editing_timers
-        #item = Enum.at(timer_changeset_list, index)
 
-        #Item.update_item(item, %{})
+        # timer_changeset_list = socket.assigns.editing_timers
+        # item = Enum.at(timer_changeset_list, index)
+
+        # Item.update_item(item, %{})
         # Updates item list and broadcast to other users
         AppWeb.Endpoint.broadcast(@topic, "update", :update)
         {:noreply, assign(socket, editing: nil, editing_timers: [])}
@@ -241,11 +243,11 @@ defmodule AppWeb.AppLive do
     dbg(payload)
     dbg(isEditingItem)
 
-    #[(app 1.0.0) lib/app_web/live/app_live.ex:241: AppWeb.AppLive.handle_info/2]
-    #payload #=> {:stop, "18"}
-#
-    #[(app 1.0.0) lib/app_web/live/app_live.ex:242: AppWeb.AppLive.handle_info/2]
-    #isEditingItem #=> nil
+    # [(app 1.0.0) lib/app_web/live/app_live.ex:241: AppWeb.AppLive.handle_info/2]
+    # payload #=> {:stop, "18"}
+    #
+    # [(app 1.0.0) lib/app_web/live/app_live.ex:242: AppWeb.AppLive.handle_info/2]
+    # isEditingItem #=> nil
 
     # If the item is being edited, we update the timer list of the item being edited.
     if isEditingItem do
@@ -276,6 +278,7 @@ defmodule AppWeb.AppLive do
 
       # If not, just update the item list.
     else
+      dbg(items)
       {:noreply, assign(socket, items: items)}
     end
   end
@@ -322,9 +325,9 @@ defmodule AppWeb.AppLive do
   end
 
   def timer_text(item) do
-    if item.id === 17 do
-      dbg(item)
-    end
+
+    dbg(item)
+
     if is_nil(item) or is_nil(item.start) or is_nil(item.stop) do
       ""
     else
