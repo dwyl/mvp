@@ -218,6 +218,10 @@ defmodule AppWeb.AppLive do
            socket.assigns.hours_offset_fromUTC
          ) do
       {:ok, _list} ->
+        #timer_changeset_list = socket.assigns.editing_timers
+        #item = Enum.at(timer_changeset_list, index)
+
+        #Item.update_item(item, %{})
         # Updates item list and broadcast to other users
         AppWeb.Endpoint.broadcast(@topic, "update", :update)
         {:noreply, assign(socket, editing: nil, editing_timers: [])}
@@ -233,6 +237,15 @@ defmodule AppWeb.AppLive do
     items = Item.items_with_timers(person_id)
 
     isEditingItem = socket.assigns.editing
+
+    dbg(payload)
+    dbg(isEditingItem)
+
+    #[(app 1.0.0) lib/app_web/live/app_live.ex:241: AppWeb.AppLive.handle_info/2]
+    #payload #=> {:stop, "18"}
+#
+    #[(app 1.0.0) lib/app_web/live/app_live.ex:242: AppWeb.AppLive.handle_info/2]
+    #isEditingItem #=> nil
 
     # If the item is being edited, we update the timer list of the item being edited.
     if isEditingItem do
@@ -309,6 +322,9 @@ defmodule AppWeb.AppLive do
   end
 
   def timer_text(item) do
+    if item.id === 17 do
+      dbg(item)
+    end
     if is_nil(item) or is_nil(item.start) or is_nil(item.stop) do
       ""
     else
