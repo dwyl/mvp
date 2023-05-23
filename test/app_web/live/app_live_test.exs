@@ -634,8 +634,6 @@ defmodule AppWeb.AppLiveTest do
       stop: ~N[2022-07-17 13:22:24.000000]
     }
 
-    dbg(timer)
-
     assert AppWeb.AppLive.timer_text(timer) == "04:20:42"
   end
 

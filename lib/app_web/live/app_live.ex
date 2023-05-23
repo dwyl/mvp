@@ -239,9 +239,6 @@ defmodule AppWeb.AppLive do
 
     isEditingItem = socket.assigns.editing
 
-    dbg(payload)
-    dbg(isEditingItem)
-
     # [(app 1.0.0) lib/app_web/live/app_live.ex:241: AppWeb.AppLive.handle_info/2]
     # payload #=> {:stop, "18"}
     #
@@ -277,7 +274,6 @@ defmodule AppWeb.AppLive do
 
       # If not, just update the item list.
     else
-      dbg(items)
       {:noreply, assign(socket, items: items)}
     end
   end
@@ -324,8 +320,6 @@ defmodule AppWeb.AppLive do
   end
 
   def timer_text(item) do
-    dbg(item)
-
     if is_nil(item) or is_nil(item.start) or is_nil(item.stop) do
       ""
     else
