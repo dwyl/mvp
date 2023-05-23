@@ -577,6 +577,7 @@
   }
 
   function timer_text(start, current) {
+    current = parseInt(current, 10)
     start = parseInt(start, 10)
     let h="00", m="00", s="00";
     const diff = current - start;
