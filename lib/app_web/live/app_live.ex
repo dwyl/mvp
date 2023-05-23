@@ -219,7 +219,6 @@ defmodule AppWeb.AppLive do
          ) do
       # list is empty if the changeset is valid
       {:ok, _list} ->
-
         # timer_changeset_list = socket.assigns.editing_timers
         # item = Enum.at(timer_changeset_list, index)
 
@@ -325,7 +324,6 @@ defmodule AppWeb.AppLive do
   end
 
   def timer_text(item) do
-
     dbg(item)
 
     if is_nil(item) or is_nil(item.start) or is_nil(item.stop) do
