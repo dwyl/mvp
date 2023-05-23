@@ -219,11 +219,7 @@ defmodule AppWeb.AppLive do
          ) do
       # list is empty if the changeset is valid
       {:ok, _list} ->
-        # timer_changeset_list = socket.assigns.editing_timers
-        # item = Enum.at(timer_changeset_list, index)
-
-        # Item.update_item(item, %{})
-        # Updates item list and broadcast to other users
+        # Updates item list and broadcast to other clients
         AppWeb.Endpoint.broadcast(@topic, "update", :update)
         {:noreply, assign(socket, editing: nil, editing_timers: [])}
 
