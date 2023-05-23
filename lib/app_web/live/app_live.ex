@@ -217,8 +217,9 @@ defmodule AppWeb.AppLive do
            timer_changeset_list,
            socket.assigns.hours_offset_fromUTC
          ) do
+      # list is empty if the changeset is valid
       {:ok, _list} ->
-        # Updates item list and broadcast to other users
+        # Updates item list and broadcast to other clients
         AppWeb.Endpoint.broadcast(@topic, "update", :update)
         {:noreply, assign(socket, editing: nil, editing_timers: [])}
 
@@ -231,7 +232,6 @@ defmodule AppWeb.AppLive do
   def handle_info(%Broadcast{event: "update", payload: payload}, socket) do
     person_id = get_person_id(socket.assigns)
     items = Item.items_with_timers(person_id)
-
     isEditingItem = socket.assigns.editing
 
     # If the item is being edited, we update the timer list of the item being edited.
