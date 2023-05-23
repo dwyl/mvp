@@ -236,14 +236,7 @@ defmodule AppWeb.AppLive do
   def handle_info(%Broadcast{event: "update", payload: payload}, socket) do
     person_id = get_person_id(socket.assigns)
     items = Item.items_with_timers(person_id)
-
     isEditingItem = socket.assigns.editing
-
-    # [(app 1.0.0) lib/app_web/live/app_live.ex:241: AppWeb.AppLive.handle_info/2]
-    # payload #=> {:stop, "18"}
-    #
-    # [(app 1.0.0) lib/app_web/live/app_live.ex:242: AppWeb.AppLive.handle_info/2]
-    # isEditingItem #=> nil
 
     # If the item is being edited, we update the timer list of the item being edited.
     if isEditingItem do
