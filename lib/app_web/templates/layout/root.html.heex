@@ -46,7 +46,85 @@
     <nav x-data="{ openMenu: false }" class="bg-gray-800">
       <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
         <div class="relative flex h-16 items-center justify-between">
-          <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
+          <div class="absolute inset-y-0 left-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+            <%= if @loggedin do %>
+              <!-- Profile dropdown -->
+              <div
+                x-data="{showProfileDropdown: false}"
+                x-on:click="showProfileDropdown = !showProfileDropdown"
+                class="relative ml-3"
+              >
+                <div>
+                  <button
+                    type="button"
+                    class="flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+                    id="user-menu-button"
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                  >
+                    <span class="sr-only">Open user menu</span>
+                    <img
+                      src={@person.picture}
+                      class="h-8 w-8 rounded-full"
+                      alt="avatar image"
+                    />
+                  </button>
+                </div>
+                <!-- Dropdown menu, show/hide based on menu state. -->
+                <div
+                  x-show="showProfileDropdown"
+                  x-on:click.away="showProfileDropdown = false"
+                  x-transition:enter="transition ease-out duration-100"
+                  x-transition:enter-start="transform opacity-0 scale-95"
+                  x-transition:enter-end="transform opacity-100 scale-100"
+                  x-transition:leave="transition ease-in duration-75"
+                  x-transition:leave-start="transform opacity-100 scale-100"
+                  x-transition:leave-end="transform opacity-0 scale-95"
+                  class="absolute left-0 z-10 mt-2 w-48 origin-top-left rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                  role="menu"
+                  aria-orientation="vertical"
+                  aria-labelledby="user-menu-button"
+                  tabindex="-1"
+                >
+                  <!-- Active: "bg-gray-100", Not Active: "" -->
+                  <%= link to: "/logout" , class: "block px-4 py-2 text-sm text-gray-700" do %>
+                    Sign out
+                  <% end %>
+                </div>
+              </div>
+            <% else %>
+              <div class="flex-shrink-0">
+                <%= link to: "/login" , class: "relative inline-flex items-center gap-x-1.5 rounded-md bg-[#0F766E] px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500" do %>
+                  Login
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+
+          <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
+            <div class="flex flex-shrink-0 items-center">
+              <a href="/" class="flex items-center">
+                <img
+                  src="https://dwyl.com/img/common/dwyl-heart-only-logo.png"
+                  height="32"
+                  width="32"
+                  alt="dwyl logo"
+                />
+              </a>
+            </div>
+            <div class="hidden sm:ml-6 sm:block">
+              <div class="flex space-x-4">
+                <!--  <a href="#" class="bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium" aria-current="page">Current</a> -->
+                <%= link("Tags",
+                  to: "/tags",
+                  class:
+                    "text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
+                ) %>
+              </div>
+            </div>
+          </div>
+
+          <div class="absolute inset-y-0 right-0 flex items-center sm:hidden">
             <!-- Mobile menu button-->
             <button
               x-on:click="openMenu = !openMenu"
@@ -96,87 +174,12 @@
               </svg>
             </button>
           </div>
-          <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-            <div class="flex flex-shrink-0 items-center">
-              <a href="/" class="flex items-center">
-                <img
-                  src="https://dwyl.com/img/common/dwyl-heart-only-logo.png"
-                  height="32"
-                  width="32"
-                  alt="dwyl logo"
-                />
-              </a>
-            </div>
-            <div class="hidden sm:ml-6 sm:block">
-              <div class="flex space-x-4">
-                <!--  <a href="#" class="bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium" aria-current="page">Current</a> -->
-                <%= link("Tags",
-                  to: "/tags",
-                  class:
-                    "text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
-                ) %>
-              </div>
-            </div>
-          </div>
-          <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-            <%= if @loggedin do %>
-              <!-- Profile dropdown -->
-              <div
-                x-data="{showProfileDropdown: false}"
-                x-on:click="showProfileDropdown = !showProfileDropdown"
-                class="relative ml-3"
-              >
-                <div>
-                  <button
-                    type="button"
-                    class="flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-                    id="user-menu-button"
-                    aria-expanded="false"
-                    aria-haspopup="true"
-                  >
-                    <span class="sr-only">Open user menu</span>
-                    <img
-                      src={@person.picture}
-                      class="h-8 w-8 rounded-full"
-                      alt="avatar image"
-                    />
-                  </button>
-                </div>
-                <!-- Dropdown menu, show/hide based on menu state. -->
-                <div
-                  x-show="showProfileDropdown"
-                  x-on:click.away="showProfileDropdown = false"
-                  x-transition:enter="transition ease-out duration-100"
-                  x-transition:enter-start="transform opacity-0 scale-95"
-                  x-transition:enter-end="transform opacity-100 scale-100"
-                  x-transition:leave="transition ease-in duration-75"
-                  x-transition:leave-start="transform opacity-100 scale-100"
-                  x-transition:leave-end="transform opacity-0 scale-95"
-                  class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
-                  role="menu"
-                  aria-orientation="vertical"
-                  aria-labelledby="user-menu-button"
-                  tabindex="-1"
-                >
-                  <!-- Active: "bg-gray-100", Not Active: "" -->
-                  <%= link to: "/logout" , class: "block px-4 py-2 text-sm text-gray-700" do %>
-                    Sign out
-                  <% end %>
-                </div>
-              </div>
-            <% else %>
-              <div class="flex-shrink-0">
-                <%= link to: "/login" , class: "relative inline-flex items-center gap-x-1.5 rounded-md bg-[#0F766E] px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500" do %>
-                  Login
-                <% end %>
-              </div>
-            <% end %>
-          </div>
         </div>
       </div>
+
       <!-- Mobile menu, show/hide based on menu state. -->
       <div x-show="openMenu" class="sm:hidden" id="mobile-menu">
-        <div class="space-y-1 px-2 pb-3 pt-2">
+        <div class="space-y-1 px-2 pb-3 pt-2 text-right">
           <!--  <a href="#" class="bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium" aria-current="page">Current</a> -->
           <%= link("Tags",
             to: "/tags",
