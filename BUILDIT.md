@@ -109,20 +109,25 @@ With that in place, let's get building!
   - [13.4 Checking the changes using `DBEaver`](#134-checking-the-changes-using-dbeaver)
 - [14. Adding a dashboard to track metrics](#14-adding-a-dashboard-to-track-metrics)
   - [14.1 Adding new `LiveView` page in `/stats`](#141-adding-new-liveview-page-in-stats)
-  - [14.2 Fetching counter of timers and items for each person](#142-fetching-counter-of-timers-and-items-for-each-person)
+  - [14.2 Fetching counter of `timers` and `items` for each `person`](#142-fetching-counter-of-timers-and-items-for-each-person)
   - [14.3 Building the Stats Page](#143-building-the-stats-page)
   - [14.4 Broadcasting to `stats` channel](#144-broadcasting-to-stats-channel)
   - [14.5 Adding tests](#145-adding-tests)
-- [15. Reordering `items` Using Drag \& Drop](#15-reordering-items-using-drag--drop)
-  - [15.1 `Item` schema changes](#151-item-schema-changes)
-  - [15.2 Changing the Item's `position` field in the database](#152-changing-the-items-position-field-in-the-database)
-  - [15.3 Return `position` in `items_with_timers` function](#153-return-position-in-items_with_timers-function)
-  - [15.4 Implementing drag and drop in `Liveview`](#154-implementing-drag-and-drop-in-liveview)
-  - [15.5 Adding unit test](#155-adding-unit-test)
-  - [15.6 Check it in action!](#156-check-it-in-action)
-- [16. Run the _Finished_ MVP App!](#16-run-the-finished-mvp-app)
-  - [16.1 Run the Tests](#161-run-the-tests)
-  - [16.2 Run The App](#162-run-the-app)
+- [15. `People` in Different Timezones 🌐](#15-people-in-different-timezones-)
+  - [15.1 Getting the `person`'s Timezone](#151-getting-the-persons-timezone)
+  - [15.2 Changing how the timer datetime is displayed](#152-changing-how-the-timer-datetime-is-displayed)
+  - [15.3 Persisting the adjusted timezone](#153-persisting-the-adjusted-timezone)
+  - [15.4 Adding test](#154-adding-test)
+- [16. Reordering `items` Using Drag \& Drop](#16-reordering-items-using-drag--drop)
+  - [16.1 `Item` schema changes](#161-item-schema-changes)
+  - [16.2 Changing the Item's `position` field in the database](#162-changing-the-items-position-field-in-the-database)
+  - [16.3 Return `position` in `items_with_timers` function](#163-return-position-in-items_with_timers-function)
+  - [16.4 Implementing drag and drop in `Liveview`](#164-implementing-drag-and-drop-in-liveview)
+  - [16.5 Adding unit test](#165-adding-unit-test)
+  - [16.6 Check it in action!](#166-check-it-in-action)
+- [17. Run the _Finished_ MVP App!](#17-run-the-finished-mvp-app)
+  - [17.1 Run the Tests](#171-run-the-tests)
+  - [17.2 Run The App](#172-run-the-app)
 - [Thanks!](#thanks)
 
 
@@ -2347,8 +2352,9 @@ Phoenix documentation for using `live_patch`
 # 11. Tags
 
 In this section we're going to add tags to items.
-Tags belong to a person (ie. different users can create the same tag name).
-A person can't create tag duplicates (case insensitive).
+`Tags` belong to a `person` 
+(i.e. different `people` can create the _same_ `tag` name).
+A `person` can't create `tag` duplicates (case insensitive).
 
 
 ## 11.1 Migrations
@@ -3008,13 +3014,13 @@ that we will implement shortly, This function will either
 update the timer successfully or return an error, 
 with an updated list of timer changesets to display the error on the UI.
 
-We want the users to be able to update timers even when 
-there's an ongoing timer and have the users still 
-see the list of timers.
+We want the `people` to be able to update `timers` even when 
+there's an ongoing timer and have the `people` still 
+see the list of `timers`.
 For this, we ought to update the events that are created
 when clicking `Resume` or `Stop`. 
 Therefore, we need to these handlers and the broadcast
-`update` event that is sent to all users.
+`update` event that is sent to all connected clients.
 
 Let's check the `start` and `stop` event handlers inside `app_live.ex`.
 Let's add information to the event with the `item.id` that is being edited.
@@ -3133,17 +3139,30 @@ def update_timer_inside_changeset_list(
       # Getting a list of the other timers (the rest we aren't updating)
       other_timers_list = List.delete_at(timer_changeset_list, index)
 
-      # Latest timer end
-      max_end =
-        other_timers_list |> Enum.map(fn chs -> chs.data.stop end) |> Enum.max()
+      # If there are other timers, we check if there are no overlap
+      if(length(other_timers_list) > 0) do
 
-      case NaiveDateTime.compare(start, max_end) do
-        :gt ->
-          update_timer(%{id: timer_id, start: start, stop: nil})
-          {:ok, []}
+        # Latest timer end
+        max_end =
+          other_timers_list |> Enum.map(fn chs -> chs.data.stop end) |> Enum.max()
 
-        _ -> throw(:error_not_after_others)
+        case NaiveDateTime.compare(start, max_end) do
+          :gt ->
+            timer = get_timer(timer_id)
+            update_timer(timer, %{start: start, stop: nil})
+            {:ok, []}
+
+          _ ->
+            throw(:error_not_after_others)
+        end
+
+      # If there are no other timers, we can update the timer safely
+      else
+        timer = get_timer(timer_id)
+        update_timer(timer, %{start: start, stop: nil})
+        {:ok, []}
       end
+
     catch
       :error_invalid_start ->
         updated_changeset_timers_list =
@@ -4005,7 +4024,7 @@ regarding app usage is important two-fold:
 - if you are a **developer**, 
 it's crucial to know if and how the app is being used,
 to better implement features in the future.
-- if you are a **user**, 
+- if you are a **`person`**, 
 you want to view aggregate stats of how many 
 `items` and `timers` you created
 so you know how to improve your personal effectiveness.
@@ -4123,14 +4142,14 @@ an array containing the number of items and timers of each person (`id` and `nam
 We are calling `Item.person_with_item_and_timer_count()` for this
 (we will implement this right after this, don't worry!).
 
-This liveview is subscribed to a channel called `stats`,
-and has two handlers which increment the number of timers or items 
-in real-time whenever a user is created.
+This `LiveView` is subscribed to a channel called `stats`,
+and has two handlers which increment the number of `timers` or `items` 
+in real-time whenever a `person` joins.
 For this to actually work, 
 we need to broadcast to this channel. 
 
-`person_link/1` is merely used to display the 
-user profile in [`auth.dwyl.com`](https://auth.dwyl.com)
+`person_link/1` is merely used to display their 
+profile in [`auth.dwyl.com`](https://auth.dwyl.com)
 
 We will do this shortly!
 But first, let's implement `Item.person_with_item_and_timer_count()`.
@@ -4180,7 +4199,7 @@ Add this code to the file.
 <main class="font-sans container mx-auto">
     <div class="relative overflow-x-auto mt-12">
         <h1 class="mb-12 text-xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl dark:text-white">
-            User metrics
+            Usage metrics
         </h1>
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
           <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -4337,8 +4356,8 @@ defmodule AppWeb.StatsLiveTest do
 
   test "disconnected and connected render", %{conn: conn} do
     {:ok, page_live, disconnected_html} = live(conn, "/stats")
-    assert disconnected_html =~ "User metrics"
-    assert render(page_live) =~ "User metrics"
+    assert disconnected_html =~ "Usage metrics"
+    assert render(page_live) =~ "Usage metrics"
   end
 
   test "display metrics on mount", %{conn: conn} do
@@ -4747,16 +4766,917 @@ the `item_id` that is being edited
 and the corresponding changes.
 
 # 14. Adding a dashboard to track metrics
+
+Having a page to track metrics 
+regarding app usage is important two-fold:
+- if you are a **developer**, 
+it's crucial to know if and how the app is being used,
+to better implement features in the future.
+- if you are a **`person` _using_ the `App`**, 
+you want to view aggregate stats of how many 
+`items` and `timers` you created
+so you know how to improve your personal effectiveness.
+
+Let's create a simple `/stats` dashboard
+to display the number of `items` and `timers` each `person` has created
+in a simple table.
+
+Let's roll!
+
+
 ## 14.1 Adding new `LiveView` page in `/stats`
-## 14.2 Fetching counter of timers and items for each person
+
+
+Open 
+`lib/app_web/router.ex` 
+and add the new route inside the `"/"` scope.
+
+```elixir
+    ...
+
+    get "/login", AuthController, :login
+    get "/logout", AuthController, :logout
+
+    live "/stats", StatsLive
+```
+
+Now create the `StatsLive` file
+with the path:
+`lib/app_web/live/stats_live.ex`
+and template at:
+`lib/app_web/live/stats_live.html.heex`.
+
+In `stats_live.ex`,
+paste the following code:
+
+```elixir
+defmodule AppWeb.StatsLive do
+  require Logger
+  use AppWeb, :live_view
+  alias App.Item
+  alias Phoenix.Socket.Broadcast
+
+  # run authentication on mount
+  on_mount(AppWeb.AuthController)
+
+  @stats_topic "stats"
+
+  @impl true
+  def mount(_params, _session, socket) do
+    # subscribe to the channel
+    if connected?(socket), do: AppWeb.Endpoint.subscribe(@stats_topic)
+
+    metrics = Item.person_with_item_and_timer_count()
+
+    {:ok,
+     assign(socket,
+       metrics: metrics
+     )}
+  end
+
+  @impl true
+  def handle_info(
+        %Broadcast{topic: @stats_topic, event: "item", payload: payload},
+        socket
+      ) do
+    metrics = socket.assigns.metrics
+
+    case payload do
+      {:create, payload: payload} ->
+        updated_metrics =
+          Enum.map(metrics, fn row -> add_row(row, payload, :num_items) end)
+
+        {:noreply, assign(socket, metrics: updated_metrics)}
+
+      _ ->
+        {:noreply, socket}
+    end
+  end
+
+  @impl true
+  def handle_info(
+        %Broadcast{topic: @stats_topic, event: "timer", payload: payload},
+        socket
+      ) do
+    metrics = socket.assigns.metrics
+
+    case payload do
+      {:create, payload: payload} ->
+        updated_metrics =
+          Enum.map(metrics, fn row -> add_row(row, payload, :num_timers) end)
+
+        {:noreply, assign(socket, metrics: updated_metrics)}
+
+      _ ->
+        {:noreply, socket}
+    end
+  end
+
+  def add_row(row, payload, key) do
+    row =
+      if row.person_id == payload.person_id do
+        Map.put(row, key, Map.get(row, key) + 1)
+      else
+        row
+      end
+
+    row
+  end
+
+  def person_link(person_id) do
+    "https://auth.dwyl.com/people/#{person_id}"
+  end
+end
+```
+
+Let's break this down.
+On `mount`, we are retrieving 
+an array containing the number of items and timers of each person (`id` and `name`).
+We are calling `Item.person_with_item_and_timer_count()` for this
+(we will implement this right after this, don't worry!).
+
+This `LiveView` is subscribed to a channel called `stats`,
+and has two handlers which increment the number of `timers` or `items`
+in real-time whenever a `person` joins.
+For this to actually work, 
+we need to broadcast to this channel. 
+
+We will do this shortly!
+But first, let's implement `Item.person_with_item_and_timer_count()`.
+
+
+## 14.2 Fetching counter of `timers` and `items` for each `person`
+
+In `lib/app/item.ex`,
+add the following function:
+
+```elixir
+  def person_with_item_and_timer_count() do
+    sql = """
+    SELECT i.person_id,
+    COUNT(distinct i.id) AS "num_items",
+    COUNT(distinct t.id) AS "num_timers"
+    FROM items i
+    LEFT JOIN timers t ON t.item_id = i.id
+    GROUP BY i.person_id
+    ORDER BY i.person_id
+    """
+
+    Ecto.Adapters.SQL.query!(Repo, sql)
+    |> map_columns_to_values()
+  end
+```
+
+We are simply executing an SQL query expression
+and retrieving it.
+This function should yield a list of objects 
+containing `person_id`, `name`, `num_items` and `num_timers`.
+
+```elixir
+[
+  %{name: nil, num_items: 3, num_timers: 8, person_id: 0}
+  %{name: username, num_items: 1, num_timers: 3, person_id: 1}
+]
+```
+
+
 ## 14.3 Building the Stats Page
+
+
+We've created `lib/app_web/live/stats_live.html.heex`
+but haven't implemented anything.
+Let's fix that now.
+
+Add this code to the file.
+
+```html
+<main class="font-sans container mx-auto">
+  <div class="relative overflow-x-auto mt-12">
+    <h1 class="mb-2 text-xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl dark:text-white">
+      Stats
+    </h1>
+    <table class="text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
+      <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <tr>
+          <th scope="col" class="px-6 py-3">
+            Id
+          </th>
+          <th scope="col" class="px-6 py-3 text-center">
+            Items
+          </th>
+          <th scope="col" class="px-6 py-3 text-center">
+            Timers
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <%= for metric <- @metrics do %>
+          <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+            <td class="px-6 py-4">
+              <a href={person_link(metric.person_id)}>
+                <%= metric.person_id %>
+              </a>
+            </td>
+            <td class="px-6 py-4 text-center">
+              <%= metric.num_items %>
+            </td>
+            <td class="px-6 py-4 text-center">
+              <%= metric.num_timers %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</main>
+```
+
+We are simply creating a table with four columns,
+one for `person_id`, person `name`, number of `items` and number of `timers`.
+We are acessing the `@metrics` array 
+that is fetched and assigned on `mount/3` inside `stats_live.ex`.
+
 ## 14.4 Broadcasting to `stats` channel
+
+
+The only thing that is left to implement 
+is broadcasting events from `lib/app_web/live/app_live.ex`
+so `stats_live.ex` handles them and updates `stats_live.html.heex` accordingly.
+
+In `lib/app_web/live/app_live.ex`,
+let's create a new constant value 
+for the `stats` channel.
+
+```elixir
+@topic "live"
+@stats_topic "stats" # add this
+```
+
+Whenever an `item` or `timer` is created,
+an event is going to be broadcasted to this channel.
+
+Let's subscribe to the `stats` channel on mount,
+similarly to what happens with `live`.
+In `mount/3`,
+subscribe to the `stats` channel
+like we are doing to the `live` one.
+
+```elixir
+if connected?(socket), do:
+  AppWeb.Endpoint.subscribe(@topic)
+  AppWeb.Endpoint.subscribe(@stats_topic)
+```
+
+Now, in the 
+`handle_event("create", %{"text" => text}, socket)` function,
+broadcast an event to the `stats` channel
+whenever an `item` is created.
+
+```elixir
+def handle_event("create", %{"text" => text}, socket) do
+  person_id = get_person_id(socket.assigns)
+
+  Item.create_item_with_tags(%{
+    text: text,
+    person_id: person_id,
+    status: 2,
+    tags: socket.assigns.selected_tags
+  })
+
+  AppWeb.Endpoint.broadcast(@topic, "update", :create)
+  AppWeb.Endpoint.broadcast(@stats_topic, "item", {:create, payload: %{person_id: person_id}}) # add this
+  {:noreply, assign(socket, text_value: "", selected_tags: [])}
+end
+```
+
+Similarly, do the same for `timers`.
+
+```elixir
+def handle_event("start", data, socket) do
+  item = Item.get_item!(Map.get(data, "id"))
+  person_id = get_person_id(socket.assigns)
+
+  {:ok, _timer} =
+    Timer.start(%{
+      item_id: item.id,
+      person_id: person_id,
+      start: NaiveDateTime.utc_now()
+    })
+
+  AppWeb.Endpoint.broadcast(@topic, "update", {:start, item.id})
+  AppWeb.Endpoint.broadcast(@stats_topic, "timer", {:create, payload: %{person_id: person_id}}) # add this
+  {:noreply, socket}
+end
+```
+
+In the same file,
+`app_live.ex` 
+also needs to have a handler
+of these new event broadcasts,
+or else an error is thrown.
+
+```sh
+no function clause matching in AppWeb.AppLive.handle_info/2
+```
+
+`app_live.ex` doesn't really care about these events,
+so we do nothing with them.
+Add the following function for this.
+
+```elixir
+@impl true
+def handle_info(%Broadcast{topic: @stats_topic, event: _event, payload: _payload}, socket) do
+  {:noreply, socket}
+end
+
+```
+
+
 ## 14.5 Adding tests
 
 
+Let's add the tests to cover the use case
+we just created.
+
+Firstly, let's create a file:
+`test/app_web/live/stats_live_test.exs`
+and add the following code to it:
+
+```elixir
+defmodule AppWeb.StatsLiveTest do
+  use AppWeb.ConnCase, async: true
+  alias App.{Item, Timer}
+  import Phoenix.LiveViewTest
+
+  @person_id 55
+
+  test "disconnected and connected render", %{conn: conn} do
+    {:ok, page_live, disconnected_html} = live(conn, "/stats")
+    assert disconnected_html =~ "Stats"
+    assert render(page_live) =~ "Stats"
+  end
+
+  test "display metrics on mount", %{conn: conn} do
+    # Creating two items
+    {:ok, %{model: item, version: _version}} =
+      Item.create_item(%{text: "Learn Elixir", status: 2, person_id: @person_id})
+
+    {:ok, %{model: _item2, version: _version}} =
+      Item.create_item(%{text: "Learn Elixir", status: 4, person_id: @person_id})
+
+    assert item.status == 2
+
+    # Creating one timer
+    started = NaiveDateTime.utc_now()
+    {:ok, _timer} = Timer.start(%{item_id: item.id, start: started})
+
+    {:ok, page_live, _html} = live(conn, "/stats")
+
+    assert render(page_live) =~ "Stats"
+    # two items and one timer expected
+    assert render(page_live) =~
+             "<td class=\"px-6 py-4 text-center\">\n2\n            </td><td class=\"px-6 py-4 text-center\">\n1\n            </td>"
+  end
+
+  test "handle broadcast when item is created", %{conn: conn} do
+    # Creating an item
+    {:ok, %{model: _item, version: _version}} =
+      Item.create_item(%{text: "Learn Elixir", status: 2, person_id: @person_id})
+
+    {:ok, page_live, _html} = live(conn, "/stats")
+
+    assert render(page_live) =~ "Stats"
+    # num of items
+    assert render(page_live) =~
+             "<td class=\"px-6 py-4 text-center\">\n1\n            </td><td class=\"px-6 py-4 text-center\">\n0\n            </td>"
+
+    # Creating another item.
+    AppWeb.Endpoint.broadcast(
+      "stats",
+      "item",
+      {:create, payload: %{person_id: @person_id}}
+    )
+
+    # num of items
+    assert render(page_live) =~
+             "<td class=\"px-6 py-4 text-center\">\n2\n            </td><td class=\"px-6 py-4 text-center\">\n0\n            </td>"
+
+    # Broadcasting update. Shouldn't effect anything in the page
+    AppWeb.Endpoint.broadcast(
+      "stats",
+      "item",
+      {:update, payload: %{person_id: @person_id}}
+    )
+
+    # num of items
+    assert render(page_live) =~
+             "<td class=\"px-6 py-4 text-center\">\n2\n            </td><td class=\"px-6 py-4 text-center\">\n0\n            </td>"
+  end
+
+  test "handle broadcast when timer is created", %{conn: conn} do
+    # Creating an item
+    {:ok, %{model: _item, version: _version}} =
+      Item.create_item(%{text: "Learn Elixir", status: 2, person_id: @person_id})
+
+    {:ok, page_live, _html} = live(conn, "/stats")
+
+    assert render(page_live) =~ "Stats"
+    # num of timers
+    assert render(page_live) =~
+             "<td class=\"px-6 py-4 text-center\">\n1\n            </td><td class=\"px-6 py-4 text-center\">\n0\n            </td>"
+
+    # Creating a timer.
+    AppWeb.Endpoint.broadcast(
+      "stats",
+      "timer",
+      {:create, payload: %{person_id: @person_id}}
+    )
+
+    # num of timers
+    assert render(page_live) =~
+             "<td class=\"px-6 py-4 text-center\">\n1\n            </td><td class=\"px-6 py-4 text-center\">\n1\n            </td>"
+
+    # Broadcasting update. Shouldn't effect anything in the page
+    AppWeb.Endpoint.broadcast(
+      "stats",
+      "timer",
+      {:update, payload: %{person_id: @person_id}}
+    )
+
+    # num of timers
+    assert render(page_live) =~
+             "<td class=\"px-6 py-4 text-center\">\n1\n            </td><td class=\"px-6 py-4 text-center\">\n1\n            </td>"
+  end
+
+  test "add_row/3 adds 1 to row.num_timers" do
+    row = %{person_id: 1, num_items: 1, num_timers: 1}
+    payload = %{person_id: 1}
+
+    # expect row.num_timers to be incremented by 1:
+    row_updated = AppWeb.StatsLive.add_row(row, payload, :num_timers)
+    assert row_updated == %{person_id: 1, num_items: 1, num_timers: 2}
+
+    # no change expected:
+    row2 = %{person_id: 2, num_items: 1, num_timers: 42}
+    assert row2 == AppWeb.StatsLive.add_row(row2, payload, :num_timers)
+  end
+end
+```
+
+We've now covered the `stats_live.ex` file thoroughly.
+The *last* thing we need to do
+is to add a test for the `person_with_item_and_timer_count/0`
+function that was implemented inside `lib/app/item.ex`.
+
+Open `test/app/item_test.exs`
+and add this test:
+
+```elixir
+  test "Item.person_with_item_and_timer_count/0 returns a list of count of timers and items for each given person" do
+    {:ok, item1} = Item.create_item(@valid_attrs)
+    {:ok, item2} = Item.create_item(@valid_attrs)
+
+    started = NaiveDateTime.utc_now()
+
+    {:ok, timer1} =
+      Timer.start(%{
+        item_id: item1.id,
+        person_id: item1.person_id,
+        start: started,
+        stop: started
+      })
+
+    {:ok, _timer2} =
+      Timer.start(%{item_id: item2.id, person_id: item2.person_id, start: started})
+
+    # list person with number of timers and items
+    person_with_items_timers = Item.person_with_item_and_timer_count()
+
+    assert length(person_with_items_timers) == 1
+
+    first_element = Enum.at(person_with_items_timers, 0)
+
+    assert Map.get(first_element, :num_items) == 2
+    assert Map.get(first_element, :num_timers) == 2
+  end
+```
 
 
-# 15. Reordering `items` Using Drag & Drop
+And you're done!
+Awesome job! 🎉
+If you run `mix phx.server`,
+you should see `/stats` being updated **live** 
+when creating `timers` or `items`.
+
+![stats_final](https://user-images.githubusercontent.com/17494745/211345854-c541d21c-4289-4576-8fcf-c3b89251ed02.gif)
+
+# 15. `People` in Different Timezones 🌐
+
+Our application works not only for ourselves
+but in a *collaborative environment*. 
+Not everyone lives within the same timezone.
+We might have a person living in South Korea (`UTC+9`)
+and others living in the US `UTC-5`
+if they each start a timer at the _same_ time
+and we don't record the timezone info
+there will be a mismatch in the elapsed time ...
+
+
+For a good visual understanding of the different timezones
+see:
+[everytimezone.com](https://everytimezone.com)
+<img width="1028" alt="every timezone" src="https://github.com/dwyl/mvp/assets/194400/d2b95a14-24ea-4a1c-ac1c-520d7fc07d21">
+
+You can see that `09:00` in `London`
+is `04:00` in `NYC` 
+and `20:00` in `Auckland`. 
+
+This is fine when all the `people` collaborating together 
+are working on the **_same_ day**.
+
+Consider the `person` 
+starting a `timer` at `09:00` 
+on the `Friday` Morning in `Auckland`:
+
+<img width="819" alt="image" src="https://github.com/dwyl/mvp/assets/194400/bd8ae024-0b9a-420e-a84e-4f6a2c4b7d08">
+
+For their colleague in `LA` (`UTC-7`) it's still 
+`14:00` on the _`Thursday`_ i.e. the **_previous_ day**!
+This can rapidly get confusing for people collaborating around the world.
+
+
+The point is:
+**we clearly need to deal with `people` living in different timezones**.
+As it stands, the server-side of the `MVP` 
+saves every `timer` according to the 
+[`UTC` timezone](https://en.wikipedia.org/wiki/Coordinated_Universal_Time)
+and this is shown to the `person` as well.
+This, of course, only makes sense to people living
+within this timezone.
+If you were to live on another one,
+the value of the `Datetime` of the `timer`
+*wouldn't make sense to you*.
+
+
+## 15.1 Getting the `person`'s Timezone
+
+The easiest way to solve this is
+to only change how the `timers` are displayed
+**according to the timezone of the client**.
+
+**The datetime will still be saved as `UTC` within the database**.
+This makes it much easier not only to maintain consistency
+across collaborative environments 
+but to also better trail activity.
+
+Since we are going to be adjusting the dates shown
+on the client-side only,
+we need a way for the server to know the timezone as well,
+so we can adjust the updated timer values *back to UTC* 
+before persisting into the database.
+
+We can leverage 
+[`get_connect_params/1`](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#get_connect_params/1)
+to pass information from the client
+to the `LiveView` server during the mounting phase.
+
+Open `assets/js/app.js`
+and locate the 
+`let liveSocket = new LiveSocket()` variable.
+We are going to be changing the `params` attribute.
+Change it to the following:
+
+```js
+params: {
+  _csrf_token: csrfToken,
+  hours_offset_fromUTC: -new Date().getTimezoneOffset()/60
+}
+```
+
+We are passing a parameter called `hours_offset_fromUTC`
+that represents the amount of hours the client
+is from the `UTC`.
+By multiplying this value by `-1`, 
+we are calculating _our_ timezone's offset **from** `UTC`.
+For more information,
+read: 
+[stackoverflow.com/questions/13/determine-a-users-timezone/1809974](https://stackoverflow.com/questions/13/determine-a-users-timezone/1809974#1809974.)
+
+To use this within LiveView,
+we are going to be assigning this value to the socket.
+For this, open `lib/app_web/live/app_live.ex`
+and locate the `mount/3` function at the top of the file.
+We are going to be adding this new value to the socket assigns,
+like so:
+
+```elixir
+  {:ok,
+    assign(socket,
+      items: items,
+      editing_timers: [],
+      editing: nil,
+      filter: "active",
+      filter_tag: nil,
+      tags: tags,
+      selected_tags: selected_tags,
+      text_value: draft_item.text || "",
+
+      # Offset from the client to UTC. If it's "1", it means we are one hour ahead of UTC.
+      hours_offset_fromUTC: get_connect_params(socket)["hours_offset_fromUTC"] || 0
+  )}
+```
+
+If `hours_offset_fromUTC` is not defined, 
+we assume the user is in the UTC timezone
+(it has a value of 0).
+
+Awesome! 🎉
+
+Now we can use this value to adjust the timezone 
+to adjust the timezone every time we update a timer!
+But before that, 
+let's adjust how it is *displayed to the person*.
+
+
+## 15.2 Changing how the timer datetime is displayed
+
+Open `lib/app_web/live/app_live.html.heex`
+and locate the line
+`<%= @editing_timers |> Enum.with_index |> Enum.map(fn({changeset, index}) -> %>`.
+We are going to be changing the **Start** and **Stop** value
+of the `timer`.
+
+Inside this loop,
+locate the `<input>` tags 
+pertaining to the `timer_start`
+and `timer_stop` and change them.
+
+For `timer_start`, change it to:
+
+```html
+<input
+  type="text"
+  required="required"
+  name="timer_start"
+  id={"#{changeset.data.id}_start"}
+  value={NaiveDateTime.add(changeset.data.start, @hours_offset_fromUTC, :hour)}
+/>
+```
+
+And for `timer_stop`, make these changes:
+
+```html
+<input
+  type="text"
+  name="timer_stop"
+  id={"#{changeset.data.id}_stop"}
+  value={if is_nil(changeset.data.stop) do changeset.data.stop else NaiveDateTime.add(changeset.data.stop, @hours_offset_fromUTC, :hour) end}
+/>
+```
+
+We are changing the number of hours displayed
+according to the `@hours_offset_fromUTC` socket assigns
+we've declared previously.
+In the `timer_stop` case,
+we are checking if the value is `nil`
+(ongoing timers have the `stop` field as `nil`)
+so they are displayed properly.
+
+To see the changes needed,
+please check 
+[`lib/app_web/live/app_live.html.heex`](https://github.com/dwyl/mvp/blob/63d98958be8f858e6ebcd063fa022bb59964b612/lib/app_web/live/app_live.html.heex#L326-L341).
+
+
+## 15.3 Persisting the adjusted timezone
+
+Now that we are displaying the correct timezones,
+we need to make sure the adjusted updated timer
+is **converted *back* to UTC before persisting into the database**.
+
+For this, 
+we simply need to do this operation
+inside the `update_timer_inside_changeset_list/3` function
+inside `lib/app/timer.ex`.
+
+This function will now receive the adjusted timezone 
+and change the updated timer value(s) *back* to UTC.
+Now the function will receive a new parameter
+with the `hours_offset_fromUTC`.
+
+Locate the two pattern match functions called `update_timer_inside_changeset_list`
+and add a new parameter:
+
+```elixir
+def update_timer_inside_changeset_list(
+    %{
+      id: timer_id,
+      start: timer_start,
+      stop: timer_stop
+    },
+    index,
+    timer_changeset_list,
+    hours_offset_fromUTC      # add this line
+  )
+  ...
+```
+
+In the first function 
+(with the guard `when timer_stop == "" or timer_stop == nil`),
+add the following line.
+
+```elixir
+ def update_timer_inside_changeset_list(
+        %{
+          id: timer_id,
+          start: timer_start,
+          stop: timer_stop
+        },
+        index,
+        timer_changeset_list,
+        hours_offset_fromUTC
+      )
+      when timer_stop == "" or timer_stop == nil do
+
+    changeset_obj = Enum.at(timer_changeset_list, index)
+    try do
+
+      {start_op, start} =
+        Timex.parse(timer_start, "%Y-%m-%dT%H:%M:%S", :strftime)
+
+      if start_op === :error do
+        throw(:error_invalid_start)
+      end
+
+      # Add this new line
+      start = NaiveDateTime.add(start, -hours_offset_fromUTC, :hour)
+
+      other_timers_list = List.delete_at(timer_changeset_list, index)
+```
+
+On the other pattern-matched function,
+add the following lines.
+
+```elixir
+  def update_timer_inside_changeset_list(
+        %{
+          id: timer_id,
+          start: timer_start,
+          stop: timer_stop
+        },
+        index,
+        timer_changeset_list,
+        hours_offset_fromUTC
+      ) do
+
+    changeset_obj = Enum.at(timer_changeset_list, index)
+    try do
+
+      {start_op, start} =
+        Timex.parse(timer_start, "%Y-%m-%dT%H:%M:%S", :strftime)
+      {stop_op, stop} = Timex.parse(timer_stop, "%Y-%m-%dT%H:%M:%S", :strftime)
+
+      if start_op === :error do
+        throw(:error_invalid_start)
+      end
+      if stop_op === :error do
+        throw(:error_invalid_stop)
+      end
+
+      # Add these two lines
+      start = NaiveDateTime.add(start, -hours_offset_fromUTC, :hour)
+      stop = NaiveDateTime.add(stop, -hours_offset_fromUTC, :hour)
+```
+
+If you want to see the changes you need to make,
+please check 
+[`lib/app/timer.ex`](https://github.com/dwyl/mvp/blob/63d98958be8f858e6ebcd063fa022bb59964b612/lib/app/timer.ex#L153-L260).
+
+The last thing we need to do is 
+pass this new parameter inside 
+`lib/app_web/live/app_live.ex`
+that *calls* this function.
+
+Locate 
+```elixir
+def handle_event("update-item-timer"
+```
+
+and pass the `hours_offset_fromUTC` assign from the socket
+to the `update_timer_inside_changeset_list/4`.
+
+```elixir
+case Timer.update_timer_inside_changeset_list(
+        timer,
+        index,
+        timer_changeset_list,
+        socket.assigns.hours_offset_fromUTC    # add this new line
+) do
+```
+
+If you're curious to see the change you ought to make,
+please check
+[`lib/app_web/live/app_live.ex`](https://github.com/dwyl/mvp/blob/63d98958be8f858e6ebcd063fa022bb59964b612/lib/app_web/live/app_live.ex#L218).
+
+
+## 15.4 Adding test
+
+Let's add a test case that will check if the datetime 
+is shown with an offset that is mocked during testing.
+We expect the datetime to show a different datetime
+than the `Timer` object that is persisted in the database.
+
+Let's test it.
+Open `test/app_web/live/app_live_test.exs`
+and add the following unit test.
+
+```elixir
+  test "item\'s timer shows correct value (adjusted timezone)", %{conn: conn} do
+    {:ok, %{model: item, version: _version}} =
+      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+
+    {:ok, seven_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
+
+    # Start the timer 7 seconds ago:
+    {:ok, timer} =
+      Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
+
+    # Stop the timer based on its item_id
+    Timer.stop_timer_for_item_id(item.id)
+
+    # Adding timezone socket assign to simulate we're one hour ahead of UTC
+    hours_offset_fromUTC = 1
+
+    conn =
+      put_connect_params(conn, %{"hours_offset_fromUTC" => hours_offset_fromUTC})
+
+    {:ok, view, _html} = live(conn, "/")
+
+    edit_timer_view =
+      render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    # `Start` and `stop` of the timer in the database (in UTC)
+    # We expect the `start` and `stop` to be shown with one hour more in the view
+    timer = Timer.get_timer!(timer.id)
+
+    expected_start_in_view =
+      NaiveDateTime.add(timer.start, hours_offset_fromUTC, :hour)
+      |> NaiveDateTime.to_iso8601()
+
+    expected_stop_in_view =
+      NaiveDateTime.add(timer.stop, hours_offset_fromUTC, :hour)
+      |> NaiveDateTime.to_iso8601()
+
+    # Check if timers are being shown correctly.
+    # They should be adjusted to timezone.
+    assert edit_timer_view =~ expected_start_in_view
+    assert edit_timer_view =~ expected_stop_in_view
+
+    # Now let's update the timer with a new value.
+    # This is the value the user inputs in the client-side.
+    # Since the user is in UTC+1, the persisted value should be adjusted
+    start = "2022-10-27T01:00:00"
+    stop = "2022-10-27T01:30:00"
+    {:ok, persisted_start} = NaiveDateTime.from_iso8601("2022-10-27T00:00:00")
+    {:ok, persisted_stop} = NaiveDateTime.from_iso8601("2022-10-27T00:30:00")
+
+    render_submit(view, "update-item-timer", %{
+             "timer_id" => timer.id,
+             "index" => 0,
+             "timer_start" => start,
+             "timer_stop" => stop
+           })
+
+    updated_timer = Timer.get_timer!(timer.id)
+
+    # The persisted datetime in the database should be one hour less
+    # than what the user has input.
+    assert NaiveDateTime.compare(updated_timer.start, persisted_start) == :eq
+    assert NaiveDateTime.compare(updated_timer.stop, persisted_stop) == :eq
+  end
+```
+
+As you can see,
+since we are using `get_connect_params` when mounting
+in the LiveView to get the timezone,
+we are using 
+[`put_connect_params`](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveViewTest.html#put_connect_params/2)
+in our unit test to mock this value.
+
+We are passing with a value of `1`.
+With this, we expect the timer values
+in the view to be shown 
+the timer value with one hour incremented.
+
+We are also checking the value of the persisted timer
+within the database.
+Given the timer value is adjusted *back* 
+according to the person's timezone,
+we expect the persisted value to be
+one hour *less* than what the person inputted. 
+
+
+# 16. Reordering `items` Using Drag & Drop
 
 At present `people` using the `App`
 can only add new `items` to a stack
@@ -4778,7 +5698,7 @@ to **see the changes in real time**!
 
 
 
-##  15.1 `Item` schema changes
+##  16.1 `Item` schema changes
 
 By introducing this feature 
 (and so everyone sees the correct positioning of each item),
@@ -4849,7 +5769,7 @@ and then `mix ecto.setup`
 to rebuild our database with our added `position` column.
 
 
-## 15.2 Changing the Item's `position` field in the database
+## 16.2 Changing the Item's `position` field in the database
 
 We now need to have a few functions
 that will *change* the `position` field value of the item.
@@ -4938,7 +5858,7 @@ We've used the `reorder_list_to_add_item/1` function
 we've created to "make room" for the new item 
 that is being created.
 
-## 15.3 Return `position` in `items_with_timers` function
+## 16.3 Return `position` in `items_with_timers` function
 
 Since we are calling the `items_with_timers/1` function
 (located in `lib/app/item.ex`)
@@ -4980,7 +5900,7 @@ and also *ordering* the list
 by ascending `position`.
 
 
-## 15.4 Implementing drag and drop in `Liveview`
+## 16.4 Implementing drag and drop in `Liveview`
 
 To add `drag and drop` to the Liveview app,
 we have created a separate guide.
@@ -5007,7 +5927,7 @@ you can check the pull request -
 https://github.com/dwyl/mvp/pull/345/files#.
 
 
-## 15.5 Adding unit test
+## 16.5 Adding unit test
 
 To get our coverage back to 100%,
 we ougth to add a simple test that will simulate
@@ -5058,7 +5978,7 @@ simply add the following test.
   end
 ```
 
-## 15.6 Check it in action!
+## 16.6 Check it in action!
 
 If you run `mix phx.server`,
 you can now drag and drop each item.
@@ -5068,11 +5988,11 @@ and this highlight **is visible to all people in the same Liveview**.
 ![dragndrop_final](https://user-images.githubusercontent.com/17494745/229785696-e109ac59-ee87-4d66-b580-ce0ca25d5f40.gif)
 
 
-# 16. Run the _Finished_ MVP App!
+# 17. Run the _Finished_ MVP App!
 
 With all the code saved, let's run the tests one more time.
 
-## 16.1 Run the Tests
+## 17.1 Run the Tests
 
 In your terminal window, run: 
 
@@ -5115,7 +6035,7 @@ COV    FILE                                        LINES RELEVANT   MISSED
 All tests pass and we have **`100%` Test Coverage**.
 This reminds us just how few _relevant_ lines of code there are in the MVP!
 
-## 16.2 Run The App
+## 17.2 Run The App
 
 In your second terminal tab/window, run:
 

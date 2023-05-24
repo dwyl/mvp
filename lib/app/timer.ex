@@ -142,6 +142,11 @@ defmodule App.Timer do
   This function is only useful for form validations, since it replaces the errored changeset
   according to the index that is passed, alongside the list and the fields to update the timer.
 
+  Since the user is shown a datetime adjusted to their timezone,
+  we need to adjust it *back* so we update the timer with UTC timezone.
+  This is why we are decrementing (-1 * @hours_offset_fromUTC).
+
+
   It returns {:ok, []} in case the update is successful.
   Otherwise, it returns {:error, updated_list}, where `error_term` is the error that occurred and `updated_list` being the updated item changeset list with the error.
   """
@@ -152,7 +157,8 @@ defmodule App.Timer do
           stop: timer_stop
         },
         index,
-        timer_changeset_list
+        timer_changeset_list,
+        hours_offset_fromUTC
       )
       when timer_stop == "" or timer_stop == nil do
     # Getting the changeset to change in case there's an error
@@ -168,21 +174,37 @@ defmodule App.Timer do
         throw(:error_invalid_start)
       end
 
+      # Adjust the timezone.
+      # This assumes the client is being shown the adjusted timezone.
+      # If not, this operation should not occur.
+      start = NaiveDateTime.add(start, -hours_offset_fromUTC, :hour)
+
       # Getting a list of the other timers (the rest we aren't updating)
       other_timers_list = List.delete_at(timer_changeset_list, index)
 
-      # Latest timer end
-      max_end =
-        other_timers_list |> Enum.map(fn chs -> chs.data.stop end) |> Enum.max()
+      # If there are other timers, we check if there are no overlap
+      if(length(other_timers_list) > 0) do
+        # Latest timer end
+        max_end =
+          other_timers_list
+          |> Enum.map(fn chs -> chs.data.stop end)
+          |> Enum.max()
 
-      case NaiveDateTime.compare(start, max_end) do
-        :gt ->
-          timer = get_timer(timer_id)
-          update_timer(timer, %{start: start, stop: nil})
-          {:ok, []}
+        case NaiveDateTime.compare(start, max_end) do
+          :gt ->
+            timer = get_timer(timer_id)
+            update_timer(timer, %{start: start, stop: nil})
+            {:ok, []}
 
-        _ ->
-          throw(:error_not_after_others)
+          _ ->
+            throw(:error_not_after_others)
+        end
+
+        # If there are no other timers, we can update the timer safely
+      else
+        timer = get_timer(timer_id)
+        update_timer(timer, %{start: start, stop: nil})
+        {:ok, []}
       end
     catch
       :error_invalid_start ->
@@ -220,7 +242,8 @@ defmodule App.Timer do
           stop: timer_stop
         },
         index,
-        timer_changeset_list
+        timer_changeset_list,
+        hours_offset_fromUTC
       ) do
     # Getting the changeset to change in case there's an error
     changeset_obj = Enum.at(timer_changeset_list, index)
@@ -240,6 +263,12 @@ defmodule App.Timer do
       if stop_op === :error do
         throw(:error_invalid_stop)
       end
+
+      # Adjust the timezone.
+      # This assumes the client is being shown the adjusted timezone.
+      # If not, this operation should not occur.
+      start = NaiveDateTime.add(start, -hours_offset_fromUTC, :hour)
+      stop = NaiveDateTime.add(stop, -hours_offset_fromUTC, :hour)
 
       case NaiveDateTime.compare(start, stop) do
         :lt ->

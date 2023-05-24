@@ -1,6 +1,9 @@
 // See the Tailwind configuration guide for advanced usage
 // https://tailwindcss.com/docs/configuration
 const colors = require("tailwindcss/colors");
+
+const defaultTheme = require('tailwindcss/defaultTheme')
+
 module.exports = {
   content: [
     './js/**/*.js',
@@ -15,6 +18,9 @@ module.exports = {
       colors: {
         primary: colors.blue,
         secondary: colors.pink,
+      },
+      fontFamily: {
+        sans: ['Inter var', ...defaultTheme.fontFamily.sans],
       },
     },
   },

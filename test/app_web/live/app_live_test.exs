@@ -270,6 +270,50 @@ defmodule AppWeb.AppLiveTest do
            }) =~ "Stop field has an invalid date format."
   end
 
+  test "update timer while it's ongoing for the first time", %{conn: conn} do
+    {:ok, %{model: item, version: _version}} =
+      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+
+    {:ok, seven_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
+
+    {:ok, now} = NaiveDateTime.new(Date.utc_today(), Time.utc_now())
+
+    # Start the timer 7 seconds ago:
+    {:ok, timer} =
+      Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
+
+    {:ok, view, _html} = live(conn, "/")
+
+    # Get string representation of current time
+    now_string =
+      NaiveDateTime.truncate(now, :second)
+      |> NaiveDateTime.to_string()
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.map(fn {value, index} ->
+        if index == 10 do
+          "T"
+        else
+          value
+        end
+      end)
+      |> List.to_string()
+
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer.id,
+             "index" => 0,
+             "timer_start" => now_string,
+             "timer_stop" => ""
+           })
+
+    # Timer should have updated value
+    updated_timer = Timer.get_timer!(timer.id)
+    assert updated_timer.start == NaiveDateTime.truncate(now, :second)
+  end
+
   test "update timer timer with ongoing timer ", %{conn: conn} do
     {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
@@ -499,6 +543,71 @@ defmodule AppWeb.AppLiveTest do
              "timer_start" => seven_seconds_ago_string,
              "timer_stop" => twenty_seconds_string
            }) =~ "This timer interval overlaps with other timers."
+  end
+
+  test "item\'s timer shows correct value (adjusted timezone)", %{conn: conn} do
+    {:ok, %{model: item, version: _version}} =
+      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+
+    {:ok, seven_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
+
+    # Start the timer 7 seconds ago:
+    {:ok, timer} =
+      Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
+
+    # Stop the timer based on its item_id
+    Timer.stop_timer_for_item_id(item.id)
+
+    # Adding timezone socket assign to simulate we're one hour ahead of UTC
+    hours_offset_fromUTC = 1
+
+    conn =
+      put_connect_params(conn, %{"hours_offset_fromUTC" => hours_offset_fromUTC})
+
+    {:ok, view, _html} = live(conn, "/")
+
+    edit_timer_view =
+      render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    # `Start` and `stop` of the timer in the database (in UTC)
+    # We expect the `start` and `stop` to be shown with one hour more in the view
+    timer = Timer.get_timer!(timer.id)
+
+    expected_start_in_view =
+      NaiveDateTime.add(timer.start, hours_offset_fromUTC, :hour)
+      |> NaiveDateTime.to_iso8601()
+
+    expected_stop_in_view =
+      NaiveDateTime.add(timer.stop, hours_offset_fromUTC, :hour)
+      |> NaiveDateTime.to_iso8601()
+
+    # Check if timers are being shown correctly.
+    # They should be adjusted to timezone.
+    assert edit_timer_view =~ expected_start_in_view
+    assert edit_timer_view =~ expected_stop_in_view
+
+    # Now let's update the timer with a new value.
+    # This is the value the user inputs in the client-side.
+    # Since the user is in UTC+1, the persisted value should be adjusted
+    start = "2022-10-27T01:00:00"
+    stop = "2022-10-27T01:30:00"
+    {:ok, persisted_start} = NaiveDateTime.from_iso8601("2022-10-27T00:00:00")
+    {:ok, persisted_stop} = NaiveDateTime.from_iso8601("2022-10-27T00:30:00")
+
+    render_submit(view, "update-item-timer", %{
+      "timer_id" => timer.id,
+      "index" => 0,
+      "timer_start" => start,
+      "timer_stop" => stop
+    })
+
+    updated_timer = Timer.get_timer!(timer.id)
+
+    # The persisted datetime in the database should be one hour less
+    # than what the user has input.
+    assert NaiveDateTime.compare(updated_timer.start, persisted_start) == :eq
+    assert NaiveDateTime.compare(updated_timer.stop, persisted_stop) == :eq
   end
 
   test "timer_text(start, stop) UNDER 1000s" do

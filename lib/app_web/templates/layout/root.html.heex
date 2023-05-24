@@ -43,68 +43,152 @@
     </script>
   </head>
   <body>
-    <nav class="px-2 sm:px-4 py-2 bg-gray-900 w-full min-h-[12%]">
-      <div class="container flex flex-wrap justify-between items-center mx-auto">
-        <%= if @loggedin do %>
-          <img
-            src={@person.picture}
-            class="mr-3 h-6 sm:h-9 rounded-full"
-            alt="avatar image"
-          />
-        <% else %>
-          <h1 class="text-white">Hi Friend!</h1>
-        <% end %>
-        <!-- always display logo -->
-        <a href="/" class="flex items-center">
-          <img
-            src="https://dwyl.com/img/favicon-32x32.png"
-            height="32"
-            width="32"
-            alt="dwyl logo"
-          />
-        </a>
-
-        <%= if @loggedin do %>
-          <div class="flex justify-between items-center">
-            <div class="mr-1 inline-flex items-center pt-1 px-3 py-1 text-sm">
-              <%= link("tags", to: "/tags", class: "text-white font-bold") %>
-            </div>
-            <%= link to: "/logout", class: "inline-flex items-center font-bold mr-1 -pt-1 px-3 py-1 text-sm
-                bg-red-600 hover:bg-red-700 text-white rounded-md hover:cursor-pointer" do %>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-4 w-4 mr-2"
-                fill="white"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+    <nav x-data="{ openMenu: false }" class="bg-gray-800">
+      <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+        <div class="relative flex h-16 items-center justify-between">
+          <div class="absolute inset-y-0 left-0 flex items-center pr-2 sm:static sm:inset-auto sm:mr-6 sm:pr-0">
+            <%= if @loggedin do %>
+              <!-- Profile dropdown -->
+              <div
+                x-data="{showProfileDropdown: false}"
+                x-on:click="showProfileDropdown = !showProfileDropdown"
+                class="relative ml-3"
               >
-                <path d="M22.763,10.232l-4.95-4.95L16.4,6.7,20.7,11H6.617v2H20.7l-4.3,4.3,1.414,1.414,4.95-4.95a2.5,2.5,0,0,0,0-3.536Z" />
-                <path d="M10.476,21a1,1,0,0,1-1,1H3a1,1,0,0,1-1-1V3A1,1,0,0,1,3,2H9.476a1,1,0,0,1,1,1V8.333h2V3a3,3,0,0,0-3-3H3A3,3,0,0,0,0,3V21a3,3,0,0,0,3,3H9.476a3,3,0,0,0,3-3V15.667h-2Z" />
-              </svg>
-              <span>Logout</span>
+                <div>
+                  <button
+                    type="button"
+                    class="flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+                    id="user-menu-button"
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                  >
+                    <span class="sr-only">Open user menu</span>
+                    <img
+                      src={@person.picture}
+                      class="h-8 w-8 rounded-full"
+                      alt="avatar image"
+                    />
+                  </button>
+                </div>
+                <!-- Dropdown menu, show/hide based on menu state. -->
+                <div
+                  x-show="showProfileDropdown"
+                  x-on:click.away="showProfileDropdown = false"
+                  x-transition:enter="transition ease-out duration-100"
+                  x-transition:enter-start="transform opacity-0 scale-95"
+                  x-transition:enter-end="transform opacity-100 scale-100"
+                  x-transition:leave="transition ease-in duration-75"
+                  x-transition:leave-start="transform opacity-100 scale-100"
+                  x-transition:leave-end="transform opacity-0 scale-95"
+                  class="absolute left-0 z-10 mt-2 w-48 origin-top-left rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                  role="menu"
+                  aria-orientation="vertical"
+                  aria-labelledby="user-menu-button"
+                  tabindex="-1"
+                >
+                  <!-- Active: "bg-gray-100", Not Active: "" -->
+                  <%= link to: "/logout" , class: "block px-4 py-2 text-sm text-gray-700" do %>
+                    Sign out
+                  <% end %>
+                </div>
+              </div>
+            <% else %>
+              <div class="flex-shrink-0">
+                <%= link to: "/login" , class: "relative inline-flex items-center gap-x-1.5 rounded-md bg-[#0F766E] px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500" do %>
+                  Login
+                <% end %>
+              </div>
             <% end %>
           </div>
-        <% else %>
-          <%= link to: "/login" , class: "inline-flex items-center font-bold mr-1 -pt-1 px-3 py-1 text-sm
-            bg-teal-700 hover:bg-teal-800 text-white rounded-md hover:cursor-pointer" do %>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-4 w-4 mr-2"
-              fill="white"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+
+          <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-end">
+            <div class="hidden sm:block">
+              <div class="flex space-x-4">
+                <!--  <a href="#" class="bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium" aria-current="page">Current</a> -->
+                <%= link("Tags",
+                  to: "/tags",
+                  class:
+                    "text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
+                ) %>
+              </div>
+            </div>
+            <div class="flex flex-shrink-0 items-center sm:ml-6">
+              <a href="/" class="flex items-center">
+                <img
+                  src="https://dwyl.com/img/common/dwyl-heart-only-logo.png"
+                  height="32"
+                  width="32"
+                  alt="dwyl logo"
+                />
+              </a>
+            </div>
+          </div>
+
+          <div class="absolute inset-y-0 right-0 flex items-center sm:hidden">
+            <!-- Mobile menu button-->
+            <button
+              x-on:click="openMenu = !openMenu"
+              type="button"
+              class="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+              aria-controls="mobile-menu"
+              aria-expanded="false"
             >
-              <path d="M16.043,14H7.957A4.963,4.963,0,0,0,3,18.957V24H21V18.957A4.963,4.963,0,0,0,16.043,14Z" /><circle
-                cx="11"
-                cy="5"
-                r="5"
-              />
-            </svg>
-            Login
-          <% end %>
-        <% end %>
+              <span class="sr-only">Open main menu</span>
+              <!--
+                Icon when menu is closed.
+
+                Menu open: "hidden", Menu closed: "block"
+              -->
+              <svg
+                class="block h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+                />
+              </svg>
+              <!--
+                Icon when menu is open.
+
+                Menu open: "block", Menu closed: "hidden"
+              -->
+              <svg
+                class="hidden h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- Mobile menu, show/hide based on menu state. -->
+      <div x-show="openMenu" class="sm:hidden" id="mobile-menu">
+        <div class="space-y-1 px-2 pb-3 pt-2 text-right">
+          <!--  <a href="#" class="bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium" aria-current="page">Current</a> -->
+          <%= link("Tags",
+            to: "/tags",
+            class:
+              "text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
+          ) %>
+        </div>
       </div>
     </nav>
+
     <%= @inner_content %>
   </body>
 </html>

@@ -35,7 +35,11 @@ defmodule AppWeb.AppLive do
        filter_tag: nil,
        tags: tags,
        selected_tags: selected_tags,
-       text_value: draft_item.text || ""
+       text_value: draft_item.text || "",
+
+       # Offset from the client to UTC. If it's "1", it means we are one hour ahead of UTC.
+       hours_offset_fromUTC:
+         get_connect_params(socket)["hours_offset_fromUTC"] || 0
      )}
   end
 
@@ -198,6 +202,7 @@ defmodule AppWeb.AppLive do
         },
         socket
       ) do
+    # Fetching the list of timer changesets to update
     timer_changeset_list = socket.assigns.editing_timers
     index = String.to_integer(index)
 
@@ -207,13 +212,16 @@ defmodule AppWeb.AppLive do
       stop: timer_stop
     }
 
+    # Update the timer object we've created inside the changeset list
     case Timer.update_timer_inside_changeset_list(
            timer,
            index,
-           timer_changeset_list
+           timer_changeset_list,
+           socket.assigns.hours_offset_fromUTC
          ) do
+      # list is empty if the changeset is valid
       {:ok, _list} ->
-        # Updates item list and broadcast to other users
+        # Updates item list and broadcast to other clients
         AppWeb.Endpoint.broadcast(@topic, "update", :update)
         {:noreply, assign(socket, editing: nil, editing_timers: [])}
 
@@ -297,7 +305,6 @@ defmodule AppWeb.AppLive do
   def handle_info(%Broadcast{event: "update", payload: payload}, socket) do
     person_id = get_person_id(socket.assigns)
     items = Item.items_with_timers(person_id)
-
     isEditingItem = socket.assigns.editing
 
     # If the item is being edited, we update the timer list of the item being edited.

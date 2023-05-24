@@ -54,7 +54,10 @@ let liveSocket = new LiveSocket("/live", Socket, {
           }
         }
   },
-  params: {_csrf_token: csrfToken}
+  params: {
+    _csrf_token: csrfToken,
+    hours_offset_fromUTC: -new Date().getTimezoneOffset()/60
+  }
 })
 
 

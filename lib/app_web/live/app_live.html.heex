@@ -446,18 +446,18 @@
                     <div
                       class="flex flex-col"
                       x-data="{
-                    start: parseInt($refs.timer_start.innerHTML, 10),
+                    start: $refs.timer_start.innerHTML,
                     current: null,
                     stop: null,
                     interval: null
                   }"
                       x-init="
-                    start = parseInt($refs.timer_start.innerHTML, 10);
+                    start = $refs.timer_start.innerHTML;
                     current = start;
-                    interval = setInterval(() => { current = Date.now() }, 500)
+                    interval = setInterval(() => { current = Date.now(), start = $refs.timer_start.innerHTML }, 500)
                   "
                     >
-                      <!-- this is how we pass the start|stop time from Elixir (server) to Alping (client) -->
+                      <!-- this is how we pass the start|stop time from Elixir (server) to Alpine (client) -->
                       <span x-ref="timer_start" class="hidden">
                         <%= timestamp(item.start) %>
                       </span>
@@ -589,6 +589,8 @@
   }
 
   function timer_text(start, current) {
+    current = parseInt(current, 10)
+    start = parseInt(start, 10)
     let h="00", m="00", s="00";
     const diff = current - start;
     // seconds
