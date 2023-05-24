@@ -3493,7 +3493,13 @@ We are showing each timer whenever an `item` is being edited.
                   required="required"
                   name="timer_start"
                   id={"#{changeset.data.id}_start"}
-                  value={changeset.data.start}
+                  value={
+                    NaiveDateTime.add(
+                      changeset.data.start,
+                      @hours_offset_fromUTC,
+                      :hour
+                    )
+                  }
                 />
               </div>
               <div class="flex flex-row items-center">
@@ -3502,7 +3508,17 @@ We are showing each timer whenever an `item` is being edited.
                   type="text"
                   name="timer_stop"
                   id={"#{changeset.data.id}_stop"}
-                  value={changeset.data.stop}
+                  value={
+                    if is_nil(changeset.data.stop) do
+                      changeset.data.stop
+                    else
+                      NaiveDateTime.add(
+                        changeset.data.stop,
+                        @hours_offset_fromUTC,
+                        :hour
+                      )
+                    end
+                  }
                 />
               </div>
               <input
