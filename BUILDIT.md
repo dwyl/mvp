@@ -1816,7 +1816,7 @@ file and replace the contents with the following:
     <nav x-data="{ openMenu: false }" class="bg-gray-800">
       <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
         <div class="relative flex h-16 items-center justify-between">
-          <div class="absolute inset-y-0 left-0 flex items-center pr-2 sm:static sm:inset-auto sm:mr-6 sm:pr-0">
+          <div class="absolute inset-y-0 left-0 flex items-center pr-2">
             <%= if @loggedin do %>
               <!-- Profile dropdown -->
               <div
@@ -1871,18 +1871,8 @@ file and replace the contents with the following:
             <% end %>
           </div>
 
-          <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-end">
-            <div class="hidden sm:block">
-              <div class="flex space-x-4">
-                <!--  <a href="#" class="bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium" aria-current="page">Current</a> -->
-                <%= link("Tags",
-                  to: "/tags",
-                  class:
-                    "text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
-                ) %>
-              </div>
-            </div>
-            <div class="flex flex-shrink-0 items-center sm:ml-6">
+          <div class="flex flex-1 items-center justify-center">
+            <div class="flex flex-shrink-0 items-center">
               <a href="/" class="flex items-center">
                 <img
                   src="https://dwyl.com/img/common/dwyl-heart-only-logo.png"
@@ -1894,7 +1884,7 @@ file and replace the contents with the following:
             </div>
           </div>
 
-          <div class="absolute inset-y-0 right-0 flex items-center sm:hidden">
+          <div class="absolute inset-y-0 right-0 flex items-center">
             <!-- Mobile menu button-->
             <button
               x-on:click="openMenu = !openMenu"
@@ -1947,7 +1937,7 @@ file and replace the contents with the following:
         </div>
       </div>
       <!-- Mobile menu, show/hide based on menu state. -->
-      <div x-show="openMenu" class="sm:hidden" id="mobile-menu">
+      <div x-show="openMenu" id="mobile-menu">
         <div class="space-y-1 px-2 pb-3 pt-2 text-right">
           <!--  <a href="#" class="bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium" aria-current="page">Current</a> -->
           <%= link("Tags",
