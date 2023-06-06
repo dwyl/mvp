@@ -70,6 +70,10 @@ jobs:
 
     name: Review App Job
     runs-on: ubuntu-latest
+<<<<<<< Updated upstream
+=======
+    # needs: [build]
+>>>>>>> Stashed changes
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
