@@ -130,16 +130,22 @@ defmodule AppWeb.AppLive do
         %{"key" => "Enter", "value" => _value},
         socket
       ) do
-    selected_tag =
-      socket.assigns.tags
-      |> List.first()
-      |> Map.get(:id)
-      |> Tag.get_tag!()
+    case socket.assigns.tags do
+      [] ->
+        {:noreply, socket}
 
-    {:noreply,
-     assign(socket,
-       selected_tags: toggle_tag(socket.assigns.selected_tags, selected_tag)
-     )}
+      _ ->
+        selected_tag =
+          socket.assigns.tags
+          |> List.first()
+          |> Map.get(:id)
+          |> Tag.get_tag!()
+
+        {:noreply,
+         assign(socket,
+           selected_tags: toggle_tag(socket.assigns.selected_tags, selected_tag)
+         )}
+    end
   end
 
   @impl true
