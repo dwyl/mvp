@@ -36,7 +36,8 @@ defmodule AppWeb.AppLive do
        text_value: draft_item.text || "",
 
        # Offset from the client to UTC. If it's "1", it means we are one hour ahead of UTC.
-       hours_offset_fromUTC: get_connect_params(socket)["hours_offset_fromUTC"] || 0
+       hours_offset_fromUTC:
+         get_connect_params(socket)["hours_offset_fromUTC"] || 0
      )}
   end
 
@@ -197,7 +198,8 @@ defmodule AppWeb.AppLive do
 
     timers_list_changeset = Timer.list_timers_changesets(item_id)
 
-    {:noreply, assign(socket, editing: item_id, editing_timers: timers_list_changeset)}
+    {:noreply,
+     assign(socket, editing: item_id, editing_timers: timers_list_changeset)}
   end
 
   @impl true
