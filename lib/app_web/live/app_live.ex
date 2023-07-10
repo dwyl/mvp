@@ -103,15 +103,6 @@ defmodule AppWeb.AppLive do
     {:noreply, assign(socket, tags: tags, selected_tags: selected_tags)}
   end
 
-  defp toggle_tag(selected_tags, tag) do
-    if Enum.member?(selected_tags, tag) do
-      List.delete(selected_tags, tag)
-    else
-      [tag | selected_tags]
-    end
-    |> Enum.sort_by(& &1.text)
-  end
-
   @impl true
   def handle_event("filter-tags", %{"key" => _key, "value" => value}, socket) do
     person_id = get_person_id(socket.assigns)
@@ -413,6 +404,15 @@ defmodule AppWeb.AppLive do
     else
       items
     end
+  end
+
+  defp toggle_tag(selected_tags, tag) do
+    if Enum.member?(selected_tags, tag) do
+      List.delete(selected_tags, tag)
+    else
+      [tag | selected_tags]
+    end
+    |> Enum.sort_by(& &1.text)
   end
 
   def class_footer_link(filter_name, filter_selected) do
