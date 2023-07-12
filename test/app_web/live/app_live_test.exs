@@ -806,4 +806,37 @@ defmodule AppWeb.AppLiveTest do
     {:ok, view, _html} = live(conn, "/")
     assert render_hook(view, "filter-tags", %{"key" => "t", "value" => "t"})
   end
+
+  test "select tag when enter pressed", %{conn: conn} do
+    {:ok, _tag1} =
+      Tag.create_tag(%{person_id: 0, text: "tag1", color: "#FCA5A5"})
+
+    {:ok, _tag2} =
+      Tag.create_tag(%{
+        person_id: 0,
+        text: "enter_tag_selected",
+        color: "#FCA5A5"
+      })
+
+    {:ok, view, _html} = live(conn, "/")
+
+    assert render_keydown(view, "add-first-tag", %{"key" => "Enter"})
+
+    assert render_submit(view, :create, %{text: "tag enter pressed"})
+
+    assert render(view) =~ "tag enter pressed"
+    assert render(view) =~ "enter_tag_selected"
+  end
+
+  test "dont select tag if there arent tags created", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+
+    assert render_keydown(view, "add-first-tag", %{"key" => "Enter"})
+
+    assert render_submit(view, :create, %{text: "tag enter pressed"})
+
+    last_item_inserted = Item.list_person_items(0) |> List.last()
+
+    assert last_item_inserted.tags == []
+  end
 end

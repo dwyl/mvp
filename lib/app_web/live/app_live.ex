@@ -119,7 +119,7 @@ defmodule AppWeb.AppLive do
   @impl true
   def handle_event(
         "add-first-tag",
-        %{"key" => "Enter", "value" => _value},
+        %{"key" => "Enter"},
         socket
       ) do
     case socket.assigns.tags do
