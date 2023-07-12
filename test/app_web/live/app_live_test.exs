@@ -820,7 +820,8 @@ defmodule AppWeb.AppLiveTest do
 
     {:ok, view, _html} = live(conn, "/")
 
-    assert render_keydown(view, "add-first-tag", %{"key" => "Enter"})
+    assert render_keydown(view, "add-first-tag", %{"key" => "Enter"}) =~
+             "enter_tag_selected"
 
     assert render_submit(view, :create, %{text: "tag enter pressed"})
 
@@ -832,6 +833,18 @@ defmodule AppWeb.AppLiveTest do
     {:ok, view, _html} = live(conn, "/")
 
     assert render_keydown(view, "add-first-tag", %{"key" => "Enter"})
+
+    assert render_submit(view, :create, %{text: "tag enter pressed"})
+
+    last_item_inserted = Item.list_person_items(0) |> List.last()
+
+    assert last_item_inserted.tags == []
+  end
+
+  test "dont select tag if other keydown is pressed", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+
+    assert render_keydown(view, "add-first-tag", %{"key" => "Esc"})
 
     assert render_submit(view, :create, %{text: "tag enter pressed"})
 
