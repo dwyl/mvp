@@ -811,12 +811,13 @@ defmodule AppWeb.AppLiveTest do
     {:ok, _tag1} =
       Tag.create_tag(%{person_id: 0, text: "tag1", color: "#FCA5A5"})
 
-    {:ok, _tag2} =
-      Tag.create_tag(%{
-        person_id: 0,
-        text: "enter_tag_selected",
-        color: "#FCA5A5"
-      })
+    used_tag = %{
+      person_id: 0,
+      text: "enter_tag_selected",
+      color: "#FCA5A5"
+    }
+
+    {:ok, _tag2} = Tag.create_tag(used_tag)
 
     {:ok, view, _html} = live(conn, "/")
 
@@ -827,6 +828,14 @@ defmodule AppWeb.AppLiveTest do
 
     assert render(view) =~ "tag enter pressed"
     assert render(view) =~ "enter_tag_selected"
+
+    last_item_inserted = Item.list_person_items(0) |> List.last()
+
+    [tag | _] = last_item_inserted.tags
+
+    assert tag.person_id == used_tag.person_id
+    assert tag.text == used_tag.text
+    assert tag.color == used_tag.color
   end
 
   test "dont select tag if there arent tags created", %{conn: conn} do
