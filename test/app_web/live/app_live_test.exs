@@ -848,10 +848,16 @@ defmodule AppWeb.AppLiveTest do
   test "select tag when enter pressed", %{conn: conn} do
     # Add default tag created by priv/repo/seeds.exs
     {:ok, view, _html} = live(conn, "/")
-    assert render_keydown(view, "add-first-tag", %{"key" => "Enter"}) =~ "baking"
+
+    assert render_keydown(view, "add-first-tag", %{"key" => "Enter"}) =~
+             "baking"
 
     {:ok, _tag1} =
-      Tag.create_tag(%{person_id: 0, text: "enter_tag_selected", color: "#FCA5A5"})
+      Tag.create_tag(%{
+        person_id: 0,
+        text: "enter_tag_selected",
+        color: "#FCA5A5"
+      })
 
     assert render_submit(view, :create, %{text: "tag enter pressed"})
     assert render(view) =~ "tag enter pressed"
