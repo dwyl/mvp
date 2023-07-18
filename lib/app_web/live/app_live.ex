@@ -100,13 +100,7 @@ defmodule AppWeb.AppLive do
     tag = Tag.get_tag!(value["tag_id"])
     tags = Tag.list_person_tags(person_id)
 
-    selected_tags =
-      if Enum.member?(selected_tags, tag) do
-        List.delete(selected_tags, tag)
-      else
-        [tag | selected_tags]
-      end
-      |> Enum.sort_by(& &1.text)
+    selected_tags = toggle_tag(selected_tags, tag)
 
     {:noreply, assign(socket, tags: tags, selected_tags: selected_tags)}
   end
@@ -123,6 +117,34 @@ defmodule AppWeb.AppLive do
 
     {:noreply, assign(socket, tags: tags)}
   end
+
+  @impl true
+  def handle_event(
+        "add-first-tag",
+        %{"key" => "Enter"},
+        socket
+      ) do
+    case socket.assigns.tags do
+      [] ->
+        {:noreply, socket}
+
+      _ ->
+        selected_tag =
+          socket.assigns.tags
+          |> List.first()
+          |> Map.get(:id)
+          |> Tag.get_tag!()
+
+        {:noreply,
+         assign(socket,
+           selected_tags: toggle_tag(socket.assigns.selected_tags, selected_tag)
+         )}
+    end
+  end
+
+  @impl true
+  def handle_event("add-first-tag", _params, socket),
+    do: {:noreply, socket}
 
   @impl true
   def handle_event("delete", %{"id" => item_id}, socket) do
@@ -455,6 +477,15 @@ defmodule AppWeb.AppLive do
     else
       items
     end
+  end
+
+  defp toggle_tag(selected_tags, tag) do
+    if Enum.member?(selected_tags, tag) do
+      List.delete(selected_tags, tag)
+    else
+      [tag | selected_tags]
+    end
+    |> Enum.sort_by(& &1.text)
   end
 
   def class_footer_link(filter_name, filter_selected) do

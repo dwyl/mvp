@@ -56,8 +56,14 @@
         name="tag"
         class="w-full my-2"
         x-on:focus="open = true"
+        x-on:keydown.enter.prevent="
+          if (event.key === 'Enter') {
+            event.target.value = '';
+          }
+        "
         phx-keyup="filter-tags"
-        phx-debounce="250"
+        phx-keyup-debounce="250"
+        phx-keydown="add-first-tag"
         autocomplete="off"
         placeholder="tags"
       />
