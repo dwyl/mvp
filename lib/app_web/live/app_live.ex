@@ -125,8 +125,8 @@ defmodule AppWeb.AppLive do
         socket
       ) do
     case socket.assigns.tags do
-      [] ->
-        {:noreply, socket}
+      # [] ->
+      #   {:noreply, socket}
 
       _ ->
         selected_tag =
