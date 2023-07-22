@@ -1,7 +1,7 @@
 defmodule AppWeb.StatsLive do
   require Logger
   use AppWeb, :live_view
-  alias App.Item
+  alias App.{Item, DateHelper}
   alias Phoenix.Socket.Broadcast
 
   # run authentication on mount
@@ -73,5 +73,9 @@ defmodule AppWeb.StatsLive do
 
   def person_link(person_id) do
     "https://auth.dwyl.com/people/#{person_id}"
+  end
+
+  def format_date(date) do
+    DateHelper.format_date(date)
   end
 end

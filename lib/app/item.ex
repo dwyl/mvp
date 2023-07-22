@@ -240,7 +240,8 @@ defmodule App.Item do
     sql = """
     SELECT i.person_id,
     COUNT(distinct i.id) AS "num_items",
-    COUNT(distinct t.id) AS "num_timers"
+    COUNT(distinct t.id) AS "num_timers",
+    MIN(i.inserted_at) AS "first_inserted_at"
     FROM items i
     LEFT JOIN timers t ON t.item_id = i.id
     GROUP BY i.person_id

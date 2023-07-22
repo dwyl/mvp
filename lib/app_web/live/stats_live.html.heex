@@ -15,6 +15,9 @@
           <th scope="col" class="px-6 py-3 text-center">
             Timers
           </th>
+          <th scope="col" class="px-6 py-3 text-center">
+            First Joined
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -30,6 +33,9 @@
             </td>
             <td class="px-6 py-4 text-center">
               <%= metric.num_timers %>
+            </td>
+            <td class="px-6 py-4 text-center">
+              <%= format_date(metric.first_inserted_at) %>
             </td>
           </tr>
         <% end %>
