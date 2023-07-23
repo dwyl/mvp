@@ -9,15 +9,19 @@ defmodule AppWeb.StatsLive do
 
   @stats_topic "stats"
 
+  defp get_person_id(assigns), do: assigns[:person][:id] || 0
+
   @impl true
   def mount(_params, _session, socket) do
     # subscribe to the channel
     if connected?(socket), do: AppWeb.Endpoint.subscribe(@stats_topic)
 
+    person_id = get_person_id(socket.assigns)
     metrics = Item.person_with_item_and_timer_count()
 
     {:ok,
      assign(socket,
+       person_id: person_id,
        metrics: metrics
      )}
   end

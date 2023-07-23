@@ -28,7 +28,12 @@
       </thead>
       <tbody>
         <%= for metric <- @metrics do %>
-          <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+          <tr class={
+            if metric.person_id == @person_id,
+              do:
+                "bg-teal-100 border-teal-500 dark:bg-teal-800 dark:border-teal-700",
+              else: "bg-white border-b dark:bg-gray-800 dark:border-gray-700"
+          }>
             <td class="px-6 py-4">
               <a href={person_link(metric.person_id)}>
                 <%= metric.person_id %>
