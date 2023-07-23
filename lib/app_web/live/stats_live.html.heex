@@ -18,6 +18,9 @@
           <th scope="col" class="px-6 py-3 text-center">
             First Joined
           </th>
+          <th scope="col" class="px-6 py-3 text-center">
+            Total Elapsed Time
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -36,6 +39,9 @@
             </td>
             <td class="px-6 py-4 text-center">
               <%= format_date(metric.first_inserted_at) %>
+            </td>
+            <td class="px-6 py-4 text-center">
+              <%= format_seconds(metric.total_timers_in_seconds) %>
             </td>
           </tr>
         <% end %>

@@ -1,7 +1,7 @@
 defmodule AppWeb.StatsLive do
   require Logger
   use AppWeb, :live_view
-  alias App.{Item, DateHelper}
+  alias App.{Item, DateTimeHelper}
   alias Phoenix.Socket.Broadcast
 
   # run authentication on mount
@@ -76,6 +76,10 @@ defmodule AppWeb.StatsLive do
   end
 
   def format_date(date) do
-    DateHelper.format_date(date)
+    DateTimeHelper.format_date(date)
+  end
+
+  def format_seconds(seconds) do
+    DateTimeHelper.format_duration(seconds)
   end
 end

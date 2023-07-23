@@ -241,7 +241,8 @@ defmodule App.Item do
     SELECT i.person_id,
     COUNT(distinct i.id) AS "num_items",
     COUNT(distinct t.id) AS "num_timers",
-    MIN(i.inserted_at) AS "first_inserted_at"
+    MIN(i.inserted_at) AS "first_inserted_at",
+    SUM(EXTRACT(EPOCH FROM (t.stop - t.start))) AS "total_timers_in_seconds"
     FROM items i
     LEFT JOIN timers t ON t.item_id = i.id
     GROUP BY i.person_id
