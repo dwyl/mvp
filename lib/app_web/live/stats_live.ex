@@ -86,4 +86,7 @@ defmodule AppWeb.StatsLive do
   def format_seconds(seconds) do
     DateTimeHelper.format_duration(seconds)
   end
+
+  def is_highlighted_person?(metric, person_id),
+    do: metric.person_id == person_id
 end

@@ -3,62 +3,45 @@
     <h1 class="mb-2 text-xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl dark:text-white">
       Stats
     </h1>
-    <table class="text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
-      <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-        <tr>
-          <th scope="col" class="px-6 py-3">
-            Id
-          </th>
-          <th scope="col" class="px-6 py-3 text-center">
-            Items
-          </th>
-          <th scope="col" class="px-6 py-3 text-center">
-            Timers
-          </th>
-          <th scope="col" class="px-6 py-3 text-center">
-            First Joined
-          </th>
-          <th scope="col" class="px-6 py-3 text-center">
-            Last Item Inserted
-          </th>
-          <th scope="col" class="px-6 py-3 text-center">
-            Total Elapsed Time
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <%= for metric <- @metrics do %>
-          <tr class={
-            if metric.person_id == @person_id,
-              do:
-                "bg-teal-100 border-teal-500 dark:bg-teal-800 dark:border-teal-700",
-              else: "bg-white border-b dark:bg-gray-800 dark:border-gray-700"
-          }>
-            <td class="px-6 py-4">
-              <a href={person_link(metric.person_id)}>
-                <%= metric.person_id %>
-              </a>
-            </td>
-            <td class="px-6 py-4 text-center">
-              <%= metric.num_items %>
-            </td>
-            <td class="px-6 py-4 text-center">
-              <%= metric.num_timers %>
-            </td>
-            <td class="px-6 py-4 text-center">
-              <%= format_date(metric.first_inserted_at) %>
-            </td>
-            <td class="px-6 py-4 text-center">
-              <%= format_date(metric.last_inserted_at) %>
-            </td>
-            <td class="px-6 py-4 text-center">
-              <%= format_seconds(metric.total_timers_in_seconds) %>
-            </td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
 
-    <.live_component module={AppWeb.TableComponent} id="table_component" />
+    <.live_component module={AppWeb.TableComponent} id="table_component" rows={@metrics} highlight={&is_highlighted_person?(&1, @person_id)}>
+      <:column :let={metric} label="Id">
+        <td class="px-6 py-4">
+          <a href={person_link(metric.person_id)}>
+            <%= metric.person_id %>
+          </a>
+        </td>
+      </:column>
+
+      <:column :let={metric} label="Items">
+        <td class="px-6 py-4 text-center">
+          <%= metric.num_items %>
+        </td>
+      </:column>
+
+      <:column :let={metric} label="Timers">
+        <td class="px-6 py-4 text-center">
+          <%= metric.num_timers %>
+        </td>
+      </:column>
+
+      <:column :let={metric} label="First Joined">
+        <td class="px-6 py-4 text-center">
+          <%= format_date(metric.first_inserted_at) %>
+        </td>
+      </:column>
+
+      <:column :let={metric} label="Last Item Inserted">
+        <td class="px-6 py-4 text-center">
+          <%= format_date(metric.last_inserted_at) %>
+        </td>
+      </:column>
+
+      <:column :let={metric} label="Total Elapsed Time">
+        <td class="px-6 py-4 text-center">
+          <%= format_seconds(metric.total_timers_in_seconds) %>
+        </td>
+      </:column>
+    </.live_component>
   </div>
 </main>
