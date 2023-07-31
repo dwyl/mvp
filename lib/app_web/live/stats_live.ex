@@ -64,6 +64,19 @@ defmodule AppWeb.StatsLive do
     end
   end
 
+  @impl true
+  def handle_event("sort", %{"key" => key}, socket) do
+    metrics =
+      key
+      |> String.to_atom()
+      |> Item.person_with_item_and_timer_count()
+
+    {:noreply,
+     assign(socket,
+       metrics: metrics
+     )}
+  end
+
   def add_row(row, payload, key) do
     row =
       if row.person_id == payload.person_id do

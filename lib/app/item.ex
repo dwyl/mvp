@@ -236,7 +236,12 @@ defmodule App.Item do
     %{name: username, num_items: 1, num_timers: 3, person_id: 1}
   ]
   """
-  def person_with_item_and_timer_count() do
+  def person_with_item_and_timer_count(sort_column \\ :person_id) do
+    sort_column = to_string(sort_column)
+
+    sort_column =
+      if validate_sort_column(sort_column), do: sort_column, else: "person_id"
+
     sql = """
     SELECT i.person_id,
     COUNT(distinct i.id) AS "num_items",
@@ -247,7 +252,7 @@ defmodule App.Item do
     FROM items i
     LEFT JOIN timers t ON t.item_id = i.id
     GROUP BY i.person_id
-    ORDER BY i.person_id
+    ORDER BY #{sort_column} ASC
     """
 
     Ecto.Adapters.SQL.query!(Repo, sql)
@@ -376,5 +381,12 @@ defmodule App.Item do
     |> Map.values()
     # Sort list by item.id descending (ordered by timer_id ASC above) so newest item first:
     |> Enum.sort_by(fn i -> i.id end, :desc)
+  end
+
+  defp validate_sort_column(column) do
+    Enum.member?(
+      ~w(person_id num_items num_timers first_inserted_at last_inserted_at total_timers_in_seconds),
+      column
+    )
   end
 end

@@ -4,8 +4,13 @@
       Stats
     </h1>
 
-    <.live_component module={AppWeb.TableComponent} id="table_component" rows={@metrics} highlight={&is_highlighted_person?(&1, @person_id)}>
-      <:column :let={metric} label="Id">
+    <.live_component
+      module={AppWeb.TableComponent}
+      id="table_component"
+      rows={@metrics}
+      highlight={&is_highlighted_person?(&1, @person_id)}
+    >
+      <:column :let={metric} label="Id" key="person_id">
         <td class="px-6 py-4">
           <a href={person_link(metric.person_id)}>
             <%= metric.person_id %>
@@ -13,31 +18,35 @@
         </td>
       </:column>
 
-      <:column :let={metric} label="Items">
+      <:column :let={metric} label="Items" key="num_items">
         <td class="px-6 py-4 text-center">
           <%= metric.num_items %>
         </td>
       </:column>
 
-      <:column :let={metric} label="Timers">
+      <:column :let={metric} label="Timers" key="num_timers">
         <td class="px-6 py-4 text-center">
           <%= metric.num_timers %>
         </td>
       </:column>
 
-      <:column :let={metric} label="First Joined">
+      <:column :let={metric} label="First Joined" key="first_inserted_at">
         <td class="px-6 py-4 text-center">
           <%= format_date(metric.first_inserted_at) %>
         </td>
       </:column>
 
-      <:column :let={metric} label="Last Item Inserted">
+      <:column :let={metric} label="Last Item Inserted" key="last_inserted_at">
         <td class="px-6 py-4 text-center">
           <%= format_date(metric.last_inserted_at) %>
         </td>
       </:column>
 
-      <:column :let={metric} label="Total Elapsed Time">
+      <:column
+        :let={metric}
+        label="Total Elapsed Time"
+        key="total_timers_in_seconds"
+      >
         <td class="px-6 py-4 text-center">
           <%= format_seconds(metric.total_timers_in_seconds) %>
         </td>
