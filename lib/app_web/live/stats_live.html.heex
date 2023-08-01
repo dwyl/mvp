@@ -13,7 +13,7 @@
       highlight={&is_highlighted_person?(&1, @person_id)}
     >
       <:column :let={metric} label="Id" key="person_id">
-        <td class="px-6 py-4">
+        <td class="px-6 py-4" data-test-id="person_id">
           <a href={person_link(metric.person_id)}>
             <%= metric.person_id %>
           </a>
@@ -21,25 +21,25 @@
       </:column>
 
       <:column :let={metric} label="Items" key="num_items">
-        <td class="px-6 py-4 text-center">
+        <td class="px-6 py-4 text-center" data-test-id="num_items">
           <%= metric.num_items %>
         </td>
       </:column>
 
       <:column :let={metric} label="Timers" key="num_timers">
-        <td class="px-6 py-4 text-center">
+        <td class="px-6 py-4 text-center" data-test-id="num_timers">
           <%= metric.num_timers %>
         </td>
       </:column>
 
       <:column :let={metric} label="First Joined" key="first_inserted_at">
-        <td class="px-6 py-4 text-center">
+        <td class="px-6 py-4 text-center" data-test-id="first_inserted_at">
           <%= format_date(metric.first_inserted_at) %>
         </td>
       </:column>
 
       <:column :let={metric} label="Last Item Inserted" key="last_inserted_at">
-        <td class="px-6 py-4 text-center">
+        <td class="px-6 py-4 text-center" data-test-id="last_inserted_at">
           <%= format_date(metric.last_inserted_at) %>
         </td>
       </:column>
@@ -49,7 +49,7 @@
         label="Total Elapsed Time"
         key="total_timers_in_seconds"
       >
-        <td class="px-6 py-4 text-center">
+        <td class="px-6 py-4 text-center" data-test-id="total_timers_in_seconds">
           <%= format_seconds(metric.total_timers_in_seconds) %>
         </td>
       </:column>
