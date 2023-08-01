@@ -8,6 +8,8 @@
       module={AppWeb.TableComponent}
       id="table_component"
       rows={@metrics}
+      sort_column={@sort_column}
+      sort_order={@sort_order}
       highlight={&is_highlighted_person?(&1, @person_id)}
     >
       <:column :let={metric} label="Id" key="person_id">

@@ -10,11 +10,11 @@ defmodule App.Item do
   @derive {Jason.Encoder,
            except: [:__meta__, :__struct__, :timer, :inserted_at, :updated_at]}
   schema "items" do
-    field :person_id, :integer
-    field :status, :integer
-    field :text, :string
+    field(:person_id, :integer)
+    field(:status, :integer)
+    field(:text, :string)
 
-    has_many :timer, Timer
+    has_many(:timer, Timer)
     many_to_many(:tags, Tag, join_through: ItemTag, on_replace: :delete)
 
     timestamps()
@@ -236,11 +236,17 @@ defmodule App.Item do
     %{name: username, num_items: 1, num_timers: 3, person_id: 1}
   ]
   """
-  def person_with_item_and_timer_count(sort_column \\ :person_id) do
+  def person_with_item_and_timer_count(
+        sort_column \\ :person_id,
+        sort_order \\ :asc
+      ) do
     sort_column = to_string(sort_column)
+    sort_order = to_string(sort_order)
 
     sort_column =
       if validate_sort_column(sort_column), do: sort_column, else: "person_id"
+
+    sort_order = if validate_order(sort_order), do: sort_order, else: "asc"
 
     sql = """
     SELECT i.person_id,
@@ -252,7 +258,7 @@ defmodule App.Item do
     FROM items i
     LEFT JOIN timers t ON t.item_id = i.id
     GROUP BY i.person_id
-    ORDER BY #{sort_column} ASC
+    ORDER BY #{sort_column} #{sort_order}
     """
 
     Ecto.Adapters.SQL.query!(Repo, sql)
@@ -387,6 +393,13 @@ defmodule App.Item do
     Enum.member?(
       ~w(person_id num_items num_timers first_inserted_at last_inserted_at total_timers_in_seconds),
       column
+    )
+  end
+
+  defp validate_order(order) do
+    Enum.member?(
+      ~w(asc desc),
+      order
     )
   end
 end

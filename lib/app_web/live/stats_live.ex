@@ -22,7 +22,9 @@ defmodule AppWeb.StatsLive do
     {:ok,
      assign(socket,
        person_id: person_id,
-       metrics: metrics
+       metrics: metrics,
+       sort_column: :person_id,
+       sort_order: :asc
      )}
   end
 
@@ -66,14 +68,24 @@ defmodule AppWeb.StatsLive do
 
   @impl true
   def handle_event("sort", %{"key" => key}, socket) do
-    metrics =
+    sort_column =
       key
       |> String.to_atom()
-      |> Item.person_with_item_and_timer_count()
+
+    sort_order =
+      if socket.assigns.sort_column == sort_column do
+        toggle_sort_order(socket.assigns.sort_order)
+      else
+        :asc
+      end
+
+    metrics = Item.person_with_item_and_timer_count(sort_column, sort_order)
 
     {:noreply,
      assign(socket,
-       metrics: metrics
+       metrics: metrics,
+       sort_column: sort_column,
+       sort_order: sort_order
      )}
   end
 
@@ -102,4 +114,7 @@ defmodule AppWeb.StatsLive do
 
   def is_highlighted_person?(metric, person_id),
     do: metric.person_id == person_id
+
+  defp toggle_sort_order(:asc), do: :desc
+  defp toggle_sort_order(:desc), do: :asc
 end

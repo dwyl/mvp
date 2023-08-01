@@ -7,7 +7,19 @@
         phx-click="sort"
         phx-value-key={column.key}
       >
-        <%= column.label %>
+        <a href="#" class="group inline-flex">
+          <%= column.label %>
+
+          <%= if @sort_column == String.to_atom(column.key) do %>
+            <%= if @sort_order == :asc do %>
+              <%= render_arrow_up() %>
+            <% else %>
+              <%= render_arrow_down() %>
+            <% end %>
+          <% else %>
+            <%= render_arrow_up(:invisible) %>
+          <% end %>
+        </a>
       </th>
     <% end %>
   </thead>
