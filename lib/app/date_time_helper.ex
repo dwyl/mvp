@@ -13,4 +13,6 @@ defmodule App.DateTimeHelper do
 
     Timex.format_duration(duration, :humanized)
   end
+
+  def format_duration(_seconds), do: ""
 end

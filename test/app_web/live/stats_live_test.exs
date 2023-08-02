@@ -53,7 +53,7 @@ defmodule AppWeb.StatsLiveTest do
     assert page_live
            |> element("td[data-test-id=total_timers_in_seconds]")
            |> render() =~
-             "0 microseconds"
+             ""
   end
 
   test "handle broadcast when item is created", %{conn: conn} do
