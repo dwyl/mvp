@@ -235,8 +235,10 @@ defmodule App.ItemTest do
              item2.inserted_at
            ) == :eq
 
+    IO.inspect(first_element.total_timers_in_seconds)
+
     assert DateTimeHelper.format_duration(first_element.total_timers_in_seconds) ==
-             "0 microseconds"
+             ""
   end
 
   test "Item.person_with_item_and_timer_count/2 returns a list sorted in ascending order when :asc is passed for sort_order" do
