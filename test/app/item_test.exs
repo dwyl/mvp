@@ -1,9 +1,11 @@
 defmodule App.ItemTest do
+  alias App.DateTimeHelper
   use App.DataCase
   alias App.{Item, Timer}
 
   describe "items" do
     @valid_attrs %{text: "some text", person_id: 1, status: 2}
+    @another_person %{text: "some text", person_id: 2, status: 2}
     @update_attrs %{text: "some updated text", person_id: 1}
     @invalid_attrs %{text: nil}
 
@@ -220,7 +222,53 @@ defmodule App.ItemTest do
 
     first_element = Enum.at(person_with_items_timers, 0)
 
-    assert Map.get(first_element, :num_items) == 2
-    assert Map.get(first_element, :num_timers) == 2
+    assert first_element.num_items == 2
+    assert first_element.num_timers == 2
+
+    assert NaiveDateTime.compare(
+             first_element.first_inserted_at,
+             item1.inserted_at
+           ) == :eq
+
+    assert NaiveDateTime.compare(
+             first_element.last_inserted_at,
+             item2.inserted_at
+           ) == :eq
+
+    assert DateTimeHelper.format_duration(first_element.total_timers_in_seconds) ==
+             "0 microseconds"
+  end
+
+  test "Item.person_with_item_and_timer_count/1 returns a sorted list based on the column" do
+    {:ok, %{model: _, version: _version}} = Item.create_item(@valid_attrs)
+    {:ok, %{model: _, version: _version}} = Item.create_item(@valid_attrs)
+
+    {:ok, %{model: _, version: _version}} = Item.create_item(@another_person)
+    {:ok, %{model: _, version: _version}} = Item.create_item(@another_person)
+
+    # list person with number of timers and items
+    result = Item.person_with_item_and_timer_count(:person_id, :desc)
+
+    assert length(result) == 2
+
+    first_element = Enum.at(result, 0)
+    assert first_element.person_id == 2
+  end
+
+  test "Item.person_with_item_and_timer_count/1 returns a sorted list by person_id if invalid sorted column and order" do
+    {:ok, %{model: _, version: _version}} = Item.create_item(@valid_attrs)
+    {:ok, %{model: _, version: _version}} = Item.create_item(@valid_attrs)
+
+    {:ok, %{model: _, version: _version}} = Item.create_item(@another_person)
+    {:ok, %{model: _, version: _version}} = Item.create_item(@another_person)
+
+    # list person with number of timers and items
+    result =
+      Item.person_with_item_and_timer_count(:invalid_column, :invalid_order)
+
+    assert length(result) == 2
+
+    first_element = Enum.at(result, 0)
+    assert first_element.person_id == 1
   end
 end
