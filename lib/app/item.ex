@@ -225,7 +225,7 @@ defmodule App.Item do
   end
 
   @doc """
-  `person_with_item_and_timer_count/0` returns a list of number of timers and items per person.
+  `person_with_item_and_timer_count/2` returns a list of number of timers and items per person sorted by column and order
   Used mainly for metric-tracking purposes.
 
   ## Examples
@@ -234,6 +234,12 @@ defmodule App.Item do
   [
     %{name: nil, num_items: 3, num_timers: 8, person_id: 0}
     %{name: username, num_items: 1, num_timers: 3, person_id: 1}
+  ]
+
+  iex> person_with_item_and_timer_count(:person_id, :desc)
+  [
+    %{name: username, num_items: 1, num_timers: 3, person_id: 1}
+    %{name: nil, num_items: 3, num_timers: 8, person_id: 0}
   ]
   """
   def person_with_item_and_timer_count(
@@ -389,6 +395,7 @@ defmodule App.Item do
     |> Enum.sort_by(fn i -> i.id end, :desc)
   end
 
+  # validates the items columns to make sure it's a valid column passed
   defp validate_sort_column(column) do
     Enum.member?(
       ~w(person_id num_items num_timers first_inserted_at last_inserted_at total_timers_in_seconds),
@@ -396,6 +403,7 @@ defmodule App.Item do
     )
   end
 
+  # validates the order SQL to make sure it's a valid asc or desc
   defp validate_order(order) do
     Enum.member?(
       ~w(asc desc),
