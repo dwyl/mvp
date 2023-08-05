@@ -3,7 +3,6 @@ defmodule AppWeb.StatsLiveTest do
   use AppWeb.ConnCase, async: true
   alias App.{Item, Timer}
   import Phoenix.LiveViewTest
-  import Floki
 
   @person_id 55
 
@@ -138,10 +137,10 @@ defmodule AppWeb.StatsLiveTest do
   end
 
   test "sorting column when clicked", %{conn: conn} do
-    {:ok, %{model: item, version: _version}} =
+    {:ok, %{model: _, version: _version}} =
       Item.create_item(%{text: "Learn Elixir", status: 2, person_id: 1})
 
-    {:ok, %{model: _item2, version: _version}} =
+    {:ok, %{model: _, version: _version}} =
       Item.create_item(%{text: "Learn Elixir", status: 4, person_id: 2})
 
     {:ok, page_live, _html} = live(conn, "/stats")
