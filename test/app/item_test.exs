@@ -1,5 +1,4 @@
 defmodule App.ItemTest do
-  alias App.DateTimeHelper
   use App.DataCase
   alias App.{Item, Timer}
 
