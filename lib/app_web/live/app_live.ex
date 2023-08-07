@@ -21,6 +21,7 @@ defmodule AppWeb.AppLive do
     AppWeb.Endpoint.subscribe(@stats_topic)
 
     person_id = get_person_id(socket.assigns)
+    lists = App.List.create_default_lists(person_id)
     items = Item.items_with_timers(person_id)
     tags = Tag.list_person_tags(person_id)
     selected_tags = []
@@ -33,10 +34,10 @@ defmodule AppWeb.AppLive do
        editing: nil,
        filter: "active",
        filter_tag: nil,
+       lists: lists,
        tags: tags,
        selected_tags: selected_tags,
        text_value: draft_item.text || "",
-
        # Offset from the client to UTC. If it's "1", it means we are one hour ahead of UTC.
        hours_offset_fromUTC:
          get_connect_params(socket)["hours_offset_fromUTC"] || 0

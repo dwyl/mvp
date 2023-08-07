@@ -1,5 +1,5 @@
 defmodule App.ListItemsTest do
-  use App.DataCase
+  use App.DataCase, async: true
   alias App.{Item, List, ListItem}
 
   describe "add items to list" do

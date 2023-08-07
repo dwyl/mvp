@@ -1,9 +1,9 @@
 defmodule App.ListTest do
-  use App.DataCase
+  use App.DataCase, async: true
   alias App.{List}
 
   describe "list" do
-    @valid_attrs %{text: "some text", person_id: 1, status: 2}
+    @valid_attrs %{text: "My List", person_id: 1, status: 2}
     @update_attrs %{text: "some updated text", person_id: 1}
     @invalid_attrs %{text: nil}
 
@@ -25,7 +25,10 @@ defmodule App.ListTest do
       assert {:ok, %{model: list, version: _version}} =
                List.create_list(@valid_attrs)
 
-      assert list.text == "some text"
+      assert list.text == @valid_attrs.text
+      l = List.get_person_lists(list.person_id) |> Enum.at(0)
+      assert l.text == @valid_attrs.text
+
     end
 
     test "create_list/1 with invalid data returns error changeset" do
@@ -39,6 +42,10 @@ defmodule App.ListTest do
                List.update_list(list, @update_attrs)
 
       assert list.text == "some updated text"
+    end
+
+    test "create_default_lists/1 creates the default lists" do
+      assert List.create_default_lists(0)|> length() > 2
     end
   end
 end

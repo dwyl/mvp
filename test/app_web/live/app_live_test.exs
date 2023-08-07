@@ -314,7 +314,7 @@ defmodule AppWeb.AppLiveTest do
     assert updated_timer.start == NaiveDateTime.truncate(now, :second)
   end
 
-  test "update timer timer with ongoing timer ", %{conn: conn} do
+  test "update timer with ongoing timer", %{conn: conn} do
     {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
@@ -877,6 +877,6 @@ defmodule AppWeb.AppLiveTest do
 
   test "format_test/1" do
     text = "Text with link https://mylink.com and more text after."
-    
+
   end
 end
