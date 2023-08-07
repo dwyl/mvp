@@ -73,10 +73,10 @@ if env == :test || env == :dev do
     Timer.start(%{item_id: item0.id, person_id: person_id, start: started})
 
   # List!
-  list1_data = %{name: "Shopping List", person_id: person_id, status: 2}
+  list1_data = %{text: "Shopping List", person_id: person_id, status: 2}
   {:ok, %{model: list1, version: _version}} = List.create_list(list1_data)
 
-  list2_data = %{name: "Meal Plan", person_id: person_id, status: 2}
+  list2_data = %{text: "Meal Plan", person_id: person_id, status: 2}
   {:ok, %{model: list2, version: _version}} = List.create_list(list2_data)
 
   # Add items to lists:

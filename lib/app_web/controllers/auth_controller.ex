@@ -1,6 +1,5 @@
 defmodule AppWeb.AuthController do
   use AppWeb, :controller
-
   import Phoenix.Component, only: [assign_new: 3]
 
   def on_mount(:default, _params, %{"jwt" => jwt} = _session, socket) do

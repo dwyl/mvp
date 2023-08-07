@@ -6,7 +6,7 @@ defmodule App.List do
   alias __MODULE__
 
   schema "lists" do
-    field :name, :string
+    field :text, :string
     field :person_id, :integer
     field :status, :integer
 
@@ -16,8 +16,8 @@ defmodule App.List do
   @doc false
   def changeset(list, attrs) do
     list
-    |> cast(attrs, [:name, :person_id, :status])
-    |> validate_required([:name, :person_id])
+    |> cast(attrs, [:text, :person_id, :status])
+    |> validate_required([:text, :person_id])
   end
 
   @doc """

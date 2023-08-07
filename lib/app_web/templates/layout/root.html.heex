@@ -170,7 +170,18 @@
       <div x-show="openMenu" id="mobile-menu">
         <div class="space-y-1 px-2 pb-3 pt-2 text-right">
           <!--  <a href="#" class="bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium" aria-current="page">Current</a> -->
-          <%= link("Tags",
+          <%= link("📥 All",
+            to: "/tags",
+            class:
+              "text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
+          ) %>
+        </div>
+      </div>
+
+      <div x-show="openMenu" id="mobile-menu">
+        <div class="space-y-1 px-2 pb-3 pt-2 text-right">
+          <!--  <a href="#" class="bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium" aria-current="page">Current</a> -->
+          <%= link("🏷️ Tags",
             to: "/tags",
             class:
               "text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"

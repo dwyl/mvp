@@ -3,13 +3,13 @@ defmodule App.ListTest do
   alias App.{List}
 
   describe "list" do
-    @valid_attrs %{name: "some text", person_id: 1, status: 2}
-    @update_attrs %{name: "some updated text", person_id: 1}
-    @invalid_attrs %{name: nil}
+    @valid_attrs %{text: "some text", person_id: 1, status: 2}
+    @update_attrs %{text: "some updated text", person_id: 1}
+    @invalid_attrs %{text: nil}
 
     test "get_list!/2 returns the list with given id" do
       {:ok, %{model: list, version: _version}} = List.create_list(@valid_attrs)
-      assert List.get_list!(list.id).name == list.name
+      assert List.get_list!(list.id).text == list.text
     end
 
     # test "get_item/2 returns the item with given id with tags" do
@@ -25,7 +25,7 @@ defmodule App.ListTest do
       assert {:ok, %{model: list, version: _version}} =
                List.create_list(@valid_attrs)
 
-      assert list.name == "some text"
+      assert list.text == "some text"
     end
 
     test "create_list/1 with invalid data returns error changeset" do
@@ -38,7 +38,7 @@ defmodule App.ListTest do
       assert {:ok, %{model: list, version: _version}} =
                List.update_list(list, @update_attrs)
 
-      assert list.name == "some updated text"
+      assert list.text == "some updated text"
     end
   end
 end

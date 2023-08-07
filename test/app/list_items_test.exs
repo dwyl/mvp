@@ -4,7 +4,7 @@ defmodule App.ListItemsTest do
 
   describe "add items to list" do
     @valid_item_attrs %{text: "some text", person_id: 1, status: 2}
-    @valid_list_attrs %{name: "some list", person_id: 1, status: 2}
+    @valid_list_attrs %{text: "some list", person_id: 1, status: 2}
 
     test "add_list_item/3 adds an item to a list" do
       # Create an item
@@ -17,7 +17,7 @@ defmodule App.ListItemsTest do
       assert {:ok, %{model: list, version: _version}} =
                List.create_list(@valid_list_attrs)
 
-      assert list.name == @valid_list_attrs.name
+      assert list.text == @valid_list_attrs.text
 
       # Add the item to the list:
       assert {:ok, list_item} = ListItem.add_list_item(item, list, 1, 42.0)
@@ -28,12 +28,12 @@ defmodule App.ListItemsTest do
 
       # Create SECOND list to confirm that an item
       # can be added to multiple lists
-      list2_data = %{name: "Second List", person_id: 1, status: 2}
+      list2_data = %{text: "Second List", person_id: 1, status: 2}
 
       assert {:ok, %{model: list2, version: _version}} =
                List.create_list(list2_data)
 
-      assert list2.name == list2_data.name
+      assert list2.text == list2_data.text
 
       # Add the item to the list:
       assert {:ok, list_item2} = ListItem.add_list_item(item, list2, 1, 42.0)
@@ -49,7 +49,7 @@ defmodule App.ListItemsTest do
       assert {:ok, %{model: list, version: _version}} =
                List.create_list(@valid_list_attrs)
 
-      assert list.name == @valid_list_attrs.name
+      assert list.text == @valid_list_attrs.text
 
       # Add the item to the list:
       assert {:ok, list_item} = ListItem.add_list_item(item, list, 1, 42.0)
