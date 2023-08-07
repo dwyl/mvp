@@ -47,5 +47,11 @@ defmodule App.ListTest do
     test "create_default_lists/1 creates the default lists" do
       assert List.create_default_lists(0)|> length() > 2
     end
+
+    test "get_list_by_text!/2 returns the list for the person_id by text" do
+      assert App.List.create_default_lists(0)|> length() > 3
+      list = App.List.get_list_by_text!(0, "All")
+      assert list.text == "All"
+    end
   end
 end

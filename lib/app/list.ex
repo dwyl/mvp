@@ -85,7 +85,7 @@ defmodule App.List do
     |> Repo.all()
   end
 
-  @default_lists ~w(All Shopping Todo)
+  @default_lists ~w(All Recipes Shopping Todo)
   @doc """
   `create_default_lists/1` create the default "All" list
   for the `person_id` if it does not already exist.
@@ -118,5 +118,24 @@ defmodule App.List do
         |> List.create_list()
       end
     end)
+  end
+
+  @doc """
+  `get_list_by_text!/2` gets the `list` record by it's `text` attribute.
+  e.g: `get_list_by_text!(42, "Shopping")`
+
+  Raises `Ecto.NoResultsError` if the List does not exist.
+
+  ## Examples
+
+      iex> get_list_by_text!(0, "All")
+      %List{}
+
+      iex> get_list_by_text!(0, "¯\_(ツ)_/¯")
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_list_by_text!(person_id, text) do
+    Repo.get_by(List, text: text, person_id: person_id)
   end
 end
