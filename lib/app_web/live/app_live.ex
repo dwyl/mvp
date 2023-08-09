@@ -61,12 +61,14 @@ defmodule AppWeb.AppLive do
   def handle_event("create", %{"text" => text}, socket) do
     person_id = get_person_id(socket.assigns)
 
-    Item.create_item_with_tags(%{
+    {:ok, %{model: item}} = Item.create_item_with_tags(%{
       text: text,
       person_id: person_id,
       status: 2,
       tags: socket.assigns.selected_tags
     })
+    # Add this newly created `item` to the "All" list:
+    App.ListItem.add_item_to_all_list(item)
 
     draft = Item.get_draft_item(person_id)
     Item.update_draft(draft, %{text: ""})
@@ -259,12 +261,14 @@ defmodule AppWeb.AppLive do
 
   @impl true
   def handle_event("highlight", %{"id" => id}, socket) do
+    IO.puts("highlight: #{id}")
     AppWeb.Endpoint.broadcast(@topic, "move_items", {:drag_item, id})
     {:noreply, socket}
   end
 
   @impl true
   def handle_event("removeHighlight", %{"id" => id}, socket) do
+    IO.puts("removeHighlight: #{id}")
     AppWeb.Endpoint.broadcast(@topic, "move_items", {:drop_item, id})
     {:noreply, socket}
   end
@@ -278,6 +282,7 @@ defmodule AppWeb.AppLive do
         },
         socket
       ) do
+    IO.puts("283: current_item_id: #{current_item_id}, selected_item_id: #{selected_item_id}")
     AppWeb.Endpoint.broadcast(
       @topic,
       "move_items",
@@ -293,6 +298,7 @@ defmodule AppWeb.AppLive do
         %{"itemId_from" => itemId_from, "itemId_to" => itemId_to},
         socket
       ) do
+    IO.puts("updateIndexes -> itemId_from: #{itemId_from}, itemId_to: #{itemId_to}")
     Item.move_item(itemId_from, itemId_to)
     {:noreply, socket}
   end
@@ -305,6 +311,7 @@ defmodule AppWeb.AppLive do
         },
         socket
       ) do
+    IO.puts("current_item_id: #{current_item_id}, selected_item_id: #{selected_item_id}")
     {:noreply,
      push_event(socket, "dragover-item", %{
        current_item_id: current_item_id,

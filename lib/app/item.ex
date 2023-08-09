@@ -23,7 +23,7 @@ defmodule App.Item do
   @doc false
   def changeset(item, attrs) do
     item
-    |> cast(attrs, [:person_id, :status, :text, :position])
+    |> cast(attrs, [:person_id, :status, :text])
     |> validate_required([:text, :person_id])
   end
 
@@ -34,7 +34,7 @@ defmodule App.Item do
 
   def draft_changeset(item, attrs) do
     item
-    |> cast(attrs, [:person_id, :status, :text, :position])
+    |> cast(attrs, [:person_id, :status, :text])
     |> validate_required([:person_id])
   end
 
@@ -185,25 +185,7 @@ defmodule App.Item do
     |> Repo.update()
   end
 
-  @doc """
-  Switches the position of two items.
-  This is used for drag and drop.
-  """
-  def move_item(id_from, id_to) do
-    #  Get information of the two items
-    item_from = get_item!(id_from)
-    itemPosition_from = Map.get(item_from, :position)
 
-    item_to = get_item!(id_to)
-    itemPosition_to = Map.get(item_to, :position)
-
-    # Switching the `position` field of both items
-    {:ok, %{model: _item, version: _version}} =
-      update_item(item_from, %{position: itemPosition_to})
-
-    {:ok, %{model: _item, version: _version}} =
-      update_item(item_to, %{position: itemPosition_from})
-  end
 
   # defp reorder_list_to_add_item(%Item{position: position}) do
   #   # Increments the positions above a given position.
@@ -241,12 +223,13 @@ defmodule App.Item do
   #
   def items_with_timers(person_id \\ 0) do
     sql = """
-
-    SELECT i.id, i.text, i.status, i.person_id, i.position, t.start, t.stop, t.id as timer_id FROM items i
+    SELECT i.id, i.text, i.status, i.person_id, li.position, t.start, t.stop, t.id as timer_id
+    FROM items i
     FULL JOIN timers as t ON t.item_id = i.id
+    LEFT JOIN list_items li ON i.id = li.item_id
     WHERE i.person_id = $1 AND i.status IS NOT NULL
-    ORDER BY i.position ASC;
-
+    AND li.position != 999999.999
+    ORDER BY li.position ASC;
     """
 
     values =

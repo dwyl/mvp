@@ -23,7 +23,7 @@ defmodule App.ListItem do
   end
 
   @doc """
-  `add_list_item/4` adds an `item` to a `list`.
+  `add_list_item/4` adds an `item` to a `list` for the given `person_id`.
   """
   def add_list_item(item, list, person_id, position) do
     %ListItem{
@@ -35,6 +35,35 @@ defmodule App.ListItem do
     |> changeset()
     |> Repo.insert()
   end
+
+  @doc """
+  `add_item_to_all_list/1` adds the `item` the "All" `list` for `person_id`.
+  """
+  def add_item_to_all_list(item) do
+    all_list = App.List.get_list_by_text!(item.person_id, "All")
+    %ListItem{
+      item: item,
+      list: all_list,
+      person_id: item.person_id,
+      position: next_position_on_list(all_list.id)
+    }
+    |> changeset()
+    |> Repo.insert()
+  end
+
+  @doc """
+  `next_position_on_list/1` retrieves the next position on the given `list`.
+  """
+  def next_position_on_list(list_id) do
+    sql = """
+    SELECT COUNT(*) FROM list_items li WHERE li.list_id = $1
+    """
+    result = Ecto.Adapters.SQL.query!(Repo, sql, [list_id])
+    # Grab the first result, increment by 1 and divide by 1 to make a Float:
+    count = List.flatten(result.rows) |> List.first()
+    (count + 1) / 1
+  end
+
 
   @doc """
   `remove_list_item/3` "removes" an `item` from a `list`
@@ -53,6 +82,29 @@ defmodule App.ListItem do
     |> changeset()
     |> Repo.insert()
   end
+
+
+
+  @doc """
+  Switches the position of two items.
+  This is used for drag and drop.
+  """
+  # def move_item(id_from, id_to) do
+  #   #  Get information of the two items
+  #   item_from = get_item!(id_from)
+  #   itemPosition_from = Map.get(item_from, :position)
+
+  #   item_to = get_item!(id_to)
+  #   itemPosition_to = Map.get(item_to, :position)
+
+  #   # Switching the `position` field of both items
+  #   {:ok, %{model: _item, version: _version}} =
+  #     update_item(item_from, %{position: itemPosition_to})
+
+  #   {:ok, %{model: _item, version: _version}} =
+  #     update_item(item_to, %{position: itemPosition_from})
+  # end
+
 
   @doc """
   `get_list_items/1` retrieves `list_items` in order for a given `list_id`.
@@ -75,7 +127,9 @@ defmodule App.ListItem do
   #   |> map_columns_to_values()
   # end
 
+  #
   # Below this point is Lists transition code that will be Deleted
+  #
 
   @doc """
   `get_items_on_all_list/1` retrieves a List of item.ids e.g: [8, 6, 4, 2]

@@ -121,7 +121,7 @@ With that in place, let's get building!
 - [16. `Lists`](#16-lists)
 - [17. Reordering `items` Using Drag \& Drop](#17-reordering-items-using-drag--drop)
   - [17.1 `Item` schema changes](#171-item-schema-changes)
-  - [16.2 Changing the Item's `position` field in the database](#162-changing-the-items-position-field-in-the-database)
+  - [16.1 Changing the `list_item.position` field in the database](#161-changing-the-list_itemposition-field-in-the-database)
   - [16.3 Return `position` in `items_with_timers` function](#163-return-position-in-items_with_timers-function)
   - [16.4 Implementing drag and drop in `Liveview`](#164-implementing-drag-and-drop-in-liveview)
   - [16.5 Adding unit test](#165-adding-unit-test)
@@ -5803,7 +5803,7 @@ one hour *less* than what the person inputted.
 # 16. `Lists`
 
 In preparation for the next set of features in the `MVP`,
-we are going to add `lists`
+we are going to add `lists` and `list_items`
 which are simply a collection of `items`.
 
 Please see: 
@@ -5825,7 +5825,7 @@ So in this step we are going to
 add the ability to organize `items`.
 We will implement reordering using 
 **drag and drop**!
-And by using `Phoenix Liveview`,
+And by using `Phoenix LiveView`,
 **other people** will also be able 
 to **see the changes in real time**!
 
@@ -5903,10 +5903,17 @@ and then `mix ecto.setup`
 to rebuild our database with our added `position` column.
 
 
-## 16.2 Changing the Item's `position` field in the database
+## 16.1 Changing the `list_item.position` field in the database
+
+To change the `position` of an `item` in the `list`
+we need a way set the `list_item.position` 
+with reference to _existing_ `items`.
+We need a function to do this for us.
+
+
 
 We now need to have a few functions
-that will *change* the `position` field value of the item.
+that will *change* the `position` field value of the `list_item`.
 
 Whenever a new todo item is added,
 it should be added to the top of the list
