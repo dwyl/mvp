@@ -877,6 +877,5 @@ defmodule AppWeb.AppLiveTest do
 
   test "format_test/1" do
     text = "Text with link https://mylink.com and more text after."
-
   end
 end

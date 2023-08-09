@@ -109,7 +109,10 @@
             </li>
           <% end %>
           <li class="border-b p-2 cursor-pointer hover:bg-slate-200">
-            <%= link("edit tags", to: "/tags", class: "block w-full text-center") %>
+            <%= link("edit tags",
+              to: "/tags",
+              class: "block w-full text-center"
+            ) %>
           </li>
         </ul>
       </div>
@@ -418,7 +421,6 @@
                 </div>
               <% else %>
                 <!-- Render item.text as click-able label -->
-                
                 <label
                   class="w-full flex-auto text-slate-800 m-2"
                   phx-click="edit-item"

@@ -59,6 +59,7 @@ defmodule App.ListItem do
   Should only return one row per item + list combo (i.e. GROUP BY)
   and should ignore items that have a position=999999.999
   """
+
   # def get_list_items(list_id) do
   #   sql = """
   #   SELECT i.person_id,
@@ -73,7 +74,6 @@ defmodule App.ListItem do
   #   Ecto.Adapters.SQL.query!(Repo, sql)
   #   |> map_columns_to_values()
   # end
-
 
   # Below this point is Lists transition code that will be Deleted
 
@@ -110,14 +110,14 @@ defmodule App.ListItem do
     item_ids_in_all_list = get_items_on_all_list(person_id)
 
     all_items
-    |> Enum.with_index
-    |> Enum.each(fn({item, index}) ->
-      unless Enum.member?(item_ids_in_all_list , item.id) do
+    |> Enum.with_index()
+    |> Enum.each(fn {item, index} ->
+      unless Enum.member?(item_ids_in_all_list, item.id) do
         # IO.inspect(item.id)
-        add_list_item(item, all_list, person_id, (index + 1)/1)
+        add_list_item(item, all_list, person_id, (index + 1) / 1)
       end
+
       # IO.puts("-------> #{index} => #{id} | #{person_id}")
     end)
   end
-
 end

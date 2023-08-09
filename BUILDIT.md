@@ -118,8 +118,9 @@ With that in place, let's get building!
   - [15.2 Changing how the timer datetime is displayed](#152-changing-how-the-timer-datetime-is-displayed)
   - [15.3 Persisting the adjusted timezone](#153-persisting-the-adjusted-timezone)
   - [15.4 Adding test](#154-adding-test)
-- [16. Reordering `items` Using Drag \& Drop](#16-reordering-items-using-drag--drop)
-  - [16.1 `Item` schema changes](#161-item-schema-changes)
+- [16. `Lists`](#16-lists)
+- [17. Reordering `items` Using Drag \& Drop](#17-reordering-items-using-drag--drop)
+  - [17.1 `Item` schema changes](#171-item-schema-changes)
   - [16.2 Changing the Item's `position` field in the database](#162-changing-the-items-position-field-in-the-database)
   - [16.3 Return `position` in `items_with_timers` function](#163-return-position-in-items_with_timers-function)
   - [16.4 Implementing drag and drop in `Liveview`](#164-implementing-drag-and-drop-in-liveview)
@@ -5799,16 +5800,26 @@ we expect the persisted value to be
 one hour *less* than what the person inputted. 
 
 
-# 16. Reordering `items` Using Drag & Drop
+# 16. `Lists`
+
+In preparation for the next set of features in the `MVP`,
+we are going to add `lists`
+which are simply a collection of `items`.
+
+Please see: 
+[book/mvp/lists](https://dwyl.github.io/book/mvp/15-lists.html)
+
+
+# 17. Reordering `items` Using Drag & Drop
 
 At present `people` using the `App`
 can only add new `items` to a stack
 where the newest is on top; no ordering.
 
-People who tested the `MVP`
+`people` that tested the `MVP`
 noted that the ability to **reorder `items`**
 was an **_essential_ feature**:
-[dwyl/mvp/**issues/145**](https://github.com/dwyl/mvp/issues/145)
+[dwyl/mvp**#145**](https://github.com/dwyl/mvp/issues/145)
 
 So in this step we are going to 
 add the ability to organize `items`.
@@ -5821,7 +5832,7 @@ to **see the changes in real time**!
 
 
 
-##  16.1 `Item` schema changes
+##  17.1 `Item` schema changes
 
 By introducing this feature 
 (and so everyone sees the correct positioning of each item),

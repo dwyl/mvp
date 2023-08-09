@@ -13,7 +13,6 @@ defmodule App.Item do
     field :person_id, :integer
     field :status, :integer
     field :text, :string
-    field :position, :integer
 
     has_many :timer, Timer
     many_to_many(:tags, Tag, join_through: ItemTag, on_replace: :delete)
@@ -52,10 +51,7 @@ defmodule App.Item do
 
   """
   def create_item(attrs) do
-    ## Make room at beginning of list first.
-    reorder_list_to_add_item(%Item{position: -1})
-
-    %Item{position: 0}
+    %Item{}
     |> changeset(attrs)
     |> PaperTrail.insert(originator: %{id: Map.get(attrs, :person_id, 0)})
   end
@@ -72,11 +68,7 @@ defmodule App.Item do
       {:error, %Ecto.Changeset{}}
   """
   def create_item_with_tags(attrs) do
-    # Make room at beginning of list first.
-    # This increments the positions of the items.
-    reorder_list_to_add_item(%Item{position: -1})
-
-    %Item{position: 0}
+    %Item{}
     |> changeset_with_tags(attrs)
     |> PaperTrail.insert(originator: %{id: Map.get(attrs, :person_id, 0)})
   end
@@ -213,22 +205,21 @@ defmodule App.Item do
       update_item(item_to, %{position: itemPosition_from})
   end
 
-  defp reorder_list_to_add_item(%Item{position: position}) do
-    # Increments the positions above a given position.
-    # We are making space for the item to be added.
+  # defp reorder_list_to_add_item(%Item{position: position}) do
+  #   # Increments the positions above a given position.
+  #   # We are making space for the item to be added.
 
-    from(i in Item,
-      where: i.position > ^position,
-      update: [inc: [position: 1]]
-    )
-    |> Repo.update_all([])
-  end
+  #   from(i in Item,
+  #     where: i.position > ^position,
+  #     update: [inc: [position: 1]]
+  #   )
+  #   |> Repo.update_all([])
+  # end
 
   def all_items_for_person(person_id) do
     Item
     |> where(person_id: ^person_id)
     |> Repo.all()
-
   end
 
   #  🐲       H E R E   B E   D R A G O N S!     🐉

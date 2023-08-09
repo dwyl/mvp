@@ -71,7 +71,7 @@ defmodule App.ListItemsTest do
       updated_item_ids = App.ListItem.get_items_on_all_list(person_id)
       # dbg(updated_item_ids)
       assert length(updated_item_ids) ==
-        length(App.Item.all_items_for_person(person_id))
+               length(App.Item.all_items_for_person(person_id))
     end
   end
 end

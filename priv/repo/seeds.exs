@@ -92,5 +92,4 @@ if env == :test || env == :dev do
 
   # Remove "Go to Shops" from list1:
   ListItem.remove_list_item(item4, list1, person_id)
-
 end
