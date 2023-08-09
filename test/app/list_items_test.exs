@@ -62,5 +62,16 @@ defmodule App.ListItemsTest do
       assert {:ok, list_item_removed} = ListItem.remove_list_item(item, list, 1)
       assert list_item_removed.position == 999_999.999
     end
+
+    test "add_items_to_all_list/1 to seed the All list" do
+      person_id = 0
+      item_ids = App.ListItem.get_items_on_all_list(person_id)
+      assert length(item_ids) == 0
+      App.ListItem.add_items_to_all_list(person_id)
+      updated_item_ids = App.ListItem.get_items_on_all_list(person_id)
+      # dbg(updated_item_ids)
+      assert length(updated_item_ids) ==
+        length(App.Item.all_items_for_person(person_id))
+    end
   end
 end

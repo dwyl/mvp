@@ -224,6 +224,13 @@ defmodule App.Item do
     |> Repo.update_all([])
   end
 
+  def all_items_for_person(person_id) do
+    Item
+    |> where(person_id: ^person_id)
+    |> Repo.all()
+
+  end
+
   #  🐲       H E R E   B E   D R A G O N S!     🐉
   #  ⏳     Working with Time is all Dragons!    🙄
   #  👩‍💻   Feedback/Pairing/Refactoring Welcome!  🙏

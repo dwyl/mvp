@@ -85,7 +85,7 @@ defmodule App.List do
     |> Repo.all()
   end
 
-  @default_lists ~w(All Recipes Shopping Todo)
+  @default_lists ~w(All Meals Recipes Shopping Todo)
   @doc """
   `create_default_lists/1` create the default "All" list
   for the `person_id` if it does not already exist.

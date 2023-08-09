@@ -23,7 +23,9 @@ defmodule AppWeb.AppLive do
     person_id = get_person_id(socket.assigns)
     lists = App.List.create_default_lists(person_id)
     # Temporary function to add All *existing* items to the "All" list:
-
+    # if person_id > 0 do
+    App.ListItem.add_items_to_all_list(person_id)
+    # end
     items = Item.items_with_timers(person_id)
     tags = Tag.list_person_tags(person_id)
     selected_tags = []
