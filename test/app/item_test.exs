@@ -235,7 +235,7 @@ defmodule App.ItemTest do
            ) == :eq
   end
 
-  test "Item.person_with_item_and_timer_count/2 returns a list sorted in ascending order when :asc is passed for sort_order" do
+  test "Item.person_with_item_and_timer_count/1 returns a list sorted in ascending order" do
     {:ok, %{model: _, version: _version}} = Item.create_item(@valid_attrs)
     {:ok, %{model: _, version: _version}} = Item.create_item(@valid_attrs)
 
@@ -243,7 +243,7 @@ defmodule App.ItemTest do
     {:ok, %{model: _, version: _version}} = Item.create_item(@another_person)
 
     # list person with number of timers and items
-    result = Item.person_with_item_and_timer_count(:person_id, :asc)
+    result = Item.person_with_item_and_timer_count(:person_id)
 
     assert length(result) == 2
 
