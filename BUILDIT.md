@@ -113,14 +113,16 @@ With that in place, let's get building!
   - [14.3 Building the Stats Page](#143-building-the-stats-page)
   - [14.4 Broadcasting to `stats` channel](#144-broadcasting-to-stats-channel)
   - [14.5 Adding tests](#145-adding-tests)
-- [15. `People` in Different Timezones 🌐](#15-people-in-different-timezones-)
-  - [15.1 Getting the `person`'s Timezone](#151-getting-the-persons-timezone)
-  - [15.2 Changing how the timer datetime is displayed](#152-changing-how-the-timer-datetime-is-displayed)
-  - [15.3 Persisting the adjusted timezone](#153-persisting-the-adjusted-timezone)
-  - [15.4 Adding test](#154-adding-test)
-- [16. Run the _Finished_ MVP App!](#16-run-the-finished-mvp-app)
-  - [16.1 Run the Tests](#161-run-the-tests)
-  - [16.2 Run The App](#162-run-the-app)
+- [15. Adding Sorting to the track metrics table and more additional fields](#15-adding-sorting-to-the-track-metrics-table-and-more-additional-fields)
+  - [15.1 Add new columns](#151-add-new-columns)
+- [16. `People` in Different Timezones 🌐](#16-people-in-different-timezones-)
+  - [16.1 Getting the `person`'s Timezone](#161-getting-the-persons-timezone)
+  - [16.2 Changing how the timer datetime is displayed](#162-changing-how-the-timer-datetime-is-displayed)
+  - [16.3 Persisting the adjusted timezone](#163-persisting-the-adjusted-timezone)
+  - [16.4 Adding test](#164-adding-test)
+- [17. Run the _Finished_ MVP App!](#17-run-the-finished-mvp-app)
+  - [17.1 Run the Tests](#171-run-the-tests)
+  - [17.2 Run The App](#172-run-the-app)
 - [Thanks!](#thanks)
 
 
@@ -4272,7 +4274,6 @@ add the following function.
 
     Ecto.Adapters.SQL.query!(Repo, sql)
     |> map_columns_to_values()
-
   end
 ```
 
@@ -5370,7 +5371,185 @@ when creating `timers` or `items`.
 ![stats_final](https://user-images.githubusercontent.com/17494745/211345854-c541d21c-4289-4576-8fcf-c3b89251ed02.gif)
 
 
-# 15. `People` in Different Timezones 🌐
+# 15. Adding Sorting to the track metrics table and more additional fields
+
+What happens when we need to track more `metrics`?
+And even, when we get more users on the `MVP`?
+
+How can we sort the `columns` to make it easier to understand the data?
+
+One of the most intuitive ways to manage large datasets is by enabling sorting.
+It allows users to arrange data in a manner that's most meaningful to them, be it in ascending or descending order.
+This makes it significantly easier to spot trends, anomalies, or specific data points.
+
+In this section, we will `supercharge` our track metrics table, we will:
+- Introduce new columns (First Joined, Last Item Inserted and Total Elapsed Time)
+- Highlight your user on the table
+- Create a Table `LiveComponent` to componentize our table that can be used throughout the application
+- Implement Column Sorting
+
+Sneak Peek ;D
+<img width="1016" alt="image" src="https://github.com/dwyl/mvp/assets/2154092/2240d91f-cdf3-4b6c-ba05-1929b764c7d8">
+
+## 15.1 Add new columns
+
+With the growth of our MVP, we've identified the need for more detailed metrics. This involves adding more fields to our existing stats query.
+
+Since our new fields have dates to be shown we need a way to format them.
+
+Let's create a new file called `date_time_helper.ex` inside the `lib/app` folder.
+```elixir
+defmodule App.DateTimeHelper do
+  require Decimal
+  alias Timex.{Duration}
+
+  def format_date(date) do
+    Calendar.strftime(date, "%m/%d/%Y %H:%M:%S")
+  end
+
+  def format_duration(nil), do: ""
+
+  def format_duration(seconds) when Decimal.is_decimal(seconds) do
+    duration = seconds |> Decimal.to_integer() |> Duration.from_seconds()
+
+    Timex.format_duration(duration, :humanized)
+  end
+
+  def format_duration(_seconds), do: ""
+end
+```
+
+This is a new helper module that we are going to use to format dates and durations.
+
+We will need the `Decimal` and the [Timex](https://hexdocs.pm/timex/Timex.html) library to format it.
+
+`require Decimal`
+
+This line tells Elixir that you will be using macros from the Decimal module. This is needed because the code calls Decimal.is_decimal/1 later.
+
+`alias Timex.{Duration}`
+
+An alias is a way to reference a module with a shorter name. Here, we're creating an alias for Timex.Duration so that we can simply write Duration instead of the full module name.
+
+```elixir
+def format_date(date) do
+  Calendar.strftime(date, "%m/%d/%Y %H:%M:%S")
+end
+```
+
+This function takes in a date and returns a formatted string in the pattern "MM/DD/YYYY HH:MM:SS". It uses the strftime function from the [Calendar](https://hexdocs.pm/elixir/1.13/Calendar.html) module to accomplish this.
+
+```elixir
+def format_duration(nil), do: ""
+
+def format_duration(seconds) when Decimal.is_decimal(seconds) do
+  duration = seconds |> Decimal.to_integer() |> Duration.from_seconds()
+
+  Timex.format_duration(duration, :humanized)
+end
+
+def format_duration(_seconds), do: ""
+```
+
+The first function clause matches when the input is nil. It simply returns an empty string.
+
+The second clause is where the `juicy` is, it  matches when the given seconds is a decimal (in this case, it's what is going to be return from Ecto). It does the following:
+
+- Checks if seconds is a decimal using Decimal.is_decimal/1.
+- Converts the decimal value of seconds to an integer using Decimal.to_integer/1.
+- Converts the integer value to a duration using [Duration.from_seconds/1](https://hexdocs.pm/timex/Timex.Duration.html#from_seconds/1).
+- Formats the duration using [Timex.format_duration/2](https://hexdocs.pm/timex/Timex.html#format_duration/2) with a :humanized option.
+
+The last clause of the format_duration/1 function matches any input (other than nil and decimals, which were handled by the previous clauses). This function simply returns an empty string.
+
+In summary, this App.DateTimeHelper module provides utility functions to format dates and durations. Dates are formatted in the "MM/DD/YYYY HH:MM:SS" pattern, while durations are formatted in a humanized form if they are decimals; otherwise, an empty string is returned. If we want we could possibly extend this module to more utilities functions.
+
+Now, we can create some tests for this new module, inside the `test/app` create a new file called `date_time_helper_test.exs` with the following content.
+
+```elixir
+defmodule App.DateTimeHelperTest do
+  use ExUnit.Case
+  alias App.DateTimeHelper
+  alias Timex
+
+  describe "format_date/1" do
+    test "formats a date correctly" do
+      dt = Timex.parse!("2023-08-02T15:30:30+00:00", "{ISO:Extended}")
+      assert DateTimeHelper.format_date(dt) == "08/02/2023 15:30:30"
+    end
+  end
+
+  describe "format_duration/1" do
+    test "returns an empty string for nil" do
+      assert DateTimeHelper.format_duration(nil) == ""
+    end
+
+    test "returns an empty string when other than decimal" do
+      assert DateTimeHelper.format_duration(12345) == ""
+    end
+
+    test "formats a duration correctly" do
+      duration_seconds = Decimal.new(12345)
+
+      assert DateTimeHelper.format_duration(duration_seconds) ==
+               "3 hours, 25 minutes, 45 seconds"
+    end
+
+    test "formats a zero decimal duration correctly" do
+      duration_seconds = Decimal.new(0)
+
+      assert DateTimeHelper.format_duration(duration_seconds) ==
+               "0 microseconds"
+    end
+  end
+end
+```
+
+This file tests various cases using the `DateTimeHelper`, feel free to take your time to understand each one.
+
+With our Helper fully tested we can now modify our `item.ex` to return the new columns that we want in our Stats Live page.
+
+Open `item.ex` and update the `person_with_item_and_timer_count/0` method:
+
+```elixir
+def person_with_item_and_timer_count() do
+  sql = """
+  SELECT i.person_id,
+  COUNT(distinct i.id) AS "num_items",
+  COUNT(distinct t.id) AS "num_timers",
+  MIN(i.inserted_at) AS "first_inserted_at",
+  MAX(i.inserted_at) AS "last_inserted_at",
+  SUM(EXTRACT(EPOCH FROM (t.stop - t.start))) AS "total_timers_in_seconds"
+  FROM items i
+  LEFT JOIN timers t ON t.item_id = i.id
+  GROUP BY i.person_id
+  """
+
+  Ecto.Adapters.SQL.query!(Repo, sql)
+  |> map_columns_to_values()
+end
+```
+We are just adding three new columns to it, `first_inserted_at`, `last_inserted_at` and `total_timers_in_seconds`.
+
+`MIN(i.inserted_at) AS "first_inserted_at"`
+
+This column gets the earliest `inserted_at` timestamp from the `items` table for each `person_id`. The `MIN` SQL function retrieves the minimum value in the `inserted_at` column for each group of records with the same `person_id`.
+
+`MAX(i.inserted_at) AS "last_inserted_at"`
+
+Conversely, this column gets the most recent `inserted_at` timestamp from the `items` table for each `person_id`. The `MAX` SQL function retrieves the maximum value in the `inserted_at` column for each group of records with the same `person_id`.
+
+`SUM(EXTRACT(EPOCH FROM (t.stop - t.start))) AS "total_timers_in_seconds"`
+
+This one is more tricky, but don't worry. This column calculates the total duration of all timers associated with each item for a given `person_id`.
+
+The inner expression `(t.stop - t.start)` calculates the duration of each timer by subtracting the start time from the stop time, this will give us a resulted timestamp that is the difference between the two.
+
+The `EXTRACT(EPOCH FROM ...)` function then converts this duration into `seconds`. Finally, the SUM function aggregates (sums up) all these durations for each group of records with the same `person_id`.
+
+You can read more about the EXTRACT PostgreSQL function [here](https://www.postgresqltutorial.com/postgresql-date-functions/postgresql-extract/).
+
+# 16. `People` in Different Timezones 🌐
 
 Our application works not only for ourselves
 but in a *collaborative environment*. 
@@ -5418,7 +5597,7 @@ the value of the `Datetime` of the `timer`
 *wouldn't make sense to you*.
 
 
-## 15.1 Getting the `person`'s Timezone
+## 16.1 Getting the `person`'s Timezone
 
 The easiest way to solve this is
 to only change how the `timers` are displayed
@@ -5498,7 +5677,7 @@ But before that,
 let's adjust how it is *displayed to the person*.
 
 
-## 15.2 Changing how the timer datetime is displayed
+## 16.2 Changing how the timer datetime is displayed
 
 Open `lib/app_web/live/app_live.html.heex`
 and locate the line
@@ -5547,7 +5726,7 @@ please check
 [`lib/app_web/live/app_live.html.heex`](https://github.com/dwyl/mvp/blob/63d98958be8f858e6ebcd063fa022bb59964b612/lib/app_web/live/app_live.html.heex#L326-L341).
 
 
-## 15.3 Persisting the adjusted timezone
+## 16.3 Persisting the adjusted timezone
 
 Now that we are displaying the correct timezones,
 we need to make sure the adjusted updated timer
@@ -5678,7 +5857,7 @@ please check
 [`lib/app_web/live/app_live.ex`](https://github.com/dwyl/mvp/blob/63d98958be8f858e6ebcd063fa022bb59964b612/lib/app_web/live/app_live.ex#L218).
 
 
-## 15.4 Adding test
+## 16.4 Adding test
 
 Let's add a test case that will check if the datetime 
 is shown with an offset that is mocked during testing.
@@ -5776,11 +5955,11 @@ we expect the persisted value to be
 one hour *less* than what the person inputted. 
 
 
-# 16. Run the _Finished_ MVP App!
+# 17. Run the _Finished_ MVP App!
 
 With all the code saved, let's run the tests one more time.
 
-## 16.1 Run the Tests
+## 17.1 Run the Tests
 
 In your terminal window, run: 
 
@@ -5809,7 +5988,7 @@ COV    FILE                                        LINES RELEVANT   MISSED
 All tests pass and we have **`100%` Test Coverage**.
 This reminds us just how few _relevant_ lines of code there are in the MVP!
 
-## 16.2 Run The App
+## 17.2 Run The App
 
 In your second terminal tab/window, run:
 
