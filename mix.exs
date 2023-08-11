@@ -76,6 +76,9 @@ defmodule App.MixProject do
       # See: github.com/dwyl/useful/issues/17
       {:atomic_map, "~> 0.9.3"},
 
+      # Decimal precision: github.com/ericmj/decimal
+      {:decimal, "~> 2.0"},
+
       # Statuses: github.com/dwyl/statuses
       {:statuses, "~> 1.1.1"},
 
