@@ -76,7 +76,8 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install flyctl
-        run: curl -L https://fly.io/install.sh | FLYCTL_INSTALL=/usr/local sh
+        # run: curl -L https://fly.io/install.sh | FLYCTL_INSTALL=/usr/local sh
+        uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: Set up Elixir
         uses: erlef/setup-beam@v1
