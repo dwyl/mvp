@@ -78,5 +78,37 @@ defmodule App.ListItemsTest do
       count_after = App.ListItem.next_position_on_list(all_list.id)
       assert count_before + length(updated_item_ids) == count_after
     end
+
+    @valid_attrs %{text: "Buy Bananas", person_id: 0, status: 2}
+
+    test "move_item/3 repositions an item in the list" do
+      {:ok, %{model: item1, version: _version}} = Item.create_item(@valid_attrs)
+      {:ok, %{model: item2, version: _version}} = Item.create_item(@valid_attrs)
+      # Items must be on a list ...
+      {:ok, li1} = App.ListItem.add_item_to_all_list(item1)
+      {:ok, li2} = App.ListItem.add_item_to_all_list(item2)
+
+      assert li1.position < li2.position
+
+      # Get the "All" list for this person:
+      list = App.List.get_list_by_text!(@valid_attrs.person_id, "All")
+
+      # Move item2 to be above item1:
+      {:ok, li3} = App.ListItem.move_item(item2.id, item1.id, list.id)
+      assert li3.position == 0.999999
+    end
+
+    test "get_list_item_position/2 retrieves the postion of an item in a list" do
+      {:ok, %{model: item, version: _version}} = Item.create_item(@valid_attrs)
+      {:ok, li1} = App.ListItem.add_item_to_all_list(item)
+      assert li1.position == 1.0
+
+      # Note: this conversion from Int to Binary is to simulate the
+      # binary that the LiveView sends to this function ...
+      item_id = Integer.to_string(item.id)
+      pos = App.ListItem.get_list_item_position(item_id, li1.list_id)
+
+      assert li1.position == pos
+    end
   end
 end

@@ -83,8 +83,18 @@ defmodule App.ListItem do
     |> Repo.insert()
   end
 
+  @doc """
+  `get_list_item_position/2` retrieves the position for an item in the given list.
+  """
   def get_list_item_position(item_id, list_id) do
-    # IO.inspect("get_list_item_position(item_id, list_id) | #{item_id} | #{list_id}")
+    # IO.inspect("get_list_item_position | item_id: #{item_id} #{Useful.typeof(item_id)} | list_id: #{list_id} #{Useful.typeof(list_id)}")
+    item_id = if Useful.typeof(item_id) == "binary" do
+      {int, _} = Integer.parse(item_id)
+      int
+    else
+      item_id
+    end
+
     sql = """
     SELECT li.position FROM list_items li
     WHERE li.item_id = $1 AND li.list_id = $2
@@ -96,8 +106,10 @@ defmodule App.ListItem do
   end
 
   @doc """
-  Switches the position of two items.
+  `move_item/3` updates the position of the `item` in a `list`.
   This is used for drag and drop.
+  The `id_from` is the `item.id` for the `item` being repositioned,
+  whereas `id_to` is the `item.id` for the `item` that *was* in that position.
   """
   def move_item(id_from, id_to, list_id \\ 0) do
     # IO.inspect("move_item/3 -> id_from: #{id_from} | id_to: #{id_to} | list_id: #{list_id} | #{Useful.typeof(list_id)}")

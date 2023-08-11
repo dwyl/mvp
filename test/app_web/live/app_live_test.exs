@@ -87,6 +87,7 @@ defmodule AppWeb.AppLiveTest do
 
     {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
+    App.ListItem.add_item_to_all_list(item)
 
     send(view.pid, %Broadcast{
       event: "update",
@@ -101,6 +102,7 @@ defmodule AppWeb.AppLiveTest do
 
     {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
+    App.ListItem.add_item_to_all_list(item)
 
     {:ok, now} = NaiveDateTime.new(Date.utc_today(), Time.utc_now())
 
@@ -130,6 +132,7 @@ defmodule AppWeb.AppLiveTest do
 
     {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
+    App.ListItem.add_item_to_all_list(item)
 
     {:ok, seven_seconds_ago} =
       NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
@@ -157,6 +160,7 @@ defmodule AppWeb.AppLiveTest do
 
     {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
+    App.ListItem.add_item_to_all_list(item)
 
     render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
 

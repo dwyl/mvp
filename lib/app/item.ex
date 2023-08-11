@@ -228,7 +228,7 @@ defmodule App.Item do
       li.position as position, li.list_id
     FROM items i
     FULL JOIN timers AS t ON t.item_id = i.id
-    JOIN list_items AS li ON li.item_id = i.id
+    FULL JOIN list_items AS li ON li.item_id = i.id
     WHERE i.person_id = $1
     AND i.status IS NOT NULL
     AND i.text IS NOT NULL
