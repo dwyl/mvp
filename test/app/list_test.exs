@@ -28,7 +28,6 @@ defmodule App.ListTest do
       assert list.text == @valid_attrs.text
       l = List.get_person_lists(list.person_id) |> Enum.at(0)
       assert l.text == @valid_attrs.text
-
     end
 
     test "create_list/1 with invalid data returns error changeset" do

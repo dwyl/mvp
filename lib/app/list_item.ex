@@ -41,6 +41,7 @@ defmodule App.ListItem do
   """
   def add_item_to_all_list(item) do
     all_list = App.List.get_list_by_text!(item.person_id, "All")
+
     %ListItem{
       item: item,
       list: all_list,
@@ -58,12 +59,12 @@ defmodule App.ListItem do
     sql = """
     SELECT COUNT(*) FROM list_items li WHERE li.list_id = $1
     """
+
     result = Ecto.Adapters.SQL.query!(Repo, sql, [list_id])
     # Grab the first result, increment by 1 and divide by 1 to make a Float:
     count = List.flatten(result.rows) |> List.first()
     (count + 1) / 1
   end
-
 
   @doc """
   `remove_list_item/3` "removes" an `item` from a `list`
@@ -88,18 +89,20 @@ defmodule App.ListItem do
   """
   def get_list_item_position(item_id, list_id) do
     # IO.inspect("get_list_item_position | item_id: #{item_id} #{Useful.typeof(item_id)} | list_id: #{list_id} #{Useful.typeof(list_id)}")
-    item_id = if Useful.typeof(item_id) == "binary" do
-      {int, _} = Integer.parse(item_id)
-      int
-    else
-      item_id
-    end
+    item_id =
+      if Useful.typeof(item_id) == "binary" do
+        {int, _} = Integer.parse(item_id)
+        int
+      else
+        item_id
+      end
 
     sql = """
     SELECT li.position FROM list_items li
     WHERE li.item_id = $1 AND li.list_id = $2
     ORDER BY li.inserted_at DESC LIMIT 1
     """
+
     result = Ecto.Adapters.SQL.query!(Repo, sql, [item_id, list_id])
     # dbg(result)
     result.rows |> List.first() |> List.first()
@@ -116,15 +119,19 @@ defmodule App.ListItem do
     item_from = App.Item.get_item!(id_from)
     # dbg(item_from)
     # For now we only have the "All" list, but soon we will have "PARA" 😉
-    list = if list_id == 0 do
-      App.List.get_list_by_text!(item_from.person_id, "All")
-    else
-      App.List.get_list!(list_id)
-    end
+    list =
+      if list_id == 0 do
+        App.List.get_list_by_text!(item_from.person_id, "All")
+      else
+        App.List.get_list!(list_id)
+      end
 
     # This Float to Decimal and back to Float is to ensure precision ... 🙄
     to_pos = get_list_item_position(id_to, list.id) |> Decimal.from_float()
-    new_pos = Decimal.sub(to_pos, "0.000001") |> Decimal.round(6) |> Decimal.to_float()
+
+    new_pos =
+      Decimal.sub(to_pos, "0.000001") |> Decimal.round(6) |> Decimal.to_float()
+
     add_list_item(item_from, list, item_from.person_id, new_pos)
   end
 

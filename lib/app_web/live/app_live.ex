@@ -61,12 +61,14 @@ defmodule AppWeb.AppLive do
   def handle_event("create", %{"text" => text}, socket) do
     person_id = get_person_id(socket.assigns)
 
-    {:ok, %{model: item}} = Item.create_item_with_tags(%{
-      text: text,
-      person_id: person_id,
-      status: 2,
-      tags: socket.assigns.selected_tags
-    })
+    {:ok, %{model: item}} =
+      Item.create_item_with_tags(%{
+        text: text,
+        person_id: person_id,
+        status: 2,
+        tags: socket.assigns.selected_tags
+      })
+
     # Add this newly created `item` to the "All" list:
     App.ListItem.add_item_to_all_list(item)
 

@@ -75,6 +75,7 @@ defmodule App.ListItemsTest do
       # dbg(updated_item_ids)
       assert length(updated_item_ids) ==
                length(App.Item.all_items_for_person(person_id))
+
       count_after = App.ListItem.next_position_on_list(all_list.id)
       assert count_before + length(updated_item_ids) == count_after
     end

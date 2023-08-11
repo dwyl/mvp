@@ -185,8 +185,6 @@ defmodule App.Item do
     |> Repo.update()
   end
 
-
-
   # defp reorder_list_to_add_item(%Item{position: position}) do
   #   # Increments the positions above a given position.
   #   # We are making space for the item to be added.

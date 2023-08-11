@@ -87,6 +87,7 @@ defmodule AppWeb.AppLiveTest do
 
     {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
+
     App.ListItem.add_item_to_all_list(item)
 
     send(view.pid, %Broadcast{
@@ -102,6 +103,7 @@ defmodule AppWeb.AppLiveTest do
 
     {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
+
     App.ListItem.add_item_to_all_list(item)
 
     {:ok, now} = NaiveDateTime.new(Date.utc_today(), Time.utc_now())
@@ -132,6 +134,7 @@ defmodule AppWeb.AppLiveTest do
 
     {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
+
     App.ListItem.add_item_to_all_list(item)
 
     {:ok, seven_seconds_ago} =
@@ -160,6 +163,7 @@ defmodule AppWeb.AppLiveTest do
 
     {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
+
     App.ListItem.add_item_to_all_list(item)
 
     render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
@@ -818,7 +822,11 @@ defmodule AppWeb.AppLiveTest do
       Item.create_item(%{text: "Learn Elixir", person_id: person_id, status: 2})
 
     {:ok, %{model: item2, version: _version}} =
-      Item.create_item(%{text: "Learn Elixir 2", person_id: person_id, status: 2})
+      Item.create_item(%{
+        text: "Learn Elixir 2",
+        person_id: person_id,
+        status: 2
+      })
 
     # Get "All" list for this person_id
     list = App.List.get_list_by_text!(person_id, "All")
