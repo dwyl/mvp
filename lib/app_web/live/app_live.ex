@@ -261,14 +261,14 @@ defmodule AppWeb.AppLive do
 
   @impl true
   def handle_event("highlight", %{"id" => id}, socket) do
-    IO.puts("highlight: #{id}")
+    # IO.puts("highlight: #{id}")
     AppWeb.Endpoint.broadcast(@topic, "move_items", {:drag_item, id})
     {:noreply, socket}
   end
 
   @impl true
   def handle_event("removeHighlight", %{"id" => id}, socket) do
-    IO.puts("removeHighlight: #{id}")
+    # IO.puts("removeHighlight: #{id}")
     AppWeb.Endpoint.broadcast(@topic, "move_items", {:drop_item, id})
     {:noreply, socket}
   end
@@ -282,7 +282,7 @@ defmodule AppWeb.AppLive do
         },
         socket
       ) do
-    IO.puts("283: current_item_id: #{current_item_id}, selected_item_id: #{selected_item_id}")
+    # IO.puts("285: current_item_id: #{current_item_id}, selected_item_id: #{selected_item_id} | #{Useful.typeof(selected_item_id)}")
     AppWeb.Endpoint.broadcast(
       @topic,
       "move_items",
@@ -298,8 +298,8 @@ defmodule AppWeb.AppLive do
         %{"itemId_from" => itemId_from, "itemId_to" => itemId_to},
         socket
       ) do
-    IO.puts("updateIndexes -> itemId_from: #{itemId_from}, itemId_to: #{itemId_to}")
-    Item.move_item(itemId_from, itemId_to)
+    # IO.puts("updateIndexes -> itemId_from: #{itemId_from}, itemId_to: #{itemId_to} | #{Useful.typeof(itemId_to)}")
+    App.ListItem.move_item(itemId_from, itemId_to)
     {:noreply, socket}
   end
 
@@ -311,7 +311,7 @@ defmodule AppWeb.AppLive do
         },
         socket
       ) do
-    IO.puts("current_item_id: #{current_item_id}, selected_item_id: #{selected_item_id}")
+    # IO.puts("current_item_id: #{current_item_id}, selected_item_id: #{selected_item_id}")
     {:noreply,
      push_event(socket, "dragover-item", %{
        current_item_id: current_item_id,

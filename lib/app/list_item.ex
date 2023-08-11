@@ -83,53 +83,42 @@ defmodule App.ListItem do
     |> Repo.insert()
   end
 
-
+  def get_list_item_position(item_id, list_id) do
+    # IO.inspect("get_list_item_position(item_id, list_id) | #{item_id} | #{list_id}")
+    sql = """
+    SELECT li.position FROM list_items li
+    WHERE li.item_id = $1 AND li.list_id = $2
+    ORDER BY li.inserted_at DESC LIMIT 1
+    """
+    result = Ecto.Adapters.SQL.query!(Repo, sql, [item_id, list_id])
+    # dbg(result)
+    result.rows |> List.first() |> List.first()
+  end
 
   @doc """
   Switches the position of two items.
   This is used for drag and drop.
   """
-  # def move_item(id_from, id_to) do
-  #   #  Get information of the two items
-  #   item_from = get_item!(id_from)
-  #   itemPosition_from = Map.get(item_from, :position)
+  def move_item(id_from, id_to, list_id \\ 0) do
+    # IO.inspect("move_item/3 -> id_from: #{id_from} | id_to: #{id_to} | list_id: #{list_id} | #{Useful.typeof(list_id)}")
+    item_from = App.Item.get_item!(id_from)
+    # dbg(item_from)
+    # For now we only have the "All" list, but soon we will have "PARA" 😉
+    list = if list_id == 0 do
+      App.List.get_list_by_text!(item_from.person_id, "All")
+    else
+      App.List.get_list!(list_id)
+    end
 
-  #   item_to = get_item!(id_to)
-  #   itemPosition_to = Map.get(item_to, :position)
+    # This Float to Decimal and back to Float is to ensure precision ... 🙄
+    to_pos = get_list_item_position(id_to, list.id) |> Decimal.from_float()
+    new_pos = Decimal.sub(to_pos, "0.000001") |> Decimal.round(6) |> Decimal.to_float()
+    add_list_item(item_from, list, item_from.person_id, new_pos)
+  end
 
-  #   # Switching the `position` field of both items
-  #   {:ok, %{model: _item, version: _version}} =
-  #     update_item(item_from, %{position: itemPosition_to})
-
-  #   {:ok, %{model: _item, version: _version}} =
-  #     update_item(item_to, %{position: itemPosition_from})
-  # end
-
-
-  @doc """
-  `get_list_items/1` retrieves `list_items` in order for a given `list_id`.
-  Should only return one row per item + list combo (i.e. GROUP BY)
-  and should ignore items that have a position=999999.999
-  """
-
-  # def get_list_items(list_id) do
-  #   sql = """
-  #   SELECT i.person_id,
-  #   COUNT(distinct i.id) AS "num_items",
-  #   COUNT(distinct t.id) AS "num_timers"
-  #   FROM items i
-  #   LEFT JOIN timers t ON t.item_id = i.id
-  #   GROUP BY i.person_id
-  #   ORDER BY i.person_id
-  #   """
-
-  #   Ecto.Adapters.SQL.query!(Repo, sql)
-  #   |> map_columns_to_values()
-  # end
-
-  #
-  # Below this point is Lists transition code that will be Deleted
-  #
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+  # Below this point is Lists transition code that will be DELETED! #
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
   @doc """
   `get_items_on_all_list/1` retrieves a List of item.ids e.g: [8, 6, 4, 2]

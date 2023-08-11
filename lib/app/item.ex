@@ -223,13 +223,17 @@ defmodule App.Item do
   #
   def items_with_timers(person_id \\ 0) do
     sql = """
-    SELECT i.id, i.text, i.status, i.person_id, li.position, t.start, t.stop, t.id as timer_id
+    SELECT i.id, i.text, i.status, i.person_id,
+      t.start, t.stop, t.id as timer_id,
+      li.position as position, li.list_id
     FROM items i
-    FULL JOIN timers as t ON t.item_id = i.id
-    LEFT JOIN list_items li ON i.id = li.item_id
-    WHERE i.person_id = $1 AND i.status IS NOT NULL
+    FULL JOIN timers AS t ON t.item_id = i.id
+    JOIN list_items AS li ON li.item_id = i.id
+    WHERE i.person_id = $1
+    AND i.status IS NOT NULL
+    AND i.text IS NOT NULL
     AND li.position != 999999.999
-    ORDER BY li.position ASC;
+    ORDER BY li.position DESC;
     """
 
     values =
