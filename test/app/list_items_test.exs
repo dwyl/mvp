@@ -65,6 +65,9 @@ defmodule App.ListItemsTest do
 
     test "add_items_to_all_list/1 to seed the All list" do
       person_id = 0
+      all_list = App.List.get_list_by_text!(person_id, "All")
+      count_before = App.ListItem.next_position_on_list(all_list.id)
+      assert count_before == 1
       item_ids = App.ListItem.get_items_on_all_list(person_id)
       assert length(item_ids) == 0
       App.ListItem.add_items_to_all_list(person_id)
@@ -72,6 +75,8 @@ defmodule App.ListItemsTest do
       # dbg(updated_item_ids)
       assert length(updated_item_ids) ==
                length(App.Item.all_items_for_person(person_id))
+      count_after = App.ListItem.next_position_on_list(all_list.id)
+      assert count_before + length(updated_item_ids) == count_after
     end
   end
 end

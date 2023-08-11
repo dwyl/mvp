@@ -807,18 +807,19 @@ defmodule AppWeb.AppLiveTest do
     assert render_hook(view, "filter-tags", %{"key" => "t", "value" => "t"})
   end
 
-  test "drag and drop item", %{conn: conn} do
+  test "Drag and Drop item", %{conn: conn} do
+    person_id = 0
     # Creating two items
     {:ok, %{model: item, version: _version}} =
-      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+      Item.create_item(%{text: "Learn Elixir", person_id: person_id, status: 2})
 
     {:ok, %{model: item2, version: _version}} =
-      Item.create_item(%{text: "Learn Elixir 2", person_id: 0, status: 2})
+      Item.create_item(%{text: "Learn Elixir 2", person_id: person_id, status: 2})
 
-    # pre_item_position = item.position
-    # pre_item2_position = item2.position
+    # Get "All" list for this person_id
+    list = App.List.get_list_by_text!(person_id, "All")
 
-    # Render liveview
+    # Render LiveView
     {:ok, view, _html} = live(conn, "/")
 
     # Highlight broadcast should have occurred
@@ -841,8 +842,9 @@ defmodule AppWeb.AppLiveTest do
       "itemId_to" => item2.id
     })
 
-    # assert item.position == pre_item2_position
-    # assert item2.position == pre_item_position
+    pos1 = App.ListItem.get_list_item_position(item.id, list.id)
+    pos2 = App.ListItem.get_list_item_position(item2.id, list.id)
+    assert pos1 < pos2
   end
 
   test "select tag when enter pressed", %{conn: conn} do
@@ -873,9 +875,5 @@ defmodule AppWeb.AppLiveTest do
     last_item_inserted = Item.list_person_items(0) |> List.last()
 
     assert last_item_inserted.tags == []
-  end
-
-  test "format_test/1" do
-    text = "Text with link https://mylink.com and more text after."
   end
 end
