@@ -5803,11 +5803,21 @@ one hour *less* than what the person inputted.
 # 16. `Lists`
 
 In preparation for the next set of features in the `MVP`,
-we are going to add `lists` and `list_items`
+we added `lists` and `list_items`
 which are simply a collection of `items`.
 
 Please see: 
-[book/mvp/lists](https://dwyl.github.io/book/mvp/15-lists.html)
+[book/mvp/lists](https://dwyl.github.io/book/mvp/16-lists.html)
+
+We didn't add a lot of code for `lists`
+there is currently no way for the `person` 
+to create a `new list` 
+or "move" `items` between `lists`.
+
+If you want to help with defining the interface,
+please comment on the issue:
+[dwyl/mvp#356](https://github.com/dwyl/mvp/issues/356)
+
 
 
 # 17. Reordering `items` Using Drag & Drop
@@ -6096,7 +6106,7 @@ simply add the following test.
 
     # Highlight broadcast should have occurred
     assert render_hook(view, "highlight", %{"id" => item.id})
-           |> String.split("bg-yellow-300")
+           |> String.split("bg-teal-300")
            |> Enum.drop(1)
            |> length() > 0
 
