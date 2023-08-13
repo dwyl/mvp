@@ -828,15 +828,15 @@ defmodule AppWeb.AppLiveTest do
         status: 2
       })
 
-    # Get "All" list for this person_id
-    list = App.List.get_list_by_text!(person_id, "All")
+    # Get "all" list for this person_id
+    list = App.List.get_list_by_text!(person_id, "all")
 
     # Render LiveView
     {:ok, view, _html} = live(conn, "/")
 
     # Highlight broadcast should have occurred
     assert render_hook(view, "highlight", %{"id" => item.id})
-           |> String.split("bg-yellow-300")
+           |> String.split("bg-teal-300")
            |> Enum.drop(1)
            |> length() > 0
 

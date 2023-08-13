@@ -12,15 +12,6 @@ defmodule App.ListTest do
       assert List.get_list!(list.id).text == list.text
     end
 
-    # test "get_item/2 returns the item with given id with tags" do
-    #   {:ok, %{model: item, version: _version}} = Item.create_item(@valid_attrs)
-
-    #   tags = Map.get(Item.get_item(item.id, true), :tags)
-
-    #   assert Item.get_item(item.id, true).text == item.text
-    #   assert not is_nil(tags)
-    # end
-
     test "create_list/1 with valid data creates a list" do
       assert {:ok, %{model: list, version: _version}} =
                List.create_list(@valid_attrs)
@@ -34,7 +25,7 @@ defmodule App.ListTest do
       assert {:error, %Ecto.Changeset{}} = List.create_list(@invalid_attrs)
     end
 
-    test "update_item/2 with valid data updates the item" do
+    test "update_list/2 with valid data updates the list" do
       {:ok, %{model: list, version: _version}} = List.create_list(@valid_attrs)
 
       assert {:ok, %{model: list, version: _version}} =
@@ -43,14 +34,43 @@ defmodule App.ListTest do
       assert list.text == "some updated text"
     end
 
-    test "create_default_lists/1 creates the default lists" do
-      assert List.create_default_lists(2) |> length() > 2
+    test "get_person_lists/1 returns the lists for the person_id" do
+      person_id = 3
+      lists_before = App.List.get_person_lists(person_id)
+      assert length(lists_before) == 0
+
+      # Create a couple of lists
+      {:ok, %{model: all_list}} =
+        %{text: "all", person_id: person_id, status: 2}
+        |> App.List.create_list()
+
+      {:ok, %{model: recipe_list}} =
+        %{text: "Recipes", person_id: person_id, status: 2}
+        |> App.List.create_list()
+
+      # Retrieve the lists for the person_id:
+      lists_after = App.List.get_person_lists(person_id)
+      assert length(lists_after) == 2
+      assert Enum.member?(lists_after, all_list)
+      assert Enum.member?(lists_after, recipe_list)
     end
 
     test "get_list_by_text!/2 returns the list for the person_id by text" do
-      assert App.List.create_default_lists(0) |> length() > 3
-      list = App.List.get_list_by_text!(0, "All")
-      assert list.text == "All"
+      person_id = 4
+      {:ok, %{model: all_list}} = %{text: "all", person_id: person_id, status: 2}
+        |> App.List.create_list()
+      list = App.List.get_list_by_text!(person_id, "all")
+      assert list.text == "all"
+      assert list.id == all_list.id
+    end
+
+    test "create_default_lists/1 creates the default lists" do
+      # Should have no lists:
+      person_id = 5
+      lists = App.List.get_person_lists(person_id)
+      assert length(lists) == 0
+      # Create the default lists for this person_id:
+      assert List.create_default_lists(person_id) |> length() == 9
     end
   end
 end

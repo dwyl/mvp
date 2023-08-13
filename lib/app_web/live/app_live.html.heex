@@ -154,8 +154,8 @@
         x-on:dragend="selected = false; $dispatch('remove-highlight', {id: $el.id}); selectedItem = null; $dispatch('update-indexes', {fromItemId: $el.dataset.id})"
         x-bind:class="selected ?? 'cursor-grabbing'"
         x-on:dragover.throttle="$dispatch('dragoverItem', {selectedItemId: selectedItem.id, currentItem: $el})"
-        data-highlight={JS.add_class("bg-yellow-300")}
-        data-remove-highlight={JS.remove_class("bg-yellow-300")}
+        data-highlight={JS.add_class("bg-teal-300")}
+        data-remove-highlight={JS.remove_class("bg-teal-300")}
       >
         <div class="flex flex-row">
           <svg
