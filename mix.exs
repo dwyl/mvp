@@ -56,7 +56,8 @@ defmodule App.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
 
-      # Database changes tracking
+      # Database changes tracking:
+      # github.com/dwyl/phoenix-papertrail-demo
       {:paper_trail, "~> 1.0.0"},
 
       # Time string parsing: github.com/bitwalker/timex
