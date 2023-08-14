@@ -110,7 +110,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [review_app]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     # After the app is deployed, we need to change the host
     # in the `lib/api/fly_dev.json` so the API tests work and target the deployed app.
