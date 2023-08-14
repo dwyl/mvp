@@ -428,7 +428,9 @@
                 >
                   <%= item.text %>
                 </label>
-                <pre><%= item.position %></pre>
+                <code class="font-mono p-2 text-lime-400 bg-black rounded-md m-2 max-h-10">
+                  <%= item.position %>
+                </code>
               <% end %>
 
               <%= if timers_any?(item) do %>

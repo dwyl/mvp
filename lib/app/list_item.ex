@@ -57,7 +57,7 @@ defmodule App.ListItem do
   """
   def next_position_on_list(list_id) do
     sql = """
-    SELECT COUNT(*) FROM list_items li
+    SELECT COUNT(DISTINCT li.item_id) FROM list_items li
     JOIN items i on i.id = li.item_id
     WHERE li.list_id = $1
     AND li.position != 999999.999
