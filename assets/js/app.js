@@ -15,13 +15,16 @@ Hooks.Items = {
 
     this.el.addEventListener("highlight", e => {
       hook.pushEventTo("#items", "highlight", {id: e.detail.id})
+      console.log('highlight', e.detail.id)
     })
 
     this.el.addEventListener("remove-highlight", e => {
       hook.pushEventTo("#items", "removeHighlight", {id: e.detail.id})
+      console.log('remove-highlight', e.detail.id)
     })
 
     this.el.addEventListener("dragoverItem", e => {
+      console.log("dragoverItem", e.detail)
       const currentItemId = e.detail.currentItem.id
       const selectedItemId = e.detail.selectedItemId
       if( currentItemId != selectedItemId) {
@@ -31,14 +34,14 @@ Hooks.Items = {
     })
 
     this.el.addEventListener("update-indexes", e => {
-        const itemId_from = e.detail.fromItemId 
-
-        // Check if both "from" and "to" are defined
-        if(itemId_from && itemId_to && itemId_from != itemId_to) {
-          hook.pushEventTo("#items", "updateIndexes", {itemId_from: itemId_from, itemId_to: itemId_to})
-        }
-        
-        itemId_to = null;
+      const itemId_from = e.detail.fromItemId 
+      console.log("update-indexes", e.detail)
+      // Check if both "from" and "to" are defined
+      if(itemId_from && itemId_to && itemId_from != itemId_to) {
+        hook.pushEventTo("#items", "updateIndexes", {itemId_from: itemId_from, itemId_to: itemId_to})
+      }
+      
+      itemId_to = null;
     })
   }
 }
@@ -84,6 +87,7 @@ window.addEventListener("phx:remove-highlight", (e) => {
 })
 
 window.addEventListener("phx:dragover-item", (e) => {
+  console.log("phx:dragover-item", e.detail)
   const selectedItem = document.querySelector(`#${e.detail.selected_item_id}`)
   const currentItem = document.querySelector(`#${e.detail.current_item_id}`)
 

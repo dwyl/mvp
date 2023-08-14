@@ -87,8 +87,9 @@ defmodule App.MixProject do
       # Track test coverage: github.com/parroty/excoveralls
       {:excoveralls, "~> 0.15", only: [:test, :dev]},
 
-      # git pre-commit hook runs tests before allowing commits
-      {:pre_commit, "~> 0.3.4"},
+      # Git pre-commit hook runs tests before allowing commits:
+      # github.com/dwyl/elixir-pre-commit
+      {:pre_commit, "~> 0.3.4", only: :dev},
       {:credo, "~> 1.7.0", only: [:dev, :test], runtime: false},
 
       # Ref: github.com/dwyl/learn-tailwind
