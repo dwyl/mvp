@@ -300,7 +300,10 @@ defmodule AppWeb.AppLive do
         %{"itemId_from" => itemId_from, "itemId_to" => itemId_to},
         socket
       ) do
-    IO.puts("updateIndexes -> itemId_from: #{itemId_from}, itemId_to: #{itemId_to} | #{Useful.typeof(itemId_to)}")
+    IO.puts(
+      "updateIndexes -> itemId_from: #{itemId_from}, itemId_to: #{itemId_to} | #{Useful.typeof(itemId_to)}"
+    )
+
     App.ListItem.move_item(itemId_from, itemId_to)
     {:noreply, socket}
   end
@@ -313,7 +316,10 @@ defmodule AppWeb.AppLive do
         },
         socket
       ) do
-    IO.puts("cur_item_id: #{current_item_id}, selected_item_id: #{selected_item_id}")
+    IO.puts(
+      "cur_item_id: #{current_item_id}, selected_item_id: #{selected_item_id}"
+    )
+
     {:noreply,
      push_event(socket, "dragover-item", %{
        current_item_id: current_item_id,

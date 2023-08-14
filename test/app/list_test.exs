@@ -57,8 +57,11 @@ defmodule App.ListTest do
 
     test "get_list_by_text!/2 returns the list for the person_id by text" do
       person_id = 4
-      {:ok, %{model: all_list}} = %{text: "all", person_id: person_id, status: 2}
+
+      {:ok, %{model: all_list}} =
+        %{text: "all", person_id: person_id, status: 2}
         |> App.List.create_list()
+
       list = App.List.get_list_by_text!(person_id, "all")
       assert list.text == "all"
       assert list.id == all_list.id

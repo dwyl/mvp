@@ -66,7 +66,8 @@ defmodule App.ListItemsTest do
     @valid_attrs %{text: "Buy Bananas", person_id: 0, status: 2}
     test "get_list_item_position/2 retrieves the position of an item in a list" do
       {:ok, %{model: item, version: _version}} =
-          Item.create_item(@valid_attrs)
+        Item.create_item(@valid_attrs)
+
       {:ok, li1} = App.ListItem.add_item_to_all_list(item)
       assert li1.position == 1.0
 
@@ -89,12 +90,14 @@ defmodule App.ListItemsTest do
       assert length(item_ids) == 0
 
       # Add an new item for the person:
-      {:ok, %{model: item}} = %{text: "hai", person_id: person_id, status: 2}
-      |> Item.create_item()
+      {:ok, %{model: item}} =
+        %{text: "hai", person_id: person_id, status: 2}
+        |> Item.create_item()
 
       App.ListItem.add_item_to_all_list(item)
 
       updated_item_ids = App.ListItem.get_items_on_all_list(person_id)
+
       assert length(updated_item_ids) ==
                length(App.Item.all_items_for_person(person_id))
 
