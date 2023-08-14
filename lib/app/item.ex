@@ -223,7 +223,7 @@ defmodule App.Item do
     sql = """
     SELECT i.id, i.text, i.status, i.person_id,
       t.start, t.stop, t.id as timer_id,
-      li.position as position, li.list_id
+      li.id as li_id, li.position, li.list_id, li.inserted_at
     FROM items i
     FULL JOIN timers AS t ON t.item_id = i.id
     FULL JOIN list_items AS li ON li.item_id = i.id
@@ -231,7 +231,7 @@ defmodule App.Item do
     AND i.status IS NOT NULL
     AND i.text IS NOT NULL
     AND li.position != 999999.999
-    ORDER BY li.position DESC;
+    ORDER BY timer_id ASC;
     """
 
     values =
@@ -246,7 +246,6 @@ defmodule App.Item do
     |> Enum.map(fn t ->
       Map.put(t, :tags, items_tags[t.id].tags)
     end)
-    |> Enum.sort_by(& &1.position)
   end
 
   @doc """
@@ -339,6 +338,27 @@ defmodule App.Item do
   end
 
   @doc """
+  `map_item_position/1` Creates a Map where the key is item_id and value is position
+  So we can lookup a given item_id and know it's latest position.
+  e.g: `%{ 1 => 1.0, 2 => 3.999999, 3 => 3.0}`
+  """
+  def map_item_position(items_with_timers) do
+    items_with_timers
+    # Sort by list_item.id so we get the latest position for each item
+    |> Enum.sort_by(fn i -> i.li_id end, :desc)
+    |> Enum.reduce(%{}, fn i, acc_map ->
+      # IO.inspect(acc_map)
+      # IO.puts("#{i.li_id} | id: #{i.id} | l: #{i.list_id} | pos: #{i.position}")
+      # IO.inspect(i)
+      if Map.has_key?(acc_map, i.id) do
+        acc_map
+      else
+        Map.put(acc_map, i.id, i.position)
+      end
+    end)
+  end
+
+  @doc """
   `accumulate_item_timers/1` aggregates the elapsed time
   for all the timers associated with an item
   and then subtract that time from the start value of the *current* active timer.
@@ -351,11 +371,12 @@ defmodule App.Item do
   And having multiple timers is the *only* way to achieve that.
 
   If you can think of a better way of achieving the same result,
-  please share: https://github.com/dwyl/app-mvp-phoenix/issues/103
+  please share: github.com/dwyl/app-mvp-phoenix/issues/103
   This function *relies* on the list of items being ordered by timer_id ASC
   because it "pops" the last timer and ignores it to avoid double-counting.
   """
   def accumulate_item_timers(items_with_timers) do
+    item_pos = map_item_position(items_with_timers)
     # e.g: %{0 => 0, 1 => 6, 2 => 5, 3 => 24, 4 => 7}
     timer_id_diff_map = map_timer_diff(items_with_timers)
 
@@ -370,7 +391,7 @@ defmodule App.Item do
          |> Enum.reject(&is_nil/1)}
       end)
 
-    # this one is "wasteful" but I can't think of how to simplify it ...
+    # This is inefficient but I can't think of how to simplify it ... can you?
     item_id_timer_diff_map =
       Map.new(items_with_timers, fn item ->
         timer_id_list = Map.get(item_id_timer_id_map, item.id, [0])
@@ -392,11 +413,11 @@ defmodule App.Item do
           do: nil,
           else: NaiveDateTime.add(item.start, -time_elapsed)
 
-      {item.id, %{item | start: start}}
+      {item.id, %{item | start: start, position: Map.get(item_pos, item.id)}}
     end)
     # Return the list of items without duplicates and only the last/active timer:
     |> Map.values()
-    # Sort list by item.id descending (ordered by timer_id ASC above) so newest item first:
-    |> Enum.sort_by(fn i -> i.id end, :desc)
+    # Sort list by position so the lowest position is displayed first:
+    |> Enum.sort_by(fn i -> i.position end, :asc)
   end
 end

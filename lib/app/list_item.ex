@@ -57,7 +57,11 @@ defmodule App.ListItem do
   """
   def next_position_on_list(list_id) do
     sql = """
-    SELECT COUNT(*) FROM list_items li WHERE li.list_id = $1
+    SELECT COUNT(*) FROM list_items li
+    JOIN items i on i.id = li.item_id
+    WHERE li.list_id = $1
+    AND li.position != 999999.999
+    AND i.status != 4
     """
 
     result = Ecto.Adapters.SQL.query!(Repo, sql, [list_id])
@@ -98,9 +102,12 @@ defmodule App.ListItem do
       end
 
     sql = """
-    SELECT li.position FROM list_items li
-    WHERE li.item_id = $1 AND li.list_id = $2
-    ORDER BY li.inserted_at DESC LIMIT 1
+    SELECT li.position
+    FROM list_items li
+    WHERE li.item_id = $1
+    AND li.list_id = $2
+    ORDER BY li.inserted_at DESC
+    LIMIT 1
     """
 
     result = Ecto.Adapters.SQL.query!(Repo, sql, [item_id, list_id])
