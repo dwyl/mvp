@@ -102,7 +102,9 @@ defmodule App.ItemTest do
           id: 3,
           start: nil,
           text: "This item has no timers",
-          timer_id: nil
+          timer_id: nil,
+          li_id: 1,
+          position: 1.0
         },
         %{
           stop: ~N[2022-07-17 11:18:10.000000],
@@ -110,7 +112,9 @@ defmodule App.ItemTest do
           start: ~N[2022-07-17 11:18:00.000000],
           text:
             "Item #2 has one active (no end) and one complete timer should total 17sec",
-          timer_id: 3
+          timer_id: 3,
+          li_id: 2,
+          position: 2.0
         },
         %{
           stop: nil,
@@ -118,7 +122,9 @@ defmodule App.ItemTest do
           start: seven_seconds_ago,
           text:
             "Item #2 has one active (no end) and one complete timer should total 17sec",
-          timer_id: 4
+          timer_id: 4,
+          li_id: 3,
+          position: 3.0
         },
         %{
           stop: ~N[2022-07-17 11:18:31.000000],
@@ -126,7 +132,9 @@ defmodule App.ItemTest do
           start: ~N[2022-07-17 11:18:26.000000],
           text:
             "Item with 3 complete timers that should add up to 42 seconds elapsed",
-          timer_id: 2
+          timer_id: 2,
+          li_id: 4,
+          position: 2.999999
         },
         %{
           stop: ~N[2022-07-17 11:18:24.000000],
@@ -134,7 +142,9 @@ defmodule App.ItemTest do
           start: ~N[2022-07-17 11:18:18.000000],
           text:
             "Item with 3 complete timers that should add up to 42 seconds elapsed",
-          timer_id: 1
+          timer_id: 1,
+          li_id: 5,
+          position: 4.0
         },
         %{
           stop: ~N[2022-07-17 11:19:42.000000],
@@ -142,7 +152,9 @@ defmodule App.ItemTest do
           start: ~N[2022-07-17 11:19:11.000000],
           text:
             "Item with 3 complete timers that should add up to 42 seconds elapsed",
-          timer_id: 5
+          timer_id: 5,
+          li_id: 42,
+          position: 42.0
         }
       ]
 
