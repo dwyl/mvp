@@ -74,7 +74,7 @@ defmodule App.MixProject do
 
       # Useful functions: github.com/dwyl/useful
       {:useful, "~> 1.12.1", override: true},
-      
+
       # See: github.com/dwyl/useful/issues/17
       {:atomic_map, "~> 0.9.3"},
 
