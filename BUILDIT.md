@@ -5549,6 +5549,74 @@ The `EXTRACT(EPOCH FROM ...)` function then converts this duration into `seconds
 
 You can read more about the EXTRACT PostgreSQL function [here](https://www.postgresqltutorial.com/postgresql-date-functions/postgresql-extract/).
 
+Done!
+
+There is one last thing we need to do to show our new columns on the Phoenix template.
+
+We need to add a helpers in our `stats_live.ex` file so we can format the date and duration.
+
+Open this file and add the following code in the beggining of the file and the two methods on the end:
+```elixir
+defmodule AppWeb.StatsLive do
+  ...
+  alias App.{Item, DateTimeHelper}
+  ...
+
+  def format_date(date) do
+    DateTimeHelper.format_date(date)
+  end
+
+  def format_seconds(seconds) do
+    DateTimeHelper.format_duration(seconds)
+  end
+end
+```
+
+This is just calling the DateTimeHelper module with the methods that we created.
+
+Great! Now we can show or new columns inside the `Phoenix` Template.
+
+Open the `stats_live.html.heex` and update the table to add the new columns and fields:
+
+```html
+<table class="text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
+  <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+    <tr>
+      ...
+      <th scope="col" class="px-6 py-3 text-center">
+        First Joined
+      </th>
+      <th scope="col" class="px-6 py-3 text-center">
+        Last Item Inserted
+      </th>
+      <th scope="col" class="px-6 py-3 text-center">
+        Total Elapsed Time
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <%= for metric <- @metrics do %>
+      <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+        ...
+        <td class="px-6 py-4 text-center">
+          <%= format_date(metric.first_inserted_at) %>
+        </td>
+        <td class="px-6 py-4 text-center">
+          <%= format_date(metric.last_inserted_at) %>
+        </td>
+        <td class="px-6 py-4 text-center">
+          <%= format_seconds(metric.total_timers_in_seconds) %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+```
+
+Done! Now we have our new columns and rows with the appropriate information as planned and already formatted.
+
+The next tasks will only enhance that!
+
 # 16. `People` in Different Timezones 🌐
 
 Our application works not only for ourselves
