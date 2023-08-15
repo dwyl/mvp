@@ -116,6 +116,9 @@ With that in place, let's get building!
 - [15. Adding Sorting to the track metrics table and more additional fields](#15-adding-sorting-to-the-track-metrics-table-and-more-additional-fields)
   - [15.1 Add new columns](#151-add-new-columns)
   - [15.2 Highlight your user on the table](#152-highlight-your-user-on-the-table)
+  - [15.3 Creating a Table LiveComponent](#153-creating-a-table-livecomponent)
+    - [The LiveComponent File:](#the-livecomponent-file)
+    - [The Template File:](#the-template-file)
 - [16. `People` in Different Timezones 🌐](#16-people-in-different-timezones-)
   - [16.1 Getting the `person`'s Timezone](#161-getting-the-persons-timezone)
   - [16.2 Changing how the timer datetime is displayed](#162-changing-how-the-timer-datetime-is-displayed)
@@ -5690,6 +5693,198 @@ What we're doing here is checking if the `person_id` of the current metric match
 And if the IDs don't match, the row will maintain the same look.
 
 With these changes, when you view your table now, the row corresponding to the currently logged-in user will be distinctly highlighted, providing an intuitive visual cue for users.
+
+## 15.3 Creating a Table LiveComponent
+
+In this section we are going to build a `LiveComponent` that can be reused throughout our application.
+
+This `LiveComponent` will be a table with dynamic rows and columns so we can create other tables if needed. This will be a good showcase of the `LiveComponent` capabilities as well.
+
+From the `Phoenix.LiveComponent` [docs](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveComponent.html):
+> LiveComponents are a mechanism to compartmentalize state, markup, and events in LiveView.
+
+So with that in mind, let's begin by creating our live component file.
+
+Remember to create new folders if needed.
+
+Create a new file inside the `lib/app_web/live/components/table_component.ex` with the following content:
+```elixir
+defmodule AppWeb.TableComponent do
+  use Phoenix.LiveComponent
+
+  def render(assigns) do
+    Phoenix.View.render(
+      AppWeb.TableComponentView,
+      "table_component.html",
+      assigns
+    )
+  end
+end
+```
+
+This is a simple LiveComponent code that points to a new `table_component.html` template, let's create this file too inside the `lib/app_web/templates/table_component/table_component.html.heex` with the following content:
+```html
+<table class="text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
+  <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+    <%= for column <- @column do %>
+      <th
+        scope="col"
+        class="px-6 py-3 text-center cursor-pointer"
+      >
+        <a href="#" class="group inline-flex">
+          <%= column.label %>
+        </a>
+      </th>
+    <% end %>
+  </thead>
+  <tbody>
+    <%= for row <- @rows do %>
+      <tr class={
+        if @highlight.(row),
+          do:
+            "bg-teal-100 border-teal-500 dark:bg-teal-800 dark:border-teal-700",
+          else: "bg-white border-b dark:bg-gray-800 dark:border-gray-700"
+      }>
+        <%= for column <- @column do %>
+          <%= render_slot(column, row) %>
+        <% end %>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+```
+
+Before we proceed, let's take a moment to understand what we've just created:
+
+### The LiveComponent File:
+- We've created a new `LiveComponent` named `AppWeb.TableComponent`.
+- This component uses `Phoenix.View.render/3` to render a template named `table_component.html`.
+
+### The Template File:
+- This is a general-purpose table template with the all the current styles that we have on our `stats_live` template.
+- The headers (<thead>) of the table are dynamically generated based on the `@column` assign, which is expected to be a list of columns with their respective labels.
+- The body (<tbody>) of the table is dynamically generated based on the `@rows` assign. Each row's appearance can be conditionally modified using the `@highlight` function (we are going to use to highlight the current logged user, remember?).
+- The `render_slot/2` function suggests that this component will use "[slots](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveComponent.html#module-slots)" - a feature in Phoenix LiveView that allows for rendering dynamic parts of a component.
+
+To finish the LiveComponent we just need to create our `view` file that will make everything work together, create this new file inside `lb/app_web/views/table_component_view.ex` with the following content:
+```elixir
+defmodule AppWeb.TableComponentView do
+  use AppWeb, :view
+end
+```
+
+With that in place, we can update our Stats page to use this LiveComponent in a dynamic way. Open the `stats_live.html.heex` and make the following modifications:
+```html
+...
+      Stats
+    </h1>
+
+    <.live_component
+      module={AppWeb.TableComponent}
+      id="table_component"
+      rows={@metrics}
+      highlight={&is_highlighted_person?(&1, @person_id)}
+    >
+      <:column :let={metric} label="Id" key="person_id">
+        <td class="px-6 py-4" data-test-id="person_id">
+          <a href={person_link(metric.person_id)}>
+            <%= metric.person_id %>
+          </a>
+        </td>
+      </:column>
+
+      <:column :let={metric} label="Items" key="num_items">
+        <td class="px-6 py-4 text-center" data-test-id="num_items">
+          <%= metric.num_items %>
+        </td>
+      </:column>
+
+      <:column :let={metric} label="Timers" key="num_timers">
+        <td class="px-6 py-4 text-center" data-test-id="num_timers">
+          <%= metric.num_timers %>
+        </td>
+      </:column>
+
+      <:column :let={metric} label="First Joined" key="first_inserted_at">
+        <td class="px-6 py-4 text-center" data-test-id="first_inserted_at">
+          <%= format_date(metric.first_inserted_at) %>
+        </td>
+      </:column>
+
+      <:column :let={metric} label="Last Item Inserted" key="last_inserted_at">
+        <td class="px-6 py-4 text-center" data-test-id="last_inserted_at">
+          <%= format_date(metric.last_inserted_at) %>
+        </td>
+      </:column>
+
+      <:column
+        :let={metric}
+        label="Total Elapsed Time"
+        key="total_timers_in_seconds"
+      >
+        <td class="px-6 py-4 text-center" data-test-id="total_timers_in_seconds">
+          <%= format_seconds(metric.total_timers_in_seconds) %>
+        </td>
+      </:column>
+    </.live_component>
+  </div>
+</main>
+```
+
+Now let's breakdown the code.
+
+```html
+<.live_component
+  module={AppWeb.TableComponent}
+  id="table_component"
+  rows={@metrics}
+  highlight={&is_highlighted_person?(&1, @person_id)}
+>
+```
+
+- The tag `<.live_component>` is the syntax to embed a LiveComponent within a LiveView.
+- We specify which LiveComponent to use using the `module` attribute. In this case, it's the `AppWeb.TableComponent` we discussed in the previous steps.
+- Setting the `id` is essential for Phoenix to keep track of the component's state across updates.
+- `rows={@metrics}` passes the `@metrics` assign to the component as its rows property.
+- `highlight={&is_highlighted_person?(&1, @person_id)}` passes a function as the highlight property to the component. This function checks if a given row should be highlighted. We will create this function inside our `stats_live.ex` on the next step.
+
+The next sections use the slot feature of LiveComponents:
+
+```html
+<:column :let={metric} label="Id" key="person_id">
+  ...
+</:column>
+```
+- `<:column ...>` is a slot. It tells the `TableComponent` how to render each cell of a column. The `:let={metric}` attribute means that inside this slot, you can access each row's data with the variable metric.
+- `label="Id"` specifies the header label for this column.
+- `key="person_id"` this key will be used to sort the columns when we get there.
+
+Inside each slot, the template for rendering the cell is provided. For instance:
+
+```html
+<td class="px-6 py-4" data-test-id="person_id">
+  <a href={person_link(metric.person_id)}>
+    <%= metric.person_id %>
+  </a>
+</td>
+```
+
+This renders a table cell with the `person_id` content. The `data-test-id` attribute will be used for testing purposes, making it easier to find this specific element in test scenarios, more about that later.
+
+As a last update for this section we need to create the `is_highlighted_person?/2` method inside our `stats_live.ex` file:
+```elixir
+defmodule AppWeb.StatsLive do
+
+  ...
+
+  def is_highlighted_person?(metric, person_id),
+      do: metric.person_id == person_id
+end
+```
+
+In summary, this code replaces the static table that we had with a dynamic one, utilizing our `TableComponent`.
+
+Now you can run the code and see the same result that we had before.
 
 # 16. `People` in Different Timezones 🌐
 
