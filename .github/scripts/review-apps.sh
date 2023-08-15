@@ -23,10 +23,10 @@ elif ! flyctl status --app "$app"; then
 
   # deploy
   echo "deploy application"
-  flyctl deploy --app "$app" --region "$FLY_REGION" --strategy immediate --restart on-fail
+  flyctl deploy --app "$app" --region "$FLY_REGION" --strategy immediate
 
 else
   echo "deploy updated application"
-  flyctl deploy --app "$app" --region "$FLY_REGION" --strategy immediate --restart on-fail
+  flyctl deploy --app "$app" --region "$FLY_REGION" --strategy immediate
 fi
 
