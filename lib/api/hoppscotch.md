@@ -267,7 +267,7 @@ between the `build` and `deploy` jobs.
         otp: ['25.1.2']
         elixir: ['1.14.2']
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Elixir
       uses: erlef/setup-beam@v1
       with:
