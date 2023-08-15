@@ -115,6 +115,7 @@ With that in place, let's get building!
   - [14.5 Adding tests](#145-adding-tests)
 - [15. Adding Sorting to the track metrics table and more additional fields](#15-adding-sorting-to-the-track-metrics-table-and-more-additional-fields)
   - [15.1 Add new columns](#151-add-new-columns)
+  - [15.2 Highlight your user on the table](#152-highlight-your-user-on-the-table)
 - [16. `People` in Different Timezones 🌐](#16-people-in-different-timezones-)
   - [16.1 Getting the `person`'s Timezone](#161-getting-the-persons-timezone)
   - [16.2 Changing how the timer datetime is displayed](#162-changing-how-the-timer-datetime-is-displayed)
@@ -5616,6 +5617,79 @@ Open the `stats_live.html.heex` and update the table to add the new columns and 
 Done! Now we have our new columns and rows with the appropriate information as planned and already formatted.
 
 The next tasks will only enhance that!
+
+## 15.2 Highlight your user on the table
+
+To emphasize the currently logged-in user within the table, we'll first need to retrieve the user's information within our Phoenix LiveView, similar to how `app_live` operates.
+
+Begin by opening `stats_live.ex` and add the following code:
+```elixir
+defmodule AppWeb.StatsLive do
+  ...
+  @stats_topic "stats"
+
+  defp get_person_id(assigns), do: assigns[:person][:id] || 0
+
+  @impl true
+  def mount(_params, _session, socket) do
+    ...
+
+    person_id = get_person_id(socket.assigns)
+    metrics = Item.person_with_item_and_timer_count()
+
+    {:ok,
+     assign(socket,
+       person_id: person_id,
+       metrics: metrics,
+     )}
+  end
+
+  ...
+end
+```
+
+Now to explain the changes.
+
+`defp get_person_id(assigns), do: assigns[:person][:id] || 0`
+
+This function attempts to extract the `:id` of the `:person` from the given `assigns` (a map or struct). If it doesn't find an ID, it defaults to `0`.
+
+`person_id = get_person_id(socket.assigns)`
+
+This line inside the `mount/3` retrieves the `person_id` from the `socket.assigns` using the aforementioned private function.
+
+Furthermore, the `assign/3` function call has been updated to include this `person_id` in the socket's assigns.
+
+In the previous step, we made adjustments to the `AppWeb.StatsLive` module to extract the `person_id` of the currently logged-in user. Now, it's time to use that to visually distinguish the user's row in our table.
+
+Open the `stats_live.html.heex` file, where our table is defined. We're going to conditionally set the background and border colors of each table row based on whether the row corresponds to the currently logged-in user.
+
+Locate the `<tbody>` section of your table, where each metric from `@metrics` is looped over to generate table rows and update the code to the following below:
+```html
+...
+
+</thead>
+<tbody>
+  <%= for metric <- @metrics do %>
+    <tr class={
+      if metric.person_id == @person_id,
+        do:
+          "bg-teal-100 border-teal-500 dark:bg-teal-800 dark:border-teal-700",
+        else: "bg-white border-b dark:bg-gray-800 dark:border-gray-700"
+    }>
+      <td class="px-6 py-4">
+        <a href={person_link(metric.person_id)}>
+          <%= metric.person_id %>
+...
+```
+
+What we're doing here is checking if the `person_id` of the current metric matches the `@person_id` (the ID of the logged-in user). If it does:
+- The row will have a teal background (`bg-teal-100`) and border (`border-teal-500`).
+- In dark mode, it will have a darker teal background (`dark:bg-teal-800`) and border (`dark:border-teal-700`).
+
+And if the IDs don't match, the row will maintain the same look.
+
+With these changes, when you view your table now, the row corresponding to the currently logged-in user will be distinctly highlighted, providing an intuitive visual cue for users.
 
 # 16. `People` in Different Timezones 🌐
 
