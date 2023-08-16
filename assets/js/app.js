@@ -15,16 +15,16 @@ Hooks.Items = {
 
     this.el.addEventListener("highlight", e => {
       hook.pushEventTo("#items", "highlight", {id: e.detail.id})
-      console.log('highlight', e.detail.id)
+      // console.log('highlight', e.detail.id)
     })
 
     this.el.addEventListener("remove-highlight", e => {
       hook.pushEventTo("#items", "removeHighlight", {id: e.detail.id})
-      console.log('remove-highlight', e.detail.id)
+      // console.log('remove-highlight', e.detail.id)
     })
 
     this.el.addEventListener("dragoverItem", e => {
-      console.log("dragoverItem", e.detail)
+      // console.log("dragoverItem", e.detail)
       const currentItemId = e.detail.currentItem.id
       const selectedItemId = e.detail.selectedItemId
       if( currentItemId != selectedItemId) {
@@ -34,16 +34,31 @@ Hooks.Items = {
     })
 
     this.el.addEventListener("update-indexes", e => {
-      const itemId_from = e.detail.fromItemId 
-      console.log("update-indexes", e.detail)
+      const item_id = e.detail.fromItemId 
+      const list_ids = get_list_item_ids()
+      console.log("update-indexes", e.detail, "list: ", list_ids)
       // Check if both "from" and "to" are defined
-      if(itemId_from && itemId_to && itemId_from != itemId_to) {
-        hook.pushEventTo("#items", "updateIndexes", {itemId_from: itemId_from, itemId_to: itemId_to})
+      if(item_id && itemId_to && item_id != itemId_to) {
+        hook.pushEventTo("#items", "updateIndexes", 
+          {item_id: item_id, list_ids: list_ids})
       }
       
       itemId_to = null;
     })
   }
+}
+
+/**
+ * `get_list_item_ids/0` retrieves the full `list` of visible `items` form the DOM
+ * and returns a String containing the IDs as a space-separated list e.g: "1 2 3 42 71 93"
+ * This is used to determine the `position` of the `item` that has been moved.
+ */
+function get_list_item_ids() {
+  console.log("invoke get_list_item_ids")
+  const lis = document.querySelectorAll("label[phx-value-id]");
+  return Object.values(lis).map(li => {
+    return li.attributes["phx-value-id"].nodeValue
+  }).join(" ")
 }
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")

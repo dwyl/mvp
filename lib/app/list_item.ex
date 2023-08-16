@@ -119,28 +119,63 @@ defmodule App.ListItem do
   @doc """
   `move_item/3` updates the position of the `item` in a `list`.
   This is used for drag and drop.
-  The `id_from` is the `item.id` for the `item` being repositioned,
-  whereas `id_to` is the `item.id` for the `item` that *was* in that position.
+  The `item_id` is the `item.id` for the `item` being repositioned e.g: "42"
+  and `item_ids_str` is the String of ids currently visible in the interface.
+  e.g: "1 2 3 42 71 93". so we can easily determine the precise position of the item_id.
   """
-  def move_item(id_from, id_to, list_id \\ 0) do
-    # IO.inspect("move_item/3 -> id_from: #{id_from} | id_to: #{id_to} | list_id: #{list_id} | #{Useful.typeof(list_id)}")
-    item_from = App.Item.get_item!(id_from)
-    # dbg(item_from)
-    # For now we only have the "all" list, but soon we will have "PARA" 😉
+  def move_item(item_id, item_ids_str, list_id \\ 0) do
+    IO.inspect(
+      "move_item/3 -> item_id: #{item_id} | typeof item_id #{Useful.typeof(item_id)}"
+    )
+
+    item = App.Item.get_item!(item_id)
+    item_ids = String.split(item_ids_str, " ")
+
+    IO.inspect(
+      "item_ids_str: #{item_ids_str} | length(item_ids): #{length(item_ids)} "
+    )
+
+    # Get index of item_id in the item_ids list:
+    index = Enum.find_index(item_ids, &(&1 == "#{item_id}"))
+    IO.inspect("index: #{index}")
+
+    # Get the list by the list_id or text "all":
     list =
       if list_id == 0 do
-        App.List.get_list_by_text!(item_from.person_id, "all")
+        # For now we only have the "all" list, but soon we will have "PARA" 😉
+        App.List.get_list_by_text!(item.person_id, "all")
       else
         App.List.get_list!(list_id)
       end
 
-    # This Float to Decimal and back to Float is to ensure precision ... 🙄
-    to_pos = get_list_item_position(id_to, list.id) |> Decimal.from_float()
-
+    # Derive the New Position
+    # Moved somewhere else in the list including the Bottom:
     new_pos =
-      Decimal.sub(to_pos, "0.000001") |> Decimal.round(6) |> Decimal.to_float()
+      if index == 0 do
+        # Moved to Top of List:
+        # Find the *Next* item_id in the list:
+        next_id = Enum.at(item_ids, index + 1)
+        # Get the position of the *Next* item:
+        next_pos = get_list_item_position(next_id, list.id)
 
-    add_list_item(item_from, list, item_from.person_id, new_pos)
+        next_pos
+        |> Decimal.from_float()
+        |> Decimal.sub("0.000001")
+        |> Decimal.round(6)
+        |> Decimal.to_float()
+      else
+        # Find the *Previous* item_id in the list:
+        prev_id = Enum.at(item_ids, index - 1)
+        prev_pos = get_list_item_position(prev_id, list.id)
+
+        prev_pos
+        |> Decimal.from_float()
+        |> Decimal.add("0.000001")
+        |> Decimal.round(6)
+        |> Decimal.to_float()
+      end
+
+    add_list_item(item, list, item.person_id, new_pos)
   end
 
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #

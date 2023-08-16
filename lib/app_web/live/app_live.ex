@@ -297,14 +297,14 @@ defmodule AppWeb.AppLive do
   @impl true
   def handle_event(
         "updateIndexes",
-        %{"itemId_from" => itemId_from, "itemId_to" => itemId_to},
+        %{"item_id" => item_id, "list_ids" => list_ids},
         socket
       ) do
     IO.puts(
-      "updateIndexes -> itemId_from: #{itemId_from}, itemId_to: #{itemId_to} | #{Useful.typeof(itemId_to)}"
+      "updateIndexes -> item_id: #{item_id}, list_ids: #{list_ids} | #{Useful.typeof(list_ids)}"
     )
 
-    App.ListItem.move_item(itemId_from, itemId_to)
+    App.ListItem.move_item(item_id, list_ids)
     {:noreply, socket}
   end
 

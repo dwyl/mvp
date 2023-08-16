@@ -816,18 +816,21 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "Drag and Drop item", %{conn: conn} do
-    person_id = 0
-    # Creating two items
-    {:ok, %{model: item, version: _version}} =
-      Item.create_item(%{text: "Learn Elixir", person_id: person_id, status: 2})
+    person_id = 42
+    # Creating Three items
+    {:ok, %{model: item}} =
+      Item.create_item(%{text: "Learn Elixir", person_id: person_id})
 
-    {:ok, %{model: item2, version: _version}} =
-      Item.create_item(%{
-        text: "Learn Elixir 2",
-        person_id: person_id,
-        status: 2
-      })
+    {:ok, %{model: item2}} =
+      Item.create_item(%{ text: "Build Awesome App", person_id: person_id})
 
+    {:ok, %{model: item3}} =
+      Item.create_item(%{ text: "Profit", person_id: person_id})
+
+    # Create "all" list for this person_id:
+    App.List.create_default_lists(person_id)
+    # Add all items to "all" list:
+    App.ListItem.add_items_to_all_list(person_id)
     # Get "all" list for this person_id
     list = App.List.get_list_by_text!(person_id, "all")
 
@@ -836,9 +839,9 @@ defmodule AppWeb.AppLiveTest do
 
     # Highlight broadcast should have occurred
     assert render_hook(view, "highlight", %{"id" => item.id})
-           |> String.split("bg-teal-300")
-           |> Enum.drop(1)
-           |> length() > 0
+      |> String.split("bg-teal-300")
+      |> Enum.drop(1)
+      |> length() > 0
 
     # Dragover and remove highlight
     render_hook(view, "dragoverItem", %{
@@ -850,13 +853,19 @@ defmodule AppWeb.AppLiveTest do
 
     # Switch items (update indexes)
     render_hook(view, "updateIndexes", %{
-      "itemId_from" => item.id,
-      "itemId_to" => item2.id
+      "item_id" => item.id,
+      "list_ids" => "#{item.id} #{item2.id} #{item3.id}"
     })
 
     pos1 = App.ListItem.get_list_item_position(item.id, list.id)
     pos2 = App.ListItem.get_list_item_position(item2.id, list.id)
     assert pos1 < pos2
+
+    # Move item3 to second in the list:
+    App.ListItem.move_item(item3.id, "#{item.id} #{item3.id} #{item2.id}")
+
+    pos3 = App.ListItem.get_list_item_position(item.id, list.id)
+    assert pos3 < pos2
   end
 
   test "select tag when enter pressed", %{conn: conn} do

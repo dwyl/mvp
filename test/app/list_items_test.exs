@@ -116,9 +116,10 @@ defmodule App.ListItemsTest do
 
       # Get the "all" list for this person:
       list = App.List.get_list_by_text!(@valid_attrs.person_id, "all")
-
+      item_list_str = "#{item2.id} #{item1.id}"
+      dbg(item_list_str)
       # Move item2 to be above item1:
-      {:ok, li3} = App.ListItem.move_item(item2.id, item1.id, list.id)
+      {:ok, li3} = App.ListItem.move_item(item2.id, item_list_str, list.id)
       assert li3.position == 0.999999
     end
   end
