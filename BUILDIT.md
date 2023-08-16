@@ -119,6 +119,7 @@ With that in place, let's get building!
   - [15.3 Creating a Table LiveComponent](#153-creating-a-table-livecomponent)
     - [The LiveComponent File:](#the-livecomponent-file)
     - [The Template File:](#the-template-file)
+  - [15.5 Implement Column Sorting](#155-implement-column-sorting)
 - [16. `People` in Different Timezones 🌐](#16-people-in-different-timezones-)
   - [16.1 Getting the `person`'s Timezone](#161-getting-the-persons-timezone)
   - [16.2 Changing how the timer datetime is displayed](#162-changing-how-the-timer-datetime-is-displayed)
@@ -5885,6 +5886,633 @@ end
 In summary, this code replaces the static table that we had with a dynamic one, utilizing our `TableComponent`.
 
 Now you can run the code and see the same result that we had before.
+
+## 15.5 Implement Column Sorting
+
+Finally, we are in our last section to add the column sorting feature!
+
+For these we will need:
+- Add the sorting logic inside our query and method of `item.ex` file.
+- Include the sort mechanism on the Table `LiveComponent` by adding a onclick event in the table header's
+- Add the event to sort on the `Stats LiveView`
+- Create tests for everything
+
+To add the sorting logic inside `item.ex` file, we are going to create two parameters to our current method that fetches the stats. And we are going to validate the parameters as well.
+
+Open the `item.ex` file and update to the following:
+```elixir
+  ...
+
+  def person_with_item_and_timer_count(
+          sort_column \\ :person_id,
+          sort_order \\ :asc
+      ) do
+    
+    sort_column = to_string(sort_column)
+    sort_order = to_string(sort_order)
+
+    sort_column =
+      if validate_sort_column(sort_column), do: sort_column, else: "person_id"
+
+    sort_order = if validate_order(sort_order), do: sort_order, else: "asc"
+
+    sql = """
+    SELECT i.person_id,
+    COUNT(distinct i.id) AS "num_items",
+    COUNT(distinct t.id) AS "num_timers",
+    MIN(i.inserted_at) AS "first_inserted_at",
+    MAX(i.inserted_at) AS "last_inserted_at",
+    SUM(EXTRACT(EPOCH FROM (t.stop - t.start))) AS "total_timers_in_seconds"
+    FROM items i
+    LEFT JOIN timers t ON t.item_id = i.id
+    GROUP BY i.person_id
+    ORDER BY #{sort_column} #{sort_order}
+    """
+
+  ...
+
+  # validates the items columns to make sure it's a valid column passed
+  defp validate_sort_column(column) do
+    Enum.member?(
+      ~w(person_id num_items num_timers first_inserted_at last_inserted_at total_timers_in_seconds),
+      column
+    )
+  end
+
+  # validates the order SQL to make sure it's a valid asc or desc
+  defp validate_order(order) do
+    Enum.member?(
+      ~w(asc desc),
+      order
+    )
+  end
+end
+```
+
+In the `person_with_item_and_timer_count/2` function, two default parameters have been introduced: `sort_column` and `sort_order`. These parameters dictate which column the result should be sorted by and the direction of the sort, respectively.
+
+The default values (`:person_id` for column and `:asc` for order) ensure that if no sorting criteria are provided when calling the function, it will default to sorting by `person_id` in ascending order.
+
+To ensure that only valid column names and sorting orders are used in our SQL query (and to prevent potential SQL injection attacks), we need to validate these parameters:
+
+```elixir
+sort_column = to_string(sort_column)
+sort_order = to_string(sort_order)
+
+sort_column =
+  if validate_sort_column(sort_column), do: sort_column, else: "person_id"
+
+sort_order = if validate_order(sort_order), do: sort_order, else: "asc"
+```
+
+Here, the `sort_column` and `sort_order` parameters are first converted to strings. Then, the `validate_sort_column/1` and `validate_order/1` private functions are used to check if the provided values are valid. If they aren't, defaults are set.
+
+The SQL query has been modified to include an ORDER BY clause as well using string interpolation to insert the parameters on the query after validating them.
+
+The private function `validate_sort_column/1` and `validate_order/1` are similar, since they ensure that the provided column/order is one of the valid ones in our stats.
+
+The `~w(...)` is a word list in Elixir, which creates a list of strings. The `Enum.member?/2` function checks if the provided value exists in this list.
+
+By introducing these changes, you've made the `person_with_item_and_timer_count/2` function more versatile, allowing it to retrieve sorted results based on provided criteria. Additionally, by validating the input parameters, you've added an essential layer of security to prevent potential misuse or attacks.
+
+Let's include now the sorting mechanism inside the TableComponent.
+
+For that, we will create two template files that will be used as SVG with an arrow poiting up and another pointing down to include these on our table header's.
+
+Create the following two files.
+
+`lib/app_web/templates/table_component/arrow_down.html.heex`
+```html
+<span
+  class="ml-2 flex-none rounded bg-gray-100 text-gray-900 group-hover:bg-gray-200"
+  data-test-id="arrow_down"
+>
+  <svg
+    class="h-5 w-5"
+    viewBox="0 0 20 20"
+    fill="currentColor"
+    aria-hidden="true"
+  >
+    <path
+      fill-rule="evenodd"
+      d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+      clip-rule="evenodd"
+    />
+  </svg>
+</span>
+```
+
+`lib/app_web/templates/table_component/arrow_up.html.heex`
+```html
+<%= if @invisible do %>
+  <span
+    class="invisible ml-2 flex-none rounded text-gray-400 group-hover:visible group-focus:visible"
+    data-test-id="invisible_arrow_up"
+  >
+    <svg
+      class="invisible ml-2 h-5 rotate-180 w-5 flex-none rounded text-gray-400 group-hover:visible group-focus:visible"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path
+        fill-rule="evenodd"
+        d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+        clip-rule="evenodd"
+      />
+    </svg>
+  </span>
+<% else %>
+  <span
+    class="ml-2 flex-none rounded bg-gray-100 text-gray-900 group-hover:bg-gray-200"
+    data-test-id="arrow_up"
+  >
+    <svg
+      class="h-5 w-5 rotate-180"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path
+        fill-rule="evenodd"
+        d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+        clip-rule="evenodd"
+      />
+    </svg>
+  </span>
+<% end %>
+```
+
+These files are similar, the only difference is that the arrow_up will be invisible when there is no selection. We will create a method to deal with the show/hide of the arrows inside our `table_component_view.ex`.
+
+Let's open this file and create the following methods:
+```elixir
+defmodule AppWeb.TableComponentView do
+  use AppWeb, :view
+
+  def render_arrow_down() do
+    Phoenix.View.render(AppWeb.TableComponentView, "arrow_down.html", %{})
+  end
+
+  def render_arrow_up() do
+    Phoenix.View.render(AppWeb.TableComponentView, "arrow_up.html", %{
+      invisible: false
+    })
+  end
+
+  def render_arrow_up(:invisible) do
+    Phoenix.View.render(AppWeb.TableComponentView, "arrow_up.html", %{
+      invisible: true
+    })
+  end
+end
+```
+
+There are three methods added to render arrow icons:
+
+- `render_arrow_down/0`: Renders a downward-pointing arrow, used to indicate descending sort order.
+- `render_arrow_up/0`: Renders an upward-pointing arrow, used to indicate ascending sort order. By default, this arrow is visible.
+- `render_arrow_up/:invisible`: An overloaded version of the above method, which renders the upward-pointing arrow but marks it as invisible.
+
+The invisible attribute in the third method will be used as a conditional rendering in the `arrow_up.html` template to hide the arrow when invisible is set to `true`.
+
+Let's update our `table_component.html.heex` template now, to include the arrows and the new Phoenix event that will be used to trigger the sorting mechanism.
+
+Open the `table_component.html.heex` and make the following modifications:
+```html
+<table class="text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
+  <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+    <%= for column <- @column do %>
+      <th
+        scope="col"
+        class="px-6 py-3 text-center cursor-pointer"
+        phx-click="sort"
+        phx-value-key={column.key}
+      >
+        <a href="#" class="group inline-flex">
+          <%= column.label %>
+
+          <%= if @sort_column == String.to_atom(column.key) do %>
+            <%= if @sort_order == :asc do %>
+              <%= render_arrow_up() %>
+            <% else %>
+              <%= render_arrow_down() %>
+            <% end %>
+          <% else %>
+            <%= render_arrow_up(:invisible) %>
+          <% end %>
+        </a>
+      </th>
+    <% end %>
+  </thead>
+...
+```
+
+The `phx-click="sort"` attribute indicates that when a user clicks a header, the sort event will be triggered in the LiveView. The `phx-value-key` sends the key of the column (like person_id, num_items, etc.) to the server as the value of the clicked item, that will be used for determining which column to sort by.
+
+```html
+<%= if @sort_column == String.to_atom(column.key) do %>
+  <%= if @sort_order == :asc do %>
+    <%= render_arrow_up() %>
+  <% else %>
+    <%= render_arrow_down() %>
+  <% end %>
+<% else %>
+  <%= render_arrow_up(:invisible) %>
+<% end %>
+```
+
+This logic determines which arrow to display next to a column label:
+
+- If the current sort column (`@sort_column`) matches the column's key, it means this column is the one currently being sorted.
+  - Within this condition, if the sort order (`@sort_order`) is ascending (`:asc`), the upward-pointing arrow is displayed using the `render_arrow_up()` function.
+  - If the sort order is not ascending, then the downward-pointing arrow is displayed using the `render_arrow_down()` function.
+- If the current sort column does not match the column's key, an upward-pointing arrow in an invisible state is displayed using `render_arrow_up(:invisible)`. This gives a visual cue to the user that they can click to sort by this column.
+
+The additions to this file enhance the table by adding sortable column headers. When a user clicks on a column header, the table's content is re-ordered based on that column. The sort arrows provide a clear visual indication of the current sort column and its direction (ascending or descending).
+
+Now, we just need to update our Stats LiveView to include this new variables and logic.
+
+Open the `stats_live.ex` and update to the following code:
+```elixir
+defmodule AppWeb.StatsLive do
+...
+
+  def mount(_params, _session, socket) do
+    # subscribe to the channel
+    if connected?(socket), do: AppWeb.Endpoint.subscribe(@stats_topic)
+
+    person_id = get_person_id(socket.assigns)
+    metrics = Item.person_with_item_and_timer_count()
+
+    {:ok,
+     assign(socket,
+       person_id: person_id,
+       metrics: metrics,
+       sort_column: :person_id,
+       sort_order: :asc
+     )}
+  end
+
+...
+
+  @impl true
+  def handle_event("sort", %{"key" => key}, socket) do
+    sort_column =
+      key
+      |> String.to_atom()
+
+    sort_order =
+      if socket.assigns.sort_column == sort_column do
+        toggle_sort_order(socket.assigns.sort_order)
+      else
+        :asc
+      end
+
+    metrics = Item.person_with_item_and_timer_count(sort_column, sort_order)
+
+    {:noreply,
+     assign(socket,
+       metrics: metrics,
+       sort_column: sort_column,
+       sort_order: sort_order
+     )}
+  end
+
+...
+
+  defp toggle_sort_order(:asc), do: :desc
+  defp toggle_sort_order(:desc), do: :asc
+end
+```
+
+In the `mount/3` function, two new assigns are initialized: `sort_column` and `sort_order`.
+```elixir
+sort_column: :person_id,
+sort_order: :asc
+```
+
+- `sort_column`: Represents the column on which the table is currently sorted. By default, it's set to `:person_id`.
+- `sort_order`: Represents the order in which the table is currently sorted. By default, it's set to `:asc` (ascending).
+
+A new function, `handle_event/3`, has been added to handle the "sort" event, which is triggered when a user clicks on a table column header to sort by that column.
+
+```elixir
+def handle_event("sort", %{"key" => key}, socket) do
+```
+
+This function takes in an event payload with a key (the column to sort by) and the current socket.
+
+- The provided key is converted to an atom to get the `sort_column`.
+- The `sort_order` is determined using the `toggle_sort_order/1` function. If the clicked column (`sort_column`) is the same as the one currently being sorted, the sort order is toggled (from ascending to descending or vice versa). If it's a different column, the sort order is set to ascending by default.
+- With the determined `sort_column` and `sort_order`, the function fetches the sorted metrics using `Item.person_with_item_and_timer_count/2`.
+- Finally, the `socket` is updated with the new metrics and sorting parameters.
+
+A private helper function, `toggle_sort_order/1`, has been introduced to toggle the sorting order:
+```elixir
+defp toggle_sort_order(:asc), do: :desc
+defp toggle_sort_order(:desc), do: :asc
+```
+
+If the current order is ascending (`:asc`), it returns descending (`:desc`), and vice versa.
+
+These modifications enhance the `AppWeb.StatsLive` module with dynamic sorting capabilities. Users can now click on table column headers to sort the table's content based on the chosen column, and the sort order will toggle between ascending and descending with each click.
+
+Finally, we need to update our usage of the Table LiveComponent for the usage of these new sort variables.
+
+Open the `stats_live.html.heex` file and make the following modifications:
+```html
+...
+
+   <.live_component
+      module={AppWeb.TableComponent}
+      id="table_component"
+      rows={@metrics}
+      sort_column={@sort_column}
+      sort_order={@sort_order}
+      highlight={&is_highlighted_person?(&1, @person_id)}
+    >
+      <:column :let={metric} label="Id" key="person_id">
+        <td class="px-6 py-4" data-test-id="person_id">
+          <a href={person_link(metric.person_id)}>
+            <%= metric.person_id %>
+          </a>
+        </td>
+      </:column>
+
+      <:column :let={metric} label="Items" key="num_items">
+        <td class="px-6 py-4 text-center" data-test-id="num_items">
+          <%= metric.num_items %>
+        </td>
+      </:column>
+
+      <:column :let={metric} label="Timers" key="num_timers">
+        <td class="px-6 py-4 text-center" data-test-id="num_timers">
+          <%= metric.num_timers %>
+        </td>
+      </:column>
+
+...
+```
+
+We are just passing the `sort_column` and `sort_order` to the live component to be used internally for the arrow logic.
+
+> Remember the `key` attribute that we created before? It's used to determine which column was clicked and to trigger the sort event.
+
+With that, we finished all of our tasks! Yay! Let's run the application and see our results:
+```
+mix s
+```
+
+Our final modification will be create tests for everything, let's update all tests to test the new features:
+
+`test/app/item_test.exs`
+```elixir
+...
+  describe "items" do
+    ...
+    @another_person %{text: "some text", person_id: 2, status: 2}
+    ...
+
+...
+
+  test "Item.person_with_item_and_timer_count/0 returns a list of count of timers and items for each given person" do
+    ...
+
+    assert first_element.num_items == 2
+    assert first_element.num_timers == 2
+
+    assert NaiveDateTime.compare(
+             first_element.first_inserted_at,
+             item1.inserted_at
+           ) == :eq
+
+    assert NaiveDateTime.compare(
+             first_element.last_inserted_at,
+             item2.inserted_at
+           ) == :eq
+  end
+
+  test "Item.person_with_item_and_timer_count/1 returns a list sorted in ascending order" do
+    {:ok, %{model: _, version: _version}} = Item.create_item(@valid_attrs)
+    {:ok, %{model: _, version: _version}} = Item.create_item(@valid_attrs)
+
+    {:ok, %{model: _, version: _version}} = Item.create_item(@another_person)
+    {:ok, %{model: _, version: _version}} = Item.create_item(@another_person)
+
+    # list person with number of timers and items
+    result = Item.person_with_item_and_timer_count(:person_id)
+
+    assert length(result) == 2
+
+    first_element = Enum.at(result, 0)
+    assert first_element.person_id == 1
+  end
+
+  test "Item.person_with_item_and_timer_count/1 returns a sorted list based on the column" do
+    {:ok, %{model: _, version: _version}} = Item.create_item(@valid_attrs)
+    {:ok, %{model: _, version: _version}} = Item.create_item(@valid_attrs)
+
+    {:ok, %{model: _, version: _version}} = Item.create_item(@another_person)
+    {:ok, %{model: _, version: _version}} = Item.create_item(@another_person)
+
+    # list person with number of timers and items
+    result = Item.person_with_item_and_timer_count(:person_id, :desc)
+
+    assert length(result) == 2
+
+    first_element = Enum.at(result, 0)
+    assert first_element.person_id == 2
+  end
+
+  test "Item.person_with_item_and_timer_count/1 returns a sorted list by person_id if invalid sorted column and order" do
+    {:ok, %{model: _, version: _version}} = Item.create_item(@valid_attrs)
+    {:ok, %{model: _, version: _version}} = Item.create_item(@valid_attrs)
+
+    {:ok, %{model: _, version: _version}} = Item.create_item(@another_person)
+    {:ok, %{model: _, version: _version}} = Item.create_item(@another_person)
+
+    # list person with number of timers and items
+    result =
+      Item.person_with_item_and_timer_count(:invalid_column, :invalid_order)
+
+    assert length(result) == 2
+
+    first_element = Enum.at(result, 0)
+    assert first_element.person_id == 1
+  end
+end
+```
+
+`test/app_web/live/components/table_component_test.exs`
+```elixir
+defmodule AppWeb.TableComponentTest do
+  use AppWeb.ConnCase, async: true
+  alias AppWeb.TableComponent
+  import Phoenix.LiveViewTest
+
+  @column [
+    %{label: "Person Id", key: "person_id"},
+    %{label: "Num Items", key: "num_items"}
+  ]
+
+  test "renders table correctly" do
+    component_rendered =
+      render_component(TableComponent,
+        column: @column,
+        sort_column: :person_id,
+        sort_order: :asc,
+        rows: []
+      )
+
+    assert component_rendered =~ "Person Id"
+    assert component_rendered =~ "Num Items"
+
+    assert component_rendered =~ "person_id"
+    assert component_rendered =~ "num_items"
+
+    assert component_rendered =~ "arrow_up"
+    assert component_rendered =~ "invisible_arrow_up"
+  end
+
+  test "renders table correctly with desc arrow" do
+    component_rendered =
+      render_component(TableComponent,
+        column: @column,
+        sort_column: :person_id,
+        sort_order: :desc,
+        rows: []
+      )
+
+    assert component_rendered =~ "Person Id"
+    assert component_rendered =~ "Num Items"
+
+    assert component_rendered =~ "person_id"
+    assert component_rendered =~ "num_items"
+
+    assert component_rendered =~ "arrow_down"
+    assert component_rendered =~ "invisible_arrow_up"
+  end
+end
+```
+
+`test/app_web/live/stats_live_test.exs`
+```elixir
+defmodule AppWeb.StatsLiveTest do
+  alias App.DateTimeHelper
+  
+  ...
+
+  test "display metrics on mount", %{conn: conn} do
+    ...
+      # Creating one timer
+    started = NaiveDateTime.utc_now()
+    {:ok, timer} = Timer.start(%{item_id: item.id, start: started})
+    {:ok, _} = Timer.stop(%{id: timer.id})
+
+    ...
+
+    # two items and one timer expected
+    assert page_live |> element("td[data-test-id=person_id]") |> render() =~
+             "55"
+
+    assert page_live |> element("td[data-test-id=num_items]") |> render() =~ "2"
+
+    assert page_live |> element("td[data-test-id=num_timers]") |> render() =~
+             "1"
+
+    assert page_live
+           |> element("td[data-test-id=first_inserted_at]")
+           |> render() =~
+             DateTimeHelper.format_date(started)
+
+    assert page_live
+           |> element("td[data-test-id=last_inserted_at]")
+           |> render() =~
+             DateTimeHelper.format_date(started)
+
+    assert page_live
+           |> element("td[data-test-id=total_timers_in_seconds]")
+           |> render() =~
+             ""
+  end
+
+  test "handle broadcast when item is created", %{conn: conn} do
+    ...
+
+    assert render(page_live) =~ "Stats"
+    # num of items
+    assert page_live |> element("td[data-test-id=num_items]") |> render() =~ "1"
+
+    ...
+
+    # num of items
+    assert page_live |> element("td[data-test-id=num_items]") |> render() =~ "2"
+
+    ...
+
+    # num of items
+    assert page_live |> element("td[data-test-id=num_items]") |> render() =~ "2"
+  end
+
+  test "handle broadcast when timer is created", %{conn: conn} do
+    ...
+
+    assert render(page_live) =~ "Stats"
+    # num of timers
+    assert page_live |> element("td[data-test-id=num_timers]") |> render() =~
+             "0"
+    ...
+
+    # num of timers
+    assert page_live |> element("td[data-test-id=num_timers]") |> render() =~
+             "1"
+
+    ...
+
+    # num of timers
+    assert page_live |> element("td[data-test-id=num_timers]") |> render() =~
+             "1"
+  end
+
+  ...
+
+  test "sorting column when clicked", %{conn: conn} do
+    {:ok, %{model: _, version: _version}} =
+      Item.create_item(%{text: "Learn Elixir", status: 2, person_id: 1})
+
+    {:ok, %{model: _, version: _version}} =
+      Item.create_item(%{text: "Learn Elixir", status: 4, person_id: 2})
+
+    {:ok, page_live, _html} = live(conn, "/stats")
+
+    # sort first time
+    result =
+      page_live |> element("th[phx-value-key=person_id]") |> render_click()
+
+    [first_element | _] = Floki.find(result, "td[data-test-id=person_id]")
+
+    assert first_element |> Floki.text() =~ "2"
+
+    # sort second time
+    result =
+      page_live |> element("th[phx-value-key=person_id]") |> render_click()
+
+    [first_element | _] = Floki.find(result, "td[data-test-id=person_id]")
+
+    assert first_element |> Floki.text() =~ "1"
+  end
+end
+```
+
+Let's run the tests:
+```
+mix t
+```
+
+That's it! I'll let the tests file for you to explore and test different cases if you want.
+
+Congratulations!
 
 # 16. `People` in Different Timezones 🌐
 
