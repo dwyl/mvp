@@ -6,9 +6,9 @@ defmodule App.List do
   alias __MODULE__
 
   schema "lists" do
-    field :text, :string
-    field :person_id, :integer
+    field :name, :string
     field :status, :integer
+    field :person_id, :integer
 
     timestamps()
   end
@@ -16,8 +16,8 @@ defmodule App.List do
   @doc false
   def changeset(list, attrs) do
     list
-    |> cast(attrs, [:text, :person_id, :status])
-    |> validate_required([:text, :person_id])
+    |> cast(attrs, [:name, :person_id, :status])
+    |> validate_required([:name, :person_id])
   end
 
   @doc """
@@ -25,10 +25,10 @@ defmodule App.List do
 
   ## Examples
 
-      iex> create_list(%{text: "Personal Todo List"})
+      iex> create_list(%{name: "Personal Todo List"})
       {:ok, %List{}}
 
-      iex> create_list(%{text: nil})
+      iex> create_list(%{name: nil})
       {:error, %Ecto.Changeset{}}
 
   """
@@ -76,66 +76,13 @@ defmodule App.List do
   end
 
   @doc """
-  `get_person_lists/1` gets all lists for a person by `person_id`.
+  `get_lists_for_person/1` gets all lists for a person by `person_id`.
   """
-  def get_person_lists(person_id) do
+  def get_lists_for_person(person_id) do
     List
     |> where(person_id: ^person_id)
     |> Repo.all()
   end
 
-  # Default Lists? discuss: github.com/dwyl/mvp/issues/401
-  @default_lists ~w(all goals fitness meals recipes reading shopping today Todo)
-  @doc """
-  `create_default_lists/1` create the default "All" list
-  for the `person_id` if it does not already exist.
-  """
-  def create_default_lists(person_id) do
-    # Check if the "All" list exists for the person_id
-    lists = get_person_lists(person_id)
-    # Extract just the list.text (name) from the person's lists:
-    list_names = Enum.reduce(lists, [], fn l, acc -> [l.text | acc] end)
-    # Quick check for length of lists:
-    if length(list_names) < length(@default_lists) do
-      create_list_if_not_exists(list_names, person_id)
-      # Re-fetch the list of lists for the person_id
-      get_person_lists(person_id)
-    else
-      # Return the list we got above
-      lists
-    end
-  end
 
-  @doc """
-  `create_list_if_not_exists/1` create the default "All" list
-  for the `person_id` if it does not already exist.
-  """
-  def create_list_if_not_exists(list_names, person_id) do
-    Enum.each(@default_lists, fn name ->
-      # Create the list if it does not already exists
-      unless Enum.member?(list_names, name) do
-        %{text: name, person_id: person_id, status: 2}
-        |> List.create_list()
-      end
-    end)
-  end
-
-  @doc """
-  `get_list_by_text!/2` gets the `list` record by it's `text` attribute.
-  e.g: `get_list_by_text!(42, "Shopping")`
-
-  Raises `Ecto.NoResultsError` if the List does not exist.
-
-  ## Examples
-
-      iex> get_list_by_text!(0, "All")
-      %List{}
-
-      iex> get_list_by_text!(0, "¯\_(ツ)_/¯")
-      ** (Ecto.NoResultsError)
-
-  """
-  def get_list_by_text!(person_id, text) do
-    Repo.get_by(List, text: text, person_id: person_id)
-  end
 end
