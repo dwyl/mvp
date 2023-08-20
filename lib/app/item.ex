@@ -10,11 +10,11 @@ defmodule App.Item do
   @derive {Jason.Encoder,
            except: [:__meta__, :__struct__, :timer, :inserted_at, :updated_at]}
   schema "items" do
-    field(:person_id, :integer)
-    field(:status, :integer)
-    field(:text, :string)
+    field :person_id, :integer
+    field :status, :integer
+    field :text, :string
 
-    has_many(:timer, Timer)
+    has_many :timer, Timer
     many_to_many(:tags, Tag, join_through: ItemTag, on_replace: :delete)
 
     timestamps()
