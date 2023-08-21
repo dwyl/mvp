@@ -1,5 +1,5 @@
 defmodule App.StatsTest do
-  use App.DataCase
+  use App.DataCase, async: true
   alias App.{Item, Stats, Timer}
   doctest Stats
 

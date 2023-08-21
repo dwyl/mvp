@@ -4,7 +4,6 @@ defmodule App.ItemTest do
 
   describe "items" do
     @valid_attrs %{text: "some text", person_id: 1, status: 2}
-    @another_person %{text: "some text", person_id: 2, status: 2}
     @update_attrs %{text: "some updated text", person_id: 1}
     @invalid_attrs %{text: nil}
 
