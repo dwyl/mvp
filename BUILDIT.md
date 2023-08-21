@@ -4887,6 +4887,12 @@ in a simple table.
 Let's roll!
 
 
+> ![NOTE]
+> If you want to see an upgraded version with more columns and sortable columns,
+> do check our [`dwyl/book`](https://dwyl.github.io/book/mvp/20-stats.html).
+> It has a run-through of a different stats page that might interest you 😊.
+
+
 ## 14.1 Adding new `LiveView` page in `/stats`
 
 
