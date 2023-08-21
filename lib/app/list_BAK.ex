@@ -5,31 +5,8 @@
 #   alias PaperTrail
 #   alias __MODULE__
 
-#   schema "lists" do
-#     field :text, :string
-#     field :person_id, :integer
-#     field :status, :integer
-
-#     timestamps()
-#   end
-
-#   @doc false
-#   def changeset(list, attrs) do
-#     list
-#     |> cast(attrs, [:text, :person_id, :status])
-#     |> validate_required([:text, :person_id])
-#   end
 
 
-
-#   @doc """
-#   `get_person_lists/1` gets all lists for a person by `person_id`.
-#   """
-#   def get_person_lists(person_id) do
-#     List
-#     |> where(person_id: ^person_id)
-#     |> Repo.all()
-#   end
 
 #   # Default Lists? discuss: github.com/dwyl/mvp/issues/401
 #   @default_lists ~w(all goals fitness meals recipes reading shopping today Todo)
@@ -65,24 +42,5 @@
 #         |> List.create_list()
 #       end
 #     end)
-#   end
-
-#   @doc """
-#   `get_list_by_text!/2` gets the `list` record by it's `text` attribute.
-#   e.g: `get_list_by_text!(42, "Shopping")`
-
-#   Raises `Ecto.NoResultsError` if the List does not exist.
-
-#   ## Examples
-
-#       iex> get_list_by_text!(0, "All")
-#       %List{}
-
-#       iex> get_list_by_text!(0, "¯\_(ツ)_/¯")
-#       ** (Ecto.NoResultsError)
-
-#   """
-#   def get_list_by_text!(person_id, text) do
-#     Repo.get_by(List, text: text, person_id: person_id)
 #   end
 # end

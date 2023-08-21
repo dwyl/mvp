@@ -53,17 +53,13 @@ defmodule App.ListTest do
       assert Enum.member?(lists_after, recipe_list)
     end
 
-    # test "get_list_by_text!/2 returns the list for the person_id by text" do
-    #   person_id = 4
-
-    #   {:ok, %{model: all_list}} =
-    #     %{name: "all", person_id: person_id, status: 2}
-    #     |> App.List.create_list()
-
-    #   list = App.List.get_list_by_text!(person_id, "all")
-    #   assert list.name == "all"
-    #   assert list.id == all_list.id
-    # end
+    test "get_list_by_name!/2 returns the list by name for the person_id" do
+      person_id = 4
+      %{name: "all", person_id: person_id, status: 2}
+        |> App.List.create_list()
+      list = App.List.get_list_by_name!("all", person_id)
+      assert list.name == "all"
+    end
 
     # test "create_default_lists/1 creates the default lists" do
     #   # Should have no lists:

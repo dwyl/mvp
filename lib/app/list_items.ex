@@ -16,4 +16,33 @@ defmodule App.ListItems do
     |> cast(attrs, [:person_id, :seq])
     |> validate_required([:person_id, :seq])
   end
+
+
+
+
+  @doc """
+  `add_list_item/3` adds an `item` to a `list` for the given `person_id`.
+  """
+  def add_list_item(item, list, person_id) do
+    # Get latest list_items.seq for this list.id and person_id combo.
+
+
+    # Add the `item.id` to the sequence
+    seq = if list.sort == 1 do
+
+
+
+    end
+
+    %ListItem{
+      item: item,
+      list: list,
+      person_id: person_id,
+      position: position
+    }
+    |> changeset()
+    |> Repo.insert()
+  end
+
+
 end

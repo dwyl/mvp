@@ -7,8 +7,9 @@ defmodule App.List do
 
   schema "lists" do
     field :name, :string
-    field :status, :integer
     field :person_id, :integer
+    field :sort, :integer
+    field :status, :integer
 
     timestamps()
   end
@@ -16,7 +17,7 @@ defmodule App.List do
   @doc false
   def changeset(list, attrs) do
     list
-    |> cast(attrs, [:name, :person_id, :status])
+    |> cast(attrs, [:name, :person_id, :sort, :status])
     |> validate_required([:name, :person_id])
   end
 
@@ -82,6 +83,25 @@ defmodule App.List do
     List
     |> where(person_id: ^person_id)
     |> Repo.all()
+  end
+
+  @doc """
+  `get_list_by_name!/2` gets the `list` record by it's `name` attribute.
+  e.g: `get_list_by_name!("shopping", 42)`
+
+  Raises `Ecto.NoResultsError` if the List does not exist.
+
+  ## Examples
+
+      iex> get_list_by_name!("all", 1)
+      %List{}
+
+      iex> get_list_by_name!("¯\_(ツ)_/¯", 0)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_list_by_name!(name, person_id) do
+    Repo.get_by(List, name: name, person_id: person_id)
   end
 
 

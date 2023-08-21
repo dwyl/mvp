@@ -15,26 +15,26 @@
 #     timestamps()
 #   end
 
-#   @doc false
-#   def changeset(list_item) do
-#     list_item
-#     |> cast(Map.from_struct(list_item), [:person_id, :position])
-#     |> validate_required([:person_id])
-#   end
+  @doc false
+  def changeset(list_item) do
+    list_item
+    |> cast(Map.from_struct(list_item), [:person_id, :position])
+    |> validate_required([:person_id])
+  end
 
-#   @doc """
-#   `add_list_item/4` adds an `item` to a `list` for the given `person_id`.
-#   """
-#   def add_list_item(item, list, person_id, position) do
-#     %ListItem{
-#       item: item,
-#       list: list,
-#       person_id: person_id,
-#       position: position
-#     }
-#     |> changeset()
-#     |> Repo.insert()
-#   end
+  @doc """
+  `add_list_item/4` adds an `item` to a `list` for the given `person_id`.
+  """
+  def add_list_item(item, list, person_id, position) do
+    %ListItem{
+      item: item,
+      list: list,
+      person_id: person_id,
+      position: position
+    }
+    |> changeset()
+    |> Repo.insert()
+  end
 
 #   @doc """
 #   `add_item_to_all_list/1` adds the `item` the "all" `list` for `person_id`.

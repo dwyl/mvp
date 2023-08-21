@@ -5,6 +5,7 @@ defmodule App.Repo.Migrations.CreateLists do
     create table(:lists) do
       add :name, :string
       add :person_id, :integer
+      add :sort, :integer
       add :status, :integer
 
       timestamps()
