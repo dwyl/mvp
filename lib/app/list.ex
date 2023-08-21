@@ -103,6 +103,4 @@ defmodule App.List do
   def get_list_by_name!(name, person_id) do
     Repo.get_by(List, name: name, person_id: person_id)
   end
-
-
 end

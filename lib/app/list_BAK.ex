@@ -5,9 +5,6 @@
 #   alias PaperTrail
 #   alias __MODULE__
 
-
-
-
 #   # Default Lists? discuss: github.com/dwyl/mvp/issues/401
 #   @default_lists ~w(all goals fitness meals recipes reading shopping today Todo)
 #   @doc """

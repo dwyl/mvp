@@ -18,6 +18,33 @@ defmodule App.ListItems do
   end
 
 
+    @doc """
+    `get_list_items/2` retrieves the *latest* `list_items` record for a given `list_id`.
+    """
+    def get_list_item_position(item_id, list_id) do
+      # IO.inspect("get_list_item_position | item_id: #{item_id} #{Useful.typeof(item_id)} | list_id: #{list_id} #{Useful.typeof(list_id)}")
+      item_id =
+        if Useful.typeof(item_id) == "binary" do
+          {int, _} = Integer.parse(item_id)
+          int
+        else
+          item_id
+        end
+
+      sql = """
+      SELECT li.position
+      FROM list_items li
+      WHERE li.item_id = $1
+      AND li.list_id = $2
+      ORDER BY li.inserted_at DESC
+      LIMIT 1
+      """
+
+      result = Ecto.Adapters.SQL.query!(Repo, sql, [item_id, list_id])
+      # dbg(result)
+      result.rows |> List.first() |> List.first()
+    end
+
 
 
   @doc """
