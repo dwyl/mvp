@@ -77,6 +77,10 @@ defmodule App.Stats do
 
       iex> App.Stats.validate_sort_column(:invalid)
       false
+
+      # Avoid ";" character used SQL Injection: e.g: "; DROP TABLE items"
+      iex> App.Stats.validate_sort_column(";")
+      false
   """
   def validate_sort_column(column) do
     Enum.member?(
@@ -94,6 +98,10 @@ defmodule App.Stats do
       true
 
       iex> App.Stats.validate_order(:invalid)
+      false
+
+      # Avoid common SQL injection attacks:
+      iex> App.Stats.validate_order("OR 1=1")
       false
   """
   def validate_order(order) do
