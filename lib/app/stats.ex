@@ -7,17 +7,17 @@ defmodule App.Stats do
   sorted by column and order
   Used mainly for metric-tracking purposes.
 
-  ## Examples
+  ## Sample:
 
-  iex> person_with_item_and_timer_count()
+  App.Stats.person_with_item_and_timer_count()
   [
-    %{name: nil, num_items: 3, num_timers: 8, person_id: 0}
-    %{name: username, num_items: 1, num_timers: 3, person_id: 1}
+    %{name: nil, num_items: 3, num_timers: 8, person_id: 0},
+    %{name: "username", num_items: 1, num_timers: 3, person_id: 1}
   ]
 
-  iex> person_with_item_and_timer_count(:person_id, :desc)
+  App.Stats.person_with_item_and_timer_count(:person_id, :desc)
   [
-    %{name: username, num_items: 1, num_timers: 3, person_id: 1}
+    %{name: "username", num_items: 1, num_timers: 3, person_id: 1},
     %{name: nil, num_items: 3, num_timers: 8, person_id: 0}
   ]
   """
@@ -66,16 +66,37 @@ defmodule App.Stats do
     end)
   end
 
-  # validates the items columns to make sure it's a valid column passed
-  defp validate_sort_column(column) do
+  @doc """
+  `validate_sort_column/1` validates the column name is in items columns
+  to make sure it's a valid column passed.
+
+  ## Examples
+
+      iex> App.Stats.validate_sort_column("person_id")
+      true
+
+      iex> App.Stats.validate_sort_column(:invalid)
+      false
+  """
+  def validate_sort_column(column) do
     Enum.member?(
       ~w(person_id num_items num_timers first_inserted_at last_inserted_at total_timers_in_seconds),
       column
     )
   end
 
-  # validates the order SQL to make sure it's a valid asc or desc
-  defp validate_order(order) do
+  @doc """
+  `validate_order/1` validates the ordering is one of `asc` or `desc`
+
+  ## Examples
+
+      iex> App.Stats.validate_order("asc")
+      true
+
+      iex> App.Stats.validate_order(:invalid)
+      false
+  """
+  def validate_order(order) do
     Enum.member?(
       ~w(asc desc),
       order

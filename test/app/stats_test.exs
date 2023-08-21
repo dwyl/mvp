@@ -1,6 +1,7 @@
 defmodule App.StatsTest do
   use App.DataCase
   alias App.{Item, Stats, Timer}
+  doctest Stats
 
   @valid_attrs %{text: "some text", person_id: 1, status: 2}
   @another_person %{text: "some text", person_id: 2, status: 2}
@@ -77,6 +78,10 @@ defmodule App.StatsTest do
 
     first_element = Enum.at(result, 0)
     assert first_element.person_id == 2
+  end
+
+  test "Stats.validate_sort_column/1 returns false for invalid sort_column" do
+    refute Stats.validate_sort_column(:invalid)
   end
 
   test "Stats.person_with_item_and_timer_count/1 returns a sorted list by person_id if invalid sorted column and order" do
