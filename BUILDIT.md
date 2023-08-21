@@ -113,14 +113,14 @@ With that in place, let's get building!
   - [14.3 Building the Stats Page](#143-building-the-stats-page)
   - [14.4 Broadcasting to `stats` channel](#144-broadcasting-to-stats-channel)
   - [14.5 Adding tests](#145-adding-tests)
-- [16. `People` in Different Timezones 🌐](#16-people-in-different-timezones-)
-  - [16.1 Getting the `person`'s Timezone](#161-getting-the-persons-timezone)
-  - [16.2 Changing how the timer datetime is displayed](#162-changing-how-the-timer-datetime-is-displayed)
-  - [16.3 Persisting the adjusted timezone](#163-persisting-the-adjusted-timezone)
-  - [16.4 Adding test](#164-adding-test)
-- [17. Run the _Finished_ MVP App!](#17-run-the-finished-mvp-app)
-  - [17.1 Run the Tests](#171-run-the-tests)
-  - [17.2 Run The App](#172-run-the-app)
+- [15. `People` in Different Timezones 🌐](#15-people-in-different-timezones-)
+  - [15.1 Getting the `person`'s Timezone](#151-getting-the-persons-timezone)
+  - [15.2 Changing how the timer datetime is displayed](#152-changing-how-the-timer-datetime-is-displayed)
+  - [15.3 Persisting the adjusted timezone](#153-persisting-the-adjusted-timezone)
+  - [15.4 Adding test](#154-adding-test)
+- [16. Run the _Finished_ MVP App!](#16-run-the-finished-mvp-app)
+  - [16.1 Run the Tests](#161-run-the-tests)
+  - [16.2 Run The App](#162-run-the-app)
 - [Thanks!](#thanks)
 
 
@@ -5369,7 +5369,7 @@ when creating `timers` or `items`.
 ![stats_final](https://user-images.githubusercontent.com/17494745/211345854-c541d21c-4289-4576-8fcf-c3b89251ed02.gif)
 
 
-# 16. `People` in Different Timezones 🌐
+# 15. `People` in Different Timezones 🌐
 
 Our application works not only for ourselves
 but in a *collaborative environment*. 
@@ -5417,7 +5417,7 @@ the value of the `Datetime` of the `timer`
 *wouldn't make sense to you*.
 
 
-## 16.1 Getting the `person`'s Timezone
+## 15.1 Getting the `person`'s Timezone
 
 The easiest way to solve this is
 to only change how the `timers` are displayed
@@ -5497,7 +5497,7 @@ But before that,
 let's adjust how it is *displayed to the person*.
 
 
-## 16.2 Changing how the timer datetime is displayed
+## 15.2 Changing how the timer datetime is displayed
 
 Open `lib/app_web/live/app_live.html.heex`
 and locate the line
@@ -5546,7 +5546,7 @@ please check
 [`lib/app_web/live/app_live.html.heex`](https://github.com/dwyl/mvp/blob/63d98958be8f858e6ebcd063fa022bb59964b612/lib/app_web/live/app_live.html.heex#L326-L341).
 
 
-## 16.3 Persisting the adjusted timezone
+## 15.3 Persisting the adjusted timezone
 
 Now that we are displaying the correct timezones,
 we need to make sure the adjusted updated timer
@@ -5677,7 +5677,7 @@ please check
 [`lib/app_web/live/app_live.ex`](https://github.com/dwyl/mvp/blob/63d98958be8f858e6ebcd063fa022bb59964b612/lib/app_web/live/app_live.ex#L218).
 
 
-## 16.4 Adding test
+## 15.4 Adding test
 
 Let's add a test case that will check if the datetime 
 is shown with an offset that is mocked during testing.
@@ -5775,11 +5775,11 @@ we expect the persisted value to be
 one hour *less* than what the person inputted. 
 
 
-# 17. Run the _Finished_ MVP App!
+# 16. Run the _Finished_ MVP App!
 
 With all the code saved, let's run the tests one more time.
 
-## 17.1 Run the Tests
+## 16.1 Run the Tests
 
 In your terminal window, run: 
 
@@ -5808,7 +5808,7 @@ COV    FILE                                        LINES RELEVANT   MISSED
 All tests pass and we have **`100%` Test Coverage**.
 This reminds us just how few _relevant_ lines of code there are in the MVP!
 
-## 17.2 Run The App
+## 16.2 Run The App
 
 In your second terminal tab/window, run:
 
