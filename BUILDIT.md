@@ -4255,7 +4255,7 @@ We will do this shortly!
 But first, let's implement `Item.person_with_item_and_timer_count()`.
 
 
-In `lib/app/item.ex`,
+In `lib/app/stats.ex`,
 add the following function.
 
 ```elixir
@@ -4572,7 +4572,7 @@ The *last* thing we need to do
 is to add a test for the `person_with_item_and_timer_count/0`
 function that was implemented inside `lib/app/item.ex`.
 
-Open `test/app/item_test.exs`
+Open `test/app/stats_test.exs`
 and add this test.
 
 ```elixir
@@ -4613,6 +4613,10 @@ you should see `/stats` being updated **live**
 when creating `timers` or `items`.
 
 ![stats_final](https://user-images.githubusercontent.com/17494745/211345854-c541d21c-4289-4576-8fcf-c3b89251ed02.gif)
+
+
+> **Note**: more stats docs in: 
+[dwyl.github.io/book/mvp/stats](https://dwyl.github.io/book/mvp/20-stats.html)
 
 # 13. Tracking changes of `items` in database
 
