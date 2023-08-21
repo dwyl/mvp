@@ -5829,7 +5829,7 @@ where the newest is on top; no ordering.
 `people` that tested the `MVP`
 noted that the ability to **reorder `items`**
 was an **_essential_ feature**:
-[dwyl/mvp**#145**](https://github.com/dwyl/mvp/issues/145)
+[dwyl/mvp#145](https://github.com/dwyl/mvp/issues/145)
 
 So in this step we are going to 
 add the ability to organize `items`.

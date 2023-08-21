@@ -1,14 +1,35 @@
 defmodule App.ListItemsTest do
   use App.DataCase, async: true
-  alias App.{Item, List, ListItem}
+  alias App.{Item, List, ListItems}
 
   describe "add items to list" do
-    @valid_item_attrs %{text: "some text", person_id: 1, status: 2}
-    @valid_list_attrs %{name: "some list", person_id: 1, sort: 1, status: 2}
+    @person_id 1
+    @valid_item_attrs %{text: "some text", person_id: @person_id, status: 2}
+    @valid_list_attrs %{name: "some list", person_id: @person_id, sort: 1, status: 2}
 
-    test "add_list_item/3 adds an item to the list for the person_id" do
+
+
+    test "get_list_items/1 retrieves the list of items (seq) from list_items for the list_id" do
+      # No list No list_items:
+      assert App.ListItems.get_list_items(0) == []
+
+      # Create an item
+      assert {:ok, %{model: item}} = Item.create_item(@valid_item_attrs)
+      # Create list
+      assert {:ok, %{model: list}} = List.create_list(@valid_list_attrs)
+
+      # add the item to the lists_items:
+      ListItems.add_list_item(item, list, @person_id)
+
+      # Confirm the item.id is in the list_items.seq:
+      assert Enum.member?(ListItems.get_list_items(list.id), "#{item.id}")
+
 
     end
+
+    # test "add_list_item/3 adds an item to the list for the person_id" do
+
+    # end
 
     # test "add_list_item/3 adds an item to a list" do
     #   # Create an item

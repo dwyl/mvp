@@ -22,9 +22,9 @@ defmodule AppWeb.AppLive do
 
     person_id = get_person_id(socket.assigns)
     # Create the Default List
-    lists = App.List.create_default_lists(person_id)
+    # lists = App.List.create_default_lists(person_id)
     # Temporary function to add All *existing* items to the "All" list:
-    App.ListItem.add_items_to_all_list(person_id)
+    # App.ListItem.add_items_to_all_list(person_id)
 
     items = Item.items_with_timers(person_id)
     tags = Tag.list_person_tags(person_id)
@@ -38,7 +38,7 @@ defmodule AppWeb.AppLive do
        editing: nil,
        filter: "active",
        filter_tag: nil,
-       lists: lists,
+      #  lists: lists,
        tags: tags,
        selected_tags: selected_tags,
        text_value: draft_item.text || "",
@@ -61,7 +61,7 @@ defmodule AppWeb.AppLive do
   def handle_event("create", %{"text" => text}, socket) do
     person_id = get_person_id(socket.assigns)
 
-    {:ok, %{model: item}} =
+    {:ok, %{model: _item}} =
       Item.create_item_with_tags(%{
         text: text,
         person_id: person_id,
@@ -70,7 +70,7 @@ defmodule AppWeb.AppLive do
       })
 
     # Add this newly created `item` to the "All" list:
-    App.ListItem.add_item_to_all_list(item)
+    # App.ListItem.add_item_to_all_list(item)
 
     draft = Item.get_draft_item(person_id)
     Item.update_draft(draft, %{text: ""})
