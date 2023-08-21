@@ -1,7 +1,7 @@
 defmodule AppWeb.StatsLive do
   require Logger
   use AppWeb, :live_view
-  alias App.{Item, DateTimeHelper}
+  alias App.{Stats, DateTimeHelper}
   alias Phoenix.Socket.Broadcast
 
   # run authentication on mount
@@ -17,7 +17,7 @@ defmodule AppWeb.StatsLive do
     if connected?(socket), do: AppWeb.Endpoint.subscribe(@stats_topic)
 
     person_id = get_person_id(socket.assigns)
-    metrics = Item.person_with_item_and_timer_count()
+    metrics = Stats.person_with_item_and_timer_count()
 
     {:ok,
      assign(socket,
@@ -79,7 +79,7 @@ defmodule AppWeb.StatsLive do
         :asc
       end
 
-    metrics = Item.person_with_item_and_timer_count(sort_column, sort_order)
+    metrics = Stats.person_with_item_and_timer_count(sort_column, sort_order)
 
     {:noreply,
      assign(socket,
