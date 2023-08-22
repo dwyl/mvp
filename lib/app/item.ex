@@ -220,23 +220,21 @@ defmodule App.Item do
   """
   #
   def items_with_timers(person_id \\ 0) do
-
+    all_list = App.List.get_all_list_for_person(person_id)
+    item_ids = App.ListItems.get_list_items(all_list.id)
     sql = """
-    SELECT i.id, i.text, i.status, i.person_id,
-      t.start, t.stop, t.id as timer_id,
-      li.id as li_id, li.position, li.list_id, li.inserted_at
+    SELECT i.id, i.text, i.status, i.person_id, i.updated_at,
+      t.start, t.stop, t.id as timer_id
     FROM items i
     FULL JOIN timers AS t ON t.item_id = i.id
-    FULL JOIN list_items AS li ON li.item_id = i.id
-    WHERE i.person_id = $1
+    WHERE i.id IN ($1)
     AND i.status IS NOT NULL
     AND i.text IS NOT NULL
-    AND li.position != 999999.999
     ORDER BY timer_id ASC;
     """
 
     values =
-      Ecto.Adapters.SQL.query!(Repo, sql, [person_id])
+      Ecto.Adapters.SQL.query!(Repo, sql, [item_ids])
       |> map_columns_to_values()
 
     items_tags =

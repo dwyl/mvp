@@ -73,24 +73,10 @@ if env == :test || env == :dev do
   {:ok, _timer1} =
     Timer.start(%{item_id: item0.id, person_id: person_id, start: started})
 
-  # List!
-  # list1_data = %{text: "Shopping", person_id: person_id, status: 2}
-  # {:ok, %{model: list1, version: _version}} = List.create_list(list1_data)
+  # Create "all"" List!
+  {:ok, %{model: _all_list}} =
+    App.List.create_list(%{name: "all", person_id: person_id, status: 2})
 
-  # list2_data = %{text: "Meals", person_id: person_id, status: 2}
-  # {:ok, %{model: list2, version: _version}} = List.create_list(list2_data)
-
-  # # Add items to lists:
-  # {:ok, _list_item} = ListItem.add_list_item(item1, list1, person_id, 1.0)
-  # {:ok, _list_item} = ListItem.add_list_item(item2, list2, person_id, 1.0)
-  # {:ok, _list_item} = ListItem.add_list_item(item3, list2, person_id, 1.0)
-  # {:ok, _list_item} = ListItem.add_list_item(item4, list1, person_id, 1.0)
-
-  # Create Default Lists
-  # App.List.create_default_lists(person_id)
-  # App.ListItem.add_items_to_all_list(person_id)
-  # Re-order items:
-
-  # Remove "Go to Shops" from list1:
-  # ListItem.remove_list_item(item4, list1, person_id)
+  # Add items to lists:
+  App.ListItems.add_all_items_to_all_list_for_person_id(person_id)
 end

@@ -4,12 +4,12 @@ defmodule App.ListItemsTest do
 
   describe "add items to list" do
     @person_id 1
-    @valid_item_attrs %{text: "some text", person_id: @person_id, status: 2}
-    @valid_list_attrs %{name: "some list", person_id: @person_id, sort: 1, status: 2}
+    @valid_item_attrs %{text: "do 20 pushups", person_id: @person_id, status: 2}
+    @valid_list_attrs %{name: "Health", person_id: @person_id, sort: 1, status: 2}
 
 
 
-    test "get_list_items/1 retrieves the list of items (seq) from list_items for the list_id" do
+    test "add_list_item/3 adds a list_item & get_list_items/1 retrieves the list of items (seq)" do
       # No list No list_items:
       assert App.ListItems.get_list_items(0) == []
 
@@ -19,18 +19,12 @@ defmodule App.ListItemsTest do
       assert {:ok, %{model: list}} = List.create_list(@valid_list_attrs)
 
       # add the item to the lists_items:
-      ListItems.add_list_item(item, list, @person_id)
+      ListItems.add_list_item(item.id, list.id, @person_id)
 
       # Confirm the item.id is in the list_items.seq:
-      assert Enum.member?(ListItems.get_list_items(list.id), "#{item.id}")
-
-
+      seq = ListItems.get_list_items(list.id)
+      assert Enum.member?(seq, "#{item.id}")
     end
-
-    # test "add_list_item/3 adds an item to the list for the person_id" do
-
-    # end
-
 
     test "add_all_items_to_all_list_for_person_id/2 adds all items to all list for person_id" do
       person_id = 42
@@ -45,7 +39,7 @@ defmodule App.ListItemsTest do
       assert {:ok, %{model: all_list}} =
         List.create_list(%{name: "all", person_id: person_id, status: 2})
       # Invoke the biz logic:
-      App.ListItems.add_all_items_to_all_list_for_person_id(all_list.id, person_id)
+      App.ListItems.add_all_items_to_all_list_for_person_id(person_id)
 
       # Confirm that the item.id is in the squence of item ids for the "all" list:
       all_items_seq = ListItems.get_list_items(all_list.id)
