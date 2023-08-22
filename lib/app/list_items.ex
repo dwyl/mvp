@@ -62,6 +62,30 @@ defmodule App.ListItems do
       seq: seq
     })
     |> Repo.insert()
+  end
 
+
+  @doc """
+  `add_all_items_to_all_list_for_person_id/1` does *exactly* what its' name suggests.
+  Adds *all* the person's `items` to the `list_items.seq` for the given `list_id`.
+  """
+  def add_all_items_to_all_list_for_person_id(list_id, person_id) do
+    # IO.inspect("add_all_items_to_all_list_for_person_id(list_id: #{list_id}, person_id: #{person_id})")
+    all_items = App.Item.all_items_for_person(person_id)
+    # The previous sequence of items if there is any:
+    prev_seq = get_list_items(list_id)
+    # Add add each `item.id` to the sequence of item ids:
+    seq = Enum.reduce(all_items, prev_seq, fn i, acc ->
+      [i.id | acc]
+    end)
+    |> Enum.join(",")
+
+    %ListItems{}
+    |> changeset(%{
+      list_id: list_id,
+      person_id: person_id,
+      seq: seq
+    })
+    |> Repo.insert()
   end
 end

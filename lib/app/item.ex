@@ -220,6 +220,7 @@ defmodule App.Item do
   """
   #
   def items_with_timers(person_id \\ 0) do
+
     sql = """
     SELECT i.id, i.text, i.status, i.person_id,
       t.start, t.stop, t.id as timer_id,

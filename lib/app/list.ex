@@ -103,4 +103,31 @@ defmodule App.List do
   def get_list_by_name!(name, person_id) do
     Repo.get_by(List, name: name, person_id: person_id)
   end
+
+  @doc """
+  get_all_list_for_person()
+  """
+  def get_all_list_for_person(person_id) do
+    all_list = get_list_by_name!("all", person_id)
+    dbg(all_list)
+
+    all_list = if all_list == nil do
+      # doesn't exist, create it:
+      {:ok, %{model: list}} = create_list(%{name: "all", person_id: person_id, status: 2})
+
+      # add all items to the newly created list:
+
+      # return the list:
+      list
+    end
+
+    dbg(all_list)
+  end
+
+
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+  # Below this point is Lists transition code that will be DELETED! #
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+
 end

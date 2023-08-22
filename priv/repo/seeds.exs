@@ -9,7 +9,8 @@ if not Envar.is_set?("AUTH_API_KEY") do
   Envar.load(".env")
 end
 
-alias App.{Repo, Item, Tag, Timer, ItemTag} #, List, ListItems}
+# , List, ListItems}
+alias App.{Repo, Item, Tag, Timer, ItemTag}
 env = Application.fetch_env!(:app, :env)
 
 if env == :test || env == :dev do

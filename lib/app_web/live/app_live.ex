@@ -38,7 +38,7 @@ defmodule AppWeb.AppLive do
        editing: nil,
        filter: "active",
        filter_tag: nil,
-      #  lists: lists,
+       #  lists: lists,
        tags: tags,
        selected_tags: selected_tags,
        text_value: draft_item.text || "",

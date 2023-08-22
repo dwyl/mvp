@@ -31,6 +31,30 @@ defmodule App.ListItemsTest do
 
     # end
 
+
+    test "add_all_items_to_all_list_for_person_id/2 adds all items to all list for person_id" do
+      person_id = 42
+      # create an item for the person but do NOT add it to any list:
+      assert {:ok, %{model: item1}} =
+          Item.create_item(%{text: "buy land!", person_id: person_id, status: 2})
+      assert {:ok, %{model: item2}} =
+        Item.create_item(%{text: "plant trees & food", person_id: person_id, status: 2})
+      assert {:ok, %{model: item3}} =
+          Item.create_item(%{text: "live best life", person_id: person_id, status: 2})
+
+      assert {:ok, %{model: all_list}} =
+        List.create_list(%{name: "all", person_id: person_id, status: 2})
+      # Invoke the biz logic:
+      App.ListItems.add_all_items_to_all_list_for_person_id(all_list.id, person_id)
+
+      # Confirm that the item.id is in the squence of item ids for the "all" list:
+      all_items_seq = ListItems.get_list_items(all_list.id)
+      assert Enum.member?(all_items_seq, "#{item1.id}")
+      assert Enum.member?(all_items_seq, "#{item2.id}")
+      assert Enum.member?(all_items_seq, "#{item3.id}")
+    end
+
+
     # test "add_list_item/3 adds an item to a list" do
     #   # Create an item
     #   assert {:ok, %{model: item, version: _version}} =
