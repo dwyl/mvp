@@ -7,8 +7,6 @@ defmodule App.ListItemsTest do
     @valid_item_attrs %{text: "do 20 pushups", person_id: @person_id, status: 2}
     @valid_list_attrs %{name: "Health", person_id: @person_id, sort: 1, status: 2}
 
-
-
     test "add_list_item/3 adds a list_item & get_list_items/1 retrieves the list of items (seq)" do
       # No list No list_items:
       assert App.ListItems.get_list_items(0) == []
@@ -26,7 +24,7 @@ defmodule App.ListItemsTest do
       assert Enum.member?(seq, "#{item.id}")
     end
 
-    test "add_all_items_to_all_list_for_person_id/2 adds all items to all list for person_id" do
+    test "add_all_items_to_all_list_for_person_id/1 adds all items to all list for person_id" do
       person_id = 42
       # create an item for the person but do NOT add it to any list:
       assert {:ok, %{model: item1}} =

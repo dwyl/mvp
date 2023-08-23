@@ -108,22 +108,17 @@ defmodule App.List do
   get_all_list_for_person/1 gets or creates the "all" list for a given `person_id`
   """
   def get_all_list_for_person(person_id) do
+    # IO.inspect("get_all_list_for_person(person_id: #{person_id})")
     all_list = get_list_by_name!("all", person_id)
-    dbg(all_list)
-
-    all_list =
-      if all_list == nil do
-        # doesn't exist, create it:
-        {:ok, %{model: list}} =
-          create_list(%{name: "all", person_id: person_id, status: 2})
-
-        # add all items to the newly created list:
-
-        # return the list:
-        list
-      end
-
-    dbg(all_list)
+    # dbg(all_list)
+    if all_list == nil do
+      # doesn't exist, create it:
+      {:ok, %{model: list}} =
+        create_list(%{name: "all", person_id: person_id, status: 2})
+      list
+    else
+      all_list
+    end
   end
 
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #

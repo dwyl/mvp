@@ -221,20 +221,24 @@ defmodule App.Item do
   #
   def items_with_timers(person_id \\ 0) do
     all_list = App.List.get_all_list_for_person(person_id)
-    item_ids = App.ListItems.get_list_items(all_list.id)
+    item_ids = App.ListItems.get_list_items(all_list.id) |> Enum.join(",")
+    dbg(item_ids)
+
     sql = """
     SELECT i.id, i.text, i.status, i.person_id, i.updated_at,
       t.start, t.stop, t.id as timer_id
     FROM items i
     FULL JOIN timers AS t ON t.item_id = i.id
-    WHERE i.id IN ($1)
+    WHERE i.id IN (string_to_array($1, ',')::bigint[])
     AND i.status IS NOT NULL
     AND i.text IS NOT NULL
     ORDER BY timer_id ASC;
     """
+    # That Voodoo is: https://stackoverflow.com/a/45304949/1148249
 
+    IO.inspect(sql)
     values =
-      Ecto.Adapters.SQL.query!(Repo, sql, [item_ids])
+      Ecto.Adapters.SQL.query!(Repo, sql, [all_list.id])
       |> map_columns_to_values()
 
     items_tags =

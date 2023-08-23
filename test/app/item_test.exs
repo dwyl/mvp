@@ -181,9 +181,6 @@ defmodule App.ItemTest do
     test "Item.items_with_timers/1 returns a list of items with timers" do
       {:ok, %{model: item1, version: _version}} = Item.create_item(@valid_attrs)
       {:ok, %{model: item2, version: _version}} = Item.create_item(@valid_attrs)
-      # Item must be on a list ...
-      # App.List.create_default_lists(1)
-      # App.ListItem.add_item_to_all_list(item1)
 
       assert Item.get_item!(item1.id).text == item1.text
 
@@ -202,6 +199,8 @@ defmodule App.ItemTest do
 
       assert NaiveDateTime.diff(timer1.start, started) == 0
 
+      # Item must be on a list ...
+      App.ListItems.add_all_items_to_all_list_for_person_id(item1.person_id)
       # list items with timers:
       item_timers = Item.items_with_timers(1)
       assert length(item_timers) > 0

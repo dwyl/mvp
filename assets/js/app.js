@@ -40,7 +40,7 @@ Hooks.Items = {
       // Check if both "from" and "to" are defined
       if(item_id && itemId_to && item_id != itemId_to) {
         hook.pushEventTo("#items", "updateIndexes", 
-          {item_id: item_id, list_ids: list_ids})
+          {seq: list_ids})
       }
       
       itemId_to = null;
@@ -58,7 +58,7 @@ function get_list_item_ids() {
   const lis = document.querySelectorAll("label[phx-value-id]");
   return Object.values(lis).map(li => {
     return li.attributes["phx-value-id"].nodeValue
-  }).join(" ")
+  }).join(",")
 }
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")

@@ -88,7 +88,7 @@ defmodule AppWeb.AppLiveTest do
     {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
 
-    App.ListItem.add_item_to_all_list(item)
+      App.ListItems.add_all_items_to_all_list_for_person_id(item.person_id)
 
     send(view.pid, %Broadcast{
       event: "update",
@@ -104,7 +104,7 @@ defmodule AppWeb.AppLiveTest do
     {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
 
-    App.ListItem.add_item_to_all_list(item)
+      App.ListItems.add_all_items_to_all_list_for_person_id(item.person_id)
 
     {:ok, now} = NaiveDateTime.new(Date.utc_today(), Time.utc_now())
 
@@ -135,7 +135,7 @@ defmodule AppWeb.AppLiveTest do
     {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
 
-    App.ListItem.add_item_to_all_list(item)
+      App.ListItems.add_all_items_to_all_list_for_person_id(item.person_id)
 
     {:ok, seven_seconds_ago} =
       NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
@@ -164,7 +164,7 @@ defmodule AppWeb.AppLiveTest do
     {:ok, %{model: item, version: _version}} =
       Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
 
-    App.ListItem.add_item_to_all_list(item)
+      App.ListItems.add_all_items_to_all_list_for_person_id(item.person_id)
 
     render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
 
@@ -828,11 +828,9 @@ defmodule AppWeb.AppLiveTest do
       Item.create_item(%{ text: "Profit", person_id: person_id})
 
     # Create "all" list for this person_id:
-    App.List.create_default_lists(person_id)
+    list = App.List.get_all_list_for_person(person_id)
     # Add all items to "all" list:
-    App.ListItem.add_items_to_all_list(person_id)
-    # Get "all" list for this person_id
-    list = App.List.get_list_by_text!(person_id, "all")
+    App.ListItems.add_all_items_to_all_list_for_person_id(person_id)
 
     # Render LiveView
     {:ok, view, _html} = live(conn, "/")
@@ -853,18 +851,22 @@ defmodule AppWeb.AppLiveTest do
 
     # Switch items (update indexes)
     render_hook(view, "updateIndexes", %{
-      "item_id" => item.id,
-      "list_ids" => "#{item.id} #{item2.id} #{item3.id}"
+      "sec" => "#{item.id},#{item2.id},#{item3.id}"
     })
 
-    pos1 = App.ListItem.get_list_item_position(item.id, list.id)
-    pos2 = App.ListItem.get_list_item_position(item2.id, list.id)
+    sec = App.ListItems.get_list_items(list.id)
+    dbg(sec)
+
+    {pos1, _} = :binary.match sec, "#{item.id}"
+    {pos2, _} = :binary.match sec, "#{item2.id}"
     assert pos1 < pos2
 
-    # Move item3 to second in the list:
-    App.ListItem.move_item(item3.id, "#{item.id} #{item3.id} #{item2.id}")
-
-    pos3 = App.ListItem.get_list_item_position(item.id, list.id)
+    # Update list_item.seq:
+    App.ListItems.create_list_items_seq(list.id, person_id, "#{item.id},#{item3.id},#{item2.id}")
+    new_sec = App.ListItems.get_list_items(list.id)
+    dbg(new_sec)
+    {pos2, _} = :binary.match new_sec, "#{item2.id}"
+    {pos3, _} = :binary.match new_sec, "#{item3.id}"
     assert pos3 < pos2
   end
 

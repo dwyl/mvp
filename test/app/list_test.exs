@@ -64,12 +64,9 @@ defmodule App.ListTest do
       assert list.name == "all"
     end
 
-    test "get_all_list_for_person retrieves (or creates) the 'all' list for that person_id" do
-      # create an item for the person but don't add it to a list:
-      assert {:ok, %{model: item}} = App.Item.create_item(@valid_item_attrs)
-      dbg(item)
-
-      App.List.get_all_list_for_person(@person_id)
+    test "get_all_list_for_person retrieves (or creates) the 'all' list for person_id" do
+      all_list = App.List.get_all_list_for_person(@person_id)
+      assert all_list.name == "all"
     end
 
     # test "create_default_lists/1 creates the default lists" do
