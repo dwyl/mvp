@@ -13,8 +13,11 @@ defmodule AppWeb.AppLive do
   @stats_topic "stats"
 
   defp get_person_id(assigns), do: assigns[:person][:id] || 0
-  defp get_list_id(assigns), do: assigns[:list_id] ||
-    App.List.get_all_list_for_person(get_person_id(assigns))
+
+  defp get_list_id(assigns),
+    do:
+      assigns[:list_id] ||
+        App.List.get_all_list_for_person(get_person_id(assigns))
 
   @impl true
   def mount(_params, _session, socket) do
@@ -304,9 +307,11 @@ defmodule AppWeb.AppLive do
       ) do
     list_id = get_list_id(socket.assigns)
     person_id = get_person_id(socket.assigns)
+
     IO.puts(
       "updateIndexes -> seq: #{seq} | list_id: #{list_id} | person_id: #{person_id}"
     )
+
     App.ListItems.create_list_items_seq(list_id, person_id, seq)
     {:noreply, socket}
   end

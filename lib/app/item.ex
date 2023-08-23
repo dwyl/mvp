@@ -234,9 +234,11 @@ defmodule App.Item do
     AND i.text IS NOT NULL
     ORDER BY timer_id ASC;
     """
+
     # That Voodoo is: https://stackoverflow.com/a/45304949/1148249
 
     IO.inspect(sql)
+
     values =
       Ecto.Adapters.SQL.query!(Repo, sql, [all_list.id])
       |> map_columns_to_values()

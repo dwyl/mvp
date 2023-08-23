@@ -115,6 +115,7 @@ defmodule App.List do
       # doesn't exist, create it:
       {:ok, %{model: list}} =
         create_list(%{name: "all", person_id: person_id, status: 2})
+
       list
     else
       all_list

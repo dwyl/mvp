@@ -80,7 +80,10 @@ defmodule App.ListItems do
   Adds *all* the person's `items` to the `list_items.seq`.
   """
   def add_all_items_to_all_list_for_person_id(person_id) do
-    IO.inspect("add_all_items_to_all_list_for_person_id(person_id: #{person_id})")
+    IO.inspect(
+      "add_all_items_to_all_list_for_person_id(person_id: #{person_id})"
+    )
+
     all_list = App.List.get_all_list_for_person(person_id)
     all_items = App.Item.all_items_for_person(person_id)
     # The previous sequence of items if there is any:
