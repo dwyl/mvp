@@ -56,21 +56,24 @@ defmodule App.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
 
+      # Auth with ONE Environment Variable™: github.com/dwyl/auth_plug
+      {:auth_plug, "~> 1.5.1"},
+
+      # Check/get Environment Variables: github.com/dwyl/envar
+      {:envar, "~> 1.1.0", override: true},
+
+      # Universally Unique Deterministic Content IDs: github.com/dwyl/cid
+      {:excid, "~> 1.0.1"},
+
+      # Easily Encrypt Sensitive Data: github.com/dwyl/fields
+      {:fields, "~> 2.10.3"},
+
       # Database changes tracking:
       # github.com/dwyl/phoenix-papertrail-demo
       {:paper_trail, "~> 1.0.0"},
 
       # Time string parsing: github.com/bitwalker/timex
       {:timex, "~> 3.7"},
-
-      # Check/get Environment Variables: github.com/dwyl/envar
-      {:envar, "~> 1.1.0", override: true},
-
-      # Auth with ONE Environment Variable™: github.com/dwyl/auth_plug
-      {:auth_plug, "~> 1.5.1"},
-
-      # Easily Encrypt Sensitive Data: github.com/dwyl/fields
-      {:fields, "~> 2.10.3"},
 
       # Useful functions: github.com/dwyl/useful
       {:useful, "~> 1.12.1", override: true},

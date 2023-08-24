@@ -52,6 +52,9 @@ import_config "#{config_env()}.exs"
 # https://hexdocs.pm/joken/introduction.html#usage
 config :joken, default_signer: System.get_env("SECRET_KEY_BASE")
 
-#
+# https://github.com/dwyl/auth_plug
 config :auth_plug,
   api_key: System.get_env("AUTH_API_KEY")
+
+# https://github.com/dwyl/cid#how
+config :excid, base: :base58

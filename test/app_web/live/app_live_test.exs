@@ -85,10 +85,10 @@ defmodule AppWeb.AppLiveTest do
   test "handle_info/2 update", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
 
-    {:ok, %{model: item, version: _version}} =
+    {:ok, %{model: item}} =
       Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
 
-      App.ListItems.add_all_items_to_all_list_for_person_id(item.person_id)
+    App.ListItems.add_all_items_to_all_list_for_person_id(item.person_id)
 
     send(view.pid, %Broadcast{
       event: "update",

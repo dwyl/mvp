@@ -10,6 +10,7 @@ defmodule App.Item do
   @derive {Jason.Encoder,
            except: [:__meta__, :__struct__, :timer, :inserted_at, :updated_at]}
   schema "items" do
+    field :cid, :string
     field :person_id, :integer
     field :status, :integer
     field :text, :string
@@ -23,8 +24,9 @@ defmodule App.Item do
   @doc false
   def changeset(item, attrs) do
     item
-    |> cast(attrs, [:person_id, :status, :text])
+    |> cast(attrs, [:cid, :person_id, :status, :text])
     |> validate_required([:text, :person_id])
+    |> put_cid()
   end
 
   def changeset_with_tags(item, attrs) do
@@ -36,6 +38,19 @@ defmodule App.Item do
     item
     |> cast(attrs, [:person_id, :status, :text])
     |> validate_required([:person_id])
+  end
+
+  @doc """
+  `put_cid/1` as its' name suggests puts the `cid` for the record into the `changeset`.
+  This is done transparently so nobody needs to _think_ about cids.
+  """
+  def put_cid(changeset) do
+    if(Map.has_key?(changeset.changes, :cid)) do
+      changeset
+    else
+      cid = Cid.cid(changeset.changes)
+      %{changeset | changes: Map.put(changeset.changes, :cid, cid)}
+    end
   end
 
   @doc """
