@@ -14,10 +14,7 @@ defmodule AppWeb.AppLive do
 
   defp get_person_id(assigns), do: assigns[:person][:id] || 0
 
-  defp get_list_id(assigns),
-    do:
-      assigns[:list_id] ||
-        App.List.get_all_list_for_person(get_person_id(assigns))
+  defp get_list_cid(assigns), do: assigns[:list_cid]
 
   @impl true
   def mount(_params, _session, socket) do
@@ -43,7 +40,7 @@ defmodule AppWeb.AppLive do
        editing: nil,
        filter: "active",
        filter_tag: nil,
-       list_id: all_list.id,
+       list_cid: all_list.cid,
        tags: tags,
        selected_tags: selected_tags,
        text_value: draft_item.text || "",
@@ -305,14 +302,14 @@ defmodule AppWeb.AppLive do
         %{"seq" => seq},
         socket
       ) do
-    list_id = get_list_id(socket.assigns)
+    list_cid = get_list_cid(socket.assigns)
     person_id = get_person_id(socket.assigns)
 
     IO.puts(
-      "updateIndexes -> seq: #{seq} | list_id: #{list_id} | person_id: #{person_id}"
+      "updateIndexes -> seq: #{seq} | list_id: #{list_cid} | person_id: #{person_id}"
     )
 
-    App.ListItems.create_list_items_seq(list_id, person_id, seq)
+    App.ListItems.create_list_items_seq(list_cid, person_id, seq)
     {:noreply, socket}
   end
 

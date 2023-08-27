@@ -107,14 +107,16 @@ defmodule App.ListItems do
     # Add add each `item.id` to the sequence of item ids:
     seq =
       Enum.reduce(all_items, prev_seq, fn i, acc ->
+        # Avoid adding duplicates
         if Enum.member?(acc, i.cid) do
           acc
         else
           [i.cid | acc]
         end
       end)
+      |> Enum.uniq()
+      |> Enum.filter(fn cid -> cid != nil && cid != "" end)
       |> Enum.join(",")
-      # |> dbg()
 
     create_list_items_seq(all_list.cid, person_id, seq)
   end

@@ -226,7 +226,8 @@ defmodule App.Item do
     all_list = App.List.get_all_list_for_person(person_id)
     # dbg(all_list)
     # |> Enum.join(",")
-    item_ids = App.ListItems.get_list_items(all_list.cid)
+    seq = App.ListItems.get_list_items(all_list.cid)
+    |> dbg()
 
     sql = """
     SELECT i.id, i.cid, i.text, i.status, i.person_id, i.updated_at,
@@ -240,14 +241,14 @@ defmodule App.Item do
     """
 
     values =
-      Ecto.Adapters.SQL.query!(Repo, sql, [item_ids])
+      Ecto.Adapters.SQL.query!(Repo, sql, [seq])
       |> map_columns_to_values()
 
     items_tags =
       list_person_items(person_id)
       |> Enum.reduce(%{}, fn i, acc -> Map.put(acc, i.id, i) end)
 
-    accumulate_item_timers(values)
+    accumulate_item_timers(values, seq)
     |> Enum.map(fn t ->
       Map.put(t, :tags, items_tags[t.id].tags)
     end)
@@ -359,7 +360,7 @@ defmodule App.Item do
   This function *relies* on the list of items being ordered by timer_id ASC
   because it "pops" the last timer and ignores it to avoid double-counting.
   """
-  def accumulate_item_timers(items_with_timers) do
+  def accumulate_item_timers(items_with_timers, seq) do
     # e.g: %{0 => 0, 1 => 6, 2 => 5, 3 => 24, 4 => 7}
     timer_id_diff_map = map_timer_diff(items_with_timers)
 
@@ -387,8 +388,8 @@ defmodule App.Item do
          end)}
       end)
 
-    # creates a nested map: %{ item.id: %{id: 1, text: "my item", etc.}}
-    Map.new(items_with_timers, fn item ->
+    # creates a nested map: %{ item.cid: %{id: 1, text: "my item", etc.}}
+    cid_item_map = Map.new(items_with_timers, fn item ->
       time_elapsed = Map.get(item_id_timer_diff_map, item.id)
 
       start =
@@ -396,12 +397,19 @@ defmodule App.Item do
           do: nil,
           else: NaiveDateTime.add(item.start, -time_elapsed)
 
-      {item.id, %{item | start: start}}
+      {item.cid, %{item | start: start}}
     end)
+
+    # return the list of items in the order of seq
+    Enum.map(seq, fn cid ->
+      dbg(cid)
+      cid_item_map[cid]
+    end)
+    # |> dbg()
     # Return the list of items without duplicates and only the last/active timer:
-    |> Map.values()
+    # Map.values(cid_item_map)
     # Sort list by item.id descending (ordered by timer_id ASC above) so newest item first:
-    |> Enum.sort_by(fn i -> i.id end, :desc)
+    # |> Enum.sort_by(fn i -> i.id end, :desc)
   end
 
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
