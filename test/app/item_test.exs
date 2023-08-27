@@ -8,12 +8,12 @@ defmodule App.ItemTest do
     @invalid_attrs %{text: nil}
 
     test "get_item!/2 returns the item with given id" do
-      {:ok, %{model: item, version: _version}} = Item.create_item(@valid_attrs)
+      {:ok, %{model: item}} = Item.create_item(@valid_attrs)
       assert Item.get_item!(item.id).text == item.text
     end
 
     test "get_item/2 returns the item with given id with tags" do
-      {:ok, %{model: item, version: _version}} = Item.create_item(@valid_attrs)
+      {:ok, %{model: item}} = Item.create_item(@valid_attrs)
 
       tags = Map.get(Item.get_item(item.id, true), :tags)
 
@@ -22,9 +22,10 @@ defmodule App.ItemTest do
     end
 
     test "create_item/1 with valid data creates a item" do
-      assert {:ok, %{model: item, version: _version}} =
+      assert {:ok, %{model: item}} =
                Item.create_item(@valid_attrs)
 
+      # dbg(item)
       assert item.text == @valid_attrs.text
 
       inserted_item = List.first(Item.list_items())
@@ -44,7 +45,7 @@ defmodule App.ItemTest do
         status: 2
       }
 
-      assert {:ok, %{model: item, version: _version}} = Item.create_item(attrs)
+      assert {:ok, %{model: item}} = Item.create_item(attrs)
 
       assert item.text == attrs.text
     end
@@ -68,19 +69,19 @@ defmodule App.ItemTest do
     end
 
     # test "list_items/0 returns a list of items stored in the DB" do
-    #   {:ok, %{model: _item1, version: _version}} =
+    #   {:ok, %{model: _item1}} =
     #     Item.create_item(@valid_attrs)
 
-    #   {:ok, %{model: _item2, version: _version}} =
+    #   {:ok, %{model: _item2}} =
     #     Item.create_item(@valid_attrs)
 
     #   assert Enum.count(Item.list_items()) == 2
     # end
 
     test "update_item/2 with valid data updates the item" do
-      {:ok, %{model: item, version: _version}} = Item.create_item(@valid_attrs)
+      {:ok, %{model: item}} = Item.create_item(@valid_attrs)
 
-      assert {:ok, %{model: item, version: _version}} =
+      assert {:ok, %{model: item}} =
                Item.update_item(item, @update_attrs)
 
       assert item.text == "some updated text"
@@ -96,7 +97,7 @@ defmodule App.ItemTest do
     }
 
     test "get_item!/1 returns the item with given id" do
-      {:ok, %{model: item, version: _version}} =
+      {:ok, %{model: item}} =
         Item.create_item_with_tags(@valid_attrs)
 
       assert length(item.tags) == 0
@@ -193,8 +194,8 @@ defmodule App.ItemTest do
     end
 
     test "Item.items_with_timers/1 returns a list of items with timers" do
-      {:ok, %{model: item1, version: _version}} = Item.create_item(@valid_attrs)
-      {:ok, %{model: item2, version: _version}} = Item.create_item(@valid_attrs)
+      {:ok, %{model: item1}} = Item.create_item(@valid_attrs)
+      {:ok, %{model: item2}} = Item.create_item(@valid_attrs)
 
       assert Item.get_item!(item1.id).text == item1.text
 
@@ -222,8 +223,8 @@ defmodule App.ItemTest do
   end
 
   test "Item.person_with_item_and_timer_count/0 returns a list of count of timers and items for each given person" do
-    {:ok, %{model: item1, version: _version}} = Item.create_item(@valid_attrs)
-    {:ok, %{model: item2, version: _version}} = Item.create_item(@valid_attrs)
+    {:ok, %{model: item1}} = Item.create_item(@valid_attrs)
+    {:ok, %{model: item2}} = Item.create_item(@valid_attrs)
 
     started = NaiveDateTime.utc_now()
 

@@ -184,6 +184,7 @@
                 type="checkbox"
                 checked
                 phx-value-id={item.id}
+                phx-value-cid={item.cid}
                 phx-click="toggle"
                 class="flex-none p-4 m-2 form-checkbox text-slate-400 cursor-not-allowed"
               />
@@ -227,6 +228,7 @@
                 <input
                   type="checkbox"
                   phx-value-id={item.id}
+                  phx-value-cid={item.cid}
                   phx-click="toggle"
                   class="flex-none p-4 m-2 form-checkbox text-slate-400"
                   checked
@@ -244,6 +246,7 @@
             bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md"
                     phx-click="delete"
                     phx-value-id={item.id}
+                    phx-value-cid={item.cid}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -278,6 +281,7 @@
                 <input
                   type="checkbox"
                   phx-value-id={item.id}
+                  phx-value-cid={item.cid}
                   phx-click="toggle"
                   class="flex-none p-4 m-2 form-checkbox hover:text-slate-600"
                 />
@@ -425,6 +429,7 @@
                   class="w-full flex-auto text-slate-800 m-2"
                   phx-click="edit-item"
                   phx-value-id={item.id}
+                  phx-value-cid={item.cid}
                 >
                   <%= item.text %>
                 </label>
@@ -432,7 +437,7 @@
                   <%= item.id %>
                 </code>
                 <code class="font-mono p-2 text-lime-400 bg-black rounded-md mr-2 max-h-10">
-                  <%= item.position %>
+                  <%= item.cid %>
                 </code>
               <% end %>
 
@@ -445,6 +450,7 @@
                       <button
                         phx-click="start"
                         phx-value-id={item.id}
+                        phx-value-cid={item.cid}
                         class="inline-flex items-center px-2 py-2 h-9
                     bg-teal-600 hover:bg-teal-800 text-white rounded-md"
                       >
@@ -497,6 +503,7 @@
                         <button
                           phx-click="stop"
                           phx-value-id={item.id}
+                          phx-value-cid={item.cid}
                           phx-value-timerid={item.timer_id}
                           class="inline-flex items-center px-2 py-2 h-9 mr-1
                       bg-red-500 hover:bg-red-700 text-white rounded-md"
@@ -536,6 +543,7 @@
                 <button
                   phx-click="start"
                   phx-value-id={item.id}
+                  phx-value-cid={item.cid}
                   class="inline-flex items-center px-2 py-2 h-9 mr-1
               bg-teal-700 hover:bg-teal-800 text-white rounded-md"
                 >

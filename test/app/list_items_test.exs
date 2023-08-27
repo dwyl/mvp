@@ -8,8 +8,10 @@ defmodule App.ListItemsTest do
     @valid_list_attrs %{name: "Health", person_id: @person_id, sort: 1, status: 2}
 
     test "add_list_item/3 adds a list_item & get_list_items/1 retrieves the list of items (seq)" do
+      all_list = App.List.get_all_list_for_person(@person_id)
+      # dbg(all_list)
       # No list No list_items:
-      assert App.ListItems.get_list_items(0) == []
+      assert App.ListItems.get_list_items(all_list.cid) == []
 
       # Create an item
       assert {:ok, %{model: item}} = Item.create_item(@valid_item_attrs)
@@ -17,11 +19,12 @@ defmodule App.ListItemsTest do
       assert {:ok, %{model: list}} = List.create_list(@valid_list_attrs)
 
       # add the item to the lists_items:
-      ListItems.add_list_item(item.id, list.id, @person_id)
+      ListItems.add_list_item(item.cid, list.cid, @person_id)
 
       # Confirm the item.id is in the list_items.seq:
-      seq = ListItems.get_list_items(list.id)
-      assert Enum.member?(seq, "#{item.id}")
+      seq = ListItems.get_list_items(list.cid)
+      # dbg(seq)
+      assert Enum.member?(seq, "#{item.cid}")
     end
 
     test "add_all_items_to_all_list_for_person_id/1 adds all items to all list for person_id" do
@@ -34,16 +37,16 @@ defmodule App.ListItemsTest do
       assert {:ok, %{model: item3}} =
           Item.create_item(%{text: "live best life", person_id: person_id, status: 2})
 
-      assert {:ok, %{model: all_list}} =
-        List.create_list(%{name: "all", person_id: person_id, status: 2})
+      all_list = App.List.get_all_list_for_person(person_id)
       # Invoke the biz logic:
       App.ListItems.add_all_items_to_all_list_for_person_id(person_id)
 
       # Confirm that the item.id is in the squence of item ids for the "all" list:
-      all_items_seq = ListItems.get_list_items(all_list.id)
-      assert Enum.member?(all_items_seq, "#{item1.id}")
-      assert Enum.member?(all_items_seq, "#{item2.id}")
-      assert Enum.member?(all_items_seq, "#{item3.id}")
+      all_items_seq = ListItems.get_list_items(all_list.cid)
+      # dbg(all_items_seq)
+      assert Enum.member?(all_items_seq, "#{item1.cid}")
+      assert Enum.member?(all_items_seq, "#{item2.cid}")
+      assert Enum.member?(all_items_seq, "#{item3.cid}")
     end
 
 

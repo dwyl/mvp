@@ -56,6 +56,7 @@ defmodule App.Item do
     %Item{}
     |> changeset(attrs)
     |> PaperTrail.insert(originator: %{id: Map.get(attrs, :person_id, 0)})
+    |> App.ListItems.add_papertrail_item_to_all_list()
   end
 
   @doc """
@@ -226,7 +227,6 @@ defmodule App.Item do
     # dbg(all_list)
     # |> Enum.join(",")
     item_ids = App.ListItems.get_list_items(all_list.cid)
-    # dbg(item_ids)
 
     sql = """
     SELECT i.id, i.cid, i.text, i.status, i.person_id, i.updated_at,

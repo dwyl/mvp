@@ -35,7 +35,7 @@ Hooks.Items = {
 
     this.el.addEventListener("update-indexes", e => {
       const item_id = e.detail.fromItemId 
-      const list_ids = get_list_item_ids()
+      const list_ids = get_list_item_cids()
       console.log("update-indexes", e.detail, "list: ", list_ids)
       // Check if both "from" and "to" are defined
       if(item_id && itemId_to && item_id != itemId_to) {
@@ -53,11 +53,11 @@ Hooks.Items = {
  * and returns a String containing the IDs as a space-separated list e.g: "1 2 3 42 71 93"
  * This is used to determine the `position` of the `item` that has been moved.
  */
-function get_list_item_ids() {
+function get_list_item_cids() {
   console.log("invoke get_list_item_ids")
-  const lis = document.querySelectorAll("label[phx-value-id]");
+  const lis = document.querySelectorAll("label[phx-value-cid]");
   return Object.values(lis).map(li => {
-    return li.attributes["phx-value-id"].nodeValue
+    return li.attributes["phx-value-cid"].nodeValue
   }).join(",")
 }
 
