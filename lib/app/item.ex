@@ -440,4 +440,30 @@ defmodule App.Item do
     # Sort list by position so the lowest position is displayed first:
     |> Enum.sort_by(fn i -> i.position end, :asc)
   end
+
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+  # Below this point is item transition code that will be DELETED!  #
+  # We just need it to update all existing items to add cid ...     #
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+  @doc """
+  `update_all_items_cid/0` updates all `item` records with a `cid` value.
+  This will not be needed once all records are transitioned.
+  """
+  def update_all_items_cid do
+    items = list_items()
+
+    Enum.each(items, fn i ->
+      item = %{
+        person_id: i.person_id,
+        status: i.status,
+        text: i.text,
+        id: i.id
+      }
+
+      i
+      |> changeset(Map.put(item, :cid, Cid.cid(item)))
+      |> Repo.update()
+    end)
+  end
 end

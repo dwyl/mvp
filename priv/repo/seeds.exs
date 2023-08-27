@@ -79,4 +79,6 @@ if env == :test || env == :dev do
 
   # Add items to lists:
   App.ListItems.add_all_items_to_all_list_for_person_id(person_id)
+
+  Item.update_all_items_cid()
 end
