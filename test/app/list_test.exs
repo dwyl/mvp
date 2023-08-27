@@ -4,19 +4,24 @@ defmodule App.ListTest do
 
   describe "list" do
     @person_id 7
-    @valid_item_attrs %{text: "some text", person_id: @person_id, status: 2}
+    # @valid_item_attrs %{text: "some text", person_id: @person_id, status: 2}
     @valid_attrs %{name: "My List", person_id: @person_id, status: 2}
     @update_attrs %{name: "some updated text", person_id: @person_id}
     @invalid_attrs %{name: nil}
 
 
     test "get_list!/2 returns the list with given id" do
-      {:ok, %{model: list, version: _version}} = List.create_list(@valid_attrs)
+      {:ok, %{model: list}} = List.create_list(@valid_attrs)
       assert List.get_list!(list.id).name == list.name
     end
 
+    test "get_list_by_cid!/2 returns the list with given cid" do
+      {:ok, %{model: list}} = List.create_list(@valid_attrs)
+      assert List.get_list_by_cid!(list.cid).name == list.name
+    end
+
     test "create_list/1 with valid data creates a list" do
-      assert {:ok, %{model: list, version: _version}} =
+      assert {:ok, %{model: list}} =
                List.create_list(@valid_attrs)
 
       assert list.name == @valid_attrs.name
@@ -27,9 +32,9 @@ defmodule App.ListTest do
     end
 
     test "update_list/2 with valid data updates the list" do
-      {:ok, %{model: list, version: _version}} = List.create_list(@valid_attrs)
+      {:ok, %{model: list}} = List.create_list(@valid_attrs)
 
-      assert {:ok, %{model: list, version: _version}} =
+      assert {:ok, %{model: list}} =
                List.update_list(list, @update_attrs)
 
       assert list.name == "some updated text"
@@ -38,13 +43,12 @@ defmodule App.ListTest do
     test "get_lists_for_person/1 returns the lists for the person_id" do
       person_id = 3
       lists_before = App.List.get_lists_for_person(person_id)
-      assert length(lists_before) == 0
+      assert lists_before == []
 
       # Create a couple of lists
       {:ok, %{model: all_list}} =
         %{name: "all", person_id: person_id, status: 2}
         |> App.List.create_list()
-
       {:ok, %{model: recipe_list}} =
         %{name: "Recipes", person_id: person_id, status: 2}
         |> App.List.create_list()

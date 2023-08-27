@@ -6,6 +6,7 @@ defmodule App.List do
   alias __MODULE__
 
   schema "lists" do
+    field :cid, :string
     field :name, :string
     field :person_id, :integer
     field :sort, :integer
@@ -19,6 +20,7 @@ defmodule App.List do
     list
     |> cast(attrs, [:name, :person_id, :sort, :status])
     |> validate_required([:name, :person_id])
+    |> App.Cid.put_cid()
   end
 
   @doc """
@@ -56,6 +58,26 @@ defmodule App.List do
   def get_list!(id) do
     List
     |> Repo.get!(id)
+  end
+
+  @doc """
+  `get_list_by_cid!/1` gets the `list` record by its' `cid`.
+
+  Raises `Ecto.NoResultsError` if the List does not exist.
+
+  ## Examples
+
+      iex> get_list!("cidhere")
+      %List{}
+
+      iex> get_list!(420)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_list_by_cid!(cid) do
+    List
+    |> where(cid: ^cid)
+    |> Repo.one!()
   end
 
   @doc """

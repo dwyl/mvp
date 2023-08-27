@@ -78,7 +78,7 @@ if env == :test || env == :dev do
     App.List.create_list(%{name: "all", person_id: person_id, status: 2})
 
   # Add Cid to all existing items before adding them to the "all" list:
-  Item.update_all_items_cid()
+  App.Item.update_all_items_cid()
 
   # Add items to lists:
   App.ListItems.add_all_items_to_all_list_for_person_id(person_id)
