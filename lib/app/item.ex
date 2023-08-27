@@ -224,7 +224,8 @@ defmodule App.Item do
   def items_with_timers(person_id \\ 0) do
     all_list = App.List.get_all_list_for_person(person_id)
     # dbg(all_list)
-    item_ids = App.ListItems.get_list_items(all_list.cid) # |> Enum.join(",")
+    # |> Enum.join(",")
+    item_ids = App.ListItems.get_list_items(all_list.cid)
     # dbg(item_ids)
 
     sql = """
