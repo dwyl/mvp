@@ -60,11 +60,11 @@ defmodule App.ItemTest do
       refute Map.has_key?(changeset_before.changes, :cid)
 
       # Confirm cid was added to the changes:
-      changeset_with_cid = Item.put_cid(changeset_before)
+      changeset_with_cid = App.Cid.put_cid(changeset_before)
       assert changeset_with_cid.changes.cid == Cid.cid(@valid_attrs)
 
       # confirm idepodent:
-      assert Item.put_cid(changeset_with_cid) == changeset_with_cid
+      assert App.Cid.put_cid(changeset_with_cid) == changeset_with_cid
     end
 
     # test "list_items/0 returns a list of items stored in the DB" do

@@ -26,7 +26,7 @@ defmodule App.Item do
     item
     |> cast(attrs, [:cid, :person_id, :status, :text])
     |> validate_required([:text, :person_id])
-    |> put_cid()
+    |> App.Cid.put_cid()
   end
 
   def changeset_with_tags(item, attrs) do
@@ -38,19 +38,6 @@ defmodule App.Item do
     item
     |> cast(attrs, [:person_id, :status, :text])
     |> validate_required([:person_id])
-  end
-
-  @doc """
-  `put_cid/1` as its' name suggests puts the `cid` for the record into the `changeset`.
-  This is done transparently so nobody needs to _think_ about cids.
-  """
-  def put_cid(changeset) do
-    if(Map.has_key?(changeset.changes, :cid)) do
-      changeset
-    else
-      cid = Cid.cid(changeset.changes)
-      %{changeset | changes: Map.put(changeset.changes, :cid, cid)}
-    end
   end
 
   @doc """
@@ -236,26 +223,23 @@ defmodule App.Item do
   #
   def items_with_timers(person_id \\ 0) do
     all_list = App.List.get_all_list_for_person(person_id)
-    item_ids = App.ListItems.get_list_items(all_list.id) |> Enum.join(",")
-    dbg(item_ids)
+    # dbg(all_list)
+    item_ids = App.ListItems.get_list_items(all_list.cid) # |> Enum.join(",")
+    # dbg(item_ids)
 
     sql = """
-    SELECT i.id, i.text, i.status, i.person_id, i.updated_at,
+    SELECT i.id, i.cid, i.text, i.status, i.person_id, i.updated_at,
       t.start, t.stop, t.id as timer_id
     FROM items i
     FULL JOIN timers AS t ON t.item_id = i.id
-    WHERE i.id IN (string_to_array($1, ',')::bigint[])
+    WHERE i.cid = any($1)
     AND i.status IS NOT NULL
     AND i.text IS NOT NULL
     ORDER BY timer_id ASC;
     """
 
-    # That Voodoo is: https://stackoverflow.com/a/45304949/1148249
-
-    IO.inspect(sql)
-
     values =
-      Ecto.Adapters.SQL.query!(Repo, sql, [all_list.id])
+      Ecto.Adapters.SQL.query!(Repo, sql, [item_ids])
       |> map_columns_to_values()
 
     items_tags =
@@ -358,27 +342,6 @@ defmodule App.Item do
   end
 
   @doc """
-  `map_item_position/1` Creates a Map where the key is item_id and value is position
-  So we can lookup a given item_id and know it's latest position.
-  e.g: `%{ 1 => 1.0, 2 => 3.999999, 3 => 3.0}`
-  """
-  def map_item_position(items_with_timers) do
-    items_with_timers
-    # Sort by list_item.id so we get the latest position for each item
-    |> Enum.sort_by(fn i -> i.li_id end, :desc)
-    |> Enum.reduce(%{}, fn i, acc_map ->
-      # IO.inspect(acc_map)
-      # IO.puts("#{i.li_id} | id: #{i.id} | l: #{i.list_id} | pos: #{i.position}")
-      # IO.inspect(i)
-      if Map.has_key?(acc_map, i.id) do
-        acc_map
-      else
-        Map.put(acc_map, i.id, i.position)
-      end
-    end)
-  end
-
-  @doc """
   `accumulate_item_timers/1` aggregates the elapsed time
   for all the timers associated with an item
   and then subtract that time from the start value of the *current* active timer.
@@ -396,7 +359,6 @@ defmodule App.Item do
   because it "pops" the last timer and ignores it to avoid double-counting.
   """
   def accumulate_item_timers(items_with_timers) do
-    item_pos = map_item_position(items_with_timers)
     # e.g: %{0 => 0, 1 => 6, 2 => 5, 3 => 24, 4 => 7}
     timer_id_diff_map = map_timer_diff(items_with_timers)
 
@@ -411,7 +373,7 @@ defmodule App.Item do
          |> Enum.reject(&is_nil/1)}
       end)
 
-    # This is inefficient but I can't think of how to simplify it ... can you?
+    # this one is "wasteful" but I can't think of how to simplify it ...
     item_id_timer_diff_map =
       Map.new(items_with_timers, fn item ->
         timer_id_list = Map.get(item_id_timer_id_map, item.id, [0])
@@ -433,12 +395,12 @@ defmodule App.Item do
           do: nil,
           else: NaiveDateTime.add(item.start, -time_elapsed)
 
-      {item.id, %{item | start: start, position: Map.get(item_pos, item.id)}}
+      {item.id, %{item | start: start}}
     end)
     # Return the list of items without duplicates and only the last/active timer:
     |> Map.values()
-    # Sort list by position so the lowest position is displayed first:
-    |> Enum.sort_by(fn i -> i.position end, :asc)
+    # Sort list by item.id descending (ordered by timer_id ASC above) so newest item first:
+    |> Enum.sort_by(fn i -> i.id end, :desc)
   end
 
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
