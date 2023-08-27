@@ -118,8 +118,7 @@ defmodule App.ItemTest do
           start: nil,
           text: "This item has no timers",
           timer_id: nil,
-          li_id: 1,
-          position: 1.0
+          cid: "3"
         },
         %{
           stop: ~N[2022-07-17 11:18:10.000000],
@@ -128,8 +127,7 @@ defmodule App.ItemTest do
           text:
             "Item #2 has one active (no end) and one complete timer should total 17sec",
           timer_id: 3,
-          li_id: 2,
-          position: 2.0
+          cid: "2"
         },
         %{
           stop: nil,
@@ -138,8 +136,7 @@ defmodule App.ItemTest do
           text:
             "Item #2 has one active (no end) and one complete timer should total 17sec",
           timer_id: 4,
-          li_id: 3,
-          position: 3.0
+          cid: "2"
         },
         %{
           stop: ~N[2022-07-17 11:18:31.000000],
@@ -148,8 +145,7 @@ defmodule App.ItemTest do
           text:
             "Item with 3 complete timers that should add up to 42 seconds elapsed",
           timer_id: 2,
-          li_id: 4,
-          position: 2.999999
+          cid: "1"
         },
         %{
           stop: ~N[2022-07-17 11:18:24.000000],
@@ -158,8 +154,7 @@ defmodule App.ItemTest do
           text:
             "Item with 3 complete timers that should add up to 42 seconds elapsed",
           timer_id: 1,
-          li_id: 5,
-          position: 4.0
+          cid: "1"
         },
         %{
           stop: ~N[2022-07-17 11:19:42.000000],
@@ -168,14 +163,14 @@ defmodule App.ItemTest do
           text:
             "Item with 3 complete timers that should add up to 42 seconds elapsed",
           timer_id: 5,
-          li_id: 42,
-          position: 42.0
+          cid: "1"
         }
       ]
 
       # The *interesting* timer is the *active* one (started seven_seconds_ago) ...
       # The "hard" part to test in accumulating timers are the *active* ones ...
-      acc = Item.accumulate_item_timers(items_with_timers)
+      seq = ["3", "2", "1"]
+      acc = Item.accumulate_item_timers(items_with_timers, seq)
       item_map = Map.new(acc, fn item -> {item.id, item} end)
       item1 = Map.get(item_map, 1)
       item2 = Map.get(item_map, 2)

@@ -227,7 +227,6 @@ defmodule App.Item do
     # dbg(all_list)
     # |> Enum.join(",")
     seq = App.ListItems.get_list_items(all_list.cid)
-    |> dbg()
 
     sql = """
     SELECT i.id, i.cid, i.text, i.status, i.person_id, i.updated_at,
@@ -401,15 +400,7 @@ defmodule App.Item do
     end)
 
     # return the list of items in the order of seq
-    Enum.map(seq, fn cid ->
-      dbg(cid)
-      cid_item_map[cid]
-    end)
-    # |> dbg()
-    # Return the list of items without duplicates and only the last/active timer:
-    # Map.values(cid_item_map)
-    # Sort list by item.id descending (ordered by timer_id ASC above) so newest item first:
-    # |> Enum.sort_by(fn i -> i.id end, :desc)
+    Enum.map(seq, fn cid -> cid_item_map[cid] end)
   end
 
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
