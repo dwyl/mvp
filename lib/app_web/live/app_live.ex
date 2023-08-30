@@ -25,8 +25,9 @@ defmodule AppWeb.AppLive do
     person_id = get_person_id(socket.assigns)
     # Create the "all" list for the person_id
     all_list = App.List.get_all_list_for_person(person_id)
+    # dbg(all_list)
     # Temporary function to add All *existing* items to the "All" list:
-    App.ListItems.add_all_items_to_all_list_for_person_id(person_id)
+    # App.ListItems.add_all_items_to_all_list_for_person_id(person_id)
 
     items = Item.items_with_timers(person_id)
     tags = Tag.list_person_tags(person_id)
@@ -305,9 +306,9 @@ defmodule AppWeb.AppLive do
     list_cid = get_list_cid(socket.assigns)
     person_id = get_person_id(socket.assigns)
 
-    IO.puts(
-      "updateIndexes -> seq: #{seq} | list_id: #{list_cid} | person_id: #{person_id}"
-    )
+    # IO.puts(
+    #   "updateIndexes -> seq: #{seq} | list_cid: #{list_cid} | person_id: #{person_id}"
+    # )
 
     App.ListItems.create_list_items_seq(list_cid, person_id, seq)
     {:noreply, socket}
@@ -321,9 +322,9 @@ defmodule AppWeb.AppLive do
         },
         socket
       ) do
-    IO.puts(
-      "cur_item_id: #{current_item_id}, selected_item_id: #{selected_item_id}"
-    )
+    # IO.puts(
+    #   "cur_item_id: #{current_item_id}, selected_item_id: #{selected_item_id}"
+    # )
 
     {:noreply,
      push_event(socket, "dragover-item", %{

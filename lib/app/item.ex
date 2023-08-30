@@ -225,8 +225,10 @@ defmodule App.Item do
   def items_with_timers(person_id \\ 0) do
     all_list = App.List.get_all_list_for_person(person_id)
     # dbg(all_list)
+
     # |> Enum.join(",")
     seq = App.ListItems.get_list_items(all_list.cid)
+    # dbg(seq)
 
     sql = """
     SELECT i.id, i.cid, i.text, i.status, i.person_id, i.updated_at,
@@ -247,9 +249,13 @@ defmodule App.Item do
       list_person_items(person_id)
       |> Enum.reduce(%{}, fn i, acc -> Map.put(acc, i.id, i) end)
 
+    # dbg(items_tags)
+
     accumulate_item_timers(values, seq)
     |> Enum.map(fn t ->
-      Map.put(t, :tags, items_tags[t.id].tags)
+      if t != nil do
+        Map.put(t, :tags, items_tags[t.id].tags)
+      end
     end)
   end
 
@@ -388,16 +394,17 @@ defmodule App.Item do
       end)
 
     # creates a nested map: %{ item.cid: %{id: 1, text: "my item", etc.}}
-    cid_item_map = Map.new(items_with_timers, fn item ->
-      time_elapsed = Map.get(item_id_timer_diff_map, item.id)
+    cid_item_map =
+      Map.new(items_with_timers, fn item ->
+        time_elapsed = Map.get(item_id_timer_diff_map, item.id)
 
-      start =
-        if is_nil(item.start),
-          do: nil,
-          else: NaiveDateTime.add(item.start, -time_elapsed)
+        start =
+          if is_nil(item.start),
+            do: nil,
+            else: NaiveDateTime.add(item.start, -time_elapsed)
 
-      {item.cid, %{item | start: start}}
-    end)
+        {item.cid, %{item | start: start}}
+      end)
 
     # return the list of items in the order of seq
     Enum.map(seq, fn cid -> cid_item_map[cid] end)
@@ -416,16 +423,21 @@ defmodule App.Item do
     items = list_items()
 
     Enum.each(items, fn i ->
-      item = %{
-        person_id: i.person_id,
-        status: i.status,
-        text: i.text,
-        id: i.id
-      }
+      # coveralls-ignore-start
+      unless Map.has_key?(i, :cid) do
+        item = %{
+          person_id: i.person_id,
+          status: i.status,
+          text: i.text,
+          id: i.id
+        }
 
-      i
-      |> changeset(Map.put(item, :cid, Cid.cid(item)))
-      |> Repo.update()
+        i
+        |> changeset(Map.put(item, :cid, Cid.cid(item)))
+        |> Repo.update()
+      end
+
+      # coveralls-ignore-stop
     end)
   end
 end

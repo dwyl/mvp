@@ -685,16 +685,17 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "filter items by tag name", %{conn: conn} do
+    person_id = 0
     {:ok, tag1} =
-      Tag.create_tag(%{person_id: 0, text: "tag1", color: "#FCA5A5"})
+      Tag.create_tag(%{person_id: person_id, text: "tag1", color: "#FCA5A5"})
 
     {:ok, tag2} =
-      Tag.create_tag(%{person_id: 0, text: "tag2", color: "#FCA5A5"})
+      Tag.create_tag(%{person_id: person_id, text: "tag2", color: "#FCA5A5"})
 
     {:ok, tag3} =
-      Tag.create_tag(%{person_id: 0, text: "tag3", color: "#FCA5A5"})
+      Tag.create_tag(%{person_id: person_id, text: "tag3", color: "#FCA5A5"})
 
-    {:ok, %{model: _item}} =
+    {:ok, %{model: item1}} =
       Item.create_item_with_tags(%{
         text: "Item1 to do",
         person_id: 0,
@@ -702,13 +703,18 @@ defmodule AppWeb.AppLiveTest do
         tags: [tag1, tag2]
       })
 
-    {:ok, %{model: _item}} =
+    {:ok, %{model: item2}} =
       Item.create_item_with_tags(%{
         text: "Item2 to do",
         person_id: 0,
         status: 2,
         tags: [tag1, tag3]
       })
+
+    # The items need to be in the latest seq to appear on the page:
+    list = App.List.get_all_list_for_person(person_id)
+    App.ListItems.create_list_items_seq(list.cid, person_id, "#{item1.cid},#{item2.cid}")
+
 
     {:ok, view, _html} = live(conn, "/?filter_by=all")
     assert render(view) =~ "Item1 to do"
@@ -815,19 +821,20 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "Drag and Drop item", %{conn: conn} do
-    person_id = 42
+    person_id = 0
     # Creating Three items
     {:ok, %{model: item}} =
-      Item.create_item(%{text: "Learn Elixir", person_id: person_id})
+      Item.create_item(%{text: "Learn Elixir", person_id: person_id, status: 2})
 
     {:ok, %{model: item2}} =
-      Item.create_item(%{ text: "Build Awesome App", person_id: person_id})
+      Item.create_item(%{ text: "Build Awesome App", person_id: person_id, status: 2})
 
     {:ok, %{model: item3}} =
-      Item.create_item(%{ text: "Profit", person_id: person_id})
+      Item.create_item(%{ text: "Profit", person_id: person_id, status: 2})
 
     # Create "all" list for this person_id:
     list = App.List.get_all_list_for_person(person_id)
+
     # Add all items to "all" list:
     App.ListItems.add_all_items_to_all_list_for_person_id(person_id)
 
@@ -848,24 +855,27 @@ defmodule AppWeb.AppLiveTest do
 
     assert render_hook(view, "removeHighlight", %{"id" => item.id})
 
-    # Switch items (update indexes)
+    # reorder items:
     render_hook(view, "updateIndexes", %{
-      "sec" => "#{item.id},#{item2.id},#{item3.id}"
+      "seq" => "#{item.cid},#{item2.cid},#{item3.cid}"
     })
 
-    sec = App.ListItems.get_list_items(list.id)
-    dbg(sec)
+    seq = App.ListItems.get_list_items(list.cid)
+    pos1 = Enum.find_index(seq, fn x -> x == "#{item.cid}" end)
+    pos2 = Enum.find_index(seq, fn x -> x == "#{item2.cid}" end)
+    # IO.puts("#{pos1}: #{item.cid}")
+    # IO.puts("#{pos2}: #{item2.cid}")
 
-    {pos1, _} = :binary.match sec, "#{item.id}"
-    {pos2, _} = :binary.match sec, "#{item2.id}"
     assert pos1 < pos2
 
     # Update list_item.seq:
-    App.ListItems.create_list_items_seq(list.id, person_id, "#{item.id},#{item3.id},#{item2.id}")
-    new_sec = App.ListItems.get_list_items(list.id)
-    dbg(new_sec)
-    {pos2, _} = :binary.match new_sec, "#{item2.id}"
-    {pos3, _} = :binary.match new_sec, "#{item3.id}"
+    App.ListItems.create_list_items_seq(list.cid, person_id, "#{item.cid},#{item3.cid},#{item2.cid}")
+    new_seq = App.ListItems.get_list_items(list.cid)
+    # dbg(new_seq)
+    pos2 = Enum.find_index(new_seq, fn x -> x == "#{item2.cid}" end)
+    pos3 = Enum.find_index(new_seq, fn x -> x == "#{item3.cid}" end)
+    # IO.puts("#{pos2}: #{item2.cid}")
+    # IO.puts("#{pos3}: #{item3.cid}")
     assert pos3 < pos2
   end
 
@@ -883,8 +893,8 @@ defmodule AppWeb.AppLiveTest do
         color: "#FCA5A5"
       })
 
-    assert render_submit(view, :create, %{text: "tag enter pressed"})
-    assert render(view) =~ "tag enter pressed"
+    assert render_submit(view, :create, %{text: "baking"})
+    assert render(view) =~ "baking"
   end
 
   test "don't select tag if other keydown is pressed", %{conn: conn} do

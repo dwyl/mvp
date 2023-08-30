@@ -5,6 +5,9 @@ defmodule AppWeb.InitController do
   @env_required ~w/AUTH_API_KEY ENCRYPTION_KEYS SECRET_KEY_BASE DATABASE_URL/
 
   def index(conn, _params) do
+    Logger.info("attempeting to update cid of all items ...")
+    App.Item.update_all_items_cid()
+
     Logger.info("init attempting to check environment variables ... ")
 
     conn

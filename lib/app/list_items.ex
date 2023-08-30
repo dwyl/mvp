@@ -37,6 +37,8 @@ defmodule App.ListItems do
       seq: seq
     })
     |> Repo.insert()
+
+    # |> dbg()
   end
 
   def list_items_seq_sql do
@@ -53,13 +55,13 @@ defmodule App.ListItems do
   `get_list_items/2` retrieves the *latest* `list_items` record for a given `list_cid`.
   """
   def get_list_items(list_cid) do
-    # dbg(list_cid)
-    # dbg(list_items_seq_sql())
+    # IO.puts(" = = = = = = = = = = = = = = = > get_list_items(#{list_cid})")
     result = Ecto.Adapters.SQL.query!(Repo, list_items_seq_sql(), [list_cid])
     # dbg(result.rows)
     if is_nil(result.rows) or result.rows == [] do
       []
     else
+      # dbg(result.rows)
       result.rows |> List.first() |> List.first() |> String.split(",")
     end
   end
