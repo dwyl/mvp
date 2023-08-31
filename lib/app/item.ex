@@ -228,7 +228,7 @@ defmodule App.Item do
     all_list = App.List.get_all_list_for_person(person_id)
     # dbg(all_list)
     seq = App.ListItems.get_list_items(all_list.cid)
-    dbg(seq)
+    # dbg(seq)
 
     sql = """
     SELECT i.id, i.cid, i.text, i.status, i.person_id, i.updated_at,
@@ -244,8 +244,6 @@ defmodule App.Item do
     values =
       Ecto.Adapters.SQL.query!(Repo, sql, [seq])
       |> map_columns_to_values()
-
-    dbg(values)
 
     items_tags =
       list_person_items(person_id)

@@ -8,11 +8,17 @@ defmodule App.Cid do
   This is done transparently so nobody needs to _think_ about cids.
   """
   def put_cid(changeset) do
+    # don't add a cid to a changeset that already has one
     if Map.has_key?(changeset.changes, :cid) do
       changeset
     else
-      cid = Cid.cid(changeset.changes)
-      %{changeset | changes: Map.put(changeset.changes, :cid, cid)}
+      # Only add cid to changeset that has :name i.e. list.name or :text i.e. item.text
+      if Map.has_key?(changeset.changes, :name) || Map.has_key?(changeset.changes, :text) do
+        cid = Cid.cid(changeset.changes)
+        %{changeset | changes: Map.put(changeset.changes, :cid, cid)}
+      else
+        changeset
+      end
     end
   end
 end

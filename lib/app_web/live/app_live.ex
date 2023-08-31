@@ -27,7 +27,7 @@ defmodule AppWeb.AppLive do
     all_list = App.List.get_all_list_for_person(person_id)
     # dbg(all_list)
     # Temporary function to add All *existing* items to the "All" list:
-    # App.ListItems.add_all_items_to_all_list_for_person_id(person_id)
+    App.ListItems.add_all_items_to_all_list_for_person_id(person_id)
 
     items = Item.items_with_timers(person_id)
     tags = Tag.list_person_tags(person_id)
@@ -98,7 +98,7 @@ defmodule AppWeb.AppLive do
 
     # need to restrict getting items to the people who own or have rights to access them!
     item = Item.get_item!(Map.get(data, "id"))
-    Item.update_item(item, %{status: status, person_id: person_id})
+    Item.update_item(item, %{status: status, person_id: person_id, cid: item.cid})
     Timer.stop_timer_for_item_id(item.id)
 
     AppWeb.Endpoint.broadcast(@topic, "update", :toggle)
@@ -401,7 +401,11 @@ defmodule AppWeb.AppLive do
 
   # 2: uncategorised (when item are created), 3: active
   def status?(item), do: not is_nil(item) && Map.has_key?(item, :status)
-  def active?(item), do:  status?(item) && item.status == 2 || status?(item) && item.status == 3
+
+  def active?(item),
+    do:
+      (status?(item) && item.status == 2) || (status?(item) && item.status == 3)
+
   def done?(item), do: status?(item) && item.status == 4
   def archived?(item), do: status?(item) && item.status == 6
 
@@ -483,6 +487,7 @@ defmodule AppWeb.AppLive do
   defp filter_items(items, filter, filter_tag) do
     # avoid nil items mvp#412
     items = Enum.reject(items, &is_nil/1)
+
     items =
       case filter do
         "active" ->
