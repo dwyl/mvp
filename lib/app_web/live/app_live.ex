@@ -400,9 +400,10 @@ defmodule AppWeb.AppLive do
   def has_items?(items), do: length(items) > 1
 
   # 2: uncategorised (when item are created), 3: active
-  def active?(item), do: item.status == 2 || item.status == 3
-  def done?(item), do: item.status == 4
-  def archived?(item), do: item.status == 6
+  def status?(item), do: not is_nil(item) && Map.has_key?(item, :status)
+  def active?(item), do:  status?(item) && item.status == 2 || status?(item) && item.status == 3
+  def done?(item), do: status?(item) && item.status == 4
+  def archived?(item), do: status?(item) && item.status == 6
 
   # Check if an item has an active timer
   def started?(item) do
@@ -480,6 +481,8 @@ defmodule AppWeb.AppLive do
   end
 
   defp filter_items(items, filter, filter_tag) do
+    # avoid nil items mvp#412
+    items = Enum.reject(items, &is_nil/1)
     items =
       case filter do
         "active" ->

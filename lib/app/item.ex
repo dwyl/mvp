@@ -38,6 +38,7 @@ defmodule App.Item do
     item
     |> cast(attrs, [:person_id, :status, :text])
     |> validate_required([:person_id])
+    |> App.Cid.put_cid()
   end
 
   @doc """
@@ -226,10 +227,8 @@ defmodule App.Item do
   def items_with_timers(person_id \\ 0) do
     all_list = App.List.get_all_list_for_person(person_id)
     # dbg(all_list)
-
-    # |> Enum.join(",")
     seq = App.ListItems.get_list_items(all_list.cid)
-    # dbg(seq)
+    dbg(seq)
 
     sql = """
     SELECT i.id, i.cid, i.text, i.status, i.person_id, i.updated_at,
@@ -246,11 +245,12 @@ defmodule App.Item do
       Ecto.Adapters.SQL.query!(Repo, sql, [seq])
       |> map_columns_to_values()
 
+    dbg(values)
+
     items_tags =
       list_person_items(person_id)
       |> Enum.reduce(%{}, fn i, acc -> Map.put(acc, i.id, i) end)
 
-    # dbg(items_tags)
 
     accumulate_item_timers(values, seq)
     |> Enum.map(fn t ->
