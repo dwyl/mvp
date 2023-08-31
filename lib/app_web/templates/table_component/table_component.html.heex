@@ -1,0 +1,40 @@
+<table class="text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
+  <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+    <%= for column <- @column do %>
+      <th
+        scope="col"
+        class="px-6 py-3 text-center cursor-pointer"
+        phx-click="sort"
+        phx-value-key={column.key}
+      >
+        <a href="#" class="group inline-flex">
+          <%= column.label %>
+
+          <%= if @sort_column == String.to_atom(column.key) do %>
+            <%= if @sort_order == :asc do %>
+              <%= render_arrow_up() %>
+            <% else %>
+              <%= render_arrow_down() %>
+            <% end %>
+          <% else %>
+            <%= render_arrow_up(:invisible) %>
+          <% end %>
+        </a>
+      </th>
+    <% end %>
+  </thead>
+  <tbody>
+    <%= for row <- @rows do %>
+      <tr class={
+        if @highlight.(row),
+          do:
+            "bg-teal-100 border-teal-500 dark:bg-teal-800 dark:border-teal-700",
+          else: "bg-white border-b dark:bg-gray-800 dark:border-gray-700"
+      }>
+        <%= for column <- @column do %>
+          <%= render_slot(column, row) %>
+        <% end %>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
