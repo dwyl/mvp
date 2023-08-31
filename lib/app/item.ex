@@ -74,6 +74,7 @@ defmodule App.Item do
     %Item{}
     |> changeset_with_tags(attrs)
     |> PaperTrail.insert(originator: %{id: Map.get(attrs, :person_id, 0)})
+    |> App.ListItems.add_papertrail_item_to_all_list()
   end
 
   @doc """

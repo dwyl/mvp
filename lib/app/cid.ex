@@ -1,6 +1,6 @@
 defmodule App.Cid do
   @moduledoc """
-  Helper functions for adding `cid` to records.
+  Helper functions for adding `cid` to records transparently in a changeset pipeline.
   """
 
   @doc """

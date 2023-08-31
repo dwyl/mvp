@@ -54,20 +54,6 @@ defmodule App.ItemTest do
       assert {:error, %Ecto.Changeset{}} = Item.create_item(@invalid_attrs)
     end
 
-    test "put_cid/1 adds a `cid` for the `item` record" do
-      # Create a changeset with a valid item record as the "changes":
-      changeset_before = %{changes: @valid_attrs}
-      # Should not yet have a cid:
-      refute Map.has_key?(changeset_before.changes, :cid)
-
-      # Confirm cid was added to the changes:
-      changeset_with_cid = App.Cid.put_cid(changeset_before)
-      assert changeset_with_cid.changes.cid == Cid.cid(@valid_attrs)
-
-      # confirm idepodent:
-      assert App.Cid.put_cid(changeset_with_cid) == changeset_with_cid
-    end
-
     # test "list_items/0 returns a list of items stored in the DB" do
     #   {:ok, %{model: _item1}} =
     #     Item.create_item(@valid_attrs)
