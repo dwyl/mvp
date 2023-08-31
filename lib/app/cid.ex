@@ -13,7 +13,8 @@ defmodule App.Cid do
       changeset
     else
       # Only add cid to changeset that has :name i.e. list.name or :text i.e. item.text
-      if Map.has_key?(changeset.changes, :name) || Map.has_key?(changeset.changes, :text) do
+      if Map.has_key?(changeset.changes, :name) ||
+           Map.has_key?(changeset.changes, :text) do
         cid = Cid.cid(changeset.changes)
         %{changeset | changes: Map.put(changeset.changes, :cid, cid)}
       else

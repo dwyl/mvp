@@ -249,7 +249,6 @@ defmodule App.Item do
       list_person_items(person_id)
       |> Enum.reduce(%{}, fn i, acc -> Map.put(acc, i.id, i) end)
 
-
     accumulate_item_timers(values, seq)
     |> Enum.map(fn t ->
       if t != nil do

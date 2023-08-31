@@ -98,7 +98,13 @@ defmodule AppWeb.AppLive do
 
     # need to restrict getting items to the people who own or have rights to access them!
     item = Item.get_item!(Map.get(data, "id"))
-    Item.update_item(item, %{status: status, person_id: person_id, cid: item.cid})
+
+    Item.update_item(item, %{
+      status: status,
+      person_id: person_id,
+      cid: item.cid
+    })
+
     Timer.stop_timer_for_item_id(item.id)
 
     AppWeb.Endpoint.broadcast(@topic, "update", :toggle)
