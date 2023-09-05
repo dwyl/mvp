@@ -196,7 +196,7 @@ defmodule App.ItemTest do
       assert NaiveDateTime.diff(timer1.start, started) == 0
 
       # Item must be on a list ...
-      App.ListItems.add_all_items_to_all_list_for_person_id(item1.person_id)
+      App.List.add_all_items_to_all_list_for_person_id(item1.person_id)
       # list items with timers:
       item_timers = Item.items_with_timers(1)
       assert length(item_timers) > 0

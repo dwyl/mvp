@@ -43,7 +43,7 @@ defmodule App.StatsTest do
     #          item1.inserted_at
     #        ) == :lt
     # assert NaiveDateTime.compare(
-    #          first_element.last_inserted_at,
+    #          first_element.last_inserted_at, 
     #          item2.inserted_at
     #        ) == :eq
   end
@@ -80,7 +80,7 @@ defmodule App.StatsTest do
     assert first_element.person_id == 2
   end
 
-  test "Stats.validate_sort_column/1 returns false for invalid sort_column" do
+  test "Stats.validate_sort_column/1 returns false for invalid sort _column" do
     refute Stats.validate_sort_column(:invalid)
   end
 

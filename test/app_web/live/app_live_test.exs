@@ -88,7 +88,7 @@ defmodule AppWeb.AppLiveTest do
     {:ok, %{model: item}} =
       Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
 
-    App.ListItems.add_all_items_to_all_list_for_person_id(item.person_id)
+    App.List.add_all_items_to_all_list_for_person_id(item.person_id)
 
     send(view.pid, %Broadcast{
       event: "update",
@@ -104,7 +104,7 @@ defmodule AppWeb.AppLiveTest do
     {:ok, %{model: item}} =
       Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
 
-      App.ListItems.add_all_items_to_all_list_for_person_id(item.person_id)
+      App.List.add_all_items_to_all_list_for_person_id(item.person_id)
 
     {:ok, now} = NaiveDateTime.new(Date.utc_today(), Time.utc_now())
 
@@ -135,7 +135,7 @@ defmodule AppWeb.AppLiveTest do
     {:ok, %{model: item}} =
       Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
 
-      App.ListItems.add_all_items_to_all_list_for_person_id(item.person_id)
+      App.List.add_all_items_to_all_list_for_person_id(item.person_id)
 
     {:ok, seven_seconds_ago} =
       NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
@@ -164,7 +164,7 @@ defmodule AppWeb.AppLiveTest do
     {:ok, %{model: item}} =
       Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
 
-      App.ListItems.add_all_items_to_all_list_for_person_id(item.person_id)
+      App.List.add_all_items_to_all_list_for_person_id(item.person_id)
 
     render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
 
@@ -713,7 +713,7 @@ defmodule AppWeb.AppLiveTest do
 
     # The items need to be in the latest seq to appear on the page:
     list = App.List.get_all_list_for_person(person_id)
-    App.ListItems.create_list_items_seq(list.cid, person_id, "#{item1.cid},#{item2.cid}")
+    App.List.update_list_seq(list.cid, person_id, "#{item1.cid},#{item2.cid}")
 
 
     {:ok, view, _html} = live(conn, "/?filter_by=all")
@@ -836,7 +836,7 @@ defmodule AppWeb.AppLiveTest do
     list = App.List.get_all_list_for_person(person_id)
 
     # Add all items to "all" list:
-    App.ListItems.add_all_items_to_all_list_for_person_id(person_id)
+    App.List.add_all_items_to_all_list_for_person_id(person_id)
 
     # Render LiveView
     {:ok, view, _html} = live(conn, "/")
@@ -860,7 +860,8 @@ defmodule AppWeb.AppLiveTest do
       "seq" => "#{item.cid},#{item2.cid},#{item3.cid}"
     })
 
-    seq = App.ListItems.get_list_items(list.cid)
+    all_list = App.List.get_all_list_for_person(person_id)
+    seq = App.List.get_list_seq(all_list)
     pos1 = Enum.find_index(seq, fn x -> x == "#{item.cid}" end)
     pos2 = Enum.find_index(seq, fn x -> x == "#{item2.cid}" end)
     # IO.puts("#{pos1}: #{item.cid}")
@@ -869,13 +870,11 @@ defmodule AppWeb.AppLiveTest do
     assert pos1 < pos2
 
     # Update list_item.seq:
-    App.ListItems.create_list_items_seq(list.cid, person_id, "#{item.cid},#{item3.cid},#{item2.cid}")
-    new_seq = App.ListItems.get_list_items(list.cid)
+    {:ok, %{model: list}} = App.List.update_list_seq(list.cid, person_id, "#{item.cid},#{item3.cid},#{item2.cid}")
+    new_seq = list.seq |> String.split(",")
     # dbg(new_seq)
     pos2 = Enum.find_index(new_seq, fn x -> x == "#{item2.cid}" end)
     pos3 = Enum.find_index(new_seq, fn x -> x == "#{item3.cid}" end)
-    # IO.puts("#{pos2}: #{item2.cid}")
-    # IO.puts("#{pos3}: #{item3.cid}")
     assert pos3 < pos2
   end
 

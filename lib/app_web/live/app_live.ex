@@ -27,7 +27,7 @@ defmodule AppWeb.AppLive do
     all_list = App.List.get_all_list_for_person(person_id)
     # dbg(all_list)
     # Temporary function to add All *existing* items to the "All" list:
-    App.ListItems.add_all_items_to_all_list_for_person_id(person_id)
+    App.List.add_all_items_to_all_list_for_person_id(person_id)
 
     items = Item.items_with_timers(person_id)
     tags = Tag.list_person_tags(person_id)
@@ -316,7 +316,7 @@ defmodule AppWeb.AppLive do
     #   "updateIndexes -> seq: #{seq} | list_cid: #{list_cid} | person_id: #{person_id}"
     # )
 
-    App.ListItems.create_list_items_seq(list_cid, person_id, seq)
+    App.List.update_list_seq(list_cid, person_id, seq)
     {:noreply, socket}
   end
 

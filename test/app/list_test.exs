@@ -1,6 +1,6 @@
 defmodule App.ListTest do
   use App.DataCase, async: true
-  alias App.{List}
+  alias App.{Item, List}
 
   describe "list" do
     @person_id 7
@@ -71,6 +71,28 @@ defmodule App.ListTest do
     test "get_all_list_for_person retrieves (or creates) the 'all' list for person_id" do
       all_list = App.List.get_all_list_for_person(@person_id)
       assert all_list.name == "all"
+    end
+
+    test "add_all_items_to_all_list_for_person_id/1 adds all items to all list for person_id" do
+      person_id = 42
+      # create an item for the person but do NOT add it to any list:
+      assert {:ok, %{model: item1}} =
+          Item.create_item(%{text: "buy land!", person_id: person_id, status: 2})
+      assert {:ok, %{model: item2}} =
+        Item.create_item(%{text: "plant trees & food", person_id: person_id, status: 2})
+      assert {:ok, %{model: item3}} =
+          Item.create_item(%{text: "live best life", person_id: person_id, status: 2})
+
+      # Invoke the biz logic:
+      App.List.add_all_items_to_all_list_for_person_id(person_id)
+
+      # Confirm that the item.id is in the squence of item ids for the "all" list:
+      all_list = App.List.get_all_list_for_person(person_id)
+      all_items_seq = all_list.seq |> String.split(",")
+
+      assert Enum.member?(all_items_seq, "#{item1.cid}")
+      assert Enum.member?(all_items_seq, "#{item2.cid}")
+      assert Enum.member?(all_items_seq, "#{item3.cid}")
     end
 
     # test "create_default_lists/1 creates the default lists" do

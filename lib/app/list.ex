@@ -1,4 +1,5 @@
 defmodule App.List do
+  require Logger
   use Ecto.Schema
   import Ecto.{Changeset, Query}
   alias App.{Repo}
@@ -9,6 +10,7 @@ defmodule App.List do
     field :cid, :string
     field :name, :string
     field :person_id, :integer
+    field :seq, :string
     field :sort, :integer
     field :status, :integer
 
@@ -18,7 +20,7 @@ defmodule App.List do
   @doc false
   def changeset(list, attrs) do
     list
-    |> cast(attrs, [:name, :person_id, :sort, :status])
+    |> cast(attrs, [:name, :person_id, :seq, :sort, :status])
     |> validate_required([:name, :person_id])
     |> App.Cid.put_cid()
   end
@@ -144,7 +146,73 @@ defmodule App.List do
     end
   end
 
+  def add_item_to_list(item_cid, list_cid, person_id) do
+    list = get_list_by_cid!(list_cid)
+    # dbg(list)
+    prev_seq = get_list_seq(list)
+    seq = [item_cid | prev_seq] |> Enum.join(",")
+    # dbg(seq)
+    update_list(list, %{seq: seq, person_id: person_id})
+  end
+
+  def update_list_seq(list_cid, person_id, seq) do
+    list = get_list_by_cid!(list_cid)
+    update_list(list, %{seq: seq, person_id: person_id})
+  end
+
+  # feel free to refactor this to use pattern matching:
+  def add_papertrail_item_to_all_list(tuple) do
+    # extract the item from the tuple:
+    try do
+      {:ok, %{model: item}} = tuple
+      all_list = App.List.get_all_list_for_person(item.person_id)
+      add_item_to_list(item.cid, all_list.cid, item.person_id)
+    rescue
+      e ->
+        Logger.error(Exception.format(:error, e, __STACKTRACE__))
+    end
+
+    # return the original tuple as expected downstream:
+    tuple
+  end
+
+  def get_list_seq(list) do
+    if is_nil(list.seq) do
+      []
+    else
+      list.seq |> String.split(",")
+    end
+  end
+
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
   # Below this point is Lists transition code that will be DELETED! #
   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+  @doc """
+  `add_all_items_to_all_list_for_person_id/1` does *exactly* what its' name suggests.
+  Adds *all* the person's `items` to the `list_items.seq`.
+  """
+  def add_all_items_to_all_list_for_person_id(person_id) do
+    all_list = App.List.get_all_list_for_person(person_id)
+    # dbg(all_list)
+    all_items = App.Item.all_items_for_person(person_id)
+    # dbg(all_items)
+    prev_seq = get_list_seq(all_list)
+    # dbg(prev_seq)
+    # Add add each `item.id` to the sequence of item ids:
+    seq =
+      Enum.reduce(all_items, prev_seq, fn i, acc ->
+        # Avoid adding duplicates
+        if Enum.member?(acc, i.cid) do
+          acc
+        else
+          [i.cid | acc]
+        end
+      end)
+      |> Enum.uniq()
+      |> Enum.filter(fn cid -> cid != nil && cid != "" end)
+      |> Enum.join(",")
+
+    update_list(all_list, %{seq: seq})
+  end
 end

@@ -57,7 +57,7 @@ defmodule App.Item do
     %Item{}
     |> changeset(attrs)
     |> PaperTrail.insert(originator: %{id: Map.get(attrs, :person_id, 0)})
-    |> App.ListItems.add_papertrail_item_to_all_list()
+    |> App.List.add_papertrail_item_to_all_list()
   end
 
   @doc """
@@ -75,7 +75,7 @@ defmodule App.Item do
     %Item{}
     |> changeset_with_tags(attrs)
     |> PaperTrail.insert(originator: %{id: Map.get(attrs, :person_id, 0)})
-    |> App.ListItems.add_papertrail_item_to_all_list()
+    |> App.List.add_papertrail_item_to_all_list()
   end
 
   @doc """
@@ -227,7 +227,7 @@ defmodule App.Item do
   def items_with_timers(person_id \\ 0) do
     all_list = App.List.get_all_list_for_person(person_id)
     # dbg(all_list)
-    seq = App.ListItems.get_list_items(all_list.cid)
+    seq = App.List.get_list_seq(all_list)
     # dbg(seq)
 
     sql = """

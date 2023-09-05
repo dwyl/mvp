@@ -6,6 +6,7 @@ defmodule App.Repo.Migrations.CreateLists do
       add :cid, :string
       add :name, :string
       add :person_id, :integer
+      add :seq, :text
       add :sort, :integer
       add :status, :integer
 
