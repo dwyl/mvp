@@ -1,6 +1,6 @@
 defmodule AppWeb.TagController do
   use AppWeb, :controller
-  alias App.Tag
+  alias App.{Person, Tag}
   plug :permission_tag when action in [:edit, :update, :delete]
 
   def index(conn, _params) do
@@ -16,7 +16,7 @@ defmodule AppWeb.TagController do
   end
 
   def create(conn, %{"tag" => tag_params}) do
-    person_id = conn.assigns[:person][:id] || 0
+    person_id = Person.get_person_id(conn.assigns)
     tag_params = Map.put(tag_params, "person_id", person_id)
 
     case Tag.create_tag(tag_params) do
@@ -63,7 +63,7 @@ defmodule AppWeb.TagController do
   defp permission_tag(conn, _opts) do
     tag = Tag.get_tag!(conn.params["id"])
 
-    person_id = conn.assigns[:person][:id] || 0
+    person_id = Person.get_person_id(conn.assigns)
 
     if tag.person_id == person_id do
       conn

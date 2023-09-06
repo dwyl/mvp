@@ -2,7 +2,7 @@ defmodule AppWeb.AppLive do
   require Logger
   use AppWeb, :live_view
   use Timex
-  alias App.{Item, Tag, Timer}
+  alias App.{Item, Person, Tag, Timer}
   # run authentication on mount
   on_mount(AppWeb.AuthController)
   alias Phoenix.Socket.Broadcast
@@ -10,15 +10,13 @@ defmodule AppWeb.AppLive do
   @topic "live"
   @stats_topic "stats"
 
-  defp get_person_id(assigns), do: assigns[:person][:id] || 0
-
   @impl true
   def mount(_params, _session, socket) do
     # subscribe to the channel
     if connected?(socket), do: AppWeb.Endpoint.subscribe(@topic)
     AppWeb.Endpoint.subscribe(@stats_topic)
 
-    person_id = get_person_id(socket.assigns)
+    person_id = Person.get_person_id(socket.assigns)
     items = Item.items_with_timers(person_id)
     tags = Tag.list_person_tags(person_id)
     selected_tags = []
@@ -43,7 +41,7 @@ defmodule AppWeb.AppLive do
 
   @impl true
   def handle_event("validate", %{"text" => text}, socket) do
-    person_id = get_person_id(socket.assigns)
+    person_id = Person.get_person_id(socket.assigns)
     draft = Item.get_draft_item(person_id)
     Item.update_draft(draft, %{text: text})
     # only save draft if person id != 0 (ie not guest)
@@ -52,7 +50,7 @@ defmodule AppWeb.AppLive do
 
   @impl true
   def handle_event("create", %{"text" => text}, socket) do
-    person_id = get_person_id(socket.assigns)
+    person_id = Person.get_person_id(socket.assigns)
 
     Item.create_item_with_tags(%{
       text: text,
@@ -77,7 +75,7 @@ defmodule AppWeb.AppLive do
 
   @impl true
   def handle_event("toggle", data, socket) do
-    person_id = get_person_id(socket.assigns)
+    person_id = Person.get_person_id(socket.assigns)
 
     # Toggle the status of the item between 3 (:active) and 4 (:done)
     status = if Map.has_key?(data, "value"), do: 4, else: 3
@@ -93,7 +91,7 @@ defmodule AppWeb.AppLive do
 
   @impl true
   def handle_event("toggle_tag", value, socket) do
-    person_id = get_person_id(socket.assigns)
+    person_id = Person.get_person_id(socket.assigns)
     selected_tags = socket.assigns.selected_tags
     tag = Tag.get_tag!(value["tag_id"])
     tags = Tag.list_person_tags(person_id)
@@ -105,7 +103,7 @@ defmodule AppWeb.AppLive do
 
   @impl true
   def handle_event("filter-tags", %{"key" => _key, "value" => value}, socket) do
-    person_id = get_person_id(socket.assigns)
+    person_id = Person.get_person_id(socket.assigns)
 
     tags =
       Tag.list_person_tags(person_id)
@@ -154,7 +152,7 @@ defmodule AppWeb.AppLive do
   @impl true
   def handle_event("start", data, socket) do
     item = Item.get_item!(Map.get(data, "id"))
-    person_id = get_person_id(socket.assigns)
+    person_id = Person.get_person_id(socket.assigns)
 
     {:ok, _timer} =
       Timer.start(%{
@@ -199,7 +197,7 @@ defmodule AppWeb.AppLive do
         %{"id" => item_id, "text" => text},
         socket
       ) do
-    person_id = get_person_id(socket.assigns)
+    person_id = Person.get_person_id(socket.assigns)
     current_item = Item.get_item!(item_id)
 
     Item.update_item(current_item, %{
@@ -252,7 +250,7 @@ defmodule AppWeb.AppLive do
 
   @impl true
   def handle_info(%Broadcast{event: "update", payload: payload}, socket) do
-    person_id = get_person_id(socket.assigns)
+    person_id = Person.get_person_id(socket.assigns)
     items = Item.items_with_timers(person_id)
     isEditingItem = socket.assigns.editing
 
