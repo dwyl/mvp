@@ -1,7 +1,9 @@
 import Config
 
 config :app,
-  ecto_repos: [App.Repo]
+  ecto_repos: [App.Repo],
+  # rickaard.se/blog/how-to-only-run-some-code-in-production-with-phoenix-and-elixir
+  env: config_env()
 
 # Configures the endpoint
 config :app, AppWeb.Endpoint,
@@ -50,6 +52,9 @@ import_config "#{config_env()}.exs"
 # https://hexdocs.pm/joken/introduction.html#usage
 config :joken, default_signer: System.get_env("SECRET_KEY_BASE")
 
-#
+# https://github.com/dwyl/auth_plug
 config :auth_plug,
   api_key: System.get_env("AUTH_API_KEY")
+
+# https://github.com/dwyl/cid#how
+config :excid, base: :base58

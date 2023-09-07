@@ -3,12 +3,16 @@ defmodule AppWeb.AppLive do
   use AppWeb, :live_view
   use Timex
   alias App.{Item, Person, Tag, Timer}
+  alias Phoenix.Socket.Broadcast
+  alias Phoenix.LiveView.JS
+
   # run authentication on mount
   on_mount(AppWeb.AuthController)
-  alias Phoenix.Socket.Broadcast
 
   @topic "live"
   @stats_topic "stats"
+
+  defp get_list_cid(assigns), do: assigns[:list_cid]
 
   @impl true
   def mount(_params, _session, socket) do
@@ -17,6 +21,10 @@ defmodule AppWeb.AppLive do
     AppWeb.Endpoint.subscribe(@stats_topic)
 
     person_id = Person.get_person_id(socket.assigns)
+    # Create or Get the "all" list for the person_id
+    all_list = App.List.get_all_list_for_person(person_id)
+    # Temporary function to add All *existing* items to the "All" list:
+    App.List.add_all_items_to_all_list_for_person_id(person_id)
     items = Item.items_with_timers(person_id)
     tags = Tag.list_person_tags(person_id)
     selected_tags = []
@@ -29,10 +37,10 @@ defmodule AppWeb.AppLive do
        editing: nil,
        filter: "active",
        filter_tag: nil,
+       list_cid: all_list.cid,
        tags: tags,
        selected_tags: selected_tags,
        text_value: draft_item.text || "",
-
        # Offset from the client to UTC. If it's "1", it means we are one hour ahead of UTC.
        hours_offset_fromUTC:
          get_connect_params(socket)["hours_offset_fromUTC"] || 0
@@ -52,12 +60,16 @@ defmodule AppWeb.AppLive do
   def handle_event("create", %{"text" => text}, socket) do
     person_id = Person.get_person_id(socket.assigns)
 
-    Item.create_item_with_tags(%{
-      text: text,
-      person_id: person_id,
-      status: 2,
-      tags: socket.assigns.selected_tags
-    })
+    {:ok, %{model: _item}} =
+      Item.create_item_with_tags(%{
+        text: text,
+        person_id: person_id,
+        status: 2,
+        tags: socket.assigns.selected_tags
+      })
+
+    # Add this newly created `item` to the "All" list:
+    # App.ListItem.add_item_to_all_list(item)
 
     draft = Item.get_draft_item(person_id)
     Item.update_draft(draft, %{text: ""})
@@ -82,7 +94,13 @@ defmodule AppWeb.AppLive do
 
     # need to restrict getting items to the people who own or have rights to access them!
     item = Item.get_item!(Map.get(data, "id"))
-    Item.update_item(item, %{status: status, person_id: person_id})
+
+    Item.update_item(item, %{
+      status: status,
+      person_id: person_id,
+      cid: item.cid
+    })
+
     Timer.stop_timer_for_item_id(item.id)
 
     AppWeb.Endpoint.broadcast(@topic, "update", :toggle)
@@ -121,8 +139,8 @@ defmodule AppWeb.AppLive do
         socket
       ) do
     case socket.assigns.tags do
-      [] ->
-        {:noreply, socket}
+      # [] ->
+      #   {:noreply, socket}
 
       _ ->
         selected_tag =
@@ -249,6 +267,79 @@ defmodule AppWeb.AppLive do
   end
 
   @impl true
+  def handle_event("highlight", %{"id" => id}, socket) do
+    AppWeb.Endpoint.broadcast(@topic, "move_items", {:drag_item, id})
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("removeHighlight", %{"id" => id}, socket) do
+    AppWeb.Endpoint.broadcast(@topic, "move_items", {:drop_item, id})
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event(
+        "dragoverItem",
+        %{
+          "currentItemId" => current_item_id,
+          "selectedItemId" => selected_item_id
+        },
+        socket
+      ) do
+    AppWeb.Endpoint.broadcast(
+      @topic,
+      "move_items",
+      {:dragover_item, {current_item_id, selected_item_id}}
+    )
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event(
+        "update_list_seq",
+        %{"seq" => seq},
+        socket
+      ) do
+    list_cid = get_list_cid(socket.assigns)
+    person_id = App.Person.get_person_id(socket.assigns)
+    App.List.update_list_seq(list_cid, person_id, seq)
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info(
+        %Broadcast{
+          event: "move_items",
+          payload: {:dragover_item, {current_item_id, selected_item_id}}
+        },
+        socket
+      ) do
+    {:noreply,
+     push_event(socket, "dragover-item", %{
+       current_item_id: current_item_id,
+       selected_item_id: selected_item_id
+     })}
+  end
+
+  @impl true
+  def handle_info(
+        %Broadcast{event: "move_items", payload: {:drag_item, item_id}},
+        socket
+      ) do
+    {:noreply, push_event(socket, "highlight", %{id: item_id})}
+  end
+
+  @impl true
+  def handle_info(
+        %Broadcast{event: "move_items", payload: {:drop_item, item_id}},
+        socket
+      ) do
+    {:noreply, push_event(socket, "remove-highlight", %{id: item_id})}
+  end
+
+  @impl true
   def handle_info(%Broadcast{event: "update", payload: payload}, socket) do
     person_id = Person.get_person_id(socket.assigns)
     items = Item.items_with_timers(person_id)
@@ -299,9 +390,14 @@ defmodule AppWeb.AppLive do
   def has_items?(items), do: length(items) > 1
 
   # 2: uncategorised (when item are created), 3: active
-  def active?(item), do: item.status == 2 || item.status == 3
-  def done?(item), do: item.status == 4
-  def archived?(item), do: item.status == 6
+  def status?(item), do: not is_nil(item) && Map.has_key?(item, :status)
+
+  def active?(item),
+    do:
+      (status?(item) && item.status == 2) || (status?(item) && item.status == 3)
+
+  def done?(item), do: status?(item) && item.status == 4
+  def archived?(item), do: status?(item) && item.status == 6
 
   # Check if an item has an active timer
   def started?(item) do
@@ -379,6 +475,9 @@ defmodule AppWeb.AppLive do
   end
 
   defp filter_items(items, filter, filter_tag) do
+    # avoid nil items mvp#412
+    items = Enum.reject(items, &is_nil/1)
+
     items =
       case filter do
         "active" ->

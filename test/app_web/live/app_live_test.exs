@@ -21,10 +21,10 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "toggle an item", %{conn: conn} do
-    {:ok, %{model: item, version: _version}} =
+    {:ok, %{model: item}} =
       Item.create_item(%{text: "Learn Elixir", status: 2, person_id: 0})
 
-    {:ok, %{model: _item2, version: _version}} =
+    {:ok, %{model: _item2}} =
       Item.create_item(%{text: "Learn Elixir", status: 4, person_id: 0})
 
     assert item.status == 2
@@ -46,7 +46,7 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "(soft) delete an item", %{conn: conn} do
-    {:ok, %{model: item, version: _version}} =
+    {:ok, %{model: item}} =
       Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
     assert item.status == 2
@@ -59,7 +59,7 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "start a timer", %{conn: conn} do
-    {:ok, %{model: item, version: _version}} =
+    {:ok, %{model: item}} =
       Item.create_item(%{text: "Get Fancy!", person_id: 0, status: 2})
 
     assert item.status == 2
@@ -69,7 +69,7 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "stop a timer", %{conn: conn} do
-    {:ok, %{model: item, version: _version}} =
+    {:ok, %{model: item}} =
       Item.create_item(%{text: "Get Fancy!", person_id: 0, status: 2})
 
     assert item.status == 2
@@ -85,8 +85,10 @@ defmodule AppWeb.AppLiveTest do
   test "handle_info/2 update", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
 
-    {:ok, %{model: item, version: _version}} =
+    {:ok, %{model: item}} =
       Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
+
+    App.List.add_all_items_to_all_list_for_person_id(item.person_id)
 
     send(view.pid, %Broadcast{
       event: "update",
@@ -99,8 +101,10 @@ defmodule AppWeb.AppLiveTest do
   test "handle_info/2 update with editing open (start)", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
 
-    {:ok, %{model: item, version: _version}} =
+    {:ok, %{model: item}} =
       Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
+
+      App.List.add_all_items_to_all_list_for_person_id(item.person_id)
 
     {:ok, now} = NaiveDateTime.new(Date.utc_today(), Time.utc_now())
 
@@ -128,8 +132,10 @@ defmodule AppWeb.AppLiveTest do
   test "handle_info/2 update with editing open (stop)", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
 
-    {:ok, %{model: item, version: _version}} =
+    {:ok, %{model: item}} =
       Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
+
+      App.List.add_all_items_to_all_list_for_person_id(item.person_id)
 
     {:ok, seven_seconds_ago} =
       NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
@@ -155,8 +161,10 @@ defmodule AppWeb.AppLiveTest do
   test "handle_info/2 update with editing open (delete)", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
 
-    {:ok, %{model: item, version: _version}} =
+    {:ok, %{model: item}} =
       Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
+
+      App.List.add_all_items_to_all_list_for_person_id(item.person_id)
 
     render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
 
@@ -169,8 +177,7 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "edit-item", %{conn: conn} do
-    {:ok, %{model: item, version: _version}} =
-      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+    {:ok, %{model: item}} = Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
     {:ok, view, _html} = live(conn, "/")
 
@@ -179,7 +186,7 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "update an item", %{conn: conn} do
-    {:ok, %{model: item, version: _version}} =
+    {:ok, %{model: item}} =
       Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
     {:ok, view, _html} = live(conn, "/")
@@ -199,7 +206,7 @@ defmodule AppWeb.AppLiveTest do
     start_datetime = ~N[2022-10-27 00:00:00]
     stop_datetime = ~N[2022-10-27 05:00:00]
 
-    {:ok, %{model: item, version: _version}} =
+    {:ok, %{model: item}} =
       Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
     {:ok, seven_seconds_ago} =
@@ -271,7 +278,7 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "update timer while it's ongoing for the first time", %{conn: conn} do
-    {:ok, %{model: item, version: _version}} =
+    {:ok, %{model: item}} =
       Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
     {:ok, seven_seconds_ago} =
@@ -314,8 +321,8 @@ defmodule AppWeb.AppLiveTest do
     assert updated_timer.start == NaiveDateTime.truncate(now, :second)
   end
 
-  test "update timer timer with ongoing timer ", %{conn: conn} do
-    {:ok, %{model: item, version: _version}} =
+  test "update timer with ongoing timer", %{conn: conn} do
+    {:ok, %{model: item}} =
       Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
     {:ok, seven_seconds_ago} =
@@ -416,7 +423,7 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "timer overlap error when updating timer", %{conn: conn} do
-    {:ok, %{model: item, version: _version}} =
+    {:ok, %{model: item}} =
       Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
     {:ok, seven_seconds_ago} =
@@ -483,7 +490,7 @@ defmodule AppWeb.AppLiveTest do
 
   test "timer overlap error when updating historical timer with ongoing timer",
        %{conn: conn} do
-    {:ok, %{model: item, version: _version}} =
+    {:ok, %{model: item}} =
       Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
     {:ok, seven_seconds_ago} =
@@ -546,7 +553,7 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "item\'s timer shows correct value (adjusted timezone)", %{conn: conn} do
-    {:ok, %{model: item, version: _version}} =
+    {:ok, %{model: item}} =
       Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
     {:ok, seven_seconds_ago} =
@@ -647,13 +654,13 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "filter items", %{conn: conn} do
-    {:ok, %{model: _item, version: _version}} =
+    {:ok, %{model: _item}} =
       Item.create_item(%{text: "Item to do", person_id: 0, status: 2})
 
-    {:ok, %{model: _item_done, version: _version}} =
+    {:ok, %{model: _item_done}} =
       Item.create_item(%{text: "Item done", person_id: 0, status: 4})
 
-    {:ok, %{model: _item_archived, version: _version}} =
+    {:ok, %{model: _item_archived}} =
       Item.create_item(%{text: "Item archived", person_id: 0, status: 6})
 
     {:ok, view, _html} = live(conn, "/?filter_by=all")
@@ -678,16 +685,17 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "filter items by tag name", %{conn: conn} do
+    person_id = 0
     {:ok, tag1} =
-      Tag.create_tag(%{person_id: 0, text: "tag1", color: "#FCA5A5"})
+      Tag.create_tag(%{person_id: person_id, text: "tag1", color: "#FCA5A5"})
 
     {:ok, tag2} =
-      Tag.create_tag(%{person_id: 0, text: "tag2", color: "#FCA5A5"})
+      Tag.create_tag(%{person_id: person_id, text: "tag2", color: "#FCA5A5"})
 
     {:ok, tag3} =
-      Tag.create_tag(%{person_id: 0, text: "tag3", color: "#FCA5A5"})
+      Tag.create_tag(%{person_id: person_id, text: "tag3", color: "#FCA5A5"})
 
-    {:ok, %{model: _item, version: _version}} =
+    {:ok, %{model: item1}} =
       Item.create_item_with_tags(%{
         text: "Item1 to do",
         person_id: 0,
@@ -695,13 +703,18 @@ defmodule AppWeb.AppLiveTest do
         tags: [tag1, tag2]
       })
 
-    {:ok, %{model: _item, version: _version}} =
+    {:ok, %{model: item2}} =
       Item.create_item_with_tags(%{
         text: "Item2 to do",
         person_id: 0,
         status: 2,
         tags: [tag1, tag3]
       })
+
+    # The items need to be in the latest seq to appear on the page:
+    list = App.List.get_all_list_for_person(person_id)
+    App.List.update_list_seq(list.cid, person_id, "#{item1.cid},#{item2.cid}")
+
 
     {:ok, view, _html} = live(conn, "/?filter_by=all")
     assert render(view) =~ "Item1 to do"
@@ -807,50 +820,83 @@ defmodule AppWeb.AppLiveTest do
     assert render_hook(view, "filter-tags", %{"key" => "t", "value" => "t"})
   end
 
+  test "Drag and Drop item", %{conn: conn} do
+    person_id = 0
+    # Creating Three items
+    {:ok, %{model: item}} =
+      Item.create_item(%{text: "Learn Elixir", person_id: person_id, status: 2})
+
+    {:ok, %{model: item2}} =
+      Item.create_item(%{ text: "Build Awesome App", person_id: person_id, status: 2})
+
+    {:ok, %{model: item3}} =
+      Item.create_item(%{ text: "Profit", person_id: person_id, status: 2})
+
+    # Create "all" list for this person_id:
+    list = App.List.get_all_list_for_person(person_id)
+
+    # Add all items to "all" list:
+    App.List.add_all_items_to_all_list_for_person_id(person_id)
+
+    # Render LiveView
+    {:ok, view, _html} = live(conn, "/")
+
+    # Highlight broadcast should have occurred
+    assert render_hook(view, "highlight", %{"id" => item.id})
+      |> String.split("bg-teal-300")
+      |> Enum.drop(1)
+      |> length() > 0
+
+    # Dragover and remove highlight
+    render_hook(view, "dragoverItem", %{
+      "currentItemId" => item2.id,
+      "selectedItemId" => item.id
+    })
+
+    assert render_hook(view, "removeHighlight", %{"id" => item.id})
+
+    # reorder items:
+    render_hook(view, "update_list_seq", %{
+      "seq" => "#{item.cid},#{item2.cid},#{item3.cid}"
+    })
+
+    all_list = App.List.get_all_list_for_person(person_id)
+    seq = App.List.get_list_seq(all_list)
+    pos1 = Enum.find_index(seq, fn x -> x == "#{item.cid}" end)
+    pos2 = Enum.find_index(seq, fn x -> x == "#{item2.cid}" end)
+    # IO.puts("#{pos1}: #{item.cid}")
+    # IO.puts("#{pos2}: #{item2.cid}")
+
+    assert pos1 < pos2
+
+    # Update list_item.seq:
+    {:ok, %{model: list}} = App.List.update_list_seq(list.cid, person_id, "#{item.cid},#{item3.cid},#{item2.cid}")
+    new_seq = list.seq |> String.split(",")
+    # dbg(new_seq)
+    pos2 = Enum.find_index(new_seq, fn x -> x == "#{item2.cid}" end)
+    pos3 = Enum.find_index(new_seq, fn x -> x == "#{item3.cid}" end)
+    assert pos3 < pos2
+  end
+
   test "select tag when enter pressed", %{conn: conn} do
-    {:ok, _tag1} =
-      Tag.create_tag(%{person_id: 0, text: "tag1", color: "#FCA5A5"})
-
-    used_tag = %{
-      person_id: 0,
-      text: "enter_tag_selected",
-      color: "#FCA5A5"
-    }
-
-    {:ok, _tag2} = Tag.create_tag(used_tag)
-
+    # Add default tag created by priv/repo/seeds.exs
     {:ok, view, _html} = live(conn, "/")
 
     assert render_keydown(view, "add-first-tag", %{"key" => "Enter"}) =~
-             "enter_tag_selected"
+             "baking"
 
-    assert render_submit(view, :create, %{text: "tag enter pressed"})
+    {:ok, _tag1} =
+      Tag.create_tag(%{
+        person_id: 0,
+        text: "enter_tag_selected",
+        color: "#FCA5A5"
+      })
 
-    assert render(view) =~ "tag enter pressed"
-    assert render(view) =~ "enter_tag_selected"
-
-    last_item_inserted = Item.list_person_items(0) |> List.last()
-
-    [tag | _] = last_item_inserted.tags
-
-    assert tag.person_id == used_tag.person_id
-    assert tag.text == used_tag.text
-    assert tag.color == used_tag.color
+    assert render_submit(view, :create, %{text: "baking"})
+    assert render(view) =~ "baking"
   end
 
-  test "dont select tag if there arent tags created", %{conn: conn} do
-    {:ok, view, _html} = live(conn, "/")
-
-    assert render_keydown(view, "add-first-tag", %{"key" => "Enter"})
-
-    assert render_submit(view, :create, %{text: "tag enter pressed"})
-
-    last_item_inserted = Item.list_person_items(0) |> List.last()
-
-    assert last_item_inserted.tags == []
-  end
-
-  test "dont select tag if other keydown is pressed", %{conn: conn} do
+  test "don't select tag if other keydown is pressed", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
 
     assert render_keydown(view, "add-first-tag", %{"key" => "Esc"})

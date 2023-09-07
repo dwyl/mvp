@@ -10,6 +10,7 @@ defmodule App.Item do
   @derive {Jason.Encoder,
            except: [:__meta__, :__struct__, :timer, :inserted_at, :updated_at]}
   schema "items" do
+    field :cid, :string
     field :person_id, :integer
     field :status, :integer
     field :text, :string
@@ -23,8 +24,9 @@ defmodule App.Item do
   @doc false
   def changeset(item, attrs) do
     item
-    |> cast(attrs, [:person_id, :status, :text])
+    |> cast(attrs, [:cid, :person_id, :status, :text])
     |> validate_required([:text, :person_id])
+    |> App.Cid.put_cid()
   end
 
   def changeset_with_tags(item, attrs) do
@@ -36,10 +38,11 @@ defmodule App.Item do
     item
     |> cast(attrs, [:person_id, :status, :text])
     |> validate_required([:person_id])
+    |> App.Cid.put_cid()
   end
 
   @doc """
-  Creates an `item`.
+  `create_item/1` creates an `item`.
 
   ## Examples
 
@@ -54,6 +57,7 @@ defmodule App.Item do
     %Item{}
     |> changeset(attrs)
     |> PaperTrail.insert(originator: %{id: Map.get(attrs, :person_id, 0)})
+    |> App.List.add_papertrail_item_to_all_list()
   end
 
   @doc """
@@ -71,6 +75,7 @@ defmodule App.Item do
     %Item{}
     |> changeset_with_tags(attrs)
     |> PaperTrail.insert(originator: %{id: Map.get(attrs, :person_id, 0)})
+    |> App.List.add_papertrail_item_to_all_list()
   end
 
   @doc """
@@ -134,7 +139,6 @@ defmodule App.Item do
   """
   def list_items do
     Item
-    |> order_by(desc: :inserted_at)
     |> where([i], is_nil(i.status) or i.status != 6)
     |> Repo.all()
   end
@@ -186,12 +190,19 @@ defmodule App.Item do
     |> Repo.update()
   end
 
+  def all_items_for_person(person_id) do
+    Item
+    |> where(person_id: ^person_id)
+    |> Repo.all()
+  end
+
   #  🐲       H E R E   B E   D R A G O N S!     🐉
   #  ⏳     Working with Time is all Dragons!    🙄
   #  👩‍💻   Feedback/Pairing/Refactoring Welcome!  🙏
 
   @doc """
   `items_with_timers/1` Returns a List of items with the latest associated timers.
+  This list is ordered with the position that is detailed inside the Items schema.
 
   ## Examples
 
@@ -203,24 +214,33 @@ defmodule App.Item do
   """
   #
   def items_with_timers(person_id \\ 0) do
+    all_list = App.List.get_all_list_for_person(person_id)
+    seq = App.List.get_list_seq(all_list)
+
     sql = """
-    SELECT i.id, i.text, i.status, i.person_id, t.start, t.stop, t.id as timer_id FROM items i
-    FULL JOIN timers as t ON t.item_id = i.id
-    WHERE i.person_id = $1 AND i.status IS NOT NULL
+    SELECT i.id, i.cid, i.text, i.status, i.person_id, i.updated_at,
+      t.start, t.stop, t.id as timer_id
+    FROM items i
+    FULL JOIN timers AS t ON t.item_id = i.id
+    WHERE i.cid = any($1)
+    AND i.status IS NOT NULL
+    AND i.text IS NOT NULL
     ORDER BY timer_id ASC;
     """
 
     values =
-      Ecto.Adapters.SQL.query!(Repo, sql, [person_id])
+      Ecto.Adapters.SQL.query!(Repo, sql, [seq])
       |> map_columns_to_values()
 
     items_tags =
       list_person_items(person_id)
       |> Enum.reduce(%{}, fn i, acc -> Map.put(acc, i.id, i) end)
 
-    accumulate_item_timers(values)
+    accumulate_item_timers(values, seq)
     |> Enum.map(fn t ->
-      Map.put(t, :tags, items_tags[t.id].tags)
+      if t != nil do
+        Map.put(t, :tags, items_tags[t.id].tags)
+      end
     end)
   end
 
@@ -299,11 +319,11 @@ defmodule App.Item do
   And having multiple timers is the *only* way to achieve that.
 
   If you can think of a better way of achieving the same result,
-  please share: https://github.com/dwyl/app-mvp-phoenix/issues/103
+  please share: github.com/dwyl/app-mvp-phoenix/issues/103
   This function *relies* on the list of items being ordered by timer_id ASC
   because it "pops" the last timer and ignores it to avoid double-counting.
   """
-  def accumulate_item_timers(items_with_timers) do
+  def accumulate_item_timers(items_with_timers, seq) do
     # e.g: %{0 => 0, 1 => 6, 2 => 5, 3 => 24, 4 => 7}
     timer_id_diff_map = map_timer_diff(items_with_timers)
 
@@ -331,20 +351,51 @@ defmodule App.Item do
          end)}
       end)
 
-    # creates a nested map: %{ item.id: %{id: 1, text: "my item", etc.}}
-    Map.new(items_with_timers, fn item ->
-      time_elapsed = Map.get(item_id_timer_diff_map, item.id)
+    # creates a nested map: %{ item.cid: %{id: 1, text: "my item", etc.}}
+    cid_item_map =
+      Map.new(items_with_timers, fn item ->
+        time_elapsed = Map.get(item_id_timer_diff_map, item.id)
 
-      start =
-        if is_nil(item.start),
-          do: nil,
-          else: NaiveDateTime.add(item.start, -time_elapsed)
+        start =
+          if is_nil(item.start),
+            do: nil,
+            else: NaiveDateTime.add(item.start, -time_elapsed)
 
-      {item.id, %{item | start: start}}
+        {item.cid, %{item | start: start}}
+      end)
+
+    # return the list of items in the order of seq
+    Enum.map(seq, fn cid -> cid_item_map[cid] end)
+  end
+
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+  # Below this point is item transition code that will be DELETED!  #
+  # We just need it to update all existing items to add cid ...     #
+  # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+  @doc """
+  `update_all_items_cid/0` updates all `item` records with a `cid` value.
+  This will not be needed once all records are transitioned.
+  """
+  def update_all_items_cid do
+    items = list_items()
+
+    Enum.each(items, fn i ->
+      # coveralls-ignore-start
+      unless Map.has_key?(i, :cid) do
+        item = %{
+          person_id: i.person_id,
+          status: i.status,
+          text: i.text,
+          id: i.id
+        }
+
+        i
+        |> changeset(Map.put(item, :cid, Cid.cid(item)))
+        |> Repo.update()
+      end
+
+      # coveralls-ignore-stop
     end)
-    # Return the list of items without duplicates and only the last/active timer:
-    |> Map.values()
-    # Sort list by item.id descending (ordered by timer_id ASC above) so newest item first:
-    |> Enum.sort_by(fn i -> i.id end, :desc)
   end
 end

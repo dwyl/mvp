@@ -118,9 +118,11 @@ With that in place, let's get building!
   - [15.2 Changing how the timer datetime is displayed](#152-changing-how-the-timer-datetime-is-displayed)
   - [15.3 Persisting the adjusted timezone](#153-persisting-the-adjusted-timezone)
   - [15.4 Adding test](#154-adding-test)
-- [16. Run the _Finished_ MVP App!](#16-run-the-finished-mvp-app)
-  - [16.1 Run the Tests](#161-run-the-tests)
-  - [16.2 Run The App](#162-run-the-app)
+- [16. `Lists`](#16-lists)
+- [17. Reordering `items` Using Drag \& Drop](#17-reordering-items-using-drag--drop)
+- [18. Run the _Finished_ MVP App!](#18-run-the-finished-mvp-app)
+  - [18.1 Run the Tests](#181-run-the-tests)
+  - [18.2 Run The App](#182-run-the-app)
 - [Thanks!](#thanks)
 
 
@@ -3593,7 +3595,13 @@ We are showing each timer whenever an `item` is being edited.
                   required="required"
                   name="timer_start"
                   id={"#{changeset.data.id}_start"}
-                  value={changeset.data.start}
+                  value={
+                    NaiveDateTime.add(
+                      changeset.data.start,
+                      @hours_offset_fromUTC,
+                      :hour
+                    )
+                  }
                 />
               </div>
               <div class="flex flex-row items-center">
@@ -3602,7 +3610,17 @@ We are showing each timer whenever an `item` is being edited.
                   type="text"
                   name="timer_stop"
                   id={"#{changeset.data.id}_stop"}
-                  value={changeset.data.stop}
+                  value={
+                    if is_nil(changeset.data.stop) do
+                      changeset.data.stop
+                    else
+                      NaiveDateTime.add(
+                        changeset.data.stop,
+                        @hours_offset_fromUTC,
+                        :hour
+                      )
+                    end
+                  }
                 />
               </div>
               <input
@@ -4861,7 +4879,7 @@ which is a PostgreSQL GUI.
 If you don't have this installed, 
 [we highly recommend you doing so](https://github.com/dwyl/learn-postgresql/issues/43#issuecomment-469000357).
 
-<img width="1824" alt="dbeaver" src="https://user-images.githubusercontent.com/17494745/211629270-996e6c4a-8322-49b4-9ef6-7be2335ccfb7.png">
+<img width="1824" alt="papertrail_versions" src="https://user-images.githubusercontent.com/17494745/211629270-996e6c4a-8322-49b4-9ef6-7be2335ccfb7.png">
 
 As you can see, update/insert events are being tracked,
 with the corresponding `person_id` (in `originator_id`),
@@ -5785,11 +5803,56 @@ we expect the persisted value to be
 one hour *less* than what the person inputted. 
 
 
-# 16. Run the _Finished_ MVP App!
+# 16. `Lists`
+
+In preparation for the next set of features in the `MVP`,
+we added `lists`
+which are simply a collection of `items`.
+
+Please see: 
+[book/mvp/lists](https://dwyl.github.io/book/mvp/16-lists.html)
+
+We didn't add a lot of code for `lists`
+there is currently no way for the `person` 
+to create a `new list` 
+or "move" `items` between `lists`.
+
+If you want to help with defining the interface,
+please comment on the issue:
+[dwyl/mvp#365](https://github.com/dwyl/mvp/issues/365)
+
+
+
+# 17. Reordering `items` Using Drag & Drop
+
+At present `people` using the `App`
+can only add new `items` to a stack
+where the newest is on top; no ordering.
+
+`people` that tested the `MVP`
+noted that the ability to **reorder `items`**
+was an **_essential_ feature**:
+[dwyl/mvp#145](https://github.com/dwyl/mvp/issues/145)
+
+So in this step we are going to 
+add the ability to organize `items`.
+We will implement reordering using 
+**drag and drop**!
+And by using `Phoenix LiveView`,
+**other people** will also be able 
+to **see the changes in real time**!
+
+For _all_ the detail implementing this feature,
+please see: 
+[book/mvp/reordering](https://dwyl.github.io/book/mvp/18-reordering.html)
+
+
+
+# 18. Run the _Finished_ MVP App!
 
 With all the code saved, let's run the tests one more time.
 
-## 16.1 Run the Tests
+## 18.1 Run the Tests
 
 In your terminal window, run: 
 
@@ -5802,23 +5865,37 @@ mix c
 You should see output similar to the following:
 
 ```sh
-Finished in 0.7 seconds (0.1s async, 0.5s sync)
-85 tests, 0 failures
+Finished in 1.5 seconds (1.4s async, 0.1s sync)
+117 tests, 0 failures
 
+Randomized with seed 947856
 ----------------
 COV    FILE                                        LINES RELEVANT   MISSED
-100.0% lib/app/item.ex                               245       34        0
-100.0% lib/app/timer.ex                               97       16        0
-100.0% lib/app_web/controllers/auth_controller.       35        9        0
-100.0% lib/app_web/live/app_live.ex                  186       57        0
-[TOTAL]  100.0%
+100.0% lib/api/item.ex                               218       56        0
+100.0% lib/api/tag.ex                                101       24        0
+100.0% lib/api/timer.ex                              152       40        0
+100.0% lib/app/color.ex                               90        1        0
+100.0% lib/app/item.ex                               415       62        0
+100.0% lib/app/item_tag.ex                            12        1        0
+100.0% lib/app/tag.ex                                108       18        0
+100.0% lib/app/timer.ex                              452       84        0
+100.0% lib/app_web/controllers/auth_controller.       26        4        0
+100.0% lib/app_web/controllers/init_controller.       41        6        0
+100.0% lib/app_web/controllers/tag_controller.e       77       25        0
+100.0% lib/app_web/live/app_live.ex                  476      132        0
+100.0% lib/app_web/live/stats_live.ex                 77       21        0
+100.0% lib/app_web/router.ex                          49        9        0
+100.0% lib/app_web/views/error_view.ex                59       12        0
+  0.0% lib/app_web/views/profile_view.ex               3        0        0
+  0.0% lib/app_web/views/tag_view.ex                   3        0        0
+[TOTAL] 100.0%
 ----------------
 ```
 
 All tests pass and we have **`100%` Test Coverage**.
 This reminds us just how few _relevant_ lines of code there are in the MVP!
 
-## 16.2 Run The App
+## 18.2 Run The App
 
 In your second terminal tab/window, run:
 

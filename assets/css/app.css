@@ -85,3 +85,17 @@ input[type=radio].has-error:not(.phx-no-feedback) {
 }
 
 [x-cloak] { display: none !important; }
+
+
+/* For the drag and drop feature */
+.cursor-grab {
+  cursor: grab;
+}
+
+.cursor-grabbing {
+  cursor: grabbing; 
+}
+
+.bg-teal-300 {
+  background-color: #5eead4;
+}
