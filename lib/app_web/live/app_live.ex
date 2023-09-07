@@ -289,7 +289,6 @@ defmodule AppWeb.AppLive do
         },
         socket
       ) do
-    # IO.puts("285: current_item_id: #{current_item_id}, selected_item_id: #{selected_item_id} | #{Useful.typeof(selected_item_id)}")
     AppWeb.Endpoint.broadcast(
       @topic,
       "move_items",
@@ -319,9 +318,6 @@ defmodule AppWeb.AppLive do
         },
         socket
       ) do
-    # IO.puts(
-    #   "cur_item_id: #{current_item_id}, selected_item_id: #{selected_item_id}"
-    # )
 
     {:noreply,
      push_event(socket, "dragover-item", %{

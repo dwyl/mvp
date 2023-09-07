@@ -134,7 +134,6 @@ defmodule App.List do
   def get_all_list_for_person(person_id) do
     # IO.inspect("get_all_list_for_person(person_id: #{person_id})")
     all_list = get_list_by_name!("all", person_id)
-    # dbg(all_list)
     if all_list == nil do
       # doesn't exist, create it:
       {:ok, %{model: list}} =
@@ -148,10 +147,8 @@ defmodule App.List do
 
   def add_item_to_list(item_cid, list_cid, person_id) do
     list = get_list_by_cid!(list_cid)
-    # dbg(list)
     prev_seq = get_list_seq(list)
     seq = [item_cid | prev_seq] |> Enum.join(",")
-    # dbg(seq)
     update_list(list, %{seq: seq, person_id: person_id})
   end
 
@@ -194,11 +191,8 @@ defmodule App.List do
   """
   def add_all_items_to_all_list_for_person_id(person_id) do
     all_list = App.List.get_all_list_for_person(person_id)
-    # dbg(all_list)
     all_items = App.Item.all_items_for_person(person_id)
-    # dbg(all_items)
     prev_seq = get_list_seq(all_list)
-    # dbg(prev_seq)
     # Add add each `item.id` to the sequence of item ids:
     seq =
       Enum.reduce(all_items, prev_seq, fn i, acc ->

@@ -190,17 +190,6 @@ defmodule App.Item do
     |> Repo.update()
   end
 
-  # defp reorder_list_to_add_item(%Item{position: position}) do
-  #   # Increments the positions above a given position.
-  #   # We are making space for the item to be added.
-
-  #   from(i in Item,
-  #     where: i.position > ^position,
-  #     update: [inc: [position: 1]]
-  #   )
-  #   |> Repo.update_all([])
-  # end
-
   def all_items_for_person(person_id) do
     Item
     |> where(person_id: ^person_id)
@@ -226,9 +215,8 @@ defmodule App.Item do
   #
   def items_with_timers(person_id \\ 0) do
     all_list = App.List.get_all_list_for_person(person_id)
-    # dbg(all_list)
     seq = App.List.get_list_seq(all_list)
-    # dbg(seq)
+
 
     sql = """
     SELECT i.id, i.cid, i.text, i.status, i.person_id, i.updated_at,
