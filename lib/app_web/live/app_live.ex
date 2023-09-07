@@ -306,7 +306,7 @@ defmodule AppWeb.AppLive do
         socket
       ) do
     list_cid = get_list_cid(socket.assigns)
-    person_id = get_person_id(socket.assigns)
+    person_id = App.Person.get_person_id(socket.assigns)
     App.List.update_list_seq(list_cid, person_id, seq)
     {:noreply, socket}
   end
