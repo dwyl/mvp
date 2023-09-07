@@ -94,14 +94,30 @@ defmodule App.ListTest do
       assert Enum.member?(all_items_seq, "#{item2.cid}")
       assert Enum.member?(all_items_seq, "#{item3.cid}")
     end
+  end
 
-    # test "create_default_lists/1 creates the default lists" do
-    #   # Should have no lists:
-    #   person_id = 5
-    #   lists = App.List.get_lists_for_person(person_id)
-    #   assert length(lists) == 0
-    #   # Create the default lists for this person_id:
-    #   assert List.create_default_lists(person_id) |> length() == 9
-    # end
+  test "update_list_seq/3 updates the list.seq for the given list" do
+    person_id = 314
+    all_list = App.List.get_all_list_for_person(person_id)
+
+    # Create a couple of items:
+    assert {:ok, %{model: item1}} =
+        Item.create_item(%{text: "buy land!", person_id: person_id, status: 2})
+    assert {:ok, %{model: item2}} =
+      Item.create_item(%{text: "plant trees & food", person_id: person_id, status: 2})
+    assert {:ok, %{model: item3}} =
+        Item.create_item(%{text: "live best life", person_id: person_id, status: 2})
+
+    # Add the item cids to the list.seq:
+    seq = "#{item1.cid},#{item2.cid},#{item3.cid}"
+
+    # Update the list.seq for the all_list:
+    {:ok, %{model: list}} = App.List.update_list_seq(all_list.cid, person_id, seq)
+    assert list.seq == seq
+
+    # Reorder the cids and update the list.seq
+    updated_seq = "#{item3.cid},#{item2.cid},#{item1.cid}"
+    {:ok, %{model: list}} = App.List.update_list_seq(all_list.cid, person_id, updated_seq)
+    assert list.seq == updated_seq
   end
 end
