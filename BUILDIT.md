@@ -122,7 +122,7 @@ With that in place, let's get building!
 - [17. Reordering `items` Using Drag \& Drop](#17-reordering-items-using-drag--drop)
 - [18. Run the _Finished_ MVP App!](#18-run-the-finished-mvp-app)
   - [18.1 Run the Tests](#181-run-the-tests)
-  - [17.2 Run The App](#172-run-the-app)
+  - [18.2 Run The App](#182-run-the-app)
 - [Thanks!](#thanks)
 
 
@@ -5896,7 +5896,7 @@ COV    FILE                                        LINES RELEVANT   MISSED
 All tests pass and we have **`100%` Test Coverage**.
 This reminds us just how few _relevant_ lines of code there are in the MVP!
 
-## 17.2 Run The App
+## 18.2 Run The App
 
 In your second terminal tab/window, run:
 
