@@ -856,7 +856,7 @@ defmodule AppWeb.AppLiveTest do
     assert render_hook(view, "removeHighlight", %{"id" => item.id})
 
     # reorder items:
-    render_hook(view, "updateIndexes", %{
+    render_hook(view, "update_list_seq", %{
       "seq" => "#{item.cid},#{item2.cid},#{item3.cid}"
     })
 
