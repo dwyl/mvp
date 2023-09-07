@@ -5,7 +5,21 @@ import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 
-// Item id of the destination id to switch
+// Show progress bar on live navigation and form submits
+topbar.config({barColors: {0: "#29d"}, shadowColor: "rgba(0, 0, 0, .3)"})
+window.addEventListener("phx:page-loading-start", info => topbar.show())
+window.addEventListener("phx:page-loading-stop", info => topbar.hide())
+
+// Drag and drop highlight handlers
+window.addEventListener("phx:highlight", (e) => {
+  document.querySelectorAll("[data-highlight]").forEach(el => {
+    if(el.id == e.detail.id) {
+        liveSocket.execJS(el, el.getAttribute("data-highlight"))
+    }
+  })
+})
+
+// Item id of the destination in the DOM
 let itemId_to;
 
 let Hooks = {}
@@ -39,7 +53,7 @@ Hooks.Items = {
       console.log("update-indexes", e.detail, "list: ", list_ids)
       // Check if both "from" and "to" are defined
       if(item_id && itemId_to && item_id != itemId_to) {
-        hook.pushEventTo("#items", "updateIndexes", 
+        hook.pushEventTo("#items", "update_list_seq", 
           {seq: list_ids})
       }
       
@@ -60,38 +74,6 @@ function get_list_item_cids() {
     return li.attributes["phx-value-cid"].nodeValue
   }).join(",")
 }
-
-let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
-
-let liveSocket = new LiveSocket("/live", Socket, {
-  hooks: Hooks,
-  dom:{
-        onBeforeElUpdated(from, to) {
-          if (from._x_dataStack) {
-            window.Alpine.clone(from, to)
-          }
-        }
-  },
-  params: {
-    _csrf_token: csrfToken,
-    hours_offset_fromUTC: -new Date().getTimezoneOffset()/60
-  }
-})
-
-
-// Show progress bar on live navigation and form submits
-topbar.config({barColors: {0: "#29d"}, shadowColor: "rgba(0, 0, 0, .3)"})
-window.addEventListener("phx:page-loading-start", info => topbar.show())
-window.addEventListener("phx:page-loading-stop", info => topbar.hide())
-
-// Drag and drop highlight handlers
-window.addEventListener("phx:highlight", (e) => {
-  document.querySelectorAll("[data-highlight]").forEach(el => {
-    if(el.id == e.detail.id) {
-        liveSocket.execJS(el, el.getAttribute("data-highlight"))
-    }
-  })
-})
 
 window.addEventListener("phx:remove-highlight", (e) => {
   document.querySelectorAll("[data-highlight]").forEach(el => {
@@ -115,6 +97,25 @@ window.addEventListener("phx:dragover-item", (e) => {
 
   if(listItems.indexOf(selectedItem) > listItems.indexOf(currentItem)){
     items.insertBefore(selectedItem, currentItem)
+  }
+})
+
+// liveSocket related setup:
+
+let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
+
+let liveSocket = new LiveSocket("/live", Socket, {
+  hooks: Hooks,
+  dom:{
+        onBeforeElUpdated(from, to) {
+          if (from._x_dataStack) {
+            window.Alpine.clone(from, to)
+          }
+        }
+  },
+  params: {
+    _csrf_token: csrfToken,
+    hours_offset_fromUTC: -new Date().getTimezoneOffset()/60
   }
 })
 

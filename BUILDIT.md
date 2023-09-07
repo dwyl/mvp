@@ -120,14 +120,8 @@ With that in place, let's get building!
   - [15.4 Adding test](#154-adding-test)
 - [16. `Lists`](#16-lists)
 - [17. Reordering `items` Using Drag \& Drop](#17-reordering-items-using-drag--drop)
-  - [17.1 `Item` schema changes](#171-item-schema-changes)
-  - [16.1 Changing the `list_item.position` field in the database](#161-changing-the-list_itemposition-field-in-the-database)
-  - [16.3 Return `position` in `items_with_timers` function](#163-return-position-in-items_with_timers-function)
-  - [16.4 Implementing drag and drop in `Liveview`](#164-implementing-drag-and-drop-in-liveview)
-  - [16.5 Adding unit test](#165-adding-unit-test)
-  - [16.6 Check it in action!](#166-check-it-in-action)
-- [17. Run the _Finished_ MVP App!](#17-run-the-finished-mvp-app)
-  - [17.1 Run the Tests](#171-run-the-tests)
+- [18. Run the _Finished_ MVP App!](#18-run-the-finished-mvp-app)
+  - [18.1 Run the Tests](#181-run-the-tests)
   - [17.2 Run The App](#172-run-the-app)
 - [Thanks!](#thanks)
 
@@ -5812,7 +5806,7 @@ one hour *less* than what the person inputted.
 # 16. `Lists`
 
 In preparation for the next set of features in the `MVP`,
-we added `lists` and `list_items`
+we added `lists`
 which are simply a collection of `items`.
 
 Please see: 
@@ -5825,7 +5819,7 @@ or "move" `items` between `lists`.
 
 If you want to help with defining the interface,
 please comment on the issue:
-[dwyl/mvp#356](https://github.com/dwyl/mvp/issues/356)
+[dwyl/mvp#365](https://github.com/dwyl/mvp/issues/365)
 
 
 
@@ -5848,311 +5842,18 @@ And by using `Phoenix LiveView`,
 **other people** will also be able 
 to **see the changes in real time**!
 
+For _all_ the detail implementing this feature,
+please see: 
+[book/mvp/reordering](https://dwyl.github.io/book/mvp/18-reordering.html)
 
 
 
-##  17.1 `Item` schema changes
 
-By introducing this feature 
-(and so everyone sees the correct positioning of each item),
-we ought to add a new field:
-**`position`**.
-This new field called **`position`** will be an `integer`,
-referencing the *index of the item within the list*.
-
-The `position` field can't be under `0` 
-and will dynamically change according to the position of the item in the list.
-
-With this in mind,
-let's add this field in our migration 
-and schema definition files.
-
-Open `priv/repo/migrations/20220627162154_create_items.exs`
-and add the following line.
-
-```elixir
-  add(:text, :string)
-  add(:person_id, :integer)
-  add(:status, :integer)
-  add(:position, :integer)   # add this line
-
-  timestamps()
-end
-```
-
-In `lib/app/item.ex`,
-add the field as well.
-We are also going to change the `changeset` functions
-to accept this field.
-
-```elixir
-  schema "items" do
-    field :person_id, :integer
-    field :status, :integer
-    field :text, :string
-    field :position, :integer    # add this line
-
-    has_many :timer, Timer
-    many_to_many(:tags, Tag, join_through: ItemTag, on_replace: :delete)
-
-    timestamps()
-  end
-
-  def changeset(item, attrs) do
-    item
-    |> cast(attrs, [:person_id, :status, :text, :position])   # add the `:position` field
-    |> validate_required([:text, :person_id])
-  end
-
-  def changeset_with_tags(item, attrs) do
-    changeset(item, attrs)
-    |> put_assoc(:tags, attrs.tags)
-  end
-
-  def draft_changeset(item, attrs) do
-    item
-    |> cast(attrs, [:person_id, :status, :text, :position])   # add the `:position` field
-    |> validate_required([:person_id])
-  end
-```
-
-To reset the database changes,
-we run `mix ecto.reset`
-and then `mix ecto.setup` 
-to rebuild our database with our added `position` column.
-
-
-## 16.1 Changing the `list_item.position` field in the database
-
-To change the `position` of an `item` in the `list`
-we need a way set the `list_item.position` 
-with reference to _existing_ `items`.
-We need a function to do this for us.
-
-
-
-We now need to have a few functions
-that will *change* the `position` field value of the `list_item`.
-
-Whenever a new todo item is added,
-it should be added to the top of the list
-(as it currently is).
-For this to work with the `position` field,
-we need to **increment the positions of each item of the list whenever a new item is added**.
-For this, in `lib/app/item.ex`
-create the following function.
-
-```elixir
-  defp reorder_list_to_add_item(%Item{position: position}) do
-    # Increments the positions above a given position.
-    # We are making space for the item to be added.
-
-    from(i in Item,
-      where: i.position > ^position,
-      update: [inc: [position: 1]]
-    )
-    |> Repo.update_all([])
-  end
-```
-
-This function uses [`update_all/3`](https://hexdocs.pm/ecto/Ecto.Repo.html#c:update_all/3)
-to increment all the item's positions
-above a given `position` value.
-
-When a user drag and drops an item in a new index,
-we are *basically switching the `position` value of the two items*.
-Let's create a function for this.
-This function will receive the item `id` of the **origin item**
-and the **target item** 
-and perform a basic switch,
-saving the new `positions` in the database.
-
-
-```elixir
-  def move_item(id_from, id_to) do
-    item_from = get_item!(id_from)
-    itemPosition_from = Map.get(item_from, :position)
-
-    item_to = get_item!(id_to)
-    itemPosition_to = Map.get(item_to, :position)
-
-    {:ok, %{model: _item, version: _version}} =
-      update_item(item_from, %{position: itemPosition_to})
-
-    {:ok, %{model: _item, version: _version}} =
-      update_item(item_to, %{position: itemPosition_from})
-  end
-```
-
-With these new two functions,
-we ought to change the functions
-that **create an item**
-so they create an `item` on the top of the list.
-
-In the same file,
-change the two following functions
-so they look like so.
-
-```elixir
-  def create_item(attrs) do
-    ## Make room at beginning of list first.
-    reorder_list_to_add_item(%Item{position: -1})
-
-    %Item{position: 0}
-    |> changeset(attrs)
-    |> PaperTrail.insert(originator: %{id: Map.get(attrs, :person_id, 0)})
-  end
-
-  def create_item_with_tags(attrs) do
-    # Make room at beginning of list first.
-    # This increments the positions of the items.
-    reorder_list_to_add_item(%Item{position: -1})
-
-    %Item{position: 0}
-    |> changeset_with_tags(attrs)
-    |> PaperTrail.insert(originator: %{id: Map.get(attrs, :person_id, 0)})
-  end
-```
-
-We've used the `reorder_list_to_add_item/1` function
-we've created to "make room" for the new item 
-that is being created.
-
-## 16.3 Return `position` in `items_with_timers` function
-
-Since we are calling the `items_with_timers/1` function
-(located in `lib/app/item.ex`)
-on startup to fetch the item list,
-we need to change it so it *also returns the `position` field*.
-
-Therefore,
-change it so it looks like the following
-snippet of code.
-
-```elixir
-  def items_with_timers(person_id \\ 0) do
-    sql = """
-    SELECT i.id, i.text, i.status, i.person_id, i.position, t.start, t.stop, t.id as timer_id FROM items i
-    FULL JOIN timers as t ON t.item_id = i.id
-    WHERE i.person_id = $1 AND i.status IS NOT NULL
-    ORDER BY i.position ASC;
-    """
-
-    values =
-      Ecto.Adapters.SQL.query!(Repo, sql, [person_id])
-      |> map_columns_to_values()
-
-    items_tags =
-      list_person_items(person_id)
-      |> Enum.reduce(%{}, fn i, acc -> Map.put(acc, i.id, i) end)
-
-    accumulate_item_timers(values)
-    |> Enum.map(fn t ->
-      Map.put(t, :tags, items_tags[t.id].tags)
-    end)
-    |> Enum.sort_by(& &1.position)
-  end
-```
-
-And that's it!
-We are now returning the `position` of the item
-and also *ordering* the list
-by ascending `position`.
-
-
-## 16.4 Implementing drag and drop in `Liveview`
-
-To add `drag and drop` to the Liveview app,
-we have created a separate guide.
-
-Since our project already uses `Alpine.js`,
-you may follow
-https://github.com/dwyl/learn-alpine.js/blob/main/drag-and-drop.md
-to implement drag and drop in the app.
-
-There are a few differences in our project
-compared with the guide in the link above.
-
-- we've used https://heroicons.dev/?search=dots
-to add an icon to the todo item in `lib/app_web/live/app_live.html.heex`.
-- in `assets/js/app.js`,
-we create an `update-indexes` event by passing
-the **origin item `id`** to switch with the **target item `id`**.
-We use a global variable called `itemId_to`
-that is updated whenever it is dragged over an item on the list.
-*The last value of `itemId_to` is the target item `id`*.
-
-If you want to see the changes we've made,
-you can check the pull request - 
-https://github.com/dwyl/mvp/pull/345/files#.
-
-
-## 16.5 Adding unit test
-
-To get our coverage back to 100%,
-we ougth to add a simple test that will simulate
-the dragover and update events,
-as well as the highlights that are seen by each person
-connected to the Liveview.
-
-In `test/app_web/live/app_live_test.exs`,
-simply add the following test.
-
-```elixir
-  test "drag and drop item", %{conn: conn} do
-    # Creating two items
-    {:ok, %{model: item, version: _version}} =
-      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
-
-    {:ok, %{model: item2, version: _version}} =
-      Item.create_item(%{text: "Learn Elixir 2", person_id: 0, status: 2})
-
-    pre_item_position = item.position
-    pre_item2_position = item2.position
-
-    # Render liveview
-    {:ok, view, _html} = live(conn, "/")
-
-    # Highlight broadcast should have occurred
-    assert render_hook(view, "highlight", %{"id" => item.id})
-           |> String.split("bg-teal-300")
-           |> Enum.drop(1)
-           |> length() > 0
-
-    # Dragover and remove highlight
-    render_hook(view, "dragoverItem", %{
-      "currentItemId" => item2.id,
-      "selectedItemId" => item.id
-    })
-
-    assert render_hook(view, "removeHighlight", %{"id" => item.id})
-
-    # Switch items (update indexes)
-    render_hook(view, "updateIndexes", %{
-      "itemId_from" => item.id,
-      "itemId_to" => item2.id
-    })
-
-    assert item.position == pre_item2_position
-    assert item2.position == pre_item_position
-  end
-```
-
-## 16.6 Check it in action!
-
-If you run `mix phx.server`,
-you can now drag and drop each item.
-When dragging, the item **will be highlighted**
-and this highlight **is visible to all people in the same Liveview**.
-
-![dragndrop_final](https://user-images.githubusercontent.com/17494745/229785696-e109ac59-ee87-4d66-b580-ce0ca25d5f40.gif)
-
-
-# 17. Run the _Finished_ MVP App!
+# 18. Run the _Finished_ MVP App!
 
 With all the code saved, let's run the tests one more time.
 
-## 17.1 Run the Tests
+## 18.1 Run the Tests
 
 In your terminal window, run: 
 

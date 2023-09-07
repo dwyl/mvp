@@ -23,9 +23,8 @@ defmodule AppWeb.AppLive do
     AppWeb.Endpoint.subscribe(@stats_topic)
 
     person_id = get_person_id(socket.assigns)
-    # Create the "all" list for the person_id
+    # Create or Get the "all" list for the person_id
     all_list = App.List.get_all_list_for_person(person_id)
-    # dbg(all_list)
     # Temporary function to add All *existing* items to the "All" list:
     App.List.add_all_items_to_all_list_for_person_id(person_id)
 
@@ -305,17 +304,12 @@ defmodule AppWeb.AppLive do
 
   @impl true
   def handle_event(
-        "updateIndexes",
+        "update_list_seq",
         %{"seq" => seq},
         socket
       ) do
     list_cid = get_list_cid(socket.assigns)
     person_id = get_person_id(socket.assigns)
-
-    # IO.puts(
-    #   "updateIndexes -> seq: #{seq} | list_cid: #{list_cid} | person_id: #{person_id}"
-    # )
-
     App.List.update_list_seq(list_cid, person_id, seq)
     {:noreply, socket}
   end
