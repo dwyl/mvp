@@ -134,6 +134,7 @@ defmodule App.List do
   def get_all_list_for_person(person_id) do
     # IO.inspect("get_all_list_for_person(person_id: #{person_id})")
     all_list = get_list_by_name!("all", person_id)
+
     if all_list == nil do
       # doesn't exist, create it:
       {:ok, %{model: list}} =

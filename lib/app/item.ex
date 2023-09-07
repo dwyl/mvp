@@ -217,7 +217,6 @@ defmodule App.Item do
     all_list = App.List.get_all_list_for_person(person_id)
     seq = App.List.get_list_seq(all_list)
 
-
     sql = """
     SELECT i.id, i.cid, i.text, i.status, i.person_id, i.updated_at,
       t.start, t.stop, t.id as timer_id

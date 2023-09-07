@@ -80,7 +80,7 @@ defmodule App.StatsTest do
     assert first_element.person_id == 2
   end
 
-  test "Stats.validate_sort_column/1 returns false for invalid sort _column" do
+  test "Stats.validate_sort_column/1 returns false for invalid sort_column" do
     refute Stats.validate_sort_column(:invalid)
   end
 
