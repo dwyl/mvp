@@ -17,13 +17,13 @@ defmodule AppWeb.TagControllerTest do
       assert html_response(conn, 200) =~ "Listing Tags"
     end
 
-    test "lists all tags and display logout button", %{conn: conn} do
+    test "lists all tagz", %{conn: conn} do
       conn =
         conn
         |> assign(:jwt, AuthPlug.Token.generate_jwt!(%{id: 1, picture: ""}))
         |> get(Routes.tag_path(conn, :index))
 
-      assert html_response(conn, 200) =~ "logout"
+      assert html_response(conn, 200) =~ "Tags"
     end
   end
 

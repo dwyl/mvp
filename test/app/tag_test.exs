@@ -1,5 +1,9 @@
 defmodule App.TagTest do
+<<<<<<< HEAD
   use App.DataCase, async: true
+=======
+  use App.DataCase
+>>>>>>> bd65456 (remove Person & Profile code #118)
   alias App.Tag
 
   describe "Test constraints and requirements for Tag schema" do

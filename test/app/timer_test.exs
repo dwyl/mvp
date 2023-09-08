@@ -1,5 +1,9 @@
 defmodule App.TimerTest do
+<<<<<<< HEAD
   use App.DataCase, async: true
+=======
+  use App.DataCase
+>>>>>>> bd65456 (remove Person & Profile code #118)
   alias App.{Item, Timer}
 
   describe "timers" do
