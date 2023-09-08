@@ -487,7 +487,7 @@ A `timer` is associated with an `item`
 to track how long it takes to ***complete***.
 
   + `id`: `Int`
-  + `item_id` (Foreign Key `item.id`)mvvvvyvyvy
+  + `item_id` (Foreign Key `item.id`)
   + `start`: `NaiveDateTime` - start time for the timer
   + `stop`: `NaiveDateTime` - stop time for the timer
   + `inserted_at`: `NaiveDateTime` - record insertion time

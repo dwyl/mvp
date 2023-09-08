@@ -1,8 +1,6 @@
 defmodule App.ItemTest do
-  use App.DataCase, async: false
-  alias App.{Item, Person, Timer}
-
-  setup [:create_person]
+  use App.DataCase, async: true
+  alias App.{Item, Timer}
 
   describe "items" do
     @valid_attrs %{text: "some text", person_id: 1, status: 2}
@@ -152,10 +150,5 @@ defmodule App.ItemTest do
       item_timers = Item.items_with_timers(1)
       assert length(item_timers) > 0
     end
-  end
-
-  defp create_person(_) do
-    person = Person.create_person(%{"person_id" => 1, "name" => "guest"})
-    %{person: person}
   end
 end

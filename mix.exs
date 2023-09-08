@@ -5,9 +5,8 @@ defmodule App.MixProject do
     [
       app: :app,
       version: "1.0.0",
-      elixir: "~> 1.12",
+      elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
-      compilers: Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
@@ -41,13 +40,15 @@ defmodule App.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.6.10"},
+      # Phoenix deps:
+      {:phoenix, "~> 1.7.0"},
       {:phoenix_ecto, "~> 4.4"},
       {:ecto_sql, "~> 3.6"},
       {:postgrex, ">= 0.0.0"},
       {:phoenix_html, "~> 3.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:phoenix_live_view, "~> 0.18.0"},
+      {:phoenix_live_view, "~> 0.18.3"},
+      {:phoenix_view, "~> 2.0"},
       {:floki, ">= 0.30.0", only: :test},
       {:esbuild, "~> 0.4", runtime: Mix.env() == :dev},
       {:telemetry_metrics, "~> 0.6"},
@@ -55,30 +56,50 @@ defmodule App.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
 
-      # Check/get Environment Variables: https://github.com/dwyl/envar
-      {:envar, "~> 1.0.8"},
       # Auth with ONE Environment Variable™: github.com/dwyl/auth_plug
-      {:auth_plug, "~> 1.4.14"},
-      # Easily Encrypt Senstive Data: github.com/dwyl/fields
-      {:fields, "~> 2.9.1"},
+      {:auth_plug, "~> 1.5.1"},
+
+      # Check/get Environment Variables: github.com/dwyl/envar
+      {:envar, "~> 1.1.0", override: true},
+
+      # Universally Unique Deterministic Content IDs: github.com/dwyl/cid
+      {:excid, "~> 1.0.1"},
+
+      # Easily Encrypt Sensitive Data: github.com/dwyl/fields
+      {:fields, "~> 2.10.3"},
+
+      # Database changes tracking:
+      # github.com/dwyl/phoenix-papertrail-demo
+      {:paper_trail, "~> 1.0.0"},
+
+      # Time string parsing: github.com/bitwalker/timex
+      {:timex, "~> 3.7"},
+
       # Useful functions: github.com/dwyl/useful
-      {:useful, "~> 1.0.8", override: true},
-      # https://github.com/dwyl/useful/issues/17
+      {:useful, "~> 1.12.1", override: true},
+
+      # See: github.com/dwyl/useful/issues/17
       {:atomic_map, "~> 0.9.3"},
+
+      # Decimal precision: github.com/ericmj/decimal
+      {:decimal, "~> 2.0"},
+
       # Statuses: github.com/dwyl/statuses
       {:statuses, "~> 1.1.1"},
 
       # create docs on localhost by running "mix docs"
-      {:ex_doc, "~> 0.28.4", only: :dev, runtime: false},
-      # Track test coverage
-      {:excoveralls, "~> 0.14.5", only: [:test, :dev]},
-      # git pre-commit hook runs tests before allowing commits
-      {:pre_commit, "~> 0.3.4"},
-      {:credo, "~> 1.6.4", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.29", only: :dev, runtime: false},
+      # Track test coverage: github.com/parroty/excoveralls
+      {:excoveralls, "~> 0.15", only: [:test, :dev]},
+
+      # Git pre-commit hook runs tests before allowing commits:
+      # github.com/dwyl/elixir-pre-commit
+      {:pre_commit, "~> 0.3.4", only: :dev},
+      {:credo, "~> 1.7.0", only: [:dev, :test], runtime: false},
 
       # Ref: github.com/dwyl/learn-tailwind
       {:tailwind, "~> 0.1", runtime: Mix.env() == :dev},
-      {:petal_components, "~> 0.18"}
+      {:petal_components, "~> 1.0"}
     ]
   end
 

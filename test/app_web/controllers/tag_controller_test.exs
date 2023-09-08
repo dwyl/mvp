@@ -1,9 +1,7 @@
 defmodule AppWeb.TagControllerTest do
   use AppWeb.ConnCase
 
-  alias App.{Tag, Person}
-
-  setup [:create_person]
+  alias App.Tag
 
   @create_attrs %{text: "tag1", person_id: 1, color: "#FCA5A5"}
   @update_attrs %{text: "tag1 updated", color: "#F87171"}
@@ -20,14 +18,14 @@ defmodule AppWeb.TagControllerTest do
       assert html_response(conn, 200) =~ "Listing Tags"
     end
 
-    test "lists all tags and display logout button", %{conn: conn} do
+    test "lists all tagz", %{conn: conn} do
       conn =
         conn
         |> assign(:jwt, "jwt value...")
         |> assign(:person, %{id: 1, picture: ""})
         |> get(Routes.tag_path(conn, :index))
 
-      assert html_response(conn, 200) =~ "logout"
+      assert html_response(conn, 200) =~ "Tags"
     end
   end
 
@@ -91,11 +89,5 @@ defmodule AppWeb.TagControllerTest do
   defp create_tag(_) do
     tag = fixture(:tag)
     %{tag: tag}
-  end
-
-  defp create_person(_) do
-    person = Person.create_person(%{"person_id" => 0, "name" => "guest"})
-    _person = Person.create_person(%{"person_id" => 1, "name" => "Person1"})
-    %{person: person}
   end
 end

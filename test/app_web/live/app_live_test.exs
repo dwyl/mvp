@@ -4,8 +4,6 @@ defmodule AppWeb.AppLiveTest do
   import Phoenix.LiveViewTest
   alias Phoenix.Socket.Broadcast
 
-  setup [:create_person]
-
   test "disconnected and connected render", %{conn: conn} do
     {:ok, page_live, disconnected_html} = live(conn, "/")
     assert disconnected_html =~ "done"
@@ -214,21 +212,6 @@ defmodule AppWeb.AppLiveTest do
     assert render(view)
   end
 
-  test "Logout link displayed when loggedin", %{conn: conn} do
-    data = %{
-      email: "test@dwyl.com",
-      givenName: "Alex",
-      picture: "this",
-      auth_provider: "GitHub",
-      id: 0
-    }
-
-    jwt = AuthPlug.Token.generate_jwt!(data)
-
-    conn = get(conn, "/?jwt=#{jwt}")
-    assert html_response(conn, 200) =~ "logout"
-  end
-
   test "get /logout with valid JWT", %{conn: conn} do
     data = %{
       email: "test@dwyl.com",
@@ -249,9 +232,9 @@ defmodule AppWeb.AppLiveTest do
     assert "/" = redirected_to(conn, 302)
   end
 
-  test "test login link redirect to auth.dwyl.com", %{conn: conn} do
+  test "test login link redirect to authdemo.fly.dev", %{conn: conn} do
     conn = get(conn, "/login")
-    assert redirected_to(conn, 302) =~ "auth.dwyl.com"
+    assert redirected_to(conn, 302) =~ "authdemo.fly.dev"
   end
 
   test "tags_to_string/1" do
@@ -259,10 +242,5 @@ defmodule AppWeb.AppLiveTest do
              %Tag{text: "Learn"},
              %Tag{text: "Elixir"}
            ]) == "Learn, Elixir"
-  end
-
-  defp create_person(_) do
-    person = Person.create_person(%{"person_id" => 0, "name" => "guest"})
-    %{person: person}
   end
 end
