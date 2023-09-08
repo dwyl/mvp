@@ -28,11 +28,10 @@ and _then_ built the UI. <br />
 We were able to do this because we had a good idea
 of which functions we were going to need. <br />
 If you are reading through this
-<!-- and scratching your head  -->
+and scratching your head
 wondering where a particular function will be used,
 simply scroll down to the UI section
 where (_hopefully_) it will all be clear. 
-mii
 At the end of each step,
 remember to run the tests:
 
