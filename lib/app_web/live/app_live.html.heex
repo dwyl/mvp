@@ -1,311 +1,649 @@
-<main class="h-90 w-full font-sans">
-  <form phx-submit="create" class="w-full lg:w-3/4 lg:max-w-lg text-center mx-auto">
-    <!-- textarea so that we can have multi-line capturing 
-      help wanted auto re-sizing: https://github.com/dwyl/learn-alpine.js/issues/3 -->
-    <textarea 
+<main class="font-sans container mx-auto">
+  <.form
+    :let={_f}
+    for={%{}}
+    as={:item}
+    phx-submit="create"
+    class="w-full lg:w-1/2 m-auto"
+  >
+    <textarea
       class="w-full py-1 px-1 text-slate-800 text-3xl
         bg-white bg-clip-padding
         resize-none
-        max-h-80
+        max-h-100
         transition ease-in-out
         border border-b border-slate-200
-        focus:border-none focus:outline-none"
-      name="text" 
-      placeholder="What needs to be done?" 
-      autofocus="" 
-      required="required" 
+        focus:border-none focus:outline-none
+        my-2"
+      name="text"
+      id="textval"
+      phx-change="validate"
+      phx-debounce="2000"
+      placeholder="Capture what is on your mind ..."
+      required="required"
       x-data="{resize() {
-           $el.style.height = '80px';
+           $el.style.height = '100px';
            $el.style.height = $el.scrollHeight + 'px';
         }
       }"
-      x-init="resize"
+      x-on:focus=""
+      x-init="$el.selectionStart= $el.value.length;
+      $el.selectionEnd= $el.value.length;
+      $el.focus();
+      resize();"
       x-on:input="resize"
-    ></textarea>
-
-    <input type="text" name="tags" placeholder="tag1, tag2,...">
-
+    ><%= @text_value %></textarea>
+    <!-- Display the selected tags -->
+    <div class="">
+      <%= for selected_tag <- @selected_tags do %>
+        <span
+          class="text-white font-bold py-1 px-2 rounded-full ml-2"
+          style={"background-color:#{selected_tag.color}"}
+        >
+          <%= selected_tag.text %>
+        </span>
+      <% end %>
+    </div>
+    <!-- Select Input -->
+    <div
+      class="lg:w-1/2 "
+      x-data="{open: false}"
+      x-on:click.away="open = false"
+      x-on:keydown.escape="open = false"
+    >
+      <input
+        type="text"
+        name="tag"
+        class="w-full my-2"
+        x-on:focus="open = true"
+        x-on:keydown.enter.prevent="
+          if (event.key === 'Enter') {
+            event.target.value = '';
+          }
+        "
+        phx-keyup="filter-tags"
+        phx-keyup-debounce="250"
+        phx-keydown="add-first-tag"
+        autocomplete="off"
+        placeholder="tags"
+      />
+      <div
+        class="relative z-10 drop-shadow-lg w-auto"
+        x-show="open"
+        x-transition
+        x-cloak
+      >
+        <ul class="absolute border bg-white max-h-64 overflow-auto w-full">
+          <%= for tag <- @tags do %>
+            <li
+              class="border-b p-2 cursor-pointer hover:bg-slate-200"
+              phx-click="toggle_tag"
+              phx-value-tag_id={tag.id}
+            >
+              <div class="relative h-10">
+                <div class="inline-flex items-center w-3/4">
+                  <span
+                    class="w-5 h-5 bg-red-500 rounded-full mx-2 shrink-0"
+                    style={"background-color:#{tag.color}"}
+                  >
+                  </span>
+                  <span class="overflow-hidden text-ellipsis whitespace-nowrap">
+                    <%= tag.text %>
+                  </span>
+                </div>
+                <%= if Enum.member?(@selected_tags, tag) do %>
+                  <svg
+                    class="absolute font-bold w-4 top-0 bottom-0 m-auto right-0 text-green-500"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+                <% end %>
+              </div>
+            </li>
+          <% end %>
+          <li class="border-b p-2 cursor-pointer hover:bg-slate-200">
+            <%= link("edit tags",
+              to: "/tags",
+              class: "block w-full text-center"
+            ) %>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <!-- End Select Input -->
     <!-- Want to help "DRY" this? see: https://github.com/dwyl/app-mvp-phoenix/issues/105 -->
     <!-- https://tailwindcss.com/docs/justify-content#end -->
     <div class="flex justify-end mr-1">
       <button class="inline-flex items-center px-2 py-1 mt-1 h-9
         bg-green-700 hover:bg-green-800 text-white rounded-md">
-        <svg xmlns="http://www.w3.org/2000/svg" 
-          class="h-5 w-5 mr-2" fill="none" 
-          viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5 mr-2"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
             d="M15 13l-3 3m0 0l-3-3m3 3V8m0 13a9 9 0 110-18 9 9 0 010 18z"
           />
         </svg>
         Save
       </button>
     </div>
-
-  </form>
-
+  </.form>
   <!-- List of items with inline buttons and controls -->
-  <ul class="w-full">
+  <ul id="items" phx-hook="Items" x-data="{selectedItem: null}" class="w-full">
     <%= for item <- filter_items(@items, @filter, @filter_tag) do %>
-    <li data-id={item.id} class="mt-2 flex w-full border-t border-slate-200 py-2">
+      <li
+        id={"item-#{item.id}"}
+        data-id={item.id}
+        class={"mt-2 flex flex-col w-full border-t border-slate-200 py-2 item #{if item.id == @editing do 'cursor-default' else 'cursor-grab' end}"}
+        draggable={"#{if item.id == @editing do 'false' else 'true' end}"}
+        x-data="{selected: false}"
+        x-on:dragstart="selected = true; $dispatch('highlight', {id: $el.id}); selectedItem = $el"
+        x-on:dragend="selected = false; $dispatch('remove-highlight', {id: $el.id}); selectedItem = null; $dispatch('update-indexes', {fromItemId: $el.dataset.id})"
+        x-bind:class="selected ?? 'cursor-grabbing'"
+        x-on:dragover.throttle="$dispatch('dragoverItem', {selectedItemId: selectedItem.id, currentItem: $el})"
+        data-highlight={JS.add_class("bg-teal-300")}
+        data-remove-highlight={JS.remove_class("bg-teal-300")}
+      >
+        <div class="flex flex-row">
+          <svg
+            class="max-w-[15px] dragDrop-icon"
+            data-darkreader-inline-stroke=""
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z"
+            >
+            </path>
+          </svg>
+          <%= if archived?(item) do %>
+            <label>
+              <div class="hidden">
+                Toggle the checkbox to set an item's status to done.
+              </div>
+              <input
+                type="checkbox"
+                checked
+                phx-value-id={item.id}
+                phx-value-cid={item.cid}
+                phx-click="toggle"
+                class="flex-none p-4 m-2 form-checkbox text-slate-400 cursor-not-allowed"
+              />
+            </label>
+            <label class="w-full text-slate-400 m-1 line-through">
+              <%= item.text %>
+            </label>
 
-      
-      <%= if archived?(item) do %>
-        <label>
-          <div class="hidden">
-          Toggle the checkbox to set an item's status to done.
-          </div>
-          <input type="checkbox" checked phx-value-id={item.id} phx-click="toggle"
-            class="flex-none p-4 m-2 form-checkbox text-slate-400 cursor-not-allowed"/>
-        </label>
-        <label class="w-full text-slate-400 m-1 line-through">
-          <%= item.text %>
-        </label>
-
-        <div class="flex flex-col">
-        <div class="flex flex-col justify-end mr-1">
-          <button disabled class="cursor-not-allowed inline-flex items-center px-2 py-1 h-9
-          bg-gray-200 text-gray-800 rounded-md">
-            <svg xmlns="http://www.w3.org/2000/svg" 
-              class="h-5 w-5 mr-2" fill="none" 
-              viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-            </svg>
-            Archived
-          </button>
-        </div>
-      </div>
-
-
-      <% else %>
-      <!-- if item is "done" (status: 4) strike-through and show "Archive" button -->
-      <%= if done?(item) do %>
-        <label>
-          <div class="hidden">
-          Toggle the checkbox to set an item's status to done.
-          </div>
-          <input type="checkbox" phx-value-id={item.id} phx-click="toggle"
-            class="flex-none p-4 m-2 form-checkbox text-slate-400" 
-            checked />
-        </label>
-        <label class="w-full text-slate-400  m-2 line-through">
-          <%= item.text %>
-        </label>
-
-        <div class="flex flex-col">
-        <div class="flex flex-col justify-end mr-1">
-          <!-- "Archive" button with icon see: https://github.com/dwyl/app-mvp-phoenix/issues/101 -->
-          <button class="inline-flex items-center px-2 py-1 mr-2 h-9
-          bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md"
-            phx-click="delete" phx-value-id={item.id}>
-            <svg xmlns="http://www.w3.org/2000/svg" 
-              class="h-5 w-5 mr-2" fill="none" 
-              viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-            </svg>
-            Archive
-          </button>
-          <p> 
-            <span class="text-sm font-mono font-semibold flex flex-col justify-end text-right mr-2 mt-1"> 
-              <%= timer_text(item) %> 
-            </span>
-          </p>
-        </div>
-      </div>
-
-      <!-- else render the buttons for start|stop timer -->
-      <% else %>
-        <!-- Show checkbox so the item can be marked as "done" -->
-        <label>
-          <div class="hidden">
-          Toggle the checkbox to set an item's status to done.
-          </div>
-          <input type="checkbox" phx-value-id={item.id} phx-click="toggle"
-            class="flex-none p-4 m-2 form-checkbox hover:text-slate-600" />
-        </label>
-        <!-- Editing renders the textarea and "save" button - near identical (duplicate) code from above
-          Help wanted DRY-ing this ... see: https://github.com/dwyl/app-mvp-phoenix/issues/105 -->
-        <%= if item.id == @editing do %>
-          <form phx-submit="update-item" id="form-update" class="w-full mr-2">
-            <textarea 
-              id="editing"
-              class="w-full flex-auto text-slate-800
-                bg-white bg-clip-padding
-                transition ease-in-out
-                border border-b border-slate-200
-                focus:border-none focus:outline-none"
-              name="text" 
-              placeholder="What is on your mind?" 
-              autofocus 
-              required="required" 
-              value={item.text}
-            ><%= item.text %></textarea>
-            <input type="text" name="tags" value={tags_to_string(item.tags)} placeholder="tag1, tag2...">
-
-            <input type="hidden" name="id" value={item.id}/>
-
-            <div class="flex justify-end mr-1">
-              <button class="inline-flex items-center px-2 py-1 mt-1 h-9
-                bg-green-700 hover:bg-green-800 text-white rounded-md">
-                <svg xmlns="http://www.w3.org/2000/svg" 
-                  class="h-5 w-5 mr-2" fill="none" 
-                  viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                    d="M15 13l-3 3m0 0l-3-3m3 3V8m0 13a9 9 0 110-18 9 9 0 010 18z"
-                  />
-                </svg>
-                Save
-              </button>
-            </div>
-
-          </form>
-        <% else  %>
-          <!-- Render item.text as click-able label -->
-          <label class="w-full flex-auto text-slate-800 m-2"
-            phx-click="edit-item" phx-value-id={item.id}>
-            <%= item.text %>
-          </label>
-        <% end %>
-
-       <%= if timers_any?(item) do %>
-          <!-- always display the time elapsed in the UI https://github.com/dwyl/app-mvp-phoenix/issues/106 -->
-          <%= if timer_stopped?(item) do %>
             <div class="flex flex-col">
               <div class="flex flex-col justify-end mr-1">
-                <!-- render "continue" button -->
-                <button phx-click="start" phx-value-id={item.id}
-                  class="inline-flex items-center px-2 py-2 h-9
-                  bg-teal-600 hover:bg-teal-800 text-white rounded-md">
-                  <svg xmlns="http://www.w3.org/2000/svg" 
-                    class="h-5 w-5 mr-1" fill="none" 
-                    viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                <button
+                  disabled
+                  class="cursor-not-allowed inline-flex items-center px-2 py-1 h-9
+            bg-gray-200 text-gray-800 rounded-md"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5 mr-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
                     />
                   </svg>
-                  Resume
+                  Archived
                 </button>
-                <p> 
-                  <span class="text-sm font-mono font-semibold flex flex-col justify-end text-right mr-2 mt-1"> 
-                    <%= timer_text(item) %> 
-                  </span>
-                </p>
               </div>
             </div>
           <% else %>
-            <%= if started?(item) do %>
-              <!-- render the counting timer with Apline.js! see: github.com/dwyl/learn-alpine.js -->
-              <div class="flex flex-col"
-                x-data="{
-                  start: parseInt($refs.timer_start.innerHTML, 10),
-                  current: null, 
-                  stop: null, 
-                  interval: null
-                }"
-                x-init="
-                  start = parseInt($refs.timer_start.innerHTML, 10);
-                  current = start;
-                  interval = setInterval(() => { current = Date.now() }, 500)
-                "
-                >
-                <!-- this is how we pass the start|stop time from Elixir (server) to Alping (client) -->
-                <span x-ref="timer_start" class="hidden"><%= timestamp(item.start) %></span>
+            <!-- if item is "done" (status: 4) strike-through and show "Archive" button -->
+            <%= if done?(item) do %>
+              <label>
+                <div class="hidden">
+                  Toggle the checkbox to set an item's status to done.
+                </div>
+                <input
+                  type="checkbox"
+                  phx-value-id={item.id}
+                  phx-value-cid={item.cid}
+                  phx-click="toggle"
+                  class="flex-none p-4 m-2 form-checkbox text-slate-400"
+                  checked
+                />
+              </label>
+              <label class="w-full text-slate-400  m-2 line-through">
+                <%= item.text %>
+              </label>
 
+              <div class="flex flex-col">
                 <div class="flex flex-col justify-end mr-1">
-                  <button phx-click="stop" phx-value-id={item.id} phx-value-timerid={item.timer_id}
-                    class="inline-flex items-center px-2 py-2 h-9 mr-1
-                    bg-red-500 hover:bg-red-700 text-white rounded-md">
-                    <svg xmlns="http://www.w3.org/2000/svg" 
-                      class="h-5 w-5 mr-1" fill="none" 
-                      viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  <!-- "Archive" button with icon see: https://github.com/dwyl/app-mvp-phoenix/issues/101 -->
+                  <button
+                    class="inline-flex items-center px-2 py-1 mr-2 h-9
+            bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md"
+                    phx-click="delete"
+                    phx-value-id={item.id}
+                    phx-value-cid={item.cid}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-5 w-5 mr-2"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
                       />
                     </svg>
-                    Stop
+                    Archive
                   </button>
-
-                  <p><span x-text="timer_text(start, current || stop)"
-                    class="text-sm font-mono font-semibold text-right mr-1">00:00:00</span></p>
+                  <p>
+                    <span class="text-sm font-mono font-semibold flex flex-col justify-end text-right mr-2 mt-1">
+                      <%= timer_text(item) %>
+                    </span>
+                  </p>
                 </div>
-              </div>           
-            <% end %> <!-- end if started?(item) -->
+              </div>
+              <!-- else render the buttons for start|stop timer -->
+            <% else %>
+              <!-- Show checkbox so the item can be marked as "done" -->
+              <label>
+                <div class="hidden">
+                  Toggle the checkbox to set an item's status to done.
+                </div>
+                <input
+                  type="checkbox"
+                  phx-value-id={item.id}
+                  phx-value-cid={item.cid}
+                  phx-click="toggle"
+                  class="flex-none p-4 m-2 form-checkbox hover:text-slate-600"
+                />
+              </label>
+              <!-- Editing renders the textarea and "save" button - near identical (duplicate) code from above
+            Help wanted DRY-ing this ... see: https://github.com/dwyl/app-mvp-phoenix/issues/105 -->
+              <%= if item.id == @editing do %>
+                <div class="flex flex-col grow">
+                  <form
+                    phx-submit="update-item"
+                    id={"form-update-item-#{item.id}"}
+                    class="w-full pr-2"
+                  >
+                    <textarea
+                      id={"textarea-editing-of-item-#{item.id}"}
+                      class="w-full flex-auto text-slate-800
+                    bg-white bg-clip-padding
+                    transition ease-in-out
+                    border border-b border-slate-200
+                    focus:border-none focus:outline-none"
+                      name="text"
+                      placeholder="What is on your mind?"
+                      autofocus
+                      required="required"
+                      value={item.text}
+                    ><%= item.text %></textarea>
+                    <!--<input
+                      id={"tag-of-item-#{item.id}"}
+                      type="text"
+                      name="tags"
+                      value={tags_to_string(item.tags)}
+                      placeholder="tag1, tag2..."
+                    />-->
+                    <input type="hidden" name="id" value={item.id} />
+
+                    <div
+                      class="flex justify-end mr-1"
+                      id={"save-button-item-#{item.id}"}
+                    >
+                      <button class="inline-flex items-center px-2 py-1 mt-1 h-9
+                    bg-green-700 hover:bg-green-800 text-white rounded-md">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="h-5 w-5 mr-2"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M15 13l-3 3m0 0l-3-3m3 3V8m0 13a9 9 0 110-18 9 9 0 010 18z"
+                          />
+                        </svg>
+                        Save
+                      </button>
+                    </div>
+                  </form>
+
+                  <div>
+                    <%= if (length @editing_timers) > 0 do %>
+                      <h1 class="text-4xl font-bold">Timers</h1>
+                    <% else %>
+                      <h1 class="text-2xl text-center font-semibold text-slate-400">
+                        No timers associated with this item.
+                      </h1>
+                    <% end %>
+
+                    <div class="flex flex-col w-full mt-2">
+                      <%= @editing_timers |> Enum.with_index |> Enum.map(fn({changeset, index}) -> %>
+                        <.form
+                          :let={f}
+                          for={changeset}
+                          phx-submit="update-item-timer"
+                          id={"form-update-timer-#{changeset.data.id}"}
+                          class="w-full pr-2"
+                        >
+                          <div class="flex flex-row w-full justify-between">
+                            <div class="flex flex-row items-center">
+                              <h3 class="mr-3">Start:</h3>
+                              <input
+                                type="text"
+                                required="required"
+                                name="timer_start"
+                                id={"#{changeset.data.id}_start"}
+                                value={
+                                  NaiveDateTime.add(
+                                    changeset.data.start,
+                                    @hours_offset_fromUTC,
+                                    :hour
+                                  )
+                                }
+                              />
+                            </div>
+                            <div class="flex flex-row items-center">
+                              <h3 class="mr-3">Stop:</h3>
+                              <input
+                                type="text"
+                                name="timer_stop"
+                                id={"#{changeset.data.id}_stop"}
+                                value={
+                                  if is_nil(changeset.data.stop) do
+                                    changeset.data.stop
+                                  else
+                                    NaiveDateTime.add(
+                                      changeset.data.stop,
+                                      @hours_offset_fromUTC,
+                                      :hour
+                                    )
+                                  end
+                                }
+                              />
+                            </div>
+                            <input
+                              type="hidden"
+                              name="timer_id"
+                              value={changeset.data.id}
+                            />
+                            <input type="hidden" name="index" value={index} />
+
+                            <button
+                              type="submit"
+                              id={"button_timer-update-#{changeset.data.id}"}
+                              class="text-white bg-blue-700
+                                hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300
+                                font-medium rounded-full text-sm px-5 py-2.5 text-center
+                                mr-2 mb-2
+                                  dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                            >
+                              Update
+                            </button>
+                          </div>
+                          <span class="text-red-700">
+                            <%= error_tag(f, :id) %>
+                          </span>
+                        </.form>
+                      <% end) %>
+                    </div>
+                  </div>
+                </div>
+              <% else %>
+                <!-- Render item.text as click-able label -->
+                <label
+                  class="w-full flex-auto text-slate-800 m-2"
+                  phx-click="edit-item"
+                  phx-value-id={item.id}
+                  phx-value-cid={item.cid}
+                >
+                  <%= item.text %>
+                </label>
+              <% end %>
+
+              <%= if timers_any?(item) do %>
+                <!-- always display the time elapsed in the UI https://github.com/dwyl/app-mvp-phoenix/issues/106 -->
+                <%= if timer_stopped?(item) do %>
+                  <div class="flex flex-col">
+                    <div class="flex flex-col justify-end mr-1">
+                      <!-- render "continue" button -->
+                      <button
+                        phx-click="start"
+                        phx-value-id={item.id}
+                        phx-value-cid={item.cid}
+                        class="inline-flex items-center px-2 py-2 h-9
+                    bg-teal-600 hover:bg-teal-800 text-white rounded-md"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="h-5 w-5 mr-1"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        Resume
+                      </button>
+                      <p>
+                        <span class="text-sm font-mono font-semibold flex flex-col justify-end text-right mr-2 mt-1">
+                          <%= timer_text(item) %>
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                <% else %>
+                  <%= if started?(item) do %>
+                    <!-- render the counting timer with Apline.js! see: github.com/dwyl/learn-alpine.js -->
+                    <div
+                      class="flex flex-col"
+                      x-data="{
+                    start: $refs.timer_start ? $refs.timer_start.innerHTML : null,
+                    current: null,
+                    stop: null,
+                    interval: null
+                  }"
+                      x-init="
+                    start = $refs.timer_start.innerHTML;
+                    current = start;
+                    interval = setInterval(() => { current = Date.now(), start = $refs.timer_start ? $refs.timer_start.innerHTML : null }, 500)
+                  "
+                    >
+                      <!-- this is how we pass the start|stop time from Elixir (server) to Alpine (client) -->
+                      <span x-ref="timer_start" class="hidden">
+                        <%= timestamp(item.start) %>
+                      </span>
+
+                      <div class="flex flex-col justify-end mr-1">
+                        <button
+                          phx-click="stop"
+                          phx-value-id={item.id}
+                          phx-value-cid={item.cid}
+                          phx-value-timerid={item.timer_id}
+                          class="inline-flex items-center px-2 py-2 h-9 mr-1
+                      bg-red-500 hover:bg-red-700 text-white rounded-md"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-5 w-5 mr-1"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                          Stop
+                        </button>
+
+                        <p>
+                          <span
+                            x-text="timer_text(start, current || stop)"
+                            class="text-sm font-mono font-semibold text-right mr-1"
+                          >
+                            00:00:00
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                  <% end %>
+                  <!-- end if started?(item) -->
+                <% end %>
+              <% else %>
+                <!-- render start button -->
+                <button
+                  phx-click="start"
+                  phx-value-id={item.id}
+                  phx-value-cid={item.cid}
+                  class="inline-flex items-center px-2 py-2 h-9 mr-1
+              bg-teal-700 hover:bg-teal-800 text-white rounded-md"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5 mr-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  Start
+                </button>
+              <% end %>
+              <!-- end timers_any?(item) -->
+            <% end %>
           <% end %>
-        <% else %>
-          <!-- render start button -->
-          <button phx-click="start" phx-value-id={item.id}
-            class="inline-flex items-center px-2 py-2 h-9 mr-1
-            bg-teal-700 hover:bg-teal-800 text-white rounded-md">
-            <svg xmlns="http://www.w3.org/2000/svg" 
-              class="h-5 w-5 mr-1" fill="none" 
-              viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            Start
-          </button>
-        <% end %><!-- end timers_any?(item) -->
-      <% end %>
-      <% end %>
-            
-    </li>
+        </div>
 
-    <%= if item.id != @editing do %>
-
-      <div class="ml-2">
-        <%= for tag <- item.tags do %>
-          <%= live_patch tag.text, to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: @filter, filter_by_tag: tag.text}), style: "background-color:#{tag.color}", class: " text-white font-bold py-1 px-2 rounded-full"  %>
+        <%= if item.id != @editing do %>
+          <div class="ml-2">
+            <%= for tag <- item.tags do %>
+              <%= live_patch(tag.text,
+                to:
+                  Routes.live_path(@socket, AppWeb.AppLive, %{
+                    filter_by: @filter,
+                    filter_by_tag: tag.text
+                  }),
+                style: "background-color:#{tag.color}",
+                class: " text-white font-bold py-1 px-2 rounded-full"
+              ) %>
+            <% end %>
+          </div>
         <% end %>
-      </div>
-
+      </li>
     <% end %>
-    <% end %><!-- end for item <- @items -->
+    <!-- end for item <- @items -->
   </ul>
 </main>
 
-<footer class="mt-2">
+<footer class="mt-5 container mx-auto">
   <%= if has_items?(@items) do %>
-  <div class="flex flex-row justify-center p-1 border-t">
-    <div class="px-2 py-2"><%= live_patch "All", to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: "all"}), class: class_footer_link("all", @filter)  %></div> 
-    <div class="px-2 py-2"><%= live_patch "Active", to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: "active"}), class: class_footer_link("active",@filter)  %></div> 
-    <div class="px-2 py-2"><%= live_patch "Done", to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: "done"} ), class: class_footer_link("done", @filter) %></div> 
-    <div class="px-2 py-2"><%= live_patch "Archived", to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: "archived"} ), class: class_footer_link("archived", @filter) %></div> 
-  </div>
+    <div class="flex flex-row justify-center p-1">
+      <div class="px-2 py-2">
+        <%= live_patch("All",
+          to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: "all"}),
+          class: class_footer_link("all", @filter)
+        ) %>
+      </div>
+      <div class="px-2 py-2">
+        <%= live_patch("Active",
+          to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: "active"}),
+          class: class_footer_link("active", @filter)
+        ) %>
+      </div>
+      <div class="px-2 py-2">
+        <%= live_patch("Done",
+          to: Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: "done"}),
+          class: class_footer_link("done", @filter)
+        ) %>
+      </div>
+      <div class="px-2 py-2">
+        <%= live_patch("Archived",
+          to:
+            Routes.live_path(@socket, AppWeb.AppLive, %{filter_by: "archived"}),
+          class: class_footer_link("archived", @filter)
+        ) %>
+      </div>
+    </div>
   <% end %>
 </footer>
 
-
-
 <script>
-function leftPad(val) {
-  return val < 10 ? '0' + String(val) : val;
-}
-
-function timer_text(start, current) {
-  console.log("timer_text(start, current)", start, current)
-  let h="00", m="00", s="00";
-  const diff = current - start;
-  // seconds
-  if(diff > 1000) {
-    s = Math.floor(diff / 1000);
-    s = s > 60 ? s % 60 : s;
-    s = leftPad(s);
-  }
-  // minutes
-  if(diff > 60000) {
-    m = Math.floor(diff/60000);
-    m = m > 60 ? m % 60 : m;
-    m = leftPad(m)
-  }
-  // hours
-  if(diff > 3600000) {
-    h = Math.floor(diff/3600000);
-    h = leftPad(h)
+  function leftPad(val) {
+    return val < 10 ? '0' + String(val) : val;
   }
 
-  return h + ':' + m + ':' + s;
-}
+  function timer_text(start, current) {
+    current = parseInt(current, 10)
+    start = parseInt(start, 10)
+    let h="00", m="00", s="00";
+    const diff = current - start;
+    // seconds
+    if(diff > 1000) {
+      s = Math.floor(diff / 1000);
+      s = s > 60 ? s % 60 : s;
+      s = leftPad(s);
+    }
+    // minutes
+    if(diff > 60000) {
+      m = Math.floor(diff/60000);
+      m = m > 60 ? m % 60 : m;
+      m = leftPad(m)
+    }
+    // hours
+    if(diff > 3600000) {
+      h = Math.floor(diff/3600000);
+      h = leftPad(h)
+    }
+
+    return h + ':' + m + ':' + s;
+  }
 </script>
-

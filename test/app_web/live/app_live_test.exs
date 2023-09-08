@@ -1,13 +1,13 @@
 defmodule AppWeb.AppLiveTest do
-  use AppWeb.ConnCase
-  alias App.{Item, Person, Timer, Tag}
+  use AppWeb.ConnCase, async: true
+  alias App.{Item, Timer, Tag}
   import Phoenix.LiveViewTest
   alias Phoenix.Socket.Broadcast
 
   test "disconnected and connected render", %{conn: conn} do
     {:ok, page_live, disconnected_html} = live(conn, "/")
-    assert disconnected_html =~ "done"
-    assert render(page_live) =~ "done"
+    assert disconnected_html =~ "mind"
+    assert render(page_live) =~ "mind"
   end
 
   test "connect and create an item", %{conn: conn} do
@@ -21,10 +21,10 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "toggle an item", %{conn: conn} do
-    {:ok, item} =
+    {:ok, %{model: item}} =
       Item.create_item(%{text: "Learn Elixir", status: 2, person_id: 0})
 
-    {:ok, _item2} =
+    {:ok, %{model: _item2}} =
       Item.create_item(%{text: "Learn Elixir", status: 4, person_id: 0})
 
     assert item.status == 2
@@ -46,7 +46,7 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "(soft) delete an item", %{conn: conn} do
-    {:ok, item} =
+    {:ok, %{model: item}} =
       Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
     assert item.status == 2
@@ -59,7 +59,7 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "start a timer", %{conn: conn} do
-    {:ok, item} =
+    {:ok, %{model: item}} =
       Item.create_item(%{text: "Get Fancy!", person_id: 0, status: 2})
 
     assert item.status == 2
@@ -69,7 +69,7 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "stop a timer", %{conn: conn} do
-    {:ok, item} =
+    {:ok, %{model: item}} =
       Item.create_item(%{text: "Get Fancy!", person_id: 0, status: 2})
 
     assert item.status == 2
@@ -85,8 +85,10 @@ defmodule AppWeb.AppLiveTest do
   test "handle_info/2 update", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
 
-    {:ok, item} =
+    {:ok, %{model: item}} =
       Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
+
+    App.List.add_all_items_to_all_list_for_person_id(item.person_id)
 
     send(view.pid, %Broadcast{
       event: "update",
@@ -96,31 +98,541 @@ defmodule AppWeb.AppLiveTest do
     assert render(view) =~ item.text
   end
 
+  test "handle_info/2 update with editing open (start)", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+
+    {:ok, %{model: item}} =
+      Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
+
+      App.List.add_all_items_to_all_list_for_person_id(item.person_id)
+
+    {:ok, now} = NaiveDateTime.new(Date.utc_today(), Time.utc_now())
+
+    now_string =
+      NaiveDateTime.truncate(now, :second)
+      |> NaiveDateTime.to_string()
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.map(fn {value, index} ->
+        if index == 10 do
+          "T"
+        else
+          value
+        end
+      end)
+      |> List.to_string()
+
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+    render_click(view, "start", %{"id" => Integer.to_string(item.id)})
+
+    # The editing panel is open and showing the newly created timer on the 'Start' text input field
+    assert render(view) =~ now_string
+  end
+
+  test "handle_info/2 update with editing open (stop)", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+
+    {:ok, %{model: item}} =
+      Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
+
+      App.List.add_all_items_to_all_list_for_person_id(item.person_id)
+
+    {:ok, seven_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
+
+    # Start the timer 7 seconds ago:
+    {:ok, timer} =
+      Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
+
+    # Stop the timer based on its item_id
+    Timer.stop_timer_for_item_id(item.id)
+
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+    render_click(view, "start", %{"id" => Integer.to_string(item.id)})
+    render_click(view, "stop", %{"timerid" => timer.id, "id" => item.id})
+
+    num_timers_rendered =
+      (render(view) |> String.split("Update") |> length()) - 1
+
+    # Checking if two timers were rendered
+    assert num_timers_rendered == 2
+  end
+
+  test "handle_info/2 update with editing open (delete)", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+
+    {:ok, %{model: item}} =
+      Item.create_item(%{text: "Always Learning", person_id: 0, status: 2})
+
+      App.List.add_all_items_to_all_list_for_person_id(item.person_id)
+
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    send(view.pid, %Broadcast{
+      event: "update",
+      payload: :delete
+    })
+
+    assert render(view) =~ item.text
+  end
+
   test "edit-item", %{conn: conn} do
-    {:ok, item} =
-      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+    {:ok, %{model: item}} = Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
     {:ok, view, _html} = live(conn, "/")
 
     assert render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)}) =~
-             "<form phx-submit=\"update-item\" id=\"form-update\""
+             "<form phx-submit=\"update-item\" id=\"form-update"
   end
 
   test "update an item", %{conn: conn} do
-    {:ok, item} =
+    {:ok, %{model: item}} =
       Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
 
     {:ok, view, _html} = live(conn, "/")
 
     assert render_submit(view, "update-item", %{
              "id" => item.id,
-             "text" => "Learn more Elixir",
-             "tags" => "Learn, Elixir"
+             "text" => "Learn more Elixir"
            })
 
     updated_item = Item.get_item!(item.id)
     assert updated_item.text == "Learn more Elixir"
-    assert length(updated_item.tags) == 2
+  end
+
+  test "update an item's timer", %{conn: conn} do
+    start = "2022-10-27T00:00:00"
+    stop = "2022-10-27T05:00:00"
+    start_datetime = ~N[2022-10-27 00:00:00]
+    stop_datetime = ~N[2022-10-27 05:00:00]
+
+    {:ok, %{model: item}} =
+      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+
+    {:ok, seven_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
+
+    # Start the timer 7 seconds ago:
+    {:ok, timer} =
+      Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
+
+    # Stop the timer based on its item_id
+    Timer.stop_timer_for_item_id(item.id)
+
+    {:ok, view, _html} = live(conn, "/")
+
+    # Update successful
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer.id,
+             "index" => 0,
+             "timer_start" => start,
+             "timer_stop" => stop
+           })
+
+    updated_timer = Timer.get_timer!(timer.id)
+
+    assert updated_timer.start == start_datetime
+    assert updated_timer.stop == stop_datetime
+
+    # Trying to update with equal values on start and stop
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer.id,
+             "index" => 0,
+             "timer_start" => start,
+             "timer_stop" => start
+           }) =~ "Start or stop are equal."
+
+    # Trying to update with equal start greater than stop
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer.id,
+             "index" => 0,
+             "timer_start" => stop,
+             "timer_stop" => start
+           }) =~ "Start is newer that stop."
+
+    # Trying to update with start as invalid format
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer.id,
+             "index" => 0,
+             "timer_start" => "invalid",
+             "timer_stop" => stop
+           }) =~ "Start field has an invalid date format."
+
+    # Trying to update with stop as invalid format
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer.id,
+             "index" => 0,
+             "timer_start" => start,
+             "timer_stop" => "invalid"
+           }) =~ "Stop field has an invalid date format."
+  end
+
+  test "update timer while it's ongoing for the first time", %{conn: conn} do
+    {:ok, %{model: item}} =
+      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+
+    {:ok, seven_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
+
+    {:ok, now} = NaiveDateTime.new(Date.utc_today(), Time.utc_now())
+
+    # Start the timer 7 seconds ago:
+    {:ok, timer} =
+      Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
+
+    {:ok, view, _html} = live(conn, "/")
+
+    # Get string representation of current time
+    now_string =
+      NaiveDateTime.truncate(now, :second)
+      |> NaiveDateTime.to_string()
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.map(fn {value, index} ->
+        if index == 10 do
+          "T"
+        else
+          value
+        end
+      end)
+      |> List.to_string()
+
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer.id,
+             "index" => 0,
+             "timer_start" => now_string,
+             "timer_stop" => ""
+           })
+
+    # Timer should have updated value
+    updated_timer = Timer.get_timer!(timer.id)
+    assert updated_timer.start == NaiveDateTime.truncate(now, :second)
+  end
+
+  test "update timer with ongoing timer", %{conn: conn} do
+    {:ok, %{model: item}} =
+      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+
+    {:ok, seven_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
+
+    {:ok, now} = NaiveDateTime.new(Date.utc_today(), Time.utc_now())
+
+    {:ok, four_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -4))
+
+    {:ok, ten_seconds_after} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), 10))
+
+    # Start the timer 7 seconds ago:
+    {:ok, _timer} =
+      Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
+
+    # Stop the timer based on its item_id
+    Timer.stop_timer_for_item_id(item.id)
+
+    # Start a second timer
+    {:ok, timer2} = Timer.start(%{item_id: item.id, person_id: 1, start: now})
+
+    # Stop the timer based on its item_id
+    Timer.stop_timer_for_item_id(item.id)
+
+    {:ok, view, _html} = live(conn, "/")
+
+    # Update fails because of overlap timer -----------
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    four_seconds_ago_string =
+      NaiveDateTime.truncate(four_seconds_ago, :second)
+      |> NaiveDateTime.to_string()
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.map(fn {value, index} ->
+        if index == 10 do
+          "T"
+        else
+          value
+        end
+      end)
+      |> List.to_string()
+
+    error_view =
+      render_submit(view, "update-item-timer", %{
+        "timer_id" => timer2.id,
+        "index" => 1,
+        "timer_start" => four_seconds_ago_string,
+        "timer_stop" => ""
+      })
+
+    assert error_view =~ "When editing an ongoing timer"
+
+    # Update fails because of format
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    error_format_view =
+      render_submit(view, "update-item-timer", %{
+        "timer_id" => timer2.id,
+        "index" => 1,
+        "timer_start" => "invalidformat",
+        "timer_stop" => ""
+      })
+
+    assert error_format_view =~ "Start field has an invalid date format."
+
+    # Update successful
+    ten_seconds_after_string =
+      NaiveDateTime.truncate(ten_seconds_after, :second)
+      |> NaiveDateTime.to_string()
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.map(fn {value, index} ->
+        if index == 10 do
+          "T"
+        else
+          value
+        end
+      end)
+      |> List.to_string()
+
+    ten_seconds_after_datetime =
+      NaiveDateTime.truncate(ten_seconds_after, :second)
+
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer2.id,
+             "index" => 1,
+             "timer_start" => ten_seconds_after_string,
+             "timer_stop" => ""
+           })
+
+    updated_timer2 = Timer.get_timer!(timer2.id)
+    assert updated_timer2.start == ten_seconds_after_datetime
+  end
+
+  test "timer overlap error when updating timer", %{conn: conn} do
+    {:ok, %{model: item}} =
+      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+
+    {:ok, seven_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
+
+    {:ok, now} = NaiveDateTime.new(Date.utc_today(), Time.utc_now())
+
+    {:ok, four_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -4))
+
+    # Start the timer 7 seconds ago:
+    {:ok, _timer} =
+      Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
+
+    # Stop the timer based on its item_id
+    Timer.stop_timer_for_item_id(item.id)
+
+    # Start a second timer
+    {:ok, timer2} = Timer.start(%{item_id: item.id, person_id: 1, start: now})
+
+    # Stop the timer based on its item_id
+    Timer.stop_timer_for_item_id(item.id)
+
+    {:ok, view, _html} = live(conn, "/")
+
+    # Update fails because of overlap -----------
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    four_seconds_ago_string =
+      NaiveDateTime.truncate(four_seconds_ago, :second)
+      |> NaiveDateTime.to_string()
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.map(fn {value, index} ->
+        if index == 10 do
+          "T"
+        else
+          value
+        end
+      end)
+      |> List.to_string()
+
+    now_string =
+      NaiveDateTime.truncate(now, :second)
+      |> NaiveDateTime.to_string()
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.map(fn {value, index} ->
+        if index == 10 do
+          "T"
+        else
+          value
+        end
+      end)
+      |> List.to_string()
+
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer2.id,
+             "index" => 0,
+             "timer_start" => four_seconds_ago_string,
+             "timer_stop" => now_string
+           }) =~ "This timer interval overlaps with other timers."
+  end
+
+  test "timer overlap error when updating historical timer with ongoing timer",
+       %{conn: conn} do
+    {:ok, %{model: item}} =
+      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+
+    {:ok, seven_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
+
+    {:ok, now} = NaiveDateTime.new(Date.utc_today(), Time.utc_now())
+
+    {:ok, twenty_seconds_future} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), 20))
+
+    # Start the timer 7 seconds ago:
+    {:ok, timer} =
+      Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
+
+    # Stop the timer based on its item_id
+    Timer.stop_timer_for_item_id(item.id)
+
+    # Start a second timer
+    {:ok, _t2} = Timer.start(%{item_id: item.id, person_id: 1, start: now})
+
+    {:ok, view, _html} = live(conn, "/")
+
+    # Update fails because of overlap -----------
+    render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    seven_seconds_ago_string =
+      NaiveDateTime.truncate(seven_seconds_ago, :second)
+      |> NaiveDateTime.to_string()
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.map(fn {value, index} ->
+        if index == 10 do
+          "T"
+        else
+          value
+        end
+      end)
+      |> List.to_string()
+
+    twenty_seconds_string =
+      NaiveDateTime.truncate(twenty_seconds_future, :second)
+      |> NaiveDateTime.to_string()
+      |> String.graphemes()
+      |> Enum.with_index()
+      |> Enum.map(fn {value, index} ->
+        if index == 10 do
+          "T"
+        else
+          value
+        end
+      end)
+      |> List.to_string()
+
+    assert render_submit(view, "update-item-timer", %{
+             "timer_id" => timer.id,
+             "index" => 0,
+             "timer_start" => seven_seconds_ago_string,
+             "timer_stop" => twenty_seconds_string
+           }) =~ "This timer interval overlaps with other timers."
+  end
+
+  test "item\'s timer shows correct value (adjusted timezone)", %{conn: conn} do
+    {:ok, %{model: item}} =
+      Item.create_item(%{text: "Learn Elixir", person_id: 0, status: 2})
+
+    {:ok, seven_seconds_ago} =
+      NaiveDateTime.new(Date.utc_today(), Time.add(Time.utc_now(), -7))
+
+    # Start the timer 7 seconds ago:
+    {:ok, timer} =
+      Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
+
+    # Stop the timer based on its item_id
+    Timer.stop_timer_for_item_id(item.id)
+
+    # Adding timezone socket assign to simulate we're one hour ahead of UTC
+    hours_offset_fromUTC = 1
+
+    conn =
+      put_connect_params(conn, %{"hours_offset_fromUTC" => hours_offset_fromUTC})
+
+    {:ok, view, _html} = live(conn, "/")
+
+    edit_timer_view =
+      render_click(view, "edit-item", %{"id" => Integer.to_string(item.id)})
+
+    # `Start` and `stop` of the timer in the database (in UTC)
+    # We expect the `start` and `stop` to be shown with one hour more in the view
+    timer = Timer.get_timer!(timer.id)
+
+    expected_start_in_view =
+      NaiveDateTime.add(timer.start, hours_offset_fromUTC, :hour)
+      |> NaiveDateTime.to_iso8601()
+
+    expected_stop_in_view =
+      NaiveDateTime.add(timer.stop, hours_offset_fromUTC, :hour)
+      |> NaiveDateTime.to_iso8601()
+
+    # Check if timers are being shown correctly.
+    # They should be adjusted to timezone.
+    assert edit_timer_view =~ expected_start_in_view
+    assert edit_timer_view =~ expected_stop_in_view
+
+    # Now let's update the timer with a new value.
+    # This is the value the user inputs in the client-side.
+    # Since the user is in UTC+1, the persisted value should be adjusted
+    start = "2022-10-27T01:00:00"
+    stop = "2022-10-27T01:30:00"
+    {:ok, persisted_start} = NaiveDateTime.from_iso8601("2022-10-27T00:00:00")
+    {:ok, persisted_stop} = NaiveDateTime.from_iso8601("2022-10-27T00:30:00")
+
+    render_submit(view, "update-item-timer", %{
+      "timer_id" => timer.id,
+      "index" => 0,
+      "timer_start" => start,
+      "timer_stop" => stop
+    })
+
+    updated_timer = Timer.get_timer!(timer.id)
+
+    # The persisted datetime in the database should be one hour less
+    # than what the user has input.
+    assert NaiveDateTime.compare(updated_timer.start, persisted_start) == :eq
+    assert NaiveDateTime.compare(updated_timer.stop, persisted_stop) == :eq
+  end
+
+  test "timer_text(start, stop) UNDER 1000s" do
+    timer = %{
+      start: ~N[2022-07-17 09:01:42.000000],
+      stop: ~N[2022-07-17 09:02:24.000000]
+    }
+
+    assert AppWeb.AppLive.timer_text(timer) == "00:00:42"
+  end
+
+  test "timer_text(start, stop) both the same" do
+    timer = %{
+      start: ~N[2022-07-17 09:01:42.000000],
+      stop: ~N[2022-07-17 09:01:42.000000]
+    }
+
+    assert AppWeb.AppLive.timer_text(timer) == "00:00:00"
   end
 
   test "timer_text(start, stop)" do
@@ -132,14 +644,23 @@ defmodule AppWeb.AppLiveTest do
     assert AppWeb.AppLive.timer_text(timer) == "04:20:42"
   end
 
+  test "timer_text(start, stop) over 1000 secs" do
+    timer = %{
+      start: ~N[2022-07-17 09:01:42.000000],
+      stop: ~N[2022-07-17 09:19:24.000000]
+    }
+
+    assert AppWeb.AppLive.timer_text(timer) == "00:17:42"
+  end
+
   test "filter items", %{conn: conn} do
-    {:ok, _item} =
+    {:ok, %{model: _item}} =
       Item.create_item(%{text: "Item to do", person_id: 0, status: 2})
 
-    {:ok, _item_done} =
+    {:ok, %{model: _item_done}} =
       Item.create_item(%{text: "Item done", person_id: 0, status: 4})
 
-    {:ok, _item_archived} =
+    {:ok, %{model: _item_archived}} =
       Item.create_item(%{text: "Item archived", person_id: 0, status: 6})
 
     {:ok, view, _html} = live(conn, "/?filter_by=all")
@@ -164,21 +685,36 @@ defmodule AppWeb.AppLiveTest do
   end
 
   test "filter items by tag name", %{conn: conn} do
-    {:ok, _item} =
+    person_id = 0
+    {:ok, tag1} =
+      Tag.create_tag(%{person_id: person_id, text: "tag1", color: "#FCA5A5"})
+
+    {:ok, tag2} =
+      Tag.create_tag(%{person_id: person_id, text: "tag2", color: "#FCA5A5"})
+
+    {:ok, tag3} =
+      Tag.create_tag(%{person_id: person_id, text: "tag3", color: "#FCA5A5"})
+
+    {:ok, %{model: item1}} =
       Item.create_item_with_tags(%{
         text: "Item1 to do",
         person_id: 0,
         status: 2,
-        tags: "tag1, tag2"
+        tags: [tag1, tag2]
       })
 
-    {:ok, _item} =
+    {:ok, %{model: item2}} =
       Item.create_item_with_tags(%{
         text: "Item2 to do",
         person_id: 0,
         status: 2,
-        tags: "tag1, tag3"
+        tags: [tag1, tag3]
       })
+
+    # The items need to be in the latest seq to appear on the page:
+    list = App.List.get_all_list_for_person(person_id)
+    App.List.update_list_seq(list.cid, person_id, "#{item1.cid},#{item2.cid}")
+
 
     {:ok, view, _html} = live(conn, "/?filter_by=all")
     assert render(view) =~ "Item1 to do"
@@ -212,6 +748,21 @@ defmodule AppWeb.AppLiveTest do
     assert render(view)
   end
 
+  test "Logout link displayed when loggedin", %{conn: conn} do
+    data = %{
+      email: "test@dwyl.com",
+      givenName: "Alex",
+      picture: "this",
+      auth_provider: "GitHub",
+      id: 0
+    }
+
+    jwt = AuthPlug.Token.generate_jwt!(data)
+
+    conn = get(conn, "/?jwt=#{jwt}")
+    assert html_response(conn, 200) =~ "logout"
+  end
+
   test "get /logout with valid JWT", %{conn: conn} do
     data = %{
       email: "test@dwyl.com",
@@ -232,9 +783,10 @@ defmodule AppWeb.AppLiveTest do
     assert "/" = redirected_to(conn, 302)
   end
 
-  test "test login link redirect to authdemo.fly.dev", %{conn: conn} do
+  test "test login link redirect to auth", %{conn: conn} do
     conn = get(conn, "/login")
-    assert redirected_to(conn, 302) =~ "authdemo.fly.dev"
+
+    assert redirected_to(conn, 302) =~ "auth"
   end
 
   test "tags_to_string/1" do
@@ -242,5 +794,117 @@ defmodule AppWeb.AppLiveTest do
              %Tag{text: "Learn"},
              %Tag{text: "Elixir"}
            ]) == "Learn, Elixir"
+  end
+
+  test "input text for new task change", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+    assert render_hook(view, "validate", %{"text" => "new item"}) =~ "new item"
+  end
+
+  test "select tag", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+
+    {:ok, tag1} =
+      Tag.create_tag(%{person_id: 0, text: "tag1", color: "#FCA5A5"})
+
+    assert render_hook(view, "toggle_tag", %{"tag_id" => tag1.id})
+    # can toggle again the same tag
+    assert render_hook(view, "toggle_tag", %{"tag_id" => tag1.id})
+  end
+
+  test "filter list tags", %{conn: conn} do
+    {:ok, _tag1} =
+      Tag.create_tag(%{person_id: 0, text: "tag1", color: "#FCA5A5"})
+
+    {:ok, view, _html} = live(conn, "/")
+    assert render_hook(view, "filter-tags", %{"key" => "t", "value" => "t"})
+  end
+
+  test "Drag and Drop item", %{conn: conn} do
+    person_id = 0
+    # Creating Three items
+    {:ok, %{model: item}} =
+      Item.create_item(%{text: "Learn Elixir", person_id: person_id, status: 2})
+
+    {:ok, %{model: item2}} =
+      Item.create_item(%{ text: "Build Awesome App", person_id: person_id, status: 2})
+
+    {:ok, %{model: item3}} =
+      Item.create_item(%{ text: "Profit", person_id: person_id, status: 2})
+
+    # Create "all" list for this person_id:
+    list = App.List.get_all_list_for_person(person_id)
+
+    # Add all items to "all" list:
+    App.List.add_all_items_to_all_list_for_person_id(person_id)
+
+    # Render LiveView
+    {:ok, view, _html} = live(conn, "/")
+
+    # Highlight broadcast should have occurred
+    assert render_hook(view, "highlight", %{"id" => item.id})
+      |> String.split("bg-teal-300")
+      |> Enum.drop(1)
+      |> length() > 0
+
+    # Dragover and remove highlight
+    render_hook(view, "dragoverItem", %{
+      "currentItemId" => item2.id,
+      "selectedItemId" => item.id
+    })
+
+    assert render_hook(view, "removeHighlight", %{"id" => item.id})
+
+    # reorder items:
+    render_hook(view, "update_list_seq", %{
+      "seq" => "#{item.cid},#{item2.cid},#{item3.cid}"
+    })
+
+    all_list = App.List.get_all_list_for_person(person_id)
+    seq = App.List.get_list_seq(all_list)
+    pos1 = Enum.find_index(seq, fn x -> x == "#{item.cid}" end)
+    pos2 = Enum.find_index(seq, fn x -> x == "#{item2.cid}" end)
+    # IO.puts("#{pos1}: #{item.cid}")
+    # IO.puts("#{pos2}: #{item2.cid}")
+
+    assert pos1 < pos2
+
+    # Update list_item.seq:
+    {:ok, %{model: list}} = App.List.update_list_seq(list.cid, person_id, "#{item.cid},#{item3.cid},#{item2.cid}")
+    new_seq = list.seq |> String.split(",")
+    # dbg(new_seq)
+    pos2 = Enum.find_index(new_seq, fn x -> x == "#{item2.cid}" end)
+    pos3 = Enum.find_index(new_seq, fn x -> x == "#{item3.cid}" end)
+    assert pos3 < pos2
+  end
+
+  test "select tag when enter pressed", %{conn: conn} do
+    # Add default tag created by priv/repo/seeds.exs
+    {:ok, view, _html} = live(conn, "/")
+
+    assert render_keydown(view, "add-first-tag", %{"key" => "Enter"}) =~
+             "baking"
+
+    {:ok, _tag1} =
+      Tag.create_tag(%{
+        person_id: 0,
+        text: "enter_tag_selected",
+        color: "#FCA5A5"
+      })
+
+    assert render_submit(view, :create, %{text: "baking"})
+    assert render(view) =~ "baking"
+  end
+
+  test "don't select tag if other keydown is pressed", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+
+    assert render_keydown(view, "add-first-tag", %{"key" => "Esc"})
+
+    assert render_submit(view, :create, %{text: "tag enter pressed"})
+
+    last_item_inserted = Item.list_person_items(0) |> List.last()
+
+    assert last_item_inserted.tags == []
   end
 end

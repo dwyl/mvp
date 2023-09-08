@@ -1,6 +1,5 @@
 defmodule AppWeb.TagControllerTest do
   use AppWeb.ConnCase
-
   alias App.Tag
 
   @create_attrs %{text: "tag1", person_id: 1, color: "#FCA5A5"}
@@ -18,14 +17,46 @@ defmodule AppWeb.TagControllerTest do
       assert html_response(conn, 200) =~ "Listing Tags"
     end
 
-    test "lists all tagz", %{conn: conn} do
+    test "lists all tags and display logout button", %{conn: conn} do
       conn =
         conn
-        |> assign(:jwt, "jwt value...")
-        |> assign(:person, %{id: 1, picture: ""})
+        |> assign(:jwt, AuthPlug.Token.generate_jwt!(%{id: 1, picture: ""}))
         |> get(Routes.tag_path(conn, :index))
 
-      assert html_response(conn, 200) =~ "Tags"
+      assert html_response(conn, 200) =~ "logout"
+    end
+  end
+
+  describe "new tag" do
+    test "renders form for creating a tag", %{conn: conn} do
+      conn =
+        conn
+        |> assign(:jwt, AuthPlug.Token.generate_jwt!(%{id: 1, picture: ""}))
+        |> get(Routes.tag_path(conn, :new))
+
+      assert html_response(conn, 200) =~ "New Tag"
+    end
+  end
+
+  describe "create tag" do
+    test "redirects to show when data is valid", %{conn: conn} do
+      conn =
+        conn
+        |> assign(:jwt, AuthPlug.Token.generate_jwt!(%{id: 1, picture: ""}))
+        |> post(Routes.tag_path(conn, :create),
+          tag: %{text: "new tag", color: "#FCA5A5"}
+        )
+
+      assert redirected_to(conn) == Routes.tag_path(conn, :index)
+    end
+
+    test "renders errors when data is invalid", %{conn: conn} do
+      conn =
+        conn
+        |> assign(:jwt, AuthPlug.Token.generate_jwt!(%{id: 1, picture: ""}))
+        |> post(Routes.tag_path(conn, :create), tag: @invalid_attrs)
+
+      assert html_response(conn, 200) =~ "New Tag"
     end
   end
 
@@ -66,7 +97,7 @@ defmodule AppWeb.TagControllerTest do
     test "renders errors when data is invalid", %{conn: conn, tag: tag} do
       conn =
         conn
-        |> assign(:person, %{id: 1})
+        |> assign(:jwt, AuthPlug.Token.generate_jwt!(%{id: 1, picture: ""}))
         |> put(Routes.tag_path(conn, :update, tag), tag: @invalid_attrs)
 
       assert html_response(conn, 200) =~ "Edit Tag"
@@ -79,7 +110,7 @@ defmodule AppWeb.TagControllerTest do
     test "deletes chosen tag", %{conn: conn, tag: tag} do
       conn =
         conn
-        |> assign(:person, %{id: 1})
+        |> assign(:jwt, AuthPlug.Token.generate_jwt!(%{id: 1, picture: ""}))
         |> delete(Routes.tag_path(conn, :delete, tag))
 
       assert redirected_to(conn) == Routes.tag_path(conn, :index)
