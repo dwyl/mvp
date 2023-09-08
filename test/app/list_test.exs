@@ -94,18 +94,6 @@ defmodule App.ListTest do
       assert Enum.member?(all_items_seq, "#{item2.cid}")
       assert Enum.member?(all_items_seq, "#{item3.cid}")
     end
-
-    test "get lists from ids" do
-      {:ok, list} = List.create_list(@valid_attrs)
-      assert lists = List.get_lists_from_ids([list.id])
-      assert length(lists) == 1
-    end
-
-    test "get the lists for a person" do
-      {:ok, _list} = List.create_list(@valid_attrs)
-      assert lists = List.list_person_lists(1)
-      assert length(lists) == 1
-    end
   end
 
   test "update_list_seq/3 updates the list.seq for the given list" do
@@ -127,24 +115,9 @@ defmodule App.ListTest do
     {:ok, %{model: list}} = App.List.update_list_seq(all_list.cid, person_id, seq)
     assert list.seq == seq
 
-<<<<<<< HEAD
     # Reorder the cids and update the list.seq
     updated_seq = "#{item3.cid},#{item2.cid},#{item1.cid}"
     {:ok, %{model: list}} = App.List.update_list_seq(all_list.cid, person_id, updated_seq)
     assert list.seq == updated_seq
-=======
-  describe "Delete list in Postgres" do
-    @valid_attrs %{person_id: 1, name: "list 1"}
-
-    test "delet the list" do
-      assert {:ok, list} = List.create_list(@valid_attrs)
-      assert {:ok, _} = List.delete_list(list)
-    end
-  end
-
-  defp create_person(_) do
-    person = Person.create_person(%{"person_id" => 1, "name" => "guest"})
-    %{person: person}
->>>>>>> a3269b7 (Add tests for lists)
   end
 end

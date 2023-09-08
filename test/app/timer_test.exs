@@ -49,7 +49,7 @@ defmodule App.TimerTest do
       {:ok, timer} =
         Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
 
-      #  stop the timer based on it's item_id
+      #  stop the timer based on it's item_id
       Timer.stop_timer_for_item_id(item.id)
 
       stopped_timer = Timer.get_timer!(timer.id)
