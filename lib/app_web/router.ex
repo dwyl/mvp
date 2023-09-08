@@ -29,7 +29,6 @@ defmodule AppWeb.Router do
   scope "/", AppWeb do
     pipe_through [:browser, :authOptional]
     live "/", AppLive
-
     # resources "/lists", ListController, except: [:show]
     get "/login", AuthController, :login
     get "/logout", AuthController, :logout

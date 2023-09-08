@@ -1,5 +1,5 @@
 defmodule App.ItemTest do
-  use App.DataCase, async: true
+  use App.DataCase
   alias App.{Item, Timer}
 
   describe "items" do
