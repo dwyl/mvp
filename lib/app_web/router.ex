@@ -30,7 +30,6 @@ defmodule AppWeb.Router do
     pipe_through [:browser, :authOptional]
     live "/", AppLive
     # resources "/lists", ListController, except: [:show]
-    get "/login", AuthController, :login
     get "/logout", AuthController, :logout
     live "/stats", StatsLive
     resources "/tags", TagController, except: [:show]

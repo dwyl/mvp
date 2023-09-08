@@ -1,8 +1,0 @@
-<.container>
-<.h2 class="text-center mt-3">Edit List</.h2>
-
-<%= render "form.html", Map.put(assigns, :action, Routes.list_path(@conn, :update, @list)) |> Map.put(:method, "patch") %>
-
-<.a to={Routes.list_path(@conn, :index)} label="Back to lists" />
-
-</.container>
