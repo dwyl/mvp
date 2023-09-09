@@ -21,10 +21,14 @@ defmodule AppWeb.AppLive do
     AppWeb.Endpoint.subscribe(@stats_topic)
 
     person_id = Person.get_person_id(socket.assigns)
+
     # Create or Get the "all" list for the person_id
     all_list = App.List.get_all_list_for_person(person_id)
+
     # Temporary function to add All *existing* items to the "All" list:
     App.List.add_all_items_to_all_list_for_person_id(person_id)
+
+    # Assigns
     items = Item.items_with_timers(person_id)
     tags = Tag.list_person_tags(person_id)
     selected_tags = []
@@ -343,10 +347,10 @@ defmodule AppWeb.AppLive do
   def handle_info(%Broadcast{event: "update", payload: payload}, socket) do
     person_id = Person.get_person_id(socket.assigns)
     items = Item.items_with_timers(person_id)
-    isEditingItem = socket.assigns.editing
+    is_editing_item = socket.assigns.editing
 
     # If the item is being edited, we update the timer list of the item being edited.
-    if isEditingItem do
+    if is_editing_item do
       case payload do
         {:start, item_id} ->
           timers_list_changeset = Timer.list_timers_changesets(item_id)

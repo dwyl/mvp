@@ -3165,10 +3165,10 @@ everytime `Start/Resume` or `Stop` is called.
     person_id = get_person_id(socket.assigns)
     items = Item.items_with_timers(person_id)
 
-    isEditingItem = socket.assigns.editing
+    is_editing_item = socket.assigns.editing
 
     # If the item is being edited, we update the timer list of the item being edited.
-    if isEditingItem do
+    if is_editing_item do
       case payload do
         {:start, item_id} ->
           timers_list_changeset = Timer.list_timers_changesets(item_id)

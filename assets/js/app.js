@@ -89,13 +89,13 @@ window.addEventListener("phx:dragover-item", (e) => {
   const current_item = document.querySelector(`#${e.detail.current_item_id}`)
 
   const items = document.querySelector('#items')
-  const listItems = [...document.querySelectorAll('.item')]
+  const list_items = [...document.querySelectorAll('.item')]
 
-  if(listItems.indexOf(selected_item) < listItems.indexOf(current_item)){
+  if(list_items.indexOf(selected_item) < list_items.indexOf(current_item)){
     items.insertBefore(selected_item, current_item.nextSibling)
   }
 
-  if(listItems.indexOf(selected_item) > listItems.indexOf(current_item)){
+  if(list_items.indexOf(selected_item) > list_items.indexOf(current_item)){
     items.insertBefore(selected_item, current_item)
   }
 })
