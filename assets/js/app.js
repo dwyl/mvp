@@ -2,7 +2,7 @@
 import "phoenix_html"
 // Establish Phoenix Socket and LiveView configuration.
 import {Socket} from "phoenix"
-import {live_socket} from "phoenix_live_view"
+import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 
 // Show progress bar on live navigation and form submits
@@ -104,7 +104,7 @@ window.addEventListener("phx:dragover-item", (e) => {
 
 let csrf_token = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 
-let live_socket = new live_socket("/live", Socket, {
+let live_socket = new LiveSocket("/live", Socket, {
   hooks: Hooks,
   dom:{
         onBeforeElUpdated(from, to) {
