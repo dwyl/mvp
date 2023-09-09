@@ -5469,13 +5469,13 @@ to the `LiveView` server during the mounting phase.
 
 Open `assets/js/app.js`
 and locate the 
-`let liveSocket = new LiveSocket()` variable.
+`let live_socket = new live_socket()` variable.
 We are going to be changing the `params` attribute.
 Change it to the following:
 
 ```js
 params: {
-  _csrf_token: csrfToken,
+  _csrf_token: csrf_token,
   hours_offset_fromUTC: -new Date().getTimezoneOffset()/60
 }
 ```

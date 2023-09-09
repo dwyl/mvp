@@ -142,7 +142,7 @@
     </div>
   </.form>
   <!-- List of items with inline buttons and controls -->
-  <ul id="items" phx-hook="Items" x-data="{selectedItem: null}" class="w-full">
+  <ul id="items" phx-hook="Items" x-data="{selected_item: null}" class="w-full">
     <%= for item <- filter_items(@items, @filter, @filter_tag) do %>
       <li
         id={"item-#{item.id}"}
@@ -150,10 +150,10 @@
         class={"mt-2 flex flex-col w-full border-t border-slate-200 py-2 item #{if item.id == @editing do 'cursor-default' else 'cursor-grab' end}"}
         draggable={"#{if item.id == @editing do 'false' else 'true' end}"}
         x-data="{selected: false}"
-        x-on:dragstart="selected = true; $dispatch('highlight', {id: $el.id}); selectedItem = $el"
-        x-on:dragend="selected = false; $dispatch('remove-highlight', {id: $el.id}); selectedItem = null; $dispatch('update_indexes', {fromItemId: $el.dataset.id})"
+        x-on:dragstart="selected = true; $dispatch('highlight', {id: $el.id}); selected_item = $el"
+        x-on:dragend="selected = false; $dispatch('remove-highlight', {id: $el.id}); selected_item = null; $dispatch('update_indexes', {fromItemId: $el.dataset.id})"
         x-bind:class="selected ?? 'cursor-grabbing'"
-        x-on:dragover.throttle="$dispatch('dragover_item', {selectedItemId: selectedItem.id, currentItem: $el})"
+        x-on:dragover.throttle="$dispatch('dragover_item', {selected_item_id: selected_item.id, current_item: $el})"
         data-highlight={JS.add_class("bg-teal-300")}
         data-remove-highlight={JS.remove_class("bg-teal-300")}
       >

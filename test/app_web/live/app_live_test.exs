@@ -849,8 +849,8 @@ defmodule AppWeb.AppLiveTest do
 
     # Dragover and remove highlight
     render_hook(view, "dragover_item", %{
-      "currentItemId" => item2.id,
-      "selectedItemId" => item.id
+      "current_item_id" => item2.id,
+      "selected_item_id" => item.id
     })
 
     assert render_hook(view, "remove_highlight", %{"id" => item.id})

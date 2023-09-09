@@ -282,8 +282,8 @@ defmodule AppWeb.AppLive do
   def handle_event(
         "dragover_item",
         %{
-          "currentItemId" => current_item_id,
-          "selectedItemId" => selected_item_id
+          "current_item_id" => current_item_id,
+          "selected_item_id" => selected_item_id
         },
         socket
       ) do
