@@ -273,14 +273,14 @@ defmodule AppWeb.AppLive do
   end
 
   @impl true
-  def handle_event("removeHighlight", %{"id" => id}, socket) do
+  def handle_event("remove_highlight", %{"id" => id}, socket) do
     AppWeb.Endpoint.broadcast(@topic, "move_items", {:drop_item, id})
     {:noreply, socket}
   end
 
   @impl true
   def handle_event(
-        "dragoverItem",
+        "dragover_item",
         %{
           "currentItemId" => current_item_id,
           "selectedItemId" => selected_item_id

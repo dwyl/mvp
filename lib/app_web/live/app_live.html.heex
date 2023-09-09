@@ -151,9 +151,9 @@
         draggable={"#{if item.id == @editing do 'false' else 'true' end}"}
         x-data="{selected: false}"
         x-on:dragstart="selected = true; $dispatch('highlight', {id: $el.id}); selectedItem = $el"
-        x-on:dragend="selected = false; $dispatch('remove-highlight', {id: $el.id}); selectedItem = null; $dispatch('update-indexes', {fromItemId: $el.dataset.id})"
+        x-on:dragend="selected = false; $dispatch('remove-highlight', {id: $el.id}); selectedItem = null; $dispatch('update_indexes', {fromItemId: $el.dataset.id})"
         x-bind:class="selected ?? 'cursor-grabbing'"
-        x-on:dragover.throttle="$dispatch('dragoverItem', {selectedItemId: selectedItem.id, currentItem: $el})"
+        x-on:dragover.throttle="$dispatch('dragover_item', {selectedItemId: selectedItem.id, currentItem: $el})"
         data-highlight={JS.add_class("bg-teal-300")}
         data-remove-highlight={JS.remove_class("bg-teal-300")}
       >

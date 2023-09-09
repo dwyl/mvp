@@ -33,24 +33,24 @@ Hooks.Items = {
     })
 
     this.el.addEventListener("remove-highlight", e => {
-      hook.pushEventTo("#items", "removeHighlight", {id: e.detail.id})
+      hook.pushEventTo("#items", "remove_highlight", {id: e.detail.id})
       // console.log('remove-highlight', e.detail.id)
     })
 
-    this.el.addEventListener("dragoverItem", e => {
-      // console.log("dragoverItem", e.detail)
+    this.el.addEventListener("dragover_item", e => {
+      // console.log("dragover_item", e.detail)
       const currentItemId = e.detail.currentItem.id
       const selectedItemId = e.detail.selectedItemId
       if( currentItemId != selectedItemId) {
-        hook.pushEventTo("#items", "dragoverItem", {currentItemId: currentItemId, selectedItemId: selectedItemId})
+        hook.pushEventTo("#items", "dragover_item", {currentItemId: currentItemId, selectedItemId: selectedItemId})
         itemId_to = e.detail.currentItem.dataset.id
       }
     })
 
-    this.el.addEventListener("update-indexes", e => {
+    this.el.addEventListener("update_indexes", e => {
       const item_id = e.detail.fromItemId 
       const list_ids = get_list_item_cids()
-      console.log("update-indexes", e.detail, "list: ", list_ids)
+      console.log("update_indexes", e.detail, "list: ", list_ids)
       // Check if both "from" and "to" are defined
       if(item_id && itemId_to && item_id != itemId_to) {
         hook.pushEventTo("#items", "update_list_seq", 
