@@ -32,20 +32,25 @@ if env == :test || env == :dev do
   {:ok, %{model: item1}} =
     Item.create_item(%{person_id: person_id, text: "Buy Bananas", status: 2})
 
-    {:ok, %{model: item2}} = Item.create_item(%{
+  {:ok, %{model: item2}} =
+    Item.create_item(%{
       person_id: person_id,
       text: "Make Banana Muffins",
       status: 2
     })
 
-    {:ok, %{model: item3}} = Item.create_item(%{
+  {:ok, %{model: item3}} =
+    Item.create_item(%{
       person_id: person_id,
       text: "Eat Banana Muffin!",
       status: 2
     })
 
-    {:ok, %{model: item4}} = Item.create_item(%{
-      person_id: person_id, text: "Go to Shops", status: 2
+  {:ok, %{model: item4}} =
+    Item.create_item(%{
+      person_id: person_id,
+      text: "Go to Shops",
+      status: 2
     })
 
   # Tags
