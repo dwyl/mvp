@@ -5,7 +5,7 @@ defmodule AppWeb.ListController do
 
   def index(conn, _params) do
     person_id = conn.assigns[:person][:id] || 0
-    lists = List.list_person_lists(person_id)
+    lists = List.get_lists_for_person(person_id)
 
     render(conn, "index.html", lists: lists)
   end
@@ -52,7 +52,7 @@ defmodule AppWeb.ListController do
 
   def delete(conn, %{"id" => id}) do
     list = List.get_list!(id)
-    {:ok, _list} = List.delete_list(list)
+    {:ok, _list} = List.delete_list(list.id)
 
     conn
     |> put_flash(:info, "list deleted successfully.")

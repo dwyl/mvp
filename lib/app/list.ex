@@ -63,6 +63,16 @@ defmodule App.List do
   end
 
   @doc """
+  `delete_list/1` "soft" deletes a list
+  so it can easily be restored in the event of mistaken deletion.
+  """
+  def delete_list(id) do
+    get_list!(id)
+    |> changeset(%{status: 6})
+    |> Repo.update()
+  end
+
+  @doc """
   `get_list_by_cid!/1` gets the `list` record by its' `cid`.
 
   Raises `Ecto.NoResultsError` if the List does not exist.
@@ -106,6 +116,7 @@ defmodule App.List do
   def get_lists_for_person(person_id) do
     List
     |> where(person_id: ^person_id)
+    |> order_by(:name)
     |> Repo.all()
   end
 
