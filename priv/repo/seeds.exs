@@ -21,29 +21,32 @@ if env == :test || env == :dev do
   Repo.delete_all(Item)
   Repo.delete_all(Tag)
 
+  # Create "all"" List!
+  {:ok, %{model: _all_list}} =
+    App.List.create_list(%{name: "all", person_id: person_id, status: 2})
+
   # Create a few items for testing on localhost
-  item0 =
-    Repo.insert!(%Item{person_id: person_id, text: "Use the MVP!", status: 3})
+  {:ok, %{model: item0}} =
+    Item.create_item(%{person_id: person_id, text: "Use the MVP!", status: 3})
 
-  item1 =
-    Repo.insert!(%Item{person_id: person_id, text: "Buy Bananas", status: 2})
+  {:ok, %{model: item1}} =
+    Item.create_item(%{person_id: person_id, text: "Buy Bananas", status: 2})
 
-  item2 =
-    Repo.insert!(%Item{
+    {:ok, %{model: item2}} = Item.create_item(%{
       person_id: person_id,
       text: "Make Banana Muffins",
       status: 2
     })
 
-  item3 =
-    Repo.insert!(%Item{
+    {:ok, %{model: item3}} = Item.create_item(%{
       person_id: person_id,
       text: "Eat Banana Muffin!",
       status: 2
     })
 
-  item4 =
-    Repo.insert!(%Item{person_id: person_id, text: "Go to Shops", status: 2})
+    {:ok, %{model: item4}} = Item.create_item(%{
+      person_id: person_id, text: "Go to Shops", status: 2
+    })
 
   # Tags
   tag0 =
@@ -73,13 +76,9 @@ if env == :test || env == :dev do
   {:ok, _timer1} =
     Timer.start(%{item_id: item0.id, person_id: person_id, start: started})
 
-  # Create "all"" List!
-  {:ok, %{model: _all_list}} =
-    App.List.create_list(%{name: "all", person_id: person_id, status: 2})
-
   # Add Cid to all existing items before adding them to the "all" list:
   App.Item.update_all_items_cid()
 
   # Add items to lists:
-  App.List.add_all_items_to_all_list_for_person_id(person_id)
+  # App.List.add_all_items_to_all_list_for_person_id(person_id)
 end
