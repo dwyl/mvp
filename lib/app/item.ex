@@ -47,7 +47,6 @@ defmodule App.Item do
     |> validate_required([:cid, :text, :person_id])
   end
 
-
   @doc """
   `create_item/1` creates an `item`.
 
