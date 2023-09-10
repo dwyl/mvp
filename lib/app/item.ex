@@ -38,8 +38,15 @@ defmodule App.Item do
     item
     |> cast(attrs, [:person_id, :status, :text])
     |> validate_required([:person_id])
-    |> App.Cid.put_cid()
   end
+
+  # Update an item without changing the cid ref: #418
+  def changeset_update(item, attrs) do
+    item
+    |> cast(attrs, [:cid, :person_id, :status, :text])
+    |> validate_required([:cid, :text, :person_id])
+  end
+
 
   @doc """
   `create_item/1` creates an `item`.
@@ -164,7 +171,7 @@ defmodule App.Item do
   """
   def update_item(%Item{} = item, attrs) do
     item
-    |> Item.changeset(attrs)
+    |> Item.changeset_update(attrs)
     |> PaperTrail.update(originator: %{id: Map.get(attrs, :person_id, 0)})
   end
 
@@ -186,7 +193,7 @@ defmodule App.Item do
 
   def delete_item(id) do
     get_item!(id)
-    |> Item.changeset(%{status: 6})
+    |> Item.changeset_update(%{status: 6})
     |> Repo.update()
   end
 

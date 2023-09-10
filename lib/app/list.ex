@@ -25,6 +25,13 @@ defmodule App.List do
     |> App.Cid.put_cid()
   end
 
+  # Update an list without changing the cid ref: #418
+  def changeset_update(list, attrs \\ %{}) do
+    list
+    |> cast(attrs, [:name, :person_id, :seq, :sort, :status])
+    |> validate_required([:cid, :name, :person_id])
+  end
+
   @doc """
   `create_list/1` creates an `list`.
 
@@ -68,7 +75,7 @@ defmodule App.List do
   """
   def delete_list(id) do
     get_list!(id)
-    |> changeset(%{status: 6})
+    |> changeset_update(%{status: 6})
     |> Repo.update()
   end
 
@@ -106,7 +113,7 @@ defmodule App.List do
   """
   def update_list(%List{} = list, attrs) do
     list
-    |> List.changeset(attrs)
+    |> List.changeset_update(attrs)
     |> PaperTrail.update()
   end
 
