@@ -5469,7 +5469,7 @@ to the `LiveView` server during the mounting phase.
 
 Open `assets/js/app.js`
 and locate the 
-`let live_socket = new live_socket()` variable.
+`let live_socket = new LiveSocket()` variable.
 We are going to be changing the `params` attribute.
 Change it to the following:
 
