@@ -903,7 +903,7 @@ defmodule AppWeb.AppLiveTest do
 
     assert render_submit(view, :create, %{text: "tag enter pressed"})
 
-    last_item_inserted = Item.list_person_items(0) |> List.last()
+    last_item_inserted = Item.get_person_items(0) |> List.last()
 
     assert last_item_inserted.tags == []
   end

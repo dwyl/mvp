@@ -210,7 +210,9 @@ defmodule App.List do
   """
   def add_all_items_to_all_list_for_person_id(person_id) do
     all_list = App.List.get_all_list_for_person(person_id)
+    # dbg(all_list)
     all_items = App.Item.all_items_for_person(person_id)
+    # dbg(all_items)
     prev_seq = get_list_seq(all_list)
     # Add add each `item.id` to the sequence of item ids:
     seq =

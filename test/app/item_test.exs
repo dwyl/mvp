@@ -28,7 +28,7 @@ defmodule App.ItemTest do
       # dbg(item)
       assert item.text == @valid_attrs.text
 
-      inserted_item = List.first(Item.list_items())
+      inserted_item = List.first(Item.get_items())
       assert inserted_item.text == "Use the MVP!"
     end
 

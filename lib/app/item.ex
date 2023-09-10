@@ -143,13 +143,13 @@ defmodule App.Item do
       [%Item{}, ...]
 
   """
-  def list_items do
+  def get_items do
     Item
     |> where([i], is_nil(i.status) or i.status != 6)
     |> Repo.all()
   end
 
-  def list_person_items(person_id) do
+  def get_person_items(person_id) do
     Item
     |> where(person_id: ^person_id)
     |> Repo.all()
@@ -239,7 +239,7 @@ defmodule App.Item do
       |> map_columns_to_values()
 
     items_tags =
-      list_person_items(person_id)
+      get_person_items(person_id)
       |> Enum.reduce(%{}, fn i, acc -> Map.put(acc, i.id, i) end)
 
     accumulate_item_timers(values, seq)
@@ -384,7 +384,7 @@ defmodule App.Item do
   This will not be needed once all records are transitioned.
   """
   def update_all_items_cid do
-    items = list_items()
+    items = get_items()
 
     Enum.each(items, fn i ->
       # coveralls-ignore-start
