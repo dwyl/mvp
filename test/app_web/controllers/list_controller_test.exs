@@ -1,16 +1,14 @@
 defmodule AppWeb.ListControllerTest do
   use AppWeb.ConnCase
 
-  alias App.{List, Person}
-
-  setup [:create_person]
+  alias App.{List}
 
   @create_attrs %{name: "list1", person_id: 1}
   @update_attrs %{name: "list1 updated"}
   @invalid_attrs %{name: nil, person_id: 1}
 
   def fixture(:list) do
-    {:ok, list} = List.create_list(@create_attrs)
+    {:ok, %{model: list}} = List.create_list(@create_attrs)
     list
   end
 
@@ -108,11 +106,5 @@ defmodule AppWeb.ListControllerTest do
   defp create_list(_) do
     list = fixture(:list)
     %{list: list}
-  end
-
-  defp create_person(_) do
-    person = Person.create_person(%{"person_id" => 0, "name" => "guest"})
-    _person1 = Person.create_person(%{"person_id" => 1, "name" => "person1"})
-    %{person: person}
   end
 end

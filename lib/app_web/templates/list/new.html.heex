@@ -1,0 +1,8 @@
+<.container>
+<.h2 class="text-center mt-3">New list</.h2>
+
+<%= render "form.html", Map.put(assigns, :action, Routes.list_path(@conn, :create)) |> Map.put(:method, "post") %>
+
+<.a to={Routes.list_path(@conn, :index)} label="Back to lists" />
+
+</.container>
