@@ -16,8 +16,17 @@ defmodule AppWeb.ListController do
   end
 
   def create(conn, %{"list" => list_params}) do
+    dbg(list_params)
     person_id = conn.assigns[:person][:id] || 0
-    list_params = Map.put(list_params, "person_id", person_id)
+    list_name = Map.get(list_params, "name") || nil
+
+    list_params =
+      if list_name != nil do
+        Map.put(list_params, "name", String.downcase(list_name))
+      else
+        list_params
+      end
+      |> Map.put("person_id", person_id)
 
     case List.create_list(list_params) do
       {:ok, _list} ->

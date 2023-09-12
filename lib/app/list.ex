@@ -123,7 +123,7 @@ defmodule App.List do
   def get_lists_for_person(person_id) do
     List
     |> where(person_id: ^person_id)
-    |> order_by(:name)
+    |> order_by(asc: :name)
     |> Repo.all()
   end
 
