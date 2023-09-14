@@ -6,11 +6,12 @@
   <div class="sm:flex sm:items-center">
     <div class="sm:flex-auto">
       <p class="mt-2 text-sm text-gray-700 text-center">
-        These are <b>your <code>Lists</code></b>. 
-        Use <b><code>Lists</code></b> to <b>organize</b> your <b><code>Items</code></b>. <br />
-        Easily create a <b><i>New</i> <code>List</code></b> 
+        These are <b>your <code>Lists</code></b>.
+        Use <b><code>Lists</code></b>
+        to <b>organize</b>
+        your <b><code>Items</code></b>. <br /> Easily create a
+        <b><i>New</i> <code>List</code></b>
         for a project or area you need to keep track of.
-        
       </p>
     </div>
     <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
@@ -29,31 +30,50 @@
         <table class="min-w-full border-separate border-spacing-0">
           <thead>
             <tr>
-              <th scope="col" class="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8">Name</th>
-              <th scope="col" class="sticky top-0 z-10 hidden border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:table-cell">Item Count</th>
-              <th scope="col" class="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-3 pr-4 backdrop-blur backdrop-filter sm:pr-6 lg:pr-8">
+              <th
+                scope="col"
+                class="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
+              >
+                Name
+              </th>
+              <th
+                scope="col"
+                class="sticky top-0 z-10 hidden border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:table-cell"
+              >
+                Item Count
+              </th>
+              <th
+                scope="col"
+                class="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-3 pr-4 backdrop-blur backdrop-filter sm:pr-6 lg:pr-8"
+              >
                 <span class="sr-only">Edit</span>
               </th>
             </tr>
           </thead>
           <tbody>
             <%= for list <- @lists do %>
-            <tr>
-              <td class="whitespace-nowrap border-b border-gray-200 py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8">
+              <tr>
+                <td class="whitespace-nowrap border-b border-gray-200 py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8">
                   <%= String.capitalize(list.name) %>
-              </td>
-              <td class="whitespace-nowrap border-b border-gray-200 hidden px-3 py-4 text-sm text-gray-500 sm:table-cell"><%= list_item_count(list) %></td>
-              <td class="relative whitespace-nowrap border-b border-gray-200 py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-8 lg:pr-8">
-                <%= link("Edit", to: Routes.list_path(@conn, :edit, list), class: "") %>
-                <!-- <a href="#" class="text-indigo-600 hover:text-indigo-900">Edit<span class="sr-only"></span></a> -->
-                <%= link("Delete",
-                  to: Routes.list_path(@conn, :delete, list),
-                  method: :delete,
-                  data: [confirm: "Are you sure you want to delete this list?"]
-                ) %>
-              </td>
-              
-            </tr>
+                </td>
+                <td class="whitespace-nowrap border-b border-gray-200 hidden px-3 py-4 text-sm text-gray-500 sm:table-cell">
+                  <%= list_item_count(list) %>
+                </td>
+                <td class="relative whitespace-nowrap border-b border-gray-200 py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-8 lg:pr-8">
+                  <%= link("Edit",
+                    to: Routes.list_path(@conn, :edit, list),
+                    class: ""
+                  ) %>
+                  <!-- <a href="#" class="text-indigo-600 hover:text-indigo-900">Edit<span class="sr-only"></span></a> -->
+                  <%= link("Delete",
+                    to: Routes.list_path(@conn, :delete, list),
+                    method: :delete,
+                    data: [
+                      confirm: "Are you sure you want to delete this list?"
+                    ]
+                  ) %>
+                </td>
+              </tr>
             <% end %>
             <!-- More people... -->
           </tbody>
