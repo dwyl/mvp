@@ -76,7 +76,7 @@ defmodule App.MixProject do
       {:timex, "~> 3.7"},
 
       # Useful functions: github.com/dwyl/useful
-      {:useful, "~> 1.12.1", override: true},
+      {:useful, "~> 1.13", override: true},
 
       # See: github.com/dwyl/useful/issues/17
       {:atomic_map, "~> 0.9.3"},
