@@ -120,4 +120,31 @@ defmodule App.ListTest do
     {:ok, %{model: list}} = App.List.update_list_seq(all_list.cid, person_id, updated_seq)
     assert list.seq == updated_seq
   end
+
+  test "remove_item_from_list/3 removes the item.cid from the list.seq" do
+    # Random Person ID
+    person_id = 386
+    all_list = App.List.get_all_list_for_person(person_id)
+
+    # Create items:
+    assert {:ok, %{model: item1}} =
+      Item.create_item(%{text: "buy land!", person_id: person_id, status: 2})
+    assert {:ok, %{model: item2}} =
+      Item.create_item(%{text: "prepare for societal collapse", person_id: person_id, status: 2})
+
+    # Add both items to the list:
+    seq = "#{item1.cid},#{item2.cid}"
+    {:ok, %{model: list}} = App.List.update_list_seq(all_list.cid, person_id, seq)
+    assert list.seq == seq
+
+    # Remove the first item from the list:
+    {:ok, %{model: list}} = App.List.remove_item_from_list(item1.cid, all_list.cid, person_id)
+
+    # Only item2 should be on the list.seq:
+    updated_seq = "#{item2.cid}"
+    # Confirm removed:
+    assert list.seq == updated_seq
+  end
+
+
 end

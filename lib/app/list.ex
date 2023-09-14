@@ -164,6 +164,9 @@ defmodule App.List do
     end
   end
 
+  @doc """
+  `add_item_to_list/3` adds the `item.cid` to the `list.cid` for the given `person_id`.
+  """
   def add_item_to_list(item_cid, list_cid, person_id) do
     list = get_list_by_cid!(list_cid)
     prev_seq = get_list_seq(list)
@@ -171,10 +174,28 @@ defmodule App.List do
     update_list(list, %{seq: seq, person_id: person_id})
   end
 
+  @doc """
+  `update_list_seq/3` update the `list.seq` for the `list.cid` for the `person_id`.
+  """
   def update_list_seq(list_cid, person_id, seq) do
     list = get_list_by_cid!(list_cid)
     update_list(list, %{seq: seq, person_id: person_id})
   end
+
+  @doc """
+  `remove_item_from_list/3` update the `list.seq` for the `list.cid` for the `person_id`.
+  """
+  def remove_item_from_list(item_cid, list_cid, person_id) do
+    list = get_list_by_cid!(list_cid)
+    # get existing list.seq
+    seq = get_list_seq(list)
+    # remove the item_cid from the list.seq:
+    |> Useful.remove_item_from_list(item_cid)
+    |> Enum.join(",")
+
+    update_list(list, %{seq: seq, person_id: person_id})
+  end
+
 
   # feel free to refactor this to use pattern matching:
   def add_papertrail_item_to_all_list(tuple) do
