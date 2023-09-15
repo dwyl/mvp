@@ -8,12 +8,30 @@
   <div class="flex flex-col justify-center items-center block text-xl2 font-medium leading-6 text-gray-900 mb-4">
     <.form_field type="text_input" form={f} field={:name} />
   </div>
-  <.button
-    type="submit"
-    label="Save"
-    class="float-right mr-4 rounded-md bg-green-600 hover:bg-green-700 px-4 py-2 
-    text-2xl text-center font-semibold text-white shadow-sm"
-  />
+
+  <div class="flex justify-end mr-1 float-right">
+    <button
+      class="inline-flex items-center px-4 py-2 mt-1
+      rounded-md bg-green-600 hover:bg-green-700 text-white text-2xl text-center font-semibold"
+      type="submit"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-5 w-5 mr-2"
+        fill="none"
+        viewBox="0 0 22 22"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M15 13l-3 3m0 0l-3-3m3 3V8m0 13a9 9 0 110-18 9 9 0 010 18z"
+        />
+      </svg>
+      Save
+    </button>
+  </div>
 
   <%= link("< Back to Lists",
     to: Routes.list_path(@conn, :index),

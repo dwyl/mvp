@@ -18,7 +18,7 @@
       <.button
         link_type="a"
         to={Routes.list_path(@conn, :new)}
-        label="New list"
+        label="New List"
         class="block rounded-md bg-green-600 px-5 py-2 text-center text-2xl font-semibold text-white shadow-sm hover:bg-green-700 
         focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-800"
       />
@@ -76,7 +76,7 @@
             <%= for list <- @lists do %>
               <tr>
                 <td class="whitespace-nowrap border-b border-gray-200 py-4 pl-4 pr-3 font-medium text-gray-900 sm:pl-6 lg:pl-8">
-                  <%= String.capitalize(list.name) %>
+                  <%= title_case(list.name) %>
                 </td>
                 <td class="whitespace-nowrap border-b border-gray-200 hidden px-3 py-4 text-center text-xl text-gray-800 sm:table-cell">
                   <%= list_item_count(list) %>
