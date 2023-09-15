@@ -9,4 +9,8 @@ defmodule AppWeb.ListView do
       list.seq |> String.split(",") |> length |> to_string
     end
   end
+
+  def format_date(date) do
+    App.DateTimeHelper.format_date(date)
+  end
 end

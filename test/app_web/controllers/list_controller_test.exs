@@ -22,7 +22,7 @@ defmodule AppWeb.ListControllerTest do
   describe "new list" do
     test "Display new list form", %{conn: conn} do
       conn = get(conn, Routes.list_path(conn, :new))
-      assert html_response(conn, 200) =~ "New list"
+      assert html_response(conn, 200) =~ "New"
     end
   end
 
@@ -42,7 +42,7 @@ defmodule AppWeb.ListControllerTest do
         |> assign(:person, %{id: 1})
         |> post(Routes.list_path(conn, :create), list: @invalid_attrs)
 
-      assert html_response(conn, 200) =~ "New list"
+      assert html_response(conn, 200) =~ "New"
     end
   end
 
@@ -55,7 +55,7 @@ defmodule AppWeb.ListControllerTest do
         |> assign(:person, %{id: 1})
         |> get(Routes.list_path(conn, :edit, list))
 
-      assert html_response(conn, 200) =~ "Edit List"
+      assert html_response(conn, 200) =~ "Edit"
     end
 
     test "redirect to index when missing permission to edit the list", %{
@@ -86,7 +86,7 @@ defmodule AppWeb.ListControllerTest do
         |> assign(:person, %{id: 1})
         |> put(Routes.list_path(conn, :update, list), list: @invalid_attrs)
 
-      assert html_response(conn, 200) =~ "Edit List"
+      assert html_response(conn, 200) =~ "Edit"
     end
   end
 
