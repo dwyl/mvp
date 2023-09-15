@@ -5,13 +5,13 @@
 <div class="px-4 sm:px-6 lg:px-8">
   <div class="sm:flex sm:items-center">
     <div class="sm:flex-auto">
-      <p class="mt-2 text-sm text-gray-700 text-center">
-        These are <b>your <code>Lists</code></b>.
-        Use <b><code>Lists</code></b>
+      <p class="mt-4 text-sm text-gray-700 text-center">
+        These are <b>your <code>Lists</code></b>. <br /> Use
+        <b><code>Lists</code></b>
         to <b>organize</b>
-        your <b><code>Items</code></b>. <br /> Easily create a
+        your <b><code>Items</code></b>. <br /> Create a
         <b><i>New</i> <code>List</code></b>
-        for a project or area you need to keep track of.
+        for a project or area <br /> you need to keep track of.
       </p>
     </div>
     <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
@@ -19,26 +19,28 @@
         link_type="a"
         to={Routes.list_path(@conn, :new)}
         label="New list"
-        class="block rounded-md bg-teal-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-teal-500 
-        focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600"
+        class="block rounded-md bg-green-600 px-5 py-2 text-center text-2xl font-semibold text-white shadow-sm hover:bg-green-700 
+        focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-800"
       />
     </div>
   </div>
   <div class="mt-8 flow-root">
     <div class="-mx-4 -my-2 sm:-mx-6 lg:-mx-8">
       <div class="inline-block min-w-full py-2 align-middle">
-        <table class="min-w-full border-separate border-spacing-0">
+        <table class="table-auto min-w-full border-separate border-spacing-0">
           <thead>
             <tr>
               <th
                 scope="col"
-                class="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
+                class="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 
+                  text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8"
               >
                 Name
               </th>
               <th
                 scope="col"
-                class="sticky top-0 z-10 hidden border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:table-cell"
+                class="sticky top-0 z-10 hidden border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 
+                  text-center text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:table-cell"
               >
                 Item Count
               </th>
@@ -48,6 +50,12 @@
               >
                 <span class="sr-only">Edit</span>
               </th>
+              <th
+                scope="col"
+                class="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-3 pr-4 backdrop-blur backdrop-filter sm:pr-6 lg:pr-8"
+              >
+                <span class="sr-only">Delete</span>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -56,23 +64,35 @@
                 <td class="whitespace-nowrap border-b border-gray-200 py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8">
                   <%= String.capitalize(list.name) %>
                 </td>
-                <td class="whitespace-nowrap border-b border-gray-200 hidden px-3 py-4 text-sm text-gray-500 sm:table-cell">
+                <td class="whitespace-nowrap border-b border-gray-200 hidden px-3 py-4 text-center text-xl text-gray-500 sm:table-cell">
                   <%= list_item_count(list) %>
                 </td>
-                <td class="relative whitespace-nowrap border-b border-gray-200 py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-8 lg:pr-8">
-                  <%= link("Edit",
-                    to: Routes.list_path(@conn, :edit, list),
-                    class: ""
-                  ) %>
-                  <!-- <a href="#" class="text-indigo-600 hover:text-indigo-900">Edit<span class="sr-only"></span></a> -->
-                  <%= link("Delete",
-                    to: Routes.list_path(@conn, :delete, list),
-                    method: :delete,
-                    data: [
-                      confirm: "Are you sure you want to delete this list?"
-                    ]
-                  ) %>
-                </td>
+                <!-- Don't show Edit or Delete buttons for "all" list. ref: github.com/dwyl/mvp/issues/400 -->
+                <%= if list.name == "all" do %>
+                  <td class="relative border-b border-gray-200"></td>
+                  <td class="relative border-b border-gray-200"></td>
+                <% else %>
+                  <td class="whitespace-nowrap border-b border-gray-200 py-4 pr-4 font-medium">
+                    <%= link("Edit",
+                      to: Routes.list_path(@conn, :edit, list),
+                      class:
+                        "float-right rounded-md bg-sky-500 px-4 py-2 text-center font-semibold text-white shadow-sm hover:bg-sky-600 
+                      focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-700"
+                    ) %>
+                  </td>
+                  <td class="whitespace-nowrap border-b border-gray-200 pr-4 font-medium">
+                    <%= link("Delete",
+                      to: Routes.list_path(@conn, :delete, list),
+                      method: :delete,
+                      data: [
+                        confirm: "Are you sure you want to delete this list?"
+                      ],
+                      class:
+                        "float-right rounded-md bg-red-500 px-4 py-2 text-center font-semibold text-white shadow-sm hover:bg-red-600 
+                      focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700"
+                    ) %>
+                  </td>
+                <% end %>
               </tr>
             <% end %>
             <!-- More people... -->
