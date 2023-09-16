@@ -221,13 +221,14 @@ defmodule App.Item do
   ]
   """
   def items_with_timers(person_id \\ 0, list_cid \\ nil) do
-    seq = if is_nil(list_cid) do
-      App.List.get_all_list_for_person(person_id)
-      |> App.List.get_list_seq()
-    else
-      App.List.get_list_by_cid!(list_cid)
-      |> App.List.get_list_seq()
-    end
+    seq =
+      if is_nil(list_cid) do
+        App.List.get_all_list_for_person(person_id)
+        |> App.List.get_list_seq()
+      else
+        App.List.get_list_by_cid!(list_cid)
+        |> App.List.get_list_seq()
+      end
 
     sql = """
     SELECT i.id, i.cid, i.text, i.status, i.person_id, i.updated_at,

@@ -16,7 +16,6 @@ defmodule AppWeb.AppLive do
 
   @impl true
   def mount(_params, _session, socket) do
-
     # subscribe to the channel
     if connected?(socket), do: AppWeb.Endpoint.subscribe(@topic)
     AppWeb.Endpoint.subscribe(@stats_topic)
