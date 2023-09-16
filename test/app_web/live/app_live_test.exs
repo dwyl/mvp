@@ -848,12 +848,12 @@ defmodule AppWeb.AppLiveTest do
       |> length() > 0
 
     # Dragover and remove highlight
-    render_hook(view, "dragoverItem", %{
-      "currentItemId" => item2.id,
-      "selectedItemId" => item.id
+    render_hook(view, "dragover_item", %{
+      "current_item_id" => item2.id,
+      "selected_item_id" => item.id
     })
 
-    assert render_hook(view, "removeHighlight", %{"id" => item.id})
+    assert render_hook(view, "remove_highlight", %{"id" => item.id})
 
     # reorder items:
     render_hook(view, "update_list_seq", %{

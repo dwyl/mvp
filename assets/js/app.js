@@ -14,13 +14,13 @@ window.addEventListener("phx:page-loading-stop", info => topbar.hide())
 window.addEventListener("phx:highlight", (e) => {
   document.querySelectorAll("[data-highlight]").forEach(el => {
     if(el.id == e.detail.id) {
-        liveSocket.execJS(el, el.getAttribute("data-highlight"))
+        live_socket.execJS(el, el.getAttribute("data-highlight"))
     }
   })
 })
 
-// Item id of the destination in the DOM
-let itemId_to;
+// Item ID of the destination during drag over in the DOM
+let item_id_destination;
 
 let Hooks = {}
 Hooks.Items = {
@@ -33,31 +33,31 @@ Hooks.Items = {
     })
 
     this.el.addEventListener("remove-highlight", e => {
-      hook.pushEventTo("#items", "removeHighlight", {id: e.detail.id})
+      hook.pushEventTo("#items", "remove_highlight", {id: e.detail.id})
       // console.log('remove-highlight', e.detail.id)
     })
 
-    this.el.addEventListener("dragoverItem", e => {
-      // console.log("dragoverItem", e.detail)
-      const currentItemId = e.detail.currentItem.id
-      const selectedItemId = e.detail.selectedItemId
-      if( currentItemId != selectedItemId) {
-        hook.pushEventTo("#items", "dragoverItem", {currentItemId: currentItemId, selectedItemId: selectedItemId})
-        itemId_to = e.detail.currentItem.dataset.id
+    this.el.addEventListener("dragover_item", e => {
+      // console.log("dragover_item", e.detail)
+      const current_item_id = e.detail.current_item.id
+      const selected_item_id = e.detail.selected_item_id
+      if( current_item_id != selected_item_id) {
+        hook.pushEventTo("#items", "dragover_item", {current_item_id: current_item_id, selected_item_id: selected_item_id})
+        item_id_destination = e.detail.current_item.dataset.id
       }
     })
 
-    this.el.addEventListener("update-indexes", e => {
+    this.el.addEventListener("update_indexes", e => {
       const item_id = e.detail.fromItemId 
       const list_ids = get_list_item_cids()
-      console.log("update-indexes", e.detail, "list: ", list_ids)
+      console.log("update_indexes", e.detail, "list: ", list_ids)
       // Check if both "from" and "to" are defined
-      if(item_id && itemId_to && item_id != itemId_to) {
+      if(item_id && item_id_destination && item_id != item_id_destination) {
         hook.pushEventTo("#items", "update_list_seq", 
           {seq: list_ids})
       }
       
-      itemId_to = null;
+      item_id_destination = null;
     })
   }
 }
@@ -78,33 +78,33 @@ function get_list_item_cids() {
 window.addEventListener("phx:remove-highlight", (e) => {
   document.querySelectorAll("[data-highlight]").forEach(el => {
     if(el.id == e.detail.id) {
-        liveSocket.execJS(el, el.getAttribute("data-remove-highlight"))
+        live_socket.execJS(el, el.getAttribute("data-remove-highlight"))
     }
   })
 })
 
 window.addEventListener("phx:dragover-item", (e) => {
   console.log("phx:dragover-item", e.detail)
-  const selectedItem = document.querySelector(`#${e.detail.selected_item_id}`)
-  const currentItem = document.querySelector(`#${e.detail.current_item_id}`)
+  const selected_item = document.querySelector(`#${e.detail.selected_item_id}`)
+  const current_item = document.querySelector(`#${e.detail.current_item_id}`)
 
   const items = document.querySelector('#items')
-  const listItems = [...document.querySelectorAll('.item')]
+  const list_items = [...document.querySelectorAll('.item')]
 
-  if(listItems.indexOf(selectedItem) < listItems.indexOf(currentItem)){
-    items.insertBefore(selectedItem, currentItem.nextSibling)
+  if(list_items.indexOf(selected_item) < list_items.indexOf(current_item)){
+    items.insertBefore(selected_item, current_item.nextSibling)
   }
 
-  if(listItems.indexOf(selectedItem) > listItems.indexOf(currentItem)){
-    items.insertBefore(selectedItem, currentItem)
+  if(list_items.indexOf(selected_item) > list_items.indexOf(current_item)){
+    items.insertBefore(selected_item, current_item)
   }
 })
 
-// liveSocket related setup:
+// live_socket related setup:
 
-let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
+let csrf_token = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 
-let liveSocket = new LiveSocket("/live", Socket, {
+let live_socket = new LiveSocket("/live", Socket, {
   hooks: Hooks,
   dom:{
         onBeforeElUpdated(from, to) {
@@ -114,17 +114,17 @@ let liveSocket = new LiveSocket("/live", Socket, {
         }
   },
   params: {
-    _csrf_token: csrfToken,
+    _csrf_token: csrf_token,
     hours_offset_fromUTC: -new Date().getTimezoneOffset()/60
   }
 })
 
 // connect if there are any LiveViews on the page
-liveSocket.connect()
+live_socket.connect()
 
-// expose liveSocket on window for web console debug logs and latency simulation:
-// >> liveSocket.enableDebug()
-// >> liveSocket.enableLatencySim(1000)  // enabled for duration of browser session
-// >> liveSocket.disableLatencySim()
-window.liveSocket = liveSocket
+// expose live_socket on window for web console debug logs and latency simulation:
+// >> live_socket.enableDebug()
+// >> live_socket.enableLatencySim(1000)  // enabled for duration of browser session
+// >> live_socket.disableLatencySim()
+window.live_socket = live_socket
 
