@@ -207,21 +207,27 @@ defmodule App.Item do
   #  👩‍💻   Feedback/Pairing/Refactoring Welcome!  🙏
 
   @doc """
-  `items_with_timers/1` Returns a List of items with the latest associated timers.
-  This list is ordered with the position that is detailed inside the Items schema.
+  `items_with_timers/2` Returns a List of items with the latest associated timers.
+  The result set is ordered by the `list.seq`.
+  Accepts an optional second parameter `list_cid` which is the unique ID of the `list`
+  to retrieve `items` for.
 
   ## Examples
 
   iex> items_with_timers()
   [
-    %{text: "hello", person_id: 1, status: 2, start: 2022-07-14 09:35:18},
-    %{text: "world", person_id: 2, status: 7, start: 2022-07-15 04:20:42}
+    %{text: "hello", person_id: 0, status: 2, start: 2022-07-14 09:35:18},
+    %{text: "world", person_id: 0, status: 7, start: 2022-07-15 04:20:42}
   ]
   """
-  #
-  def items_with_timers(person_id \\ 0) do
-    all_list = App.List.get_all_list_for_person(person_id)
-    seq = App.List.get_list_seq(all_list)
+  def items_with_timers(person_id \\ 0, list_cid \\ nil) do
+    seq = if is_nil(list_cid) do
+      App.List.get_all_list_for_person(person_id)
+      |> App.List.get_list_seq()
+    else
+      App.List.get_list_by_cid!(list_cid)
+      |> App.List.get_list_seq()
+    end
 
     sql = """
     SELECT i.id, i.cid, i.text, i.status, i.person_id, i.updated_at,
