@@ -1,38 +1,56 @@
 <%= render(AppWeb.NavView, "nav.html", assigns) %>
 <.h2 class="text-center mt-3">Listing Tags</.h2>
 
-<.container>
-  <.table class="my-4">
-    <.tr>
-      <.th>Name</.th>
-
-      <.th class="w-3"></.th>
-      <.th class="w-3"></.th>
-    </.tr>
-    <%= for tag <- @tags do %>
+<.container class="font-sans container mx-auto">
+  <.table class="text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
+    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
       <.tr>
-        <.td>
-          <span
-            style={"background-color:#{tag.color}"}
-            class="max-w-[144px] text-white font-bold pyx-1 px-2 rounded-full 
-            overflow-hidden text-ellipsis whitespace-nowrap inline-block"
-          >
-            <%= tag.text %>
-          </span>
-        </.td>
+        <.th scope="col" class="px-6 py-3 text-center cursor-pointer">Name</.th>
+        <.th scope="col" class="px-6 py-3 text-center cursor-pointer">
+          Color
+        </.th>
+        <.th scope="col" class="px-6 py-3 text-center cursor-pointer">
+          Created At
+        </.th>
 
-        <.td>
-          <%= link("Edit", to: Routes.tag_path(@conn, :edit, tag)) %>
-        </.td>
-        <.td class="!text-red-500">
-          <%= link("Delete",
-            to: Routes.tag_path(@conn, :delete, tag),
-            method: :delete,
-            data: [confirm: "Are you sure you want to delete this tag?"]
-          ) %>
-        </.td>
+        <.th class="w-3 text-center" colspan="2">Actions</.th>
       </.tr>
-    <% end %>
+    </thead>
+    <tbody>
+      <%= for tag <- @tags do %>
+        <.tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+          <.td class="px-6 py-4 text-center">
+            <%= tag.text %>
+          </.td>
+
+          <.td class="px-6 py-4 text-center">
+            <span
+              style={"background-color:#{tag.color}"}
+              class="max-w-[144px] text-white font-bold pyx-1 px-2 rounded-full 
+            overflow-hidden text-ellipsis whitespace-nowrap inline-block"
+            >
+              <%= tag.color %>
+            </span>
+          </.td>
+
+          <.td class="px-6 py-4 text-center">
+            <%= format_date(tag.inserted_at) %>
+          </.td>
+
+          <.td class="px-6 py-4 text-center">
+            <%= link("Edit", to: Routes.tag_path(@conn, :edit, tag)) %>
+          </.td>
+
+          <.td class="px-6 py-4 text-center text-red-500">
+            <%= link("Delete",
+              to: Routes.tag_path(@conn, :delete, tag),
+              method: :delete,
+              data: [confirm: "Are you sure you want to delete this tag?"]
+            ) %>
+          </.td>
+        </.tr>
+      <% end %>
+    </tbody>
   </.table>
   <.button
     link_type="a"
