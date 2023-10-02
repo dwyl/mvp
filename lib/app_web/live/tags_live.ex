@@ -19,7 +19,9 @@ defmodule AppWeb.TagsLive do
      assign(socket,
        tags: tags,
        lists: App.List.get_lists_for_person(person_id),
-       custom_list: false
+       custom_list: false,
+       sort_column: :text,
+       sort_order: :asc
      )}
   end
 
