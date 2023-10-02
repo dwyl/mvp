@@ -32,6 +32,7 @@ defmodule AppWeb.Router do
     resources "/lists", ListController, except: [:show]
     get "/logout", AuthController, :logout
     live "/stats", StatsLive
+    live "/tags", TagsLive
     resources "/tags", TagController, except: [:show]
   end
 

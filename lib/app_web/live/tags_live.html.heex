@@ -38,12 +38,12 @@
           </.td>
 
           <.td class="px-6 py-4 text-center">
-            <%= link("Edit", to: Routes.tag_path(@conn, :edit, tag)) %>
+            <%= link("Edit", to: Routes.tag_path(@socket, :edit, tag)) %>
           </.td>
 
           <.td class="px-6 py-4 text-center text-red-500">
             <%= link("Delete",
-              to: Routes.tag_path(@conn, :delete, tag),
+              to: Routes.tag_path(@socket, :delete, tag),
               method: :delete,
               data: [confirm: "Are you sure you want to delete this tag?"]
             ) %>
@@ -54,7 +54,7 @@
   </.table>
   <.button
     link_type="a"
-    to={Routes.tag_path(@conn, :new)}
+    to={Routes.tag_path(@socket, :new)}
     label="Create Tag"
     class="my-2"
   />
