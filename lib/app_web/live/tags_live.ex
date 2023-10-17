@@ -13,7 +13,7 @@ defmodule AppWeb.TagsLive do
 
     person_id = Person.get_person_id(socket.assigns)
 
-    tags = Tag.list_person_tags(person_id)
+    tags = Tag.list_person_tags_complete(person_id)
 
     {:ok,
      assign(socket,

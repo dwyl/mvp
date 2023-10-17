@@ -11,6 +11,8 @@ defmodule App.Tag do
     field :person_id, :integer
     field :text, :string
 
+    field :last_used_at, :naive_datetime, virtual: true
+
     many_to_many(:items, Item, join_through: ItemTag)
     timestamps()
   end
@@ -85,6 +87,16 @@ defmodule App.Tag do
     Tag
     |> where(person_id: ^person_id)
     |> order_by(:text)
+    |> Repo.all()
+  end
+
+  def list_person_tags_complete(person_id) do
+    Tag
+    |> where(person_id: ^person_id)
+    |> join(:left, [t], it in ItemTag, on: t.id == it.tag_id)
+    |> group_by([t], t.id)
+    |> select([t, it], %{t | last_used_at: max(it.inserted_at)})
+    |> order_by([t], t.text)
     |> Repo.all()
   end
 
