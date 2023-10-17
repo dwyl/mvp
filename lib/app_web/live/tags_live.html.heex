@@ -32,9 +32,19 @@
         </td>
       </:column>
 
-      <:column :let={tag} label="Latest" key="tag_id">
+      <:column :let={tag} label="Latest" key="last_used_at">
         <td class="px-6 py-4 text-center" data-test-id="color">
-          <%= format_date(tag.last_used_at) %>
+          <%= if tag.last_used_at do %>
+            <%= format_date(tag.last_used_at) %>
+          <% else %>
+            -
+          <% end %>
+        </td>
+      </:column>
+
+      <:column :let={tag} label="Items Count" key="items_count">
+        <td class="px-6 py-4 text-center" data-test-id="color">
+          <%= tag.items_count %>
         </td>
       </:column>
 

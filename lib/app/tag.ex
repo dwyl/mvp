@@ -12,6 +12,7 @@ defmodule App.Tag do
     field :text, :string
 
     field :last_used_at, :naive_datetime, virtual: true
+    field :items_count, :integer, virtual: true
 
     many_to_many(:items, Item, join_through: ItemTag)
     timestamps()
@@ -95,7 +96,11 @@ defmodule App.Tag do
     |> where(person_id: ^person_id)
     |> join(:left, [t], it in ItemTag, on: t.id == it.tag_id)
     |> group_by([t], t.id)
-    |> select([t, it], %{t | last_used_at: max(it.inserted_at)})
+    |> select([t, it], %{
+      t
+      | last_used_at: max(it.inserted_at),
+        items_count: count(it.tag_id)
+    })
     |> order_by([t], t.text)
     |> Repo.all()
   end
