@@ -96,12 +96,13 @@ defmodule App.Tag do
     Tag
     |> where(person_id: ^person_id)
     |> join(:left, [t], it in ItemTag, on: t.id == it.tag_id)
-    |> join(:left, [t, it], tm in Timer, on: tm.item_id == it.item_id)
+    |> join(:left, [t, it], i in Item, on: i.id == it.item_id)
+    |> join(:left, [t, it, i], tm in Timer, on: tm.item_id == i.id)
     |> group_by([t], t.id)
-    |> select([t, it, tm], %{
+    |> select([t, it, i, tm], %{
       t
       | last_used_at: max(it.inserted_at),
-        items_count: count(it.tag_id),
+        items_count: fragment("count(DISTINCT ?)", i.id),
         total_time_logged:
           sum(
             coalesce(
