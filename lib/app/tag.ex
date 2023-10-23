@@ -2,7 +2,7 @@ defmodule App.Tag do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
-  alias App.{Item, ItemTag, Repo}
+  alias App.{Item, ItemTag, Repo, Timer}
   alias __MODULE__
 
   @derive {Jason.Encoder, only: [:id, :text, :person_id, :color]}
@@ -13,6 +13,7 @@ defmodule App.Tag do
 
     field :last_used_at, :naive_datetime, virtual: true
     field :items_count, :integer, virtual: true
+    field :total_time_logged, :integer, virtual: true
 
     many_to_many(:items, Item, join_through: ItemTag)
     timestamps()
@@ -95,11 +96,23 @@ defmodule App.Tag do
     Tag
     |> where(person_id: ^person_id)
     |> join(:left, [t], it in ItemTag, on: t.id == it.tag_id)
+    |> join(:left, [t, it], tm in Timer, on: tm.item_id == it.item_id)
     |> group_by([t], t.id)
-    |> select([t, it], %{
+    |> select([t, it, tm], %{
       t
       | last_used_at: max(it.inserted_at),
-        items_count: count(it.tag_id)
+        items_count: count(it.tag_id),
+        total_time_logged:
+          sum(
+            coalesce(
+              fragment(
+                "EXTRACT(EPOCH FROM (? - ?))",
+                tm.stop,
+                tm.start
+              ),
+              0
+            )
+          )
     })
     |> order_by([t], t.text)
     |> Repo.all()

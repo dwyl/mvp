@@ -50,6 +50,12 @@
         </td>
       </:column>
 
+      <:column :let={tag} label="Total Time Logged" key="total_time_logged">
+        <td class="px-6 py-4 text-center" data-test-id="color">
+          <%= format_seconds(tag.total_time_logged) %>
+        </td>
+      </:column>
+
       <:column :let={tag} label="Actions" key="actions">
         <td class="px-6 py-4 text-center" data-test-id="actions">
           <%= link("Edit", to: Routes.tag_path(@socket, :edit, tag)) %>

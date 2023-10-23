@@ -28,4 +28,8 @@ defmodule AppWeb.TagsLive do
   def format_date(date) do
     DateTimeHelper.format_date(date)
   end
+
+  def format_seconds(seconds) do
+    DateTimeHelper.format_duration(seconds)
+  end
 end
