@@ -44,7 +44,9 @@
 
       <:column :let={tag} label="Items Count" key="items_count">
         <td class="px-6 py-4 text-center" data-test-id="color">
-          <%= tag.items_count %>
+          <a href={~p"/?filter_by_tag=#{tag.text}"} class="underline">
+            <%= tag.items_count %>
+          </a>
         </td>
       </:column>
 
