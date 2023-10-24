@@ -92,7 +92,16 @@ defmodule App.Tag do
     |> Repo.all()
   end
 
-  def list_person_tags_complete(person_id) do
+  def list_person_tags_complete(
+        person_id,
+        sort_column \\ :text,
+        sort_order \\ :asc
+      ) do
+    sort_column =
+      if validate_sort_column(sort_column), do: sort_column, else: :text
+
+    sort_order = if Repo.validate_order(sort_order), do: sort_order, else: :asc
+
     Tag
     |> where(person_id: ^person_id)
     |> join(:left, [t], it in ItemTag, on: t.id == it.tag_id)
@@ -115,7 +124,7 @@ defmodule App.Tag do
             )
           )
     })
-    |> order_by([t], t.text)
+    |> order_by(^get_order_by_keyword(sort_column, sort_order))
     |> Repo.all()
   end
 
@@ -135,5 +144,27 @@ defmodule App.Tag do
 
   def delete_tag(%Tag{} = tag) do
     Repo.delete(tag)
+  end
+
+  defp validate_sort_column(column) do
+    Enum.member?(
+      [
+        :text,
+        :color,
+        :created_at,
+        :last_used_at,
+        :items_count,
+        :total_time_logged
+      ],
+      column
+    )
+  end
+
+  defp get_order_by_keyword(sort_column, :asc) do
+    [asc: sort_column]
+  end
+
+  defp get_order_by_keyword(sort_column, :desc) do
+    [desc: sort_column]
   end
 end

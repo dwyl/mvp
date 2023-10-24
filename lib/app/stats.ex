@@ -31,7 +31,7 @@ defmodule App.Stats do
     sort_column =
       if validate_sort_column(sort_column), do: sort_column, else: "person_id"
 
-    sort_order = if validate_order(sort_order), do: sort_order, else: "asc"
+    sort_order = if Repo.validate_order(sort_order), do: sort_order, else: "asc"
 
     sql = """
     SELECT i.person_id,
@@ -86,28 +86,6 @@ defmodule App.Stats do
     Enum.member?(
       ~w(person_id num_items num_timers first_inserted_at last_inserted_at total_timers_in_seconds),
       column
-    )
-  end
-
-  @doc """
-  `validate_order/1` validates the ordering is one of `asc` or `desc`
-
-  ## Examples
-
-      iex> App.Stats.validate_order("asc")
-      true
-
-      iex> App.Stats.validate_order(:invalid)
-      false
-
-      # Avoid common SQL injection attacks:
-      iex> App.Stats.validate_order("OR 1=1")
-      false
-  """
-  def validate_order(order) do
-    Enum.member?(
-      ~w(asc desc),
-      order
     )
   end
 end
