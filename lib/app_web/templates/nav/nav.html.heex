@@ -59,16 +59,20 @@
 
       <div class="flex flex-1 items-center justify-center">
         <div class="flex flex-shrink-0 items-center">
-          <a href="/" class="flex items-center">
-            <img
-              src="https://dwyl.com/img/common/dwyl-heart-only-logo.png"
-              height="32"
-              width="32"
-              alt="dwyl logo"
-            />
-          </a>
+            <%= if @custom_list do %>
+              <h1 class="text-white text-2xl"> <%= list_name(@list_name) %></h1>
+            <% else %> <!-- show the @dwyl logo and link to root -->
+            <a href="/" class="flex items-center">
+              <img
+                src="https://dwyl.com/img/common/dwyl-heart-only-logo.png"
+                height="32"
+                width="32"
+                alt="dwyl logo"
+              />
+            </a>
+            <% end %>
+          </div>
         </div>
-      </div>
 
       <div class="absolute inset-y-0 right-0 flex items-center">
         <!-- Mobile menu button-->

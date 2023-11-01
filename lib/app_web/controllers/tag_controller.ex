@@ -9,7 +9,8 @@ defmodule AppWeb.TagController do
 
     render(conn, "index.html",
       tags: tags,
-      lists: App.List.get_lists_for_person(person_id)
+      lists: App.List.get_lists_for_person(person_id),
+      custom_list: false
     )
   end
 

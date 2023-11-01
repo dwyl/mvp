@@ -23,7 +23,8 @@ defmodule AppWeb.StatsLive do
        metrics: metrics,
        sort_column: :person_id,
        sort_order: :asc,
-       lists: App.List.get_lists_for_person(person_id)
+       lists: App.List.get_lists_for_person(person_id),
+       custom_list: false
      )}
   end
 

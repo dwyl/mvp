@@ -177,8 +177,8 @@ defmodule App.List do
   `add_item_to_list/3` adds the `item.cid` to the `list.cid` for the given `person_id`.
   """
   def add_item_to_list(item_cid, list_cid, person_id) do
-    list = get_list_by_cid!(list_cid)
-    prev_seq = get_list_seq(list)
+    list = get_list_by_cid!(list_cid) |> dbg()
+    prev_seq = get_list_seq(list) |> dbg()
     seq = [item_cid | prev_seq] |> Enum.join(",")
     update_list(list, %{seq: seq, person_id: person_id})
   end

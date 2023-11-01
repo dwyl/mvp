@@ -7,7 +7,7 @@ defmodule AppWeb.ListController do
     person_id = conn.assigns[:person][:id] || 0
     lists = List.get_lists_for_person(person_id)
 
-    render(conn, "index.html", lists: lists)
+    render(conn, "index.html", lists: lists, custom_list: false)
   end
 
   def new(conn, _params) do
