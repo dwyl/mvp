@@ -118,7 +118,7 @@
     <%= for list <- @lists do %>
       <div class="space-y-1 px-2 pb-3 pt-2 text-right">
         <a
-          class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
+          class="text-white bg-gray-700 hover:bg-gray-600 rounded-md px-3 py-2 text-sm font-medium"
           href={list_url(list.cid)}
         >
           <%= list_name(list.name) %>
@@ -126,10 +126,24 @@
       </div>
     <% end %>
     <div class="space-y-1 px-2 pb-3 pt-2 text-right">
+      <%= link("🗄 Lists",
+        to: "/lists",
+        class:
+          "text-gray-900 bg-white hover:bg-gray-200 rounded-md px-3 py-2 text-sm font-medium"
+      ) %>
+    </div>
+    <div class="space-y-1 px-2 pb-3 pt-2 text-right">
+      <%= link("📈 Stats",
+        to: "/stats",
+        class:
+          "text-gray-900 bg-white hover:bg-gray-200 rounded-md px-3 py-2 text-sm font-medium"
+      ) %>
+    </div>
+    <div class="space-y-1 px-2 pb-3 pt-2 text-right">
       <%= link("🏷️ Tags",
         to: "/tags",
         class:
-          "text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
+          "text-gray-900 bg-white hover:bg-gray-200 rounded-md px-3 py-2 text-sm font-medium"
       ) %>
     </div>
   </div>
