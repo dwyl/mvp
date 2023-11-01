@@ -1,0 +1,11 @@
+<.container>
+  <h2 class="text-center mt-4 mb-4 text-4xl font-semibold leading-6 text-gray-900 clear-both">
+    <i>Edit</i> List
+  </h2>
+
+  <%= render(
+    "form.html",
+    Map.put(assigns, :action, Routes.list_path(@conn, :update, @list))
+    |> Map.put(:method, "patch")
+  ) %>
+</.container>

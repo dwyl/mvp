@@ -38,7 +38,13 @@ defmodule App.Item do
     item
     |> cast(attrs, [:person_id, :status, :text])
     |> validate_required([:person_id])
-    |> App.Cid.put_cid()
+  end
+
+  # Update an item without changing the cid ref: #418
+  def changeset_update(item, attrs) do
+    item
+    |> cast(attrs, [:cid, :person_id, :status, :text])
+    |> validate_required([:cid, :text, :person_id])
   end
 
   @doc """
@@ -137,13 +143,13 @@ defmodule App.Item do
       [%Item{}, ...]
 
   """
-  def list_items do
+  def get_items do
     Item
     |> where([i], is_nil(i.status) or i.status != 6)
     |> Repo.all()
   end
 
-  def list_person_items(person_id) do
+  def get_person_items(person_id) do
     Item
     |> where(person_id: ^person_id)
     |> Repo.all()
@@ -164,7 +170,7 @@ defmodule App.Item do
   """
   def update_item(%Item{} = item, attrs) do
     item
-    |> Item.changeset(attrs)
+    |> Item.changeset_update(attrs)
     |> PaperTrail.update(originator: %{id: Map.get(attrs, :person_id, 0)})
   end
 
@@ -186,7 +192,7 @@ defmodule App.Item do
 
   def delete_item(id) do
     get_item!(id)
-    |> Item.changeset(%{status: 6})
+    |> Item.changeset_update(%{status: 6})
     |> Repo.update()
   end
 
@@ -201,21 +207,28 @@ defmodule App.Item do
   #  👩‍💻   Feedback/Pairing/Refactoring Welcome!  🙏
 
   @doc """
-  `items_with_timers/1` Returns a List of items with the latest associated timers.
-  This list is ordered with the position that is detailed inside the Items schema.
+  `items_with_timers/2` Returns a List of items with the latest associated timers.
+  The result set is ordered by the `list.seq`.
+  Accepts an optional second parameter `list_cid` which is the unique ID of the `list`
+  to retrieve `items` for.
 
   ## Examples
 
   iex> items_with_timers()
   [
-    %{text: "hello", person_id: 1, status: 2, start: 2022-07-14 09:35:18},
-    %{text: "world", person_id: 2, status: 7, start: 2022-07-15 04:20:42}
+    %{text: "hello", person_id: 0, status: 2, start: 2022-07-14 09:35:18},
+    %{text: "world", person_id: 0, status: 7, start: 2022-07-15 04:20:42}
   ]
   """
-  #
-  def items_with_timers(person_id \\ 0) do
-    all_list = App.List.get_all_list_for_person(person_id)
-    seq = App.List.get_list_seq(all_list)
+  def items_with_timers(person_id \\ 0, list_cid \\ nil) do
+    seq =
+      if is_nil(list_cid) do
+        App.List.get_all_list_for_person(person_id)
+        |> App.List.get_list_seq()
+      else
+        App.List.get_list_by_cid!(list_cid)
+        |> App.List.get_list_seq()
+      end
 
     sql = """
     SELECT i.id, i.cid, i.text, i.status, i.person_id, i.updated_at,
@@ -233,7 +246,7 @@ defmodule App.Item do
       |> map_columns_to_values()
 
     items_tags =
-      list_person_items(person_id)
+      get_person_items(person_id)
       |> Enum.reduce(%{}, fn i, acc -> Map.put(acc, i.id, i) end)
 
     accumulate_item_timers(values, seq)
@@ -378,7 +391,7 @@ defmodule App.Item do
   This will not be needed once all records are transitioned.
   """
   def update_all_items_cid do
-    items = list_items()
+    items = get_items()
 
     Enum.each(items, fn i ->
       # coveralls-ignore-start

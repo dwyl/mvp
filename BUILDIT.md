@@ -825,7 +825,7 @@ defmodule App.TimerTest do
       {:ok, timer} =
         Timer.start(%{item_id: item.id, person_id: 1, start: seven_seconds_ago})
       
-      # stop the timer based on it's item_id
+      # stop the timer based on it's item_id
       Timer.stop_timer_for_item_id(item.id)
       
       stopped_timer = Timer.get_timer!(timer.id)
@@ -3165,10 +3165,10 @@ everytime `Start/Resume` or `Stop` is called.
     person_id = get_person_id(socket.assigns)
     items = Item.items_with_timers(person_id)
 
-    isEditingItem = socket.assigns.editing
+    is_editing_item = socket.assigns.editing
 
     # If the item is being edited, we update the timer list of the item being edited.
-    if isEditingItem do
+    if is_editing_item do
       case payload do
         {:start, item_id} ->
           timers_list_changeset = Timer.list_timers_changesets(item_id)
@@ -5469,13 +5469,13 @@ to the `LiveView` server during the mounting phase.
 
 Open `assets/js/app.js`
 and locate the 
-`let liveSocket = new LiveSocket()` variable.
+`let live_socket = new LiveSocket()` variable.
 We are going to be changing the `params` attribute.
 Change it to the following:
 
 ```js
 params: {
-  _csrf_token: csrfToken,
+  _csrf_token: csrf_token,
   hours_offset_fromUTC: -new Date().getTimezoneOffset()/60
 }
 ```

@@ -1,41 +1,43 @@
 defmodule App.ListTest do
   use App.DataCase, async: true
-  alias App.{Item, List}
+  alias App.{Item}
 
   describe "list" do
     @person_id 7
     # @valid_item_attrs %{text: "some text", person_id: @person_id, status: 2}
     @valid_attrs %{name: "My List", person_id: @person_id, status: 2}
+    @valid_item %{text: "Buy Bananas", person_id: 1, status: 2}
+    @valid_item2 %{text: "Make Muffins", person_id: 1, status: 2}
     @update_attrs %{name: "some updated text", person_id: @person_id}
     @invalid_attrs %{name: nil}
 
 
     test "get_list!/2 returns the list with given id" do
-      {:ok, %{model: list}} = List.create_list(@valid_attrs)
-      assert List.get_list!(list.id).name == list.name
+      {:ok, %{model: list}} = App.List.create_list(@valid_attrs)
+      assert App.List.get_list!(list.id).name == list.name
     end
 
     test "get_list_by_cid!/2 returns the list with given cid" do
-      {:ok, %{model: list}} = List.create_list(@valid_attrs)
-      assert List.get_list_by_cid!(list.cid).name == list.name
+      {:ok, %{model: list}} = App.List.create_list(@valid_attrs)
+      assert App.List.get_list_by_cid!(list.cid).name == list.name
     end
 
     test "create_list/1 with valid data creates a list" do
       assert {:ok, %{model: list}} =
-               List.create_list(@valid_attrs)
+               App.List.create_list(@valid_attrs)
 
       assert list.name == @valid_attrs.name
     end
 
     test "create_list/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = List.create_list(@invalid_attrs)
+      assert {:error, %Ecto.Changeset{}} = App.List.create_list(@invalid_attrs)
     end
 
     test "update_list/2 with valid data updates the list" do
-      {:ok, %{model: list}} = List.create_list(@valid_attrs)
+      {:ok, %{model: list}} = App.List.create_list(@valid_attrs)
 
       assert {:ok, %{model: list}} =
-               List.update_list(list, @update_attrs)
+               App.List.update_list(list, @update_attrs)
 
       assert list.name == "some updated text"
     end
@@ -120,4 +122,65 @@ defmodule App.ListTest do
     {:ok, %{model: list}} = App.List.update_list_seq(all_list.cid, person_id, updated_seq)
     assert list.seq == updated_seq
   end
+
+  test "remove_item_from_list/3 removes the item.cid from the list.seq" do
+    # Random Person ID
+    person_id = 386
+    all_list = App.List.get_all_list_for_person(person_id)
+
+    # Create items:
+    assert {:ok, %{model: item1}} =
+      Item.create_item(%{text: "buy land!", person_id: person_id, status: 2})
+    assert {:ok, %{model: item2}} =
+      Item.create_item(%{text: "prepare for societal collapse", person_id: person_id, status: 2})
+
+    # Add both items to the list:
+    seq = "#{item1.cid},#{item2.cid}"
+    {:ok, %{model: list}} = App.List.update_list_seq(all_list.cid, person_id, seq)
+    assert list.seq == seq
+
+    # Remove the first item from the list:
+    {:ok, %{model: list}} = App.List.remove_item_from_list(item1.cid, all_list.cid, person_id)
+
+    # Only item2 should be on the list.seq:
+    updated_seq = "#{item2.cid}"
+    # Confirm removed:
+    assert list.seq == updated_seq
+  end
+
+
+  test "Item.items_with_timers/1 returns a list filtered by list_cid" do
+    person_id = 472
+    {:ok, %{model: item1}} = Item.create_item(%{@valid_item | person_id: person_id})
+    {:ok, %{model: item2}} = Item.create_item(%{@valid_item2 | person_id: person_id})
+
+    # Create a New List:
+    lista_attrs = %{name: "Todo List", person_id: person_id, status: 2}
+    assert {:ok, %{model: lista}} = App.List.create_list(lista_attrs)
+    assert lista.name == lista_attrs.name
+
+    listb_attrs = %{name: "Delegated", person_id: person_id, status: 2}
+    assert {:ok, %{model: listb}} = App.List.create_list(listb_attrs)
+    assert listb.name == listb_attrs.name
+
+    # Add both items to List A:
+    App.List.update_list_seq(lista.cid, person_id, "#{item1.cid},#{item2.cid}")
+
+    # Confirm that both items are on List A:
+    seq = App.List.get_list_by_cid!(lista.cid) |> App.List.get_list_seq()
+    first = List.first(seq)
+    last = List.last(seq)
+    assert first == item1.cid
+    assert last == item2.cid
+
+    # Move item1 from List A to List B:
+    App.List.move_item_from_lista_to_listb(item1.cid, lista.cid, listb.cid, person_id)
+
+    seqa = App.List.get_list_by_cid!(lista.cid) |> App.List.get_list_seq()
+    assert not Enum.member?(seqa, item1.cid)
+
+    seqb = App.List.get_list_by_cid!(listb.cid) |> App.List.get_list_seq()
+    assert Enum.member?(seqb, item1.cid)
+  end
+
 end

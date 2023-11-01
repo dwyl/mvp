@@ -4,6 +4,7 @@ defmodule App.ItemTest do
 
   describe "items" do
     @valid_attrs %{text: "Buy Bananas", person_id: 1, status: 2}
+    @valid_attrs2 %{text: "Make Muffins", person_id: 1, status: 2}
     @update_attrs %{text: "some updated text", person_id: 1}
     @invalid_attrs %{text: nil}
 
@@ -25,10 +26,9 @@ defmodule App.ItemTest do
       assert {:ok, %{model: item}} =
                Item.create_item(@valid_attrs)
 
-      # dbg(item)
       assert item.text == @valid_attrs.text
 
-      inserted_item = List.first(Item.list_items())
+      inserted_item = List.first(Item.get_items())
       assert inserted_item.text == "Use the MVP!"
     end
 
@@ -53,16 +53,6 @@ defmodule App.ItemTest do
     test "create_item/1 with invalid data returns error changeset" do
       assert {:error, %Ecto.Changeset{}} = Item.create_item(@invalid_attrs)
     end
-
-    # test "list_items/0 returns a list of items stored in the DB" do
-    #   {:ok, %{model: _item1}} =
-    #     Item.create_item(@valid_attrs)
-
-    #   {:ok, %{model: _item2}} =
-    #     Item.create_item(@valid_attrs)
-
-    #   assert Enum.count(Item.list_items()) == 2
-    # end
 
     test "update_item/2 with valid data updates the item" do
       {:ok, %{model: item}} = Item.create_item(@valid_attrs)
@@ -200,6 +190,27 @@ defmodule App.ItemTest do
       # list items with timers:
       item_timers = Item.items_with_timers(1)
       assert length(item_timers) > 0
+    end
+
+    test "Item.items_with_timers/1 returns a list filtered by list_cid" do
+      person_id = 468
+      {:ok, %{model: item1}} = Item.create_item(%{@valid_attrs | person_id: person_id})
+      {:ok, %{model: item2}} = Item.create_item(%{@valid_attrs2 | person_id: person_id})
+
+      # Create a New List:
+      list_attrs = %{name: "Todo List", person_id: person_id, status: 2}
+      assert {:ok, %{model: list}} = App.List.create_list(list_attrs)
+      assert list.name == list_attrs.name
+
+      # Add these items to the new list
+      App.List.update_list_seq(list.cid, person_id, "#{item1.cid},#{item2.cid}")
+
+      # Confirm that both items are on the list:
+      items = Item.items_with_timers(person_id, list.cid)
+      first = List.first(items)
+      last = List.last(items)
+      assert first.cid == item1.cid
+      assert last.cid == item2.cid
     end
   end
 end

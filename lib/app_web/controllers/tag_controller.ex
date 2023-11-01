@@ -7,7 +7,11 @@ defmodule AppWeb.TagController do
     person_id = conn.assigns[:person][:id] || 0
     tags = Tag.list_person_tags(person_id)
 
-    render(conn, "index.html", tags: tags)
+    render(conn, "index.html",
+      tags: tags,
+      lists: App.List.get_lists_for_person(person_id),
+      custom_list: false
+    )
   end
 
   def new(conn, _params) do

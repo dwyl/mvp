@@ -848,12 +848,12 @@ defmodule AppWeb.AppLiveTest do
       |> length() > 0
 
     # Dragover and remove highlight
-    render_hook(view, "dragoverItem", %{
-      "currentItemId" => item2.id,
-      "selectedItemId" => item.id
+    render_hook(view, "dragover_item", %{
+      "current_item_id" => item2.id,
+      "selected_item_id" => item.id
     })
 
-    assert render_hook(view, "removeHighlight", %{"id" => item.id})
+    assert render_hook(view, "remove_highlight", %{"id" => item.id})
 
     # reorder items:
     render_hook(view, "update_list_seq", %{
@@ -872,7 +872,6 @@ defmodule AppWeb.AppLiveTest do
     # Update list_item.seq:
     {:ok, %{model: list}} = App.List.update_list_seq(list.cid, person_id, "#{item.cid},#{item3.cid},#{item2.cid}")
     new_seq = list.seq |> String.split(",")
-    # dbg(new_seq)
     pos2 = Enum.find_index(new_seq, fn x -> x == "#{item2.cid}" end)
     pos3 = Enum.find_index(new_seq, fn x -> x == "#{item3.cid}" end)
     assert pos3 < pos2
@@ -903,7 +902,7 @@ defmodule AppWeb.AppLiveTest do
 
     assert render_submit(view, :create, %{text: "tag enter pressed"})
 
-    last_item_inserted = Item.list_person_items(0) |> List.last()
+    last_item_inserted = Item.get_person_items(0) |> List.last()
 
     assert last_item_inserted.tags == []
   end

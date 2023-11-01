@@ -34,7 +34,9 @@ defmodule AppWeb do
     quote do
       use Phoenix.View,
         root: "lib/app_web/templates",
-        namespace: AppWeb
+        namespace: AppWeb,
+        # elixirforum.com/t/html-heex-file-for-phoenix-component-template/42516/4
+        pattern: "**/*"
 
       # Import convenience functions from controllers
       import Phoenix.Controller,

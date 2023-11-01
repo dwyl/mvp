@@ -18,11 +18,18 @@ defmodule App.List do
   end
 
   @doc false
-  def changeset(list, attrs) do
+  def changeset(list, attrs \\ %{}) do
     list
     |> cast(attrs, [:name, :person_id, :seq, :sort, :status])
     |> validate_required([:name, :person_id])
     |> App.Cid.put_cid()
+  end
+
+  # Update an list without changing the cid ref: #418
+  def changeset_update(list, attrs \\ %{}) do
+    list
+    |> cast(attrs, [:name, :person_id, :seq, :sort, :status])
+    |> validate_required([:cid, :name, :person_id])
   end
 
   @doc """
@@ -63,6 +70,16 @@ defmodule App.List do
   end
 
   @doc """
+  `delete_list/1` "soft" deletes a list
+  so it can easily be restored in the event of mistaken deletion.
+  """
+  def delete_list(id) do
+    get_list!(id)
+    |> changeset_update(%{status: 6})
+    |> Repo.update()
+  end
+
+  @doc """
   `get_list_by_cid!/1` gets the `list` record by its' `cid`.
 
   Raises `Ecto.NoResultsError` if the List does not exist.
@@ -96,7 +113,7 @@ defmodule App.List do
   """
   def update_list(%List{} = list, attrs) do
     list
-    |> List.changeset(attrs)
+    |> List.changeset_update(attrs)
     |> PaperTrail.update()
   end
 
@@ -106,6 +123,8 @@ defmodule App.List do
   def get_lists_for_person(person_id) do
     List
     |> where(person_id: ^person_id)
+    |> where([l], l.status != 6)
+    |> order_by(asc: :name)
     |> Repo.all()
   end
 
@@ -146,6 +165,17 @@ defmodule App.List do
     end
   end
 
+  @doc """
+  `update_list_seq/3` update the `list.seq` for the `list.cid` for the `person_id`.
+  """
+  def update_list_seq(list_cid, person_id, seq) do
+    list = get_list_by_cid!(list_cid)
+    update_list(list, %{seq: seq, person_id: person_id})
+  end
+
+  @doc """
+  `add_item_to_list/3` adds the `item.cid` to the `list.cid` for the given `person_id`.
+  """
   def add_item_to_list(item_cid, list_cid, person_id) do
     list = get_list_by_cid!(list_cid)
     prev_seq = get_list_seq(list)
@@ -153,9 +183,31 @@ defmodule App.List do
     update_list(list, %{seq: seq, person_id: person_id})
   end
 
-  def update_list_seq(list_cid, person_id, seq) do
+  @doc """
+  `remove_item_from_list/3` update the `list.seq` for the `list.cid` for the `person_id`.
+  """
+  def remove_item_from_list(item_cid, list_cid, person_id) do
     list = get_list_by_cid!(list_cid)
+    # get existing list.seq
+    seq =
+      get_list_seq(list)
+      # remove the item_cid from the list.seq:
+      |> Useful.remove_item_from_list(item_cid)
+      |> Enum.join(",")
+
     update_list(list, %{seq: seq, person_id: person_id})
+  end
+
+  @doc """
+  `move_item_from_lista_to_listb/4` moves the `item_cid`
+  from `lista_cid` to `listb_cid` (removes from `lista`) for `person_id`.
+  "From A to B".
+  """
+  def move_item_from_lista_to_listb(item_cid, lista_cid, listb_cid, person_id) do
+    # Remove from List A:
+    remove_item_from_list(item_cid, lista_cid, person_id)
+    # Add to List B:
+    add_item_to_list(item_cid, listb_cid, person_id)
   end
 
   # feel free to refactor this to use pattern matching:
@@ -174,6 +226,13 @@ defmodule App.List do
     tuple
   end
 
+  @doc """
+  `get_list_seq/1` receives a `%List{}` `Map`/`Struct`
+  and returns a `List` of `item` `cids`
+  that can easily be used to lookup which `items` are on a given `list`.
+  e.g: ["F4VbyA5NNSxNvVwAAAWi", "A8y3Fk4ht", "RJX0VSn", "etc"]
+  OR if the `list` does not yet have an `items`, returns an *empty* `List`: []
+  """
   def get_list_seq(list) do
     if is_nil(list.seq) do
       []

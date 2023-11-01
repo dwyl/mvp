@@ -13,19 +13,41 @@ defmodule AppWeb.AppLive do
   @stats_topic "stats"
 
   defp get_list_cid(assigns), do: assigns[:list_cid]
+  defp get_list_name(assigns), do: assigns[:list_name]
+
+  defp list_cid_from_url_params(params) do
+    if Map.has_key?(params, "list_cid"), do: Map.get(params, "list_cid", nil)
+  end
 
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(params, _session, socket) do
     # subscribe to the channel
     if connected?(socket), do: AppWeb.Endpoint.subscribe(@topic)
     AppWeb.Endpoint.subscribe(@stats_topic)
 
     person_id = Person.get_person_id(socket.assigns)
-    # Create or Get the "all" list for the person_id
-    all_list = App.List.get_all_list_for_person(person_id)
-    # Temporary function to add All *existing* items to the "All" list:
-    App.List.add_all_items_to_all_list_for_person_id(person_id)
-    items = Item.items_with_timers(person_id)
+
+    custom_list = list_cid_from_url_params(params)
+
+    list_cid =
+      if custom_list == nil do
+        # Create or Get the "all" list for the person_id
+        all_list = App.List.get_all_list_for_person(person_id)
+
+        # Temporary function to add All *existing* items to the "All" list:
+        App.List.add_all_items_to_all_list_for_person_id(person_id)
+
+        # return the "all" list cid
+        all_list.cid
+      else
+        custom_list
+      end
+
+    lists = App.List.get_lists_for_person(person_id)
+    list = Enum.find(lists, fn list -> list.cid == list_cid end)
+
+    # Assigns
+    items = Item.items_with_timers(person_id, list_cid)
     tags = Tag.list_person_tags(person_id)
     selected_tags = []
     draft_item = Item.get_draft_item(person_id)
@@ -37,7 +59,10 @@ defmodule AppWeb.AppLive do
        editing: nil,
        filter: "active",
        filter_tag: nil,
-       list_cid: all_list.cid,
+       custom_list: custom_list,
+       list_cid: list_cid,
+       list_name: list.name,
+       lists: lists,
        tags: tags,
        selected_tags: selected_tags,
        text_value: draft_item.text || "",
@@ -60,7 +85,7 @@ defmodule AppWeb.AppLive do
   def handle_event("create", %{"text" => text}, socket) do
     person_id = Person.get_person_id(socket.assigns)
 
-    {:ok, %{model: _item}} =
+    {:ok, %{model: item}} =
       Item.create_item_with_tags(%{
         text: text,
         person_id: person_id,
@@ -68,8 +93,13 @@ defmodule AppWeb.AppLive do
         tags: socket.assigns.selected_tags
       })
 
-    # Add this newly created `item` to the "All" list:
-    # App.ListItem.add_item_to_all_list(item)
+    # Add this newly created `item` to the list current list:
+    list_cid = get_list_cid(socket.assigns)
+    list_name = get_list_name(socket.assigns)
+
+    if list_name !== "all" do
+      App.List.add_item_to_list(item.cid, list_cid, person_id)
+    end
 
     draft = Item.get_draft_item(person_id)
     Item.update_draft(draft, %{text: ""})
@@ -273,17 +303,17 @@ defmodule AppWeb.AppLive do
   end
 
   @impl true
-  def handle_event("removeHighlight", %{"id" => id}, socket) do
+  def handle_event("remove_highlight", %{"id" => id}, socket) do
     AppWeb.Endpoint.broadcast(@topic, "move_items", {:drop_item, id})
     {:noreply, socket}
   end
 
   @impl true
   def handle_event(
-        "dragoverItem",
+        "dragover_item",
         %{
-          "currentItemId" => current_item_id,
-          "selectedItemId" => selected_item_id
+          "current_item_id" => current_item_id,
+          "selected_item_id" => selected_item_id
         },
         socket
       ) do
@@ -342,11 +372,12 @@ defmodule AppWeb.AppLive do
   @impl true
   def handle_info(%Broadcast{event: "update", payload: payload}, socket) do
     person_id = Person.get_person_id(socket.assigns)
-    items = Item.items_with_timers(person_id)
-    isEditingItem = socket.assigns.editing
+    list_cid = get_list_cid(socket.assigns)
+    items = Item.items_with_timers(person_id, list_cid)
+    is_editing_item = socket.assigns.editing
 
     # If the item is being edited, we update the timer list of the item being edited.
-    if isEditingItem do
+    if is_editing_item do
       case payload do
         {:start, item_id} ->
           timers_list_changeset = Timer.list_timers_changesets(item_id)

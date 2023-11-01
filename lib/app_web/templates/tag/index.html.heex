@@ -1,3 +1,4 @@
+<%= render(AppWeb.NavView, "nav.html", assigns) %>
 <.h2 class="text-center mt-3">Listing Tags</.h2>
 
 <.container>
@@ -13,7 +14,7 @@
         <.td>
           <span
             style={"background-color:#{tag.color}"}
-            class="max-w-[144px] text-white font-bold py-1 px-2 rounded-full 
+            class="max-w-[144px] text-white font-bold pyx-1 px-2 rounded-full 
             overflow-hidden text-ellipsis whitespace-nowrap inline-block"
           >
             <%= tag.text %>

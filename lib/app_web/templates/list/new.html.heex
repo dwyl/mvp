@@ -1,0 +1,18 @@
+<h2 class="text-center mt-4 text-4xl font-semibold leading-6 text-gray-900 clear-both">
+  <i>New</i> List
+</h2>
+
+<div class="sm:flex-auto">
+  <p class="mt-4 text-sm text-gray-700 text-center sm:flex-auto">
+    Create a <b><i>New</i> <code>List</code></b>
+    for a project or area you need to keep track of:
+  </p>
+</div>
+
+<div class="mt-3 clear-both">
+  <%= render(
+    "form.html",
+    Map.put(assigns, :action, Routes.list_path(@conn, :create))
+    |> Map.put(:method, "post")
+  ) %>
+</div>
