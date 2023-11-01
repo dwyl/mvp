@@ -115,22 +115,14 @@
   </div>
   <!-- Mobile menu, show/hide based on menu state. -->
   <div x-show="openMenu">
-    <div class="space-y-1 px-2 pb-3 pt-2 text-right">
-      <%= link("📥 All",
-        to: "/tags",
-        class:
-          "text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
-      ) %>
-    </div>
+    <%= for list <- @lists do %>
+      <div class="space-y-1 px-2 pb-3 pt-2 text-right">
+        <a class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
+          href={list_url(list.cid)}><%= list_name(list.name) %></a>
+      </div>
+    <% end %>
     <div class="space-y-1 px-2 pb-3 pt-2 text-right">
       <%= link("🏷️ Tags",
-        to: "/tags",
-        class:
-          "text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
-      ) %>
-    </div>
-    <div class="space-y-1 px-2 pb-3 pt-2 text-right">
-      <%= link("🛒 Shopping",
         to: "/tags",
         class:
           "text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"

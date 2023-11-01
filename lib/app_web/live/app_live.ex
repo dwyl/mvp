@@ -42,6 +42,7 @@ defmodule AppWeb.AppLive do
        filter: "active",
        filter_tag: nil,
        list_cid: all_list.cid,
+       lists: App.List.get_lists_for_person(person_id),
        tags: tags,
        selected_tags: selected_tags,
        text_value: draft_item.text || "",
