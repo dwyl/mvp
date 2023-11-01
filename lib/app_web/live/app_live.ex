@@ -16,7 +16,6 @@ defmodule AppWeb.AppLive do
   defp get_list_name(assigns), do: assigns[:list_name]
 
   defp list_cid_from_url_params(params) do
-    dbg(Map.get(params, "list_cid"))
     if Map.has_key?(params, "list_cid"), do: Map.get(params, "list_cid", nil)
   end
 
@@ -29,18 +28,21 @@ defmodule AppWeb.AppLive do
     person_id = Person.get_person_id(socket.assigns)
 
     custom_list = list_cid_from_url_params(params)
-    list_cid = if custom_list == nil do
-      # Create or Get the "all" list for the person_id
-      all_list = App.List.get_all_list_for_person(person_id)
 
-      # Temporary function to add All *existing* items to the "All" list:
-      App.List.add_all_items_to_all_list_for_person_id(person_id)
+    list_cid =
+      if custom_list == nil do
+        # Create or Get the "all" list for the person_id
+        all_list = App.List.get_all_list_for_person(person_id)
 
-      # return the "all" list cid
-      all_list.cid
-    else
-      custom_list
-    end
+        # Temporary function to add All *existing* items to the "All" list:
+        App.List.add_all_items_to_all_list_for_person_id(person_id)
+
+        # return the "all" list cid
+        all_list.cid
+      else
+        custom_list
+      end
+
     lists = App.List.get_lists_for_person(person_id)
     list = Enum.find(lists, fn list -> list.cid == list_cid end)
 
@@ -94,6 +96,7 @@ defmodule AppWeb.AppLive do
     # Add this newly created `item` to the list current list:
     list_cid = get_list_cid(socket.assigns)
     list_name = get_list_name(socket.assigns)
+
     if list_name !== "all" do
       App.List.add_item_to_list(item.cid, list_cid, person_id)
     end

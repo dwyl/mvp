@@ -26,7 +26,6 @@ defmodule AppWeb.ListController do
   end
 
   def create(conn, %{"list" => list_params}) do
-    dbg(list_params)
     person_id = conn.assigns[:person][:id] || 0
 
     list_params =

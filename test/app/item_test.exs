@@ -26,7 +26,6 @@ defmodule App.ItemTest do
       assert {:ok, %{model: item}} =
                Item.create_item(@valid_attrs)
 
-      # dbg(item)
       assert item.text == @valid_attrs.text
 
       inserted_item = List.first(Item.get_items())
