@@ -1,5 +1,9 @@
-<%= render(AppWeb.NavView, "nav.html", assigns) %>
-<.h2 class="text-center mt-3">Listing Tags</.h2>
+<main class="font-sans container mx-auto">
+  <div class="relative overflow-x-auto mt-12">
+    <h1 class="mb-2 text-xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl dark:text-white">
+      Listing Tags
+    </h1>
+
     <.live_component
       module={AppWeb.TableComponent}
       id="tags_table_component"
@@ -16,7 +20,6 @@
 
       <:column :let={tag} label="Color" key="color">
         <td class="px-6 py-4 text-center" data-test-id={"color_#{tag.id}"}>
-          ">
           <span
             style={"background-color:#{tag.color}"}
             class="max-w-[144px] text-white font-bold py-1 px-2 rounded-full 
@@ -29,7 +32,7 @@
 
       <:column :let={tag} label="Created At" key="inserted_at">
         <td class="px-6 py-4 text-center" data-test-id={"inserted_at_#{tag.id}"}>
-          > <%= format_date(tag.inserted_at) %>
+          <%= format_date(tag.inserted_at) %>
         </td>
       </:column>
 
@@ -38,7 +41,6 @@
           class="px-6 py-4 text-center"
           data-test-id={"last_used_at_#{tag.id}"}
         >
-          >
           <%= if tag.last_used_at do %>
             <%= format_date(tag.last_used_at) %>
           <% else %>
@@ -49,7 +51,6 @@
 
       <:column :let={tag} label="Items Count" key="items_count">
         <td class="px-6 py-4 text-center" data-test-id={"items_count_#{tag.id}"}>
-          >
           <a href={~p"/?filter_by_tag=#{tag.text}"} class="underline">
             <%= tag.items_count %>
           </a>
@@ -61,7 +62,7 @@
           class="px-6 py-4 text-center"
           data-test-id={"total_time_logged_#{tag.id}"}
         >
-          > <%= format_seconds(tag.total_time_logged) %>
+          <%= format_seconds(tag.total_time_logged) %>
         </td>
       </:column>
 
