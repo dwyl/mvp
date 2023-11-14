@@ -12,7 +12,7 @@ defmodule AppWeb.TagsLiveTest do
   end
 
   # test "display tags on table", %{conn: conn} do
-  #   add_tag(%{person_id: @person_id, text: "Tag1", color: "#000000"})
+  #   tag1 = add_tag(%{person_id: @person_id, text: "Tag1", color: "#000000"})
   #   add_tag(%{person_id: @person_id, text: "Tag2", color: "#000000"})
   #   add_tag(%{person_id: @person_id, text: "Tag3", color: "#000000"})
 
@@ -21,9 +21,9 @@ defmodule AppWeb.TagsLiveTest do
   #   assert render(page_live) =~ "Tags"
 
   #   assert page_live
-  #          |> element("td[data-test-id=text_1]")
+  #          |> element("td[data-test-id=text_#{tag1.id}")
   #          |> render() =~
-  #            "start!s"
+  #            "Tag1"
   # end
 
   defp add_tag(attrs) do
