@@ -1,7 +1,7 @@
 defmodule AppWeb.StatsLiveTest do
   # alias App.DateTimeHelper
   use AppWeb.ConnCase, async: true
-  alias App.{Item, Timer}
+  alias App.{Item, Timer, DateTimeHelper}
   import Phoenix.LiveViewTest
 
   @person_id 55
@@ -32,27 +32,27 @@ defmodule AppWeb.StatsLiveTest do
     assert render(page_live) =~ "Stats"
 
     # two items and one timer expected
-    # assert page_live |> element("td[data-test-id=person_id]") |> render() =~
-    #          "55"
+    assert page_live |> element("td[data-test-id=person_id_55]") |> render() =~
+             "55"
 
-    # assert page_live |> element("td[data-test-id=num_items]") |> render() =~ "2"
+    assert page_live |> element("td[data-test-id=num_items_55]") |> render() =~ "2"
 
     assert page_live |> render() =~ "1"
 
-    # assert page_live
-    #        |> element("td[data-test-id=first_inserted_at]")
-    #        |> render() =~
-    #          DateTimeHelper.format_date(started)
+    assert page_live
+           |> element("td[data-test-id=first_inserted_at_55]")
+           |> render() =~
+             DateTimeHelper.format_date(started)
 
-    # assert page_live
-    #        |> element("td[data-test-id=last_inserted_at]")
-    #        |> render() =~
-    #          DateTimeHelper.format_date(started)
+    assert page_live
+           |> element("td[data-test-id=last_inserted_at_55]")
+           |> render() =~
+             DateTimeHelper.format_date(started)
 
-    # assert page_live
-    #        |> element("td[data-test-id=total_timers_in_seconds]")
-    #        |> render() =~
-    #          ""
+    assert page_live
+           |> element("td[data-test-id=total_timers_in_seconds_55]")
+           |> render() =~
+             ""
   end
 
   test "handle broadcast when item is created", %{conn: conn} do
@@ -63,8 +63,8 @@ defmodule AppWeb.StatsLiveTest do
     {:ok, page_live, _html} = live(conn, "/stats")
 
     assert render(page_live) =~ "Stats"
-    # num of items - this selector finds multiple items so this fails ...
-    # assert page_live |> element("td[data-test-id=num_items]") |> render() =~ "5"
+
+    assert page_live |> element("td[data-test-id=num_items_55]") |> render() =~ "5"
 
     # Creating another item.
     AppWeb.Endpoint.broadcast(
@@ -74,7 +74,7 @@ defmodule AppWeb.StatsLiveTest do
     )
 
     # num of items
-    # assert page_live |> element("td[data-test-id=num_items]") |> render() =~ "2"
+    assert page_live |> element("td[data-test-id=num_items_55]") |> render() =~ "2"
 
     # Broadcasting update. Shouldn't effect anything in the page
     AppWeb.Endpoint.broadcast(
@@ -84,7 +84,7 @@ defmodule AppWeb.StatsLiveTest do
     )
 
     # num of items
-    # assert page_live |> element("td[data-test-id=num_items]") |> render() =~ "2"
+    assert page_live |> element("td[data-test-id=num_items_55]") |> render() =~ "2"
   end
 
   test "handle broadcast when timer is created", %{conn: conn} do
@@ -95,9 +95,8 @@ defmodule AppWeb.StatsLiveTest do
     {:ok, page_live, _html} = live(conn, "/stats")
 
     assert render(page_live) =~ "Stats"
-    # num of timers - this selector returns multiple elements.
-    # assert page_live |> element("td[data-test-id=num_timers]") |> render() =~
-    #          "0"
+    assert page_live |> element("td[data-test-id=num_timers_55]") |> render() =~
+             "0"
 
     # Creating a timer.
     AppWeb.Endpoint.broadcast(
@@ -106,9 +105,8 @@ defmodule AppWeb.StatsLiveTest do
       {:create, payload: %{person_id: @person_id}}
     )
 
-    # num of timers - currently returning multiple elements ...
-    # assert page_live |> element("td[data-test-id=num_timers]") |> render() =~
-    #          "1"
+    assert page_live |> element("td[data-test-id=num_timers_55]") |> render() =~
+             "1"
 
     # Broadcasting update. Shouldn't effect anything in the page
     AppWeb.Endpoint.broadcast(
@@ -147,7 +145,7 @@ defmodule AppWeb.StatsLiveTest do
     result =
       page_live |> element("th[phx-value-key=person_id]") |> render_click()
 
-    [first_element | _] = Floki.find(result, "td[data-test-id=person_id]")
+    [first_element | _] = Floki.find(result, "td[data-test-id=person_id_2]")
 
     assert first_element |> Floki.text() =~ "2"
 
@@ -155,9 +153,9 @@ defmodule AppWeb.StatsLiveTest do
     result =
       page_live |> element("th[phx-value-key=person_id]") |> render_click()
 
-    [first_element | _] = Floki.find(result, "td[data-test-id=person_id]")
+    [first_element | _] = Floki.find(result, "td[data-test-id=person_id_1]")
 
-    # assert first_element |> Floki.text() =~ "1"
-    first_element |> Floki.text()
+    assert first_element |> Floki.text() =~ "1"
+    first_element |> Floki.text() |> dbg()
   end
 end
