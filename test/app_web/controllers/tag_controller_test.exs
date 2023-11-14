@@ -11,17 +11,6 @@ defmodule AppWeb.TagControllerTest do
     tag
   end
 
-  describe "new tag" do
-    test "renders form for creating a tag", %{conn: conn} do
-      conn =
-        conn
-        |> assign(:jwt, AuthPlug.Token.generate_jwt!(%{id: 1, picture: ""}))
-        |> get(Routes.tag_path(conn, :new))
-
-      assert html_response(conn, 200) =~ "New Tag"
-    end
-  end
-
   describe "create tag" do
     test "redirects to show when data is valid", %{conn: conn} do
       conn =
@@ -39,6 +28,17 @@ defmodule AppWeb.TagControllerTest do
         conn
         |> assign(:jwt, AuthPlug.Token.generate_jwt!(%{id: 1, picture: ""}))
         |> post(Routes.tag_path(conn, :create), tag: @invalid_attrs)
+
+      assert html_response(conn, 200) =~ "New Tag"
+    end
+  end
+
+  describe "new tag" do
+    test "renders form for creating a tag", %{conn: conn} do
+      conn =
+        conn
+        |> assign(:jwt, AuthPlug.Token.generate_jwt!(%{id: 1, picture: ""}))
+        |> get(Routes.tag_path(conn, :new))
 
       assert html_response(conn, 200) =~ "New Tag"
     end
