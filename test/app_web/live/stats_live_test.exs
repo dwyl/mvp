@@ -156,6 +156,5 @@ defmodule AppWeb.StatsLiveTest do
     [first_element | _] = Floki.find(result, "td[data-test-id=person_id_1]")
 
     assert first_element |> Floki.text() =~ "1"
-    first_element |> Floki.text() |> dbg()
   end
 end
