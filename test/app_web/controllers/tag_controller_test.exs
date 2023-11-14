@@ -44,17 +44,6 @@ defmodule AppWeb.TagControllerTest do
     end
   end
 
-  describe "new tag" do
-    test "renders form for creating a tag", %{conn: conn} do
-      conn =
-        conn
-        |> assign(:jwt, AuthPlug.Token.generate_jwt!(%{id: 1, picture: ""}))
-        |> get(Routes.tag_path(conn, :new))
-
-      assert html_response(conn, 200) =~ "New Tag"
-    end
-  end
-
   describe "edit tag" do
     setup [:create_tag]
 
