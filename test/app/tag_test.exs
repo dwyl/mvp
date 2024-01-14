@@ -135,11 +135,11 @@ defmodule App.TagTest do
       assert length(tags) == 1
     end
 
-    test "handles invalid sort parameters" do
+    test "handles invalid column" do
       add_test_tag_with_details(%{person_id: 6, text: "BTag", color: "#FCA5A5"})
       add_test_tag_with_details(%{person_id: 6, text: "AnotherTag", color: "#FCA5A5"})
 
-      tags = Tag.list_person_tags_complete(6, :invalid_column, :invalid_order)
+      tags = Tag.list_person_tags_complete(6, :invalid_column)
       assert length(tags) == 2
       assert tags |> Enum.map(& &1.text) == ["AnotherTag", "BTag"]
     end

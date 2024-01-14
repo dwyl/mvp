@@ -100,8 +100,6 @@ defmodule App.Tag do
     sort_column =
       if validate_sort_column(sort_column), do: sort_column, else: :text
 
-    sort_order = if Repo.validate_order(sort_order), do: sort_order, else: :asc
-
     Tag
     |> where(person_id: ^person_id)
     |> join(:left, [t], it in ItemTag, on: t.id == it.tag_id)
