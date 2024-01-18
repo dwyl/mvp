@@ -2,7 +2,7 @@ defmodule App.Tag do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
-  alias App.{Item, ItemTag, Repo}
+  alias App.{Item, ItemTag, Repo, Timer}
   alias __MODULE__
 
   @derive {Jason.Encoder, only: [:id, :text, :person_id, :color]}
@@ -10,6 +10,10 @@ defmodule App.Tag do
     field :color, :string
     field :person_id, :integer
     field :text, :string
+
+    field :last_used_at, :naive_datetime, virtual: true
+    field :items_count, :integer, virtual: true
+    field :total_time_logged, :integer, virtual: true
 
     many_to_many(:items, Item, join_through: ItemTag)
     timestamps()
@@ -88,6 +92,40 @@ defmodule App.Tag do
     |> Repo.all()
   end
 
+  def list_person_tags_complete(
+        person_id,
+        sort_column \\ :text,
+        sort_order \\ :asc
+      ) do
+    sort_column =
+      if validate_sort_column(sort_column), do: sort_column, else: :text
+
+    Tag
+    |> where(person_id: ^person_id)
+    |> join(:left, [t], it in ItemTag, on: t.id == it.tag_id)
+    |> join(:left, [t, it], i in Item, on: i.id == it.item_id)
+    |> join(:left, [t, it, i], tm in Timer, on: tm.item_id == i.id)
+    |> group_by([t], t.id)
+    |> select([t, it, i, tm], %{
+      t
+      | last_used_at: max(it.inserted_at),
+        items_count: fragment("count(DISTINCT ?)", i.id),
+        total_time_logged:
+          sum(
+            coalesce(
+              fragment(
+                "EXTRACT(EPOCH FROM (? - ?))",
+                tm.stop,
+                tm.start
+              ),
+              0
+            )
+          )
+    })
+    |> order_by(^get_order_by_keyword(sort_column, sort_order))
+    |> Repo.all()
+  end
+
   def list_person_tags_text(person_id) do
     Tag
     |> where(person_id: ^person_id)
@@ -104,5 +142,27 @@ defmodule App.Tag do
 
   def delete_tag(%Tag{} = tag) do
     Repo.delete(tag)
+  end
+
+  defp validate_sort_column(column) do
+    Enum.member?(
+      [
+        :text,
+        :color,
+        :created_at,
+        :last_used_at,
+        :items_count,
+        :total_time_logged
+      ],
+      column
+    )
+  end
+
+  defp get_order_by_keyword(sort_column, :asc) do
+    [asc: sort_column]
+  end
+
+  defp get_order_by_keyword(sort_column, :desc) do
+    [desc: sort_column]
   end
 end

@@ -1,7 +1,7 @@
 defmodule AppWeb.StatsLive do
   require Logger
   use AppWeb, :live_view
-  alias App.{Stats, DateTimeHelper, Person}
+  alias App.{Stats, DateTimeHelper, Person, Repo}
   alias Phoenix.Socket.Broadcast
 
   # run authentication on mount
@@ -74,7 +74,7 @@ defmodule AppWeb.StatsLive do
 
     sort_order =
       if socket.assigns.sort_column == sort_column do
-        toggle_sort_order(socket.assigns.sort_order)
+        Repo.toggle_sort_order(socket.assigns.sort_order)
       else
         :asc
       end
@@ -114,7 +114,4 @@ defmodule AppWeb.StatsLive do
 
   def is_highlighted_person?(metric, person_id),
     do: metric.person_id == person_id
-
-  defp toggle_sort_order(:asc), do: :desc
-  defp toggle_sort_order(:desc), do: :asc
 end

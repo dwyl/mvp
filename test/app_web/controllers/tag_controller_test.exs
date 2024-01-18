@@ -11,22 +11,6 @@ defmodule AppWeb.TagControllerTest do
     tag
   end
 
-  describe "index" do
-    test "lists all tags", %{conn: conn} do
-      conn = get(conn, Routes.tag_path(conn, :index))
-      assert html_response(conn, 200) =~ "Listing Tags"
-    end
-
-    test "lists all tags and display logout button", %{conn: conn} do
-      conn =
-        conn
-        |> assign(:jwt, AuthPlug.Token.generate_jwt!(%{id: 1, picture: ""}))
-        |> get(Routes.tag_path(conn, :index))
-
-      assert html_response(conn, 200) =~ "logout"
-    end
-  end
-
   describe "create tag" do
     test "redirects to show when data is valid", %{conn: conn} do
       conn =

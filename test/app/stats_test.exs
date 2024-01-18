@@ -84,7 +84,7 @@ defmodule App.StatsTest do
     refute Stats.validate_sort_column(:invalid)
   end
 
-  test "Stats.person_with_item_and_timer_count/1 returns a sorted list by person_id if invalid sorted column and order" do
+  test "Stats.person_with_item_and_timer_count/1 returns a sorted list by person_id if invalid sorted column" do
     {:ok, %{model: _, version: _version}} = Item.create_item(@valid_attrs)
     {:ok, %{model: _, version: _version}} = Item.create_item(@valid_attrs)
 
@@ -93,7 +93,7 @@ defmodule App.StatsTest do
 
     # list person with number of timers and items
     result =
-      Stats.person_with_item_and_timer_count(:invalid_column, :invalid_order)
+      Stats.person_with_item_and_timer_count(:invalid_column)
 
     assert length(result) == 3
 

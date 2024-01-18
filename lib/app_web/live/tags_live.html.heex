@@ -1,0 +1,92 @@
+<main class="font-sans container mx-auto">
+  <div class="relative overflow-x-auto mt-12">
+    <h1 class="mb-2 text-xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl dark:text-white">
+      Listing Tags
+    </h1>
+
+    <.live_component
+      module={AppWeb.TableComponent}
+      id="tags_table_component"
+      rows={@tags}
+      sort_column={@sort_column}
+      sort_order={@sort_order}
+      highlight={fn _ -> false end}
+    >
+      <:column :let={tag} label="Name" key="text">
+        <td class="px-6 py-4 text-center" data-test-id={"text_#{tag.id}"}>
+          <%= tag.text %>
+        </td>
+      </:column>
+
+      <:column :let={tag} label="Color" key="color">
+        <td class="px-6 py-4 text-center" data-test-id={"color_#{tag.id}"}>
+          <span
+            style={"background-color:#{tag.color}"}
+            class="max-w-[144px] text-white font-bold py-1 px-2 rounded-full 
+            overflow-hidden text-ellipsis whitespace-nowrap inline-block"
+          >
+            <%= tag.color %>
+          </span>
+        </td>
+      </:column>
+
+      <:column :let={tag} label="Created At" key="inserted_at">
+        <td class="px-6 py-4 text-center" data-test-id={"inserted_at_#{tag.id}"}>
+          <%= format_date(tag.inserted_at) %>
+        </td>
+      </:column>
+
+      <:column :let={tag} label="Latest" key="last_used_at">
+        <td
+          class="px-6 py-4 text-center"
+          data-test-id={"last_used_at_#{tag.id}"}
+        >
+          <%= if tag.last_used_at do %>
+            <%= format_date(tag.last_used_at) %>
+          <% else %>
+            -
+          <% end %>
+        </td>
+      </:column>
+
+      <:column :let={tag} label="Items Count" key="items_count">
+        <td class="px-6 py-4 text-center" data-test-id={"items_count_#{tag.id}"}>
+          <a href={~p"/?filter_by_tag=#{tag.text}"} class="underline">
+            <%= tag.items_count %>
+          </a>
+        </td>
+      </:column>
+
+      <:column :let={tag} label="Total Time Logged" key="total_time_logged">
+        <td
+          class="px-6 py-4 text-center"
+          data-test-id={"total_time_logged_#{tag.id}"}
+        >
+          <%= format_seconds(tag.total_time_logged) %>
+        </td>
+      </:column>
+
+      <:column :let={tag} label="Actions" key="actions">
+        <td class="px-6 py-4 text-center" data-test-id={"actions_#{tag.id}"}>
+          <%= link("Edit", to: Routes.tag_path(@socket, :edit, tag)) %>
+
+          <span class="text-red-500 ml-10">
+            <%= link("Delete",
+              to: Routes.tag_path(@socket, :delete, tag),
+              method: :delete,
+              data: [confirm: "Are you sure you want to delete this tag?"]
+            ) %>
+          </span>
+        </td>
+      </:column>
+    </.live_component>
+
+    <.button
+      link_type="a"
+      to={Routes.tag_path(@socket, :new)}
+      label="Create Tag"
+      class="text-2xl text-center float-left rounded-md bg-green-600 hover:bg-green-700 
+      my-2 mt-2 ml-2 px-4 py-2 font-semibold text-white shadow-sm"
+    />
+  </div>
+</main>

@@ -26,12 +26,9 @@ defmodule App.Stats do
         sort_order \\ :asc
       ) do
     sort_column = to_string(sort_column)
-    sort_order = to_string(sort_order)
 
     sort_column =
       if validate_sort_column(sort_column), do: sort_column, else: "person_id"
-
-    sort_order = if validate_order(sort_order), do: sort_order, else: "asc"
 
     sql = """
     SELECT i.person_id,
@@ -43,7 +40,7 @@ defmodule App.Stats do
     FROM items i
     LEFT JOIN timers t ON t.item_id = i.id
     GROUP BY i.person_id
-    ORDER BY #{sort_column} #{sort_order}
+    ORDER BY #{sort_column} #{to_string(sort_order)}
     """
 
     Ecto.Adapters.SQL.query!(Repo, sql)
@@ -86,28 +83,6 @@ defmodule App.Stats do
     Enum.member?(
       ~w(person_id num_items num_timers first_inserted_at last_inserted_at total_timers_in_seconds),
       column
-    )
-  end
-
-  @doc """
-  `validate_order/1` validates the ordering is one of `asc` or `desc`
-
-  ## Examples
-
-      iex> App.Stats.validate_order("asc")
-      true
-
-      iex> App.Stats.validate_order(:invalid)
-      false
-
-      # Avoid common SQL injection attacks:
-      iex> App.Stats.validate_order("OR 1=1")
-      false
-  """
-  def validate_order(order) do
-    Enum.member?(
-      ~w(asc desc),
-      order
     )
   end
 end

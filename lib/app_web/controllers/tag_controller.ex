@@ -3,17 +3,6 @@ defmodule AppWeb.TagController do
   alias App.{Person, Tag}
   plug :permission_tag when action in [:edit, :update, :delete]
 
-  def index(conn, _params) do
-    person_id = conn.assigns[:person][:id] || 0
-    tags = Tag.list_person_tags(person_id)
-
-    render(conn, "index.html",
-      tags: tags,
-      lists: App.List.get_lists_for_person(person_id),
-      custom_list: false
-    )
-  end
-
   def new(conn, _params) do
     changeset = Tag.changeset(%Tag{})
     render(conn, "new.html", changeset: changeset)
