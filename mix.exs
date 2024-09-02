@@ -70,7 +70,7 @@ defmodule App.MixProject do
 
       # Database changes tracking:
       # github.com/dwyl/phoenix-papertrail-demo
-      {:paper_trail, "~> 1.0.0"},
+      {:paper_trail, "~> 1.1.2"},
 
       # Time string parsing: github.com/bitwalker/timex
       {:timex, "~> 3.7"},
