@@ -10,7 +10,20 @@ import Config
 # which you should run after static files are built and
 # before starting your production server.
 config :app, AppWeb.Endpoint,
-  cache_static_manifest: "priv/static/cache_manifest.json"
+  cache_static_manifest: "priv/static/cache_manifest.json",
+  # Uncomment the next line to run "MIX_ENV=prod mix s" on localhost
+  check_origin: ["//localhost"]
 
 # Do not print debug messages in production
 config :logger, level: :debug
+
+
+
+# # Configure DB for Digital Ocean via SSL
+# config :app, App.Repo,
+#   ssl: [
+#     verify: :verify_peer,
+#     cacertfile: ".postgres-cert.crt"
+#   ],
+#   # hexdocs.pm/ecto_sql/Ecto.Adapters.Postgres.html#module-connection-options
+#   maintenance_database: "defaultdb"

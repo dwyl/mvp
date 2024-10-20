@@ -28,13 +28,41 @@ if config_env() == :prod do
       For example: ecto://USER:PASS@HOST/DATABASE
       """
 
+  ssl = if database_url =~ "ondigitalocean.com" do
+    filepath = Path.join([File.cwd!, "ca-certificate.crt"])
+    cert_content_from_env =
+      System.get_env("POSTGRES_CERT") ||
+        raise """
+        environment variable POSTGRES_CERT is missing.
+        For example: -----BEGIN CERTIFICATE----- ...
+        """
+    File.write(filepath, cert_content_from_env)
+
+    [
+      verify: :verify_peer,
+      cacertfile: filepath
+    ]
+  else
+    IO.puts("Not DigitalOcean")
+    false
+  end
+
+  # Set Maintenance DB for when the app-db is not available
+  maintenance_db = if database_url =~ "ondigitalocean.com" do
+    "defaultdb"
+  else
+    "postgres"
+  end
+
   maybe_ipv6 = if System.get_env("ECTO_IPV6"), do: [:inet6], else: []
 
   config :app, App.Repo,
-    # ssl: true,
     url: database_url,
     pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
-    socket_options: maybe_ipv6
+    socket_options: maybe_ipv6,
+    ssl: ssl,
+    maintenance_database: maintenance_db
+
 
   # The secret key base is used to sign/encrypt cookies and other secrets.
   # A default value is used in config/dev.exs and config/test.exs but you
