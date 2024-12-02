@@ -478,13 +478,13 @@
                       class="flex flex-col"
                       x-data="{
                     start: $refs.timer_start ? $refs.timer_start.innerHTML : null,
-                    current: null,
+                    current:  Date.now(),
                     stop: null,
                     interval: null
                   }"
                       x-init="
                     start = $refs.timer_start.innerHTML;
-                    current = start;
+                    current =  Date.now();
                     interval = setInterval(() => { current = Date.now(), start = $refs.timer_start ? $refs.timer_start.innerHTML : null }, 500)
                   "
                     >
@@ -524,7 +524,6 @@
                             x-text="timer_text(start, current || stop)"
                             class="text-sm font-mono font-semibold text-right mr-1"
                           >
-                            00:00:00
                           </span>
                         </p>
                       </div>
