@@ -335,10 +335,11 @@ run the following commands
 in your terminal:
 
 ```sh
-git clone git@github.com:dwyl/app-mvp.git && cd app-mvp
+git clone git@github.com:dwyl/mvp.git && cd mvp
 source .env_sample
 mix setup
 ```
+
 That will load up the necessary env variables to run the app, 
 download the **`code`**, 
 install dependencies,
