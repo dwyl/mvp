@@ -64,7 +64,11 @@ if env == :test || env == :dev do
     Repo.insert!(%Tag{person_id: person_id, text: "baking", color: "#3B82F6"})
 
   tag3 =
-    Repo.insert!(%Tag{person_id: person_id, text: "breakfast", color: "#FACC15"})
+    Repo.insert!(%Tag{
+      person_id: person_id,
+      text: "breakfast",
+      color: "#FACC15"
+    })
 
   # Associate items with tags:
   Repo.insert!(%ItemTag{item_id: item0.id, tag_id: tag0.id})
