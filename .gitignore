@@ -48,3 +48,5 @@ npm-debug.log
 
 .env
 hoppscotch/node_modules
+.postgres-cert.crt
+ca-certificate.crt
