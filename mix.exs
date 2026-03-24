@@ -22,7 +22,8 @@ defmodule App.MixProject do
         "coveralls.detail": :test,
         "coveralls.post": :test,
         "coveralls.html": :test,
-        docs: :docs
+        docs: :docs,
+        t: :test
       ]
     ]
   end
