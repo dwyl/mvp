@@ -73,7 +73,7 @@ defmodule App.MixProject do
       {:excid, "~> 1.0.1"},
 
       # Easily Encrypt Sensitive Data: github.com/dwyl/fields
-      {:fields, "~> 2.11.0"},
+      {:fields, "~> 2.12.0"},
 
       # Database changes tracking:
       # github.com/dwyl/phoenix-papertrail-demo
