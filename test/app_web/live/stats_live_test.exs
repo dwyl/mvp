@@ -141,12 +141,10 @@ defmodule AppWeb.StatsLiveTest do
 
     {:ok, page_live, _html} = live(conn, "/stats")
 
-    dbg(page_live)
-
     # Don't have time to get this sort test working right now ... #HelpWanted
     # # sort first time
-    # result =
-    #   page_live |> element("th[phx-value-key=first_inserted_at]") |> render_click()
+    _result =
+      page_live |> element("th[phx-value-key=first_inserted_at]") |> render_click()
 
     # dbg(result)
 

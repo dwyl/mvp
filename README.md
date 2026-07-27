@@ -186,19 +186,19 @@ to create the MVP functionality:
 
 The idea is a todo list
 that tracks how much time
-we spend on a task. 
+we spend on a task.
 
-It's _deliberately_ "basic" 
-and 
+It's _deliberately_ "basic"
+and
 ["ugly"](https://youtu.be/m4isFputh68?t=158)
 so we _don't_ focus on aesthetics. 🚀<br />
-It will _definitely_ change over time 
-as we _use_ the App 
+It will _definitely_ change over time
+as we _use_ the App
 and collect _feedback_. 💬<br />
 If you want to _help_ make it better,
 [share your thoughts!](https://github.com/dwyl/app-mvp/issues/) 🙏
 
-More detail on the MVP features: 
+More detail on the MVP features:
 [dwyl/app/issues/265](https://github.com/dwyl/app/issues/265)
 
 <br />
