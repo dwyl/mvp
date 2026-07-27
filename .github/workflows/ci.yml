@@ -26,14 +26,14 @@ jobs:
         otp: ['28.0.1']
         elixir: ['1.18.4']
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v7 # github.com/actions/checkout
     - name: Set up Elixir
-      uses: erlef/setup-beam@v1
+      uses: erlef/setup-beam@v1 # github.com/erlef/setup-beam
       with:
         otp-version: ${{ matrix.otp }}
         elixir-version: ${{ matrix.elixir }} 
     - name: Restore deps and _build cache
-      uses: actions/cache@v3
+      uses: actions/cache@v6   # github.com/actions/cache
       with:
         path: |
           deps
@@ -52,7 +52,7 @@ jobs:
         AUTH_API_KEY: ${{ secrets.AUTH_API_KEY }}
         ENCRYPTION_KEYS: ${{ secrets.ENCRYPTION_KEYS }}
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v7 # github.com/codecov/codecov-action
 
 
   # Continuous Deployment to Fly.io
@@ -66,7 +66,7 @@ jobs:
     env:
       FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: superfly/flyctl-actions@1.1
+      - uses: actions/checkout@v7 # github.com/actions/checkout
+      - uses: superfly/flyctl-actions@1.5 # github.com/superfly/flyctl-actions
         with:
           args: "deploy"
