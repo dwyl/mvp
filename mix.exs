@@ -89,7 +89,7 @@ defmodule App.MixProject do
       {:atomic_map, "~> 0.9.3"},
 
       # Decimal precision: github.com/ericmj/decimal
-      {:decimal, "~> 2.0"},
+      {:decimal, "~> 3.1"},
 
       # Statuses: github.com/dwyl/statuses
       {:statuses, "~> 1.1.1"},
