@@ -134,7 +134,8 @@ defmodule App.MixProject do
       test: ["ecto.reset", "test"],
       t: ["test"],
       c: ["coveralls.html"],
-      s: ["phx.server"]
+      s: ["phx.server"],
+      o: ["open cover/excoveralls.html"]
     ]
   end
 end

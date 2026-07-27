@@ -5,7 +5,7 @@ defmodule AppWeb.ListView do
     if list.seq == nil do
       "0"
     else
-      list.seq |> String.split(",") |> length |> to_string
+      list.seq |> String.split(",") |> length() |> to_string()
     end
   end
 

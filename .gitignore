@@ -47,6 +47,7 @@ npm-debug.log
 .vscode/
 
 .env
+.env_digital_ocean_localhost
 hoppscotch/node_modules
 .postgres-cert.crt
 ca-certificate.crt

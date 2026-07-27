@@ -395,7 +395,7 @@ defmodule App.Item do
 
     Enum.each(items, fn i ->
       # coveralls-ignore-start
-      unless Map.has_key?(i, :cid) do
+      if !Map.has_key?(i, :cid) do
         item = %{
           person_id: i.person_id,
           status: i.status,
