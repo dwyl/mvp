@@ -251,7 +251,7 @@ defmodule App.Item do
 
     accumulate_item_timers(values, seq)
     |> Enum.map(fn t ->
-      if t != nil do
+      if t != nil && items_tags[t.id] != nil do
         Map.put(t, :tags, items_tags[t.id].tags)
       end
     end)

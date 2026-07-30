@@ -66,6 +66,12 @@ defmodule AppWeb.AppLive do
        tags: tags,
        selected_tags: selected_tags,
        text_value: draft_item.text || "",
+       vars: %{ # workaround for annoying warning about single quoted strings.
+        cursor_default: "cursor-default",
+        cursor_grab: "cursor-grab",
+        false: "false",
+        true: "true"
+       },
        # Offset from the client to UTC. If it's "1", it means we are one hour ahead of UTC.
        hours_offset_fromUTC:
          get_connect_params(socket)["hours_offset_fromUTC"] || 0
