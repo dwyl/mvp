@@ -147,8 +147,10 @@
       <li
         id={"item-#{item.id}"}
         data-id={item.id}
-        class={"mt-2 flex flex-col w-full border-t border-slate-200 py-2 item #{if item.id == @editing do 'cursor-default' else 'cursor-grab' end}"}
-        draggable={"#{if item.id == @editing do 'false' else 'true' end}"}
+        class={"mt-2 flex flex-col w-full border-t border-slate-200 py-2 item 
+          #{if item.id == @editing do @vars.cursor_default 
+              else @vars.cursor_grab end}"}
+        draggable={"#{if item.id == @editing do @vars.false else @vars.true end}"}
         x-data="{selected: false}"
         x-on:dragstart="selected = true; $dispatch('highlight', {id: $el.id}); selected_item = $el"
         x-on:dragend="selected = false; $dispatch('remove-highlight', {id: $el.id}); selected_item = null; $dispatch('update_indexes', {fromItemId: $el.dataset.id})"

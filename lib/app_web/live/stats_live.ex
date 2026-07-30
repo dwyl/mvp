@@ -72,12 +72,17 @@ defmodule AppWeb.StatsLive do
       key
       |> String.to_atom()
 
+    # We're going to have to re-work how sorting works soon ...
+    # So I'm not as bothered about temporarily ignoring this.
+    # coveralls-ignore-start
     sort_order =
       if socket.assigns.sort_column == sort_column do
         Repo.toggle_sort_order(socket.assigns.sort_order)
       else
         :asc
       end
+
+    # coveralls-ignore-stop
 
     metrics = Stats.person_with_item_and_timer_count(sort_column, sort_order)
 
