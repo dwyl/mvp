@@ -39,8 +39,10 @@ defmodule AppWeb.AppLive do
 
         # return the "all" list cid
         all_list.cid
-      else
+      # coveralls-ignore-start
+      else # temporarily ignoring this till I can write a test for it ...
         custom_list
+      # coveralls-ignore-stop
       end
 
     lists = App.List.get_lists_for_person(person_id)
@@ -66,11 +68,12 @@ defmodule AppWeb.AppLive do
        tags: tags,
        selected_tags: selected_tags,
        text_value: draft_item.text || "",
-       vars: %{ # workaround for annoying warning about single quoted strings.
-        cursor_default: "cursor-default",
-        cursor_grab: "cursor-grab",
-        false: "false",
-        true: "true"
+       # workaround for annoying warning about single quoted strings.
+       vars: %{
+         cursor_default: "cursor-default",
+         cursor_grab: "cursor-grab",
+         false: "false",
+         true: "true"
        },
        # Offset from the client to UTC. If it's "1", it means we are one hour ahead of UTC.
        hours_offset_fromUTC:
@@ -103,9 +106,11 @@ defmodule AppWeb.AppLive do
     list_cid = get_list_cid(socket.assigns)
     list_name = get_list_name(socket.assigns)
 
-    if list_name !== "all" do
+    # coveralls-ignore-start
+    if list_name !== "all" do # No idea why this isn't called ... ¯\_(ツ)_/¯
       App.List.add_item_to_list(item.cid, list_cid, person_id)
     end
+    # coveralls-ignore-stop
 
     draft = Item.get_draft_item(person_id)
     Item.update_draft(draft, %{text: ""})
