@@ -29,6 +29,7 @@ defmodule AppWeb.AppLive do
 
     custom_list = list_cid_from_url_params(params)
 
+    # temporarily ignoring this till I can write a test for it ...
     list_cid =
       if custom_list == nil do
         # Create or Get the "all" list for the person_id
@@ -39,10 +40,10 @@ defmodule AppWeb.AppLive do
 
         # return the "all" list cid
         all_list.cid
-      # coveralls-ignore-start
-      else # temporarily ignoring this till I can write a test for it ...
+        # coveralls-ignore-start
+      else
         custom_list
-      # coveralls-ignore-stop
+        # coveralls-ignore-stop
       end
 
     lists = App.List.get_lists_for_person(person_id)
@@ -107,9 +108,11 @@ defmodule AppWeb.AppLive do
     list_name = get_list_name(socket.assigns)
 
     # coveralls-ignore-start
-    if list_name !== "all" do # No idea why this isn't called ... ¯\_(ツ)_/¯
+    # No idea why this isn't called ... ¯\_(ツ)_/¯
+    if list_name !== "all" do
       App.List.add_item_to_list(item.cid, list_cid, person_id)
     end
+
     # coveralls-ignore-stop
 
     draft = Item.get_draft_item(person_id)
