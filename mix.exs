@@ -80,7 +80,7 @@ defmodule App.MixProject do
       {:paper_trail, "~> 1.1.2"},
 
       # Time string parsing: github.com/bitwalker/timex
-      {:timex, "~> 3.7"},
+      {:timex, "~> 4.0"},
 
       # Useful functions: github.com/dwyl/useful
       {:useful, "~> 1.15.0", override: true},
